@@ -18,13 +18,21 @@ import javafx.scene.control.Label;
  */
 public class FXMLDocumentController implements Initializable {
   
+  boolean testing = true;
+  
   @FXML
-  private Label label;
+  private Label statusbar;
   
   @FXML
   private void handleButtonAction(ActionEvent event) {
     System.out.println("You clicked me!");
-    label.setText("Hello World!");
+    if (testing) {
+      statusbar.setText("Hello World!");
+      testing = false;
+    } else {
+      statusbar.setText("Testing...");
+      testing = true;
+    }
   }
   
   @Override
