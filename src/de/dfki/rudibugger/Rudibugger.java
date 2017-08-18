@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 /**
  *
- * @author christophe
+ * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class Rudibugger extends Application {
   
