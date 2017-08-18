@@ -56,11 +56,6 @@
                                  </children></AnchorPane>
                            </content>
                         </Tab>
-                        <Tab text="Mant">
-                           <content>
-                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                           </content>
-                        </Tab>
                      </tabs>
                   </TabPane>
                </children>
@@ -124,7 +119,7 @@
                   <Insets bottom="2.0" top="2.0" />
                </padding>
             </Label>
-            <ProgressIndicator progress="0.43">
+            <ProgressIndicator disable="true" progress="0.43">
                <padding>
                   <Insets bottom="2.0" top="2.0" />
                </padding>
