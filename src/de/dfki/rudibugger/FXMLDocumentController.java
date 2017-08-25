@@ -64,6 +64,11 @@ public class FXMLDocumentController implements Initializable {
     }
   }
   
+  @FXML
+  private void closeApplication(ActionEvent event) {
+    Rudibugger.exitRudibugger();
+  }
+  
   @Override
   public void initialize(URL url, ResourceBundle rb) {
     tabpanex.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);

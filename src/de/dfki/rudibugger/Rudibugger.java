@@ -6,6 +6,7 @@
 package de.dfki.rudibugger;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -32,6 +33,10 @@ public class Rudibugger extends Application {
    */
   public static void main(String[] args) {
     launch(args);
+  }
+  
+  public static void exitRudibugger() {
+    Platform.exit();
   }
   
 }
