@@ -53,11 +53,13 @@ public class Rudibugger extends Application {
     FileChooser fileChooser = new FileChooser();
     
     //Set extension filter
-    FileChooser.ExtensionFilter extFilterRUDI = new FileChooser.ExtensionFilter("RUDI files (*.rudi)", "*.rudi");
+    FileChooser.ExtensionFilter extFilterRUDI = new FileChooser.ExtensionFilter("RUDI files (*.rudi)", "*.rudi", "*.RUDI");
+    FileChooser.ExtensionFilter extFilterALL = new FileChooser.ExtensionFilter("All files", "*.*");
     fileChooser.getExtensionFilters().addAll(extFilterRUDI);
+    fileChooser.getExtensionFilters().addAll(extFilterALL);
     
     fileChooser.setTitle("Open .rudi file");
-    fileChooser.showOpenDialog(stageX);
+    fileChooser.showOpenMultipleDialog(stageX);
   }
   
   public static void exitRudibugger() {
