@@ -69,6 +69,11 @@ public class FXMLDocumentController implements Initializable {
     Rudibugger.exitRudibugger();
   }
   
+  @FXML
+  private void openFile(ActionEvent event) {
+    Rudibugger.getInstance().openFile();
+  }
+  
   @Override
   public void initialize(URL url, ResourceBundle rb) {
     tabpanex.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
