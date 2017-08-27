@@ -21,17 +21,15 @@ import org.fxmisc.richtext.LineNumberFactory;
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class FXMLController implements Initializable {
-    
+
   boolean testing = true;
-  
+
   @FXML
   private Label statusbar;
-  
+
   @FXML
   private TabPane tabpanex;
-  
 
-  
   @FXML
   private void handleButtonAction(ActionEvent event) {
     System.out.println("You clicked me!");
@@ -50,11 +48,11 @@ public class FXMLController implements Initializable {
     Tab tab = new Tab("Tab " + (tabpanex.getTabs().size() + 1));
     tabpanex.getTabs().add(tab);
     tabpanex.getSelectionModel().select(tab);
-    
-    AnchorPane content = new AnchorPane();     
+
+    AnchorPane content = new AnchorPane();
     CodeArea textArea = new CodeArea();
     textArea.setParagraphGraphicFactory(LineNumberFactory.get(textArea));
-    
+
     // set TextArea to fit parent Anchor Pane
     AnchorPane.setTopAnchor(textArea, 0.0);
     AnchorPane.setRightAnchor(textArea, 0.0);
@@ -64,31 +62,31 @@ public class FXMLController implements Initializable {
     content.getChildren().add(textArea);
     tab.setContent(content);
   }
-  
+
   @FXML
   private void tabClicked(MouseEvent event) {
     System.out.println("tab clicked!");
-    
+
     if (event.getButton() == MouseButton.MIDDLE) {
       System.out.println("Middle mouse button clicked!");
       Tab selectedTab = tabpanex.getSelectionModel().getSelectedItem();
       System.out.println(selectedTab);
     }
   }
-  
+
   @FXML
   private void closeApplication(ActionEvent event) {
     MainApp.exitRudibugger();
   }
-  
+
   @FXML
   private void openFile(ActionEvent event) throws FileNotFoundException {
     MainApp.getInstance().openFile(tabpanex);
   }
-  
+
   @Override
   public void initialize(URL url, ResourceBundle rb) {
     tabpanex.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
-  }  
-  
+  }
+
 }
