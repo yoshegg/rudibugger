@@ -5,6 +5,10 @@
  */
 package de.dfki.rudibugger;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -59,7 +63,10 @@ public class Rudibugger extends Application {
     fileChooser.getExtensionFilters().addAll(extFilterALL);
     
     fileChooser.setTitle("Open .rudi file");
-    fileChooser.showOpenMultipleDialog(stageX);
+    List selectedFiles = fileChooser.showOpenMultipleDialog(stageX);
+    System.out.println(selectedFiles);
+    
+    
   }
   
   public static void exitRudibugger() {
