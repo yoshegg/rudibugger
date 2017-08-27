@@ -1,5 +1,6 @@
 package de.dfki.rudibugger;
 
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -9,11 +10,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
 
 /**
  *
@@ -51,7 +52,8 @@ public class FXMLController implements Initializable {
     tabpanex.getSelectionModel().select(tab);
     
     AnchorPane content = new AnchorPane();     
-    TextArea textArea = new TextArea();
+    CodeArea textArea = new CodeArea();
+    textArea.setParagraphGraphicFactory(LineNumberFactory.get(textArea));
     
     // set TextArea to fit parent Anchor Pane
     AnchorPane.setTopAnchor(textArea, 0.0);
@@ -80,8 +82,8 @@ public class FXMLController implements Initializable {
   }
   
   @FXML
-  private void openFile(ActionEvent event) {
-    MainApp.getInstance().openFile();
+  private void openFile(ActionEvent event) throws FileNotFoundException {
+    MainApp.getInstance().openFile(tabpanex);
   }
   
   @Override
