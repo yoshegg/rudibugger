@@ -1,16 +1,22 @@
 package de.dfki.rudibugger;
 
+import de.dfki.rudibugger.folderstructure.RudiTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -30,6 +36,9 @@ public class FXMLController implements Initializable {
 
   @FXML
   private TabPane tabpanex;
+
+  @FXML
+  private TreeView treeviewx;
 
   @FXML
   private void handleButtonAction(ActionEvent event) {
@@ -69,9 +78,33 @@ public class FXMLController implements Initializable {
     MainApp.getInstance().openFile(tabpanex);
   }
 
+  @FXML
+  private void openProject(ActionEvent event) {
+    MainApp.getInstance().openProject(treeviewx);
+  }
+
   @Override
   public void initialize(URL url, ResourceBundle rb) {
     tabpanex.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
-  }
 
+    // https://stackoverflow.com/questions/17348357/how-to-trigger-event-when-double-click-on-a-tree-node
+    treeviewx.setOnMouseClicked(new EventHandler<MouseEvent>() {
+      @Override
+      public void handle(MouseEvent mouseEvent) {
+        if (mouseEvent.getClickCount() == 2) {
+          Object test = treeviewx.getSelectionModel().getSelectedItem();
+          if (test instanceof RudiTreeItem) {
+            RudiTreeItem item = (RudiTreeItem) test;
+            System.out.println("Selected Text : " + item.getValue());
+            RudiTab tabdata;
+            try {
+              tabdata = new RudiTab(tabpanex, item.getFile());
+            } catch (FileNotFoundException ex) {
+              Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+          }
+        }
+      }
+    });
+  }
 }

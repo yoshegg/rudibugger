@@ -28,7 +28,7 @@
                      <items>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                            <children>
-                              <TreeView editable="true" layoutX="69.0" layoutY="76.0" prefHeight="301.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <TreeView fx:id="treeviewx" editable="true" layoutX="69.0" layoutY="76.0" prefHeight="301.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                            </children></AnchorPane>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
                      </items>
@@ -52,6 +52,8 @@
                      <items>
                         <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open file(s) to tab(s)..." />
                         <MenuItem mnemonicParsing="false" text="Close file" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#openProject" text="Open project directory" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Exit" />
                      </items>
