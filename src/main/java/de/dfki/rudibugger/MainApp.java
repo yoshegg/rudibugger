@@ -37,6 +37,8 @@ public class MainApp extends Application {
 
   Stage stageX;
 
+  File projectX;
+
   @Override
   public void start(Stage stage) throws Exception {
     stageX = stage;
@@ -102,6 +104,7 @@ public class MainApp extends Application {
 
         alert.showAndWait();
     } else {
+        projectX = choice;
         treeviewx.setRoot(getNodesForDirectory(choice));
         treeviewx.getRoot().setExpanded(true);
     }
@@ -113,7 +116,6 @@ public class MainApp extends Application {
   public TreeItem<String> getNodesForDirectory(File directory) {
     TreeItem<String> root = new TreeItem<String>(directory.getName());
     for (File f : directory.listFiles()) {
-      System.out.println("Loading " + f.getName());
       if (f.isDirectory()) { //Then we call the function recursively
         root.getChildren().add(getNodesForDirectory(f));
       } else {
