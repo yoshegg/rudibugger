@@ -1,5 +1,6 @@
 package de.dfki.rudibugger;
 
+import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -43,24 +44,8 @@ public class FXMLController implements Initializable {
   }
 
   @FXML
-  private void openNewTab(ActionEvent event) {
-    System.out.println("new Tab!");
-    Tab tab = new Tab("Tab " + (tabpanex.getTabs().size() + 1));
-    tabpanex.getTabs().add(tab);
-    tabpanex.getSelectionModel().select(tab);
-
-    AnchorPane content = new AnchorPane();
-    CodeArea textArea = new CodeArea();
-    textArea.setParagraphGraphicFactory(LineNumberFactory.get(textArea));
-
-    // set TextArea to fit parent Anchor Pane
-    AnchorPane.setTopAnchor(textArea, 0.0);
-    AnchorPane.setRightAnchor(textArea, 0.0);
-    AnchorPane.setLeftAnchor(textArea, 0.0);
-    AnchorPane.setBottomAnchor(textArea, 0.0);
-    //textArea.setId("test");
-    content.getChildren().add(textArea);
-    tab.setContent(content);
+  private void openNewTab(ActionEvent event) throws FileNotFoundException {
+    RudiTab tab = new RudiTab(tabpanex);
   }
 
   @FXML

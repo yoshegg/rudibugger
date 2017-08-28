@@ -1,5 +1,6 @@
 package de.dfki.rudibugger;
 
+import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -13,11 +14,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
+import org.fxmisc.richtext.StyledTextArea;
 
 /**
  *
@@ -71,36 +75,12 @@ public class MainApp extends Application {
     fileChooser.getExtensionFilters().addAll(extFilterRUDI);
     fileChooser.getExtensionFilters().addAll(extFilterALL);
 
-    fileChooser.setTitle("Open .rudi file");
+    fileChooser.setTitle("Open .rudi file(s)");
     List selectedFiles = fileChooser.showOpenMultipleDialog(stageX);
 
-    // iterate over chosen files:
+    // iterate over chosen files and open them in a new tab
     for (Object file : selectedFiles) {
-
-      // create new tab
-      Tab tab = new Tab("Tab " + (tabpanex.getTabs().size() + 1));
-      tabpanex.getTabs().add(tab);
-      tabpanex.getSelectionModel().select(tab);
-
-      AnchorPane content = new AnchorPane();
-      CodeArea textArea = new CodeArea();
-      textArea.setWrapText(true);
-      textArea.setParagraphGraphicFactory(LineNumberFactory.get(textArea));
-
-      // set TextArea to fit parent Anchor Pane
-      AnchorPane.setTopAnchor(textArea, 0.0);
-      AnchorPane.setRightAnchor(textArea, 0.0);
-      AnchorPane.setLeftAnchor(textArea, 0.0);
-      AnchorPane.setBottomAnchor(textArea, 0.0);
-      //textArea.setId("test");
-      content.getChildren().add(textArea);
-      tab.setContent(content);
-
-      // https://stackoverflow.com/questions/27222205/javafx-read-from-text-file-and-display-in-textarea
-      Scanner s = new Scanner((File) file).useDelimiter("\n");
-      while (s.hasNext()) {
-        textArea.appendText(s.next() + "\n");
-      }
+      RudiTab tab = new RudiTab(tabpanex, (File) file);
     }
   }
 
