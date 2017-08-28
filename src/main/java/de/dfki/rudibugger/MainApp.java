@@ -84,6 +84,7 @@ public class MainApp extends Application {
 
       AnchorPane content = new AnchorPane();
       CodeArea textArea = new CodeArea();
+      textArea.setWrapText(true);
       textArea.setParagraphGraphicFactory(LineNumberFactory.get(textArea));
 
       // set TextArea to fit parent Anchor Pane
