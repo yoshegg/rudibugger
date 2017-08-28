@@ -39,6 +39,13 @@ public class RudiTab extends Tab {
     tabpane.getTabs().add(tab);
     tabpane.getSelectionModel().select(tab);
 
+    // give the tab a name
+    if (file == null) {
+      tab.setText("Untitled " +  tab.getText());
+    } else {
+      tab.setText(file.getName());
+    }
+
     // create a CodeArea
     CodeArea codeArea = new CodeArea();
     codeArea.setWrapText(false); // does not work well
