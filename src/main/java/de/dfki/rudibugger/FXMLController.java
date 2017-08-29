@@ -1,5 +1,6 @@
 package de.dfki.rudibugger;
 
+import static de.dfki.rudibugger.MainApp.log;
 import de.dfki.rudibugger.folderstructure.RudiTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.FileNotFoundException;
@@ -29,6 +30,12 @@ import javafx.scene.input.MouseEvent;
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class FXMLController implements Initializable {
+
+  private final Model model;
+
+  public FXMLController(Model model) {
+    this.model = model;
+  }
 
   boolean testing = true;
 
@@ -76,14 +83,14 @@ public class FXMLController implements Initializable {
 
   @FXML
   private void openFile(ActionEvent event) throws FileNotFoundException {
-    MainApp.getInstance().openFile(tabpanex);
+    model.openFile(tabpanex);
   }
 
   @FXML
   private void openProject(ActionEvent event) {
     if (treeviewx.getRoot() != null) {
-      MainApp.getInstance().log.debug("A project is already opened.");
-      MainApp.getInstance().log.debug("Asking wether it should be replaced.");
+      log.debug("A project is already opened.");
+      log.debug("Asking whether it should be replaced.");
       Alert alert = new Alert(AlertType.CONFIRMATION);
       alert.setHeaderText("Open new project?");
       alert.setContentText("There is already an opened project: \n" + treeviewx.getRoot().getValue()
@@ -91,17 +98,17 @@ public class FXMLController implements Initializable {
 
       Optional<ButtonType> result = alert.showAndWait();
       if (result.get() == ButtonType.OK) {
-        MainApp.getInstance().openProject(treeviewx);
+        model.openProject(treeviewx);
       }
     } else {
-      MainApp.getInstance().openProject(treeviewx);
+      model.openProject(treeviewx);
     }
   }
 
   @FXML
   private void closeProject(ActionEvent event) {
     treeviewx.setRoot(null);
-    MainApp.getInstance().log.info("Closed project");
+    log.info("Closed project");
   }
 
   @Override
