@@ -15,13 +15,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
 
 /**
  *
@@ -81,6 +77,12 @@ public class FXMLController implements Initializable {
   @FXML
   private void openProject(ActionEvent event) {
     MainApp.getInstance().openProject(treeviewx);
+  }
+
+  @FXML
+  private void closeProject(ActionEvent event) {
+    treeviewx.setRoot(null);
+    MainApp.getInstance().log.info("Closed project");
   }
 
   @Override

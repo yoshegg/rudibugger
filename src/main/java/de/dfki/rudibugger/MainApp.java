@@ -74,7 +74,7 @@ public class MainApp extends Application {
   }
 
   public void openFile(TabPane tabpanex) throws FileNotFoundException {
-    log.debug("Opening file chooser.");
+    log.debug("Opening file chooser...");
     FileChooser fileChooser = new FileChooser();
 
     // Set extension filter
@@ -97,6 +97,7 @@ public class MainApp extends Application {
 
   // https://stackoverflow.com/questions/35070310/javafx-representing-directories
   public void openProject(TreeView treeviewx) {
+    log.debug("Opening project chooser...");
     DirectoryChooser dc = new DirectoryChooser();
     dc.setInitialDirectory(new File(System.getProperty("user.home")));
     dc.setTitle("Open project directory");

@@ -54,6 +54,7 @@
                         <MenuItem mnemonicParsing="false" text="Close file" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#openProject" text="Open project directory" />
+                        <MenuItem mnemonicParsing="false" onAction="#closeProject" text="Close project" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Exit" />
                      </items>
