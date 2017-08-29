@@ -47,7 +47,7 @@
                 <executions>
                     <execution>
                         <id>unpack-dependencies</id>
-                        
+
                         <phase>package</phase>
                         <goals>
                             <goal>exec</goal>
@@ -71,14 +71,14 @@
                     <execution>
                         <id>default-cli</id>
                         <goals>
-                            <goal>exec</goal>                            
+                            <goal>exec</goal>
                         </goals>
                         <configuration>
                             <executable>${java.home}/bin/java</executable>
                             <commandlineArgs>${runfx.args}</commandlineArgs>
                         </configuration>
                     </execution>
-                </executions>  
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -104,13 +104,22 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <dependencies>
+
       <dependency>
         <groupId>org.fxmisc.richtext</groupId>
         <artifactId>richtextfx</artifactId>
         <version>0.7-M5</version>
       </dependency>
+
+      <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+      <type>jar</type>
+    </dependency>
+    
     </dependencies>
 
 </project>

@@ -18,6 +18,9 @@ import javafx.scene.control.TreeView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 /**
  *
@@ -25,12 +28,16 @@ import javafx.stage.Stage;
  */
 public class MainApp extends Application {
 
+  static Logger log = Logger.getLogger("rudiLog");
+
   Stage stageX;
 
   File projectX;
 
   @Override
   public void start(Stage stage) throws Exception {
+    BasicConfigurator.configure();
+    PropertyConfigurator.configure("src/main/resources/log4j/log4j.properties");
     stageX = stage;
     Parent root = FXMLLoader.load(getClass().getResource("/fxml/Scene.fxml"));
 
@@ -65,6 +72,7 @@ public class MainApp extends Application {
   }
 
   public void openFile(TabPane tabpanex) throws FileNotFoundException {
+    log.debug("Opening file chooser.");
     FileChooser fileChooser = new FileChooser();
 
     // Set extension filter
