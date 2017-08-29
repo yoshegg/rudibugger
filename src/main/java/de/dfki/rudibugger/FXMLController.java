@@ -4,6 +4,7 @@ import de.dfki.rudibugger.folderstructure.RudiTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,6 +12,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -76,7 +81,21 @@ public class FXMLController implements Initializable {
 
   @FXML
   private void openProject(ActionEvent event) {
-    MainApp.getInstance().openProject(treeviewx);
+    if (treeviewx.getRoot() != null) {
+      MainApp.getInstance().log.debug("A project is already opened.");
+      MainApp.getInstance().log.debug("Asking wether it should be replaced.");
+      Alert alert = new Alert(AlertType.CONFIRMATION);
+      alert.setHeaderText("Open new project?");
+      alert.setContentText("There is already an opened project: \n" + treeviewx.getRoot().getValue()
+              + "\n\nDo you want to close this project and \nopen another one?");
+
+      Optional<ButtonType> result = alert.showAndWait();
+      if (result.get() == ButtonType.OK) {
+        MainApp.getInstance().openProject(treeviewx);
+      }
+    } else {
+      MainApp.getInstance().openProject(treeviewx);
+    }
   }
 
   @FXML
