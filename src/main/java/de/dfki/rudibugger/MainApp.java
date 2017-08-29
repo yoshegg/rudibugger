@@ -38,6 +38,7 @@ public class MainApp extends Application {
   public void start(Stage stage) throws Exception {
     BasicConfigurator.configure();
     PropertyConfigurator.configure("src/main/resources/log4j/log4j.properties");
+    log.info("Starting Rudibugger");
     stageX = stage;
     Parent root = FXMLLoader.load(getClass().getResource("/fxml/Scene.fxml"));
 
@@ -47,6 +48,7 @@ public class MainApp extends Application {
     stage.setTitle("Rudibugger (beta)");
     stage.setScene(scene);
     stage.show();
+    log.info("Rudibugger has been started");
   }
 
   private static MainApp instance;
@@ -83,7 +85,10 @@ public class MainApp extends Application {
 
     fileChooser.setTitle("Open .rudi file(s)");
     List selectedFiles = fileChooser.showOpenMultipleDialog(stageX);
-
+    if (selectedFiles == null) {
+      log.debug("Aborted selection of .rudi file(s)");
+      return;
+    }
     // iterate over chosen files and open them in a new tab
     for (Object file : selectedFiles) {
       RudiTab tab = new RudiTab(tabpanex, (File) file);
@@ -94,15 +99,13 @@ public class MainApp extends Application {
   public void openProject(TreeView treeviewx) {
     DirectoryChooser dc = new DirectoryChooser();
     dc.setInitialDirectory(new File(System.getProperty("user.home")));
+    dc.setTitle("Open project directory");
     File choice = dc.showDialog(stageX);
-    if(choice == null || ! choice.isDirectory()) {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setHeaderText("Could not open directory");
-        alert.setContentText("The file is invalid.");
-
-        alert.showAndWait();
+    if (choice == null) {
+      log.debug("Aborted selection of project directory");
     } else {
         projectX = choice;
+        log.info("Chose " + projectX.getAbsolutePath() + "as project's path.");
         treeviewx.setRoot(getNodesForDirectory(choice));
         treeviewx.getRoot().setExpanded(true);
     }
