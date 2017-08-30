@@ -11,15 +11,16 @@ import java.util.Scanner;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
+import org.apache.log4j.Logger;
 import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
 
 /**
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RudiTab extends Tab {
+
+  static Logger log = Logger.getLogger("rudiLog");
 
   /**
    * creates a new empty tab with codeArea
@@ -47,10 +48,12 @@ public class RudiTab extends Tab {
     }
 
     // create a CodeArea
-    CodeArea codeArea = new CodeArea();
-    codeArea.setWrapText(false); // does not work well
-    codeArea.setParagraphGraphicFactory(
-            LineNumberFactory.get(codeArea, digits -> "%"+ (digits < 2 ? 2 : digits) + "d"));
+    RudiCodeArea codeArea = new RudiCodeArea();
+    codeArea.initializeCodeArea();
+
+//    codeArea.setWrapText(false); // does not work well
+//    codeArea.setParagraphGraphicFactory(
+//            LineNumberFactory.get(codeArea, digits -> "%"+ (digits < 2 ? 2 : digits) + "d"));
 
     // add Scrollbar to tab's content
     VirtualizedScrollPane textAreaWithScrollBar = new VirtualizedScrollPane<>(codeArea);
@@ -61,6 +64,13 @@ public class RudiTab extends Tab {
     AnchorPane.setLeftAnchor(textAreaWithScrollBar, 0.0);
     AnchorPane.setBottomAnchor(textAreaWithScrollBar, 0.0);
     AnchorPane content = new AnchorPane(textAreaWithScrollBar);
+
+    // set css
+    try {
+      content.getStylesheets().add("/styles/java-keywords.css");
+    } catch (NullPointerException e) {
+      log.fatal("The provided css file could not be found.");
+    }
 
     // read in file (if provided)
     // https://stackoverflow.com/questions/27222205/javafx-read-from-text-file-and-display-in-textarea

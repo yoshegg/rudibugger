@@ -91,5 +91,7 @@ public class Model {
     return root;
   }
 
-
+  public void newEmptyTab(TabPane tabpane) throws FileNotFoundException {
+    new RudiTab(tabpane);
+  }
 }

@@ -48,6 +48,7 @@
                <menus>
                   <Menu mnemonicParsing="false" text="File">
                      <items>
+                        <MenuItem mnemonicParsing="false" onAction="#newEmptyTab" text="New empty tab" />
                         <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open file(s) to tab(s)..." />
                         <MenuItem mnemonicParsing="false" text="Close file" />
                         <SeparatorMenuItem mnemonicParsing="false" />

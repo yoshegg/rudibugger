@@ -64,6 +64,12 @@ public class FXMLController implements Initializable {
     MainApp.exitRudibugger();
   }
 
+  /* File -> New empty tab */
+  @FXML
+  private void newEmptyTab(ActionEvent event) throws FileNotFoundException {
+    model.newEmptyTab(tabpanex);
+  }
+
   /* File -> Open file(s) to tabs(s)... */
   @FXML
   private void openFile(ActionEvent event) throws FileNotFoundException {
