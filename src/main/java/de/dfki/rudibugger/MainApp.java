@@ -1,22 +1,10 @@
 package de.dfki.rudibugger;
 
-import de.dfki.rudibugger.folderstructure.RudiTreeItem;
-import de.dfki.rudibugger.tabs.RudiTab;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.List;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.log4j.BasicConfigurator;
