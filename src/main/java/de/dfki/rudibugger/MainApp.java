@@ -32,11 +32,11 @@ public class MainApp extends Application {
     FXMLLoader loader = new FXMLLoader();
     loader.setLocation(getClass().getResource("/fxml/Scene.fxml"));
     loader.setControllerFactory(new Callback<Class<?>, Object>() {
-            @Override
-            public Object call(Class<?> aClass) {
-                return new FXMLController(model);
-            }
-        });
+      @Override
+      public Object call(Class<?> aClass) {
+        return new FXMLController(model);
+      }
+    });
 
     // bind stage to field
     model.stageX = stage;

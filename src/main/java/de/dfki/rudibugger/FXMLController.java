@@ -1,14 +1,12 @@
 package de.dfki.rudibugger;
 
-import static de.dfki.rudibugger.MainApp.log;
 import de.dfki.rudibugger.folderstructure.RudiTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -30,13 +28,13 @@ import javafx.scene.input.MouseEvent;
  */
 public class FXMLController implements Initializable {
 
+  static Logger log = Logger.getLogger("rudiLog");
+
   private final Model model;
 
   public FXMLController(Model model) {
     this.model = model;
   }
-
-  boolean testing = true;
 
   @FXML
   private Label statusbar;
@@ -44,69 +42,58 @@ public class FXMLController implements Initializable {
   @FXML
   private TabPane tabpanex;
 
+  /* The treeview in the upper left part of the window */
   @FXML
-  private TreeView treeviewx;
+  private TreeView foldertreeviewx;
 
-  @FXML
-  private void handleButtonAction(ActionEvent event) {
-    System.out.println("You clicked me!");
-    if (testing) {
-      statusbar.setText("Hello World!");
-      testing = false;
-    } else {
-      statusbar.setText("Testing...");
-      testing = true;
-    }
-  }
-
-  @FXML
-  private void openNewTab(ActionEvent event) throws FileNotFoundException {
-    RudiTab tab = new RudiTab(tabpanex);
-  }
-
+  /* Actually just a testing function, will be removed later */
   @FXML
   private void tabClicked(MouseEvent event) {
-    System.out.println("tab clicked!");
+    log.debug("tab clicked!");
 
     if (event.getButton() == MouseButton.MIDDLE) {
-      System.out.println("Middle mouse button clicked!");
+      log.debug("Middle mouse button clicked!");
       Tab selectedTab = tabpanex.getSelectionModel().getSelectedItem();
-      System.out.println(selectedTab);
+      log.debug(selectedTab);
     }
   }
 
+  /* File -> Exit */
   @FXML
   private void closeApplication(ActionEvent event) {
     MainApp.exitRudibugger();
   }
 
+  /* File -> Open file(s) to tabs(s)... */
   @FXML
   private void openFile(ActionEvent event) throws FileNotFoundException {
     model.openFile(tabpanex);
   }
 
+  /* File -> Open project directory... */
   @FXML
   private void openProject(ActionEvent event) {
-    if (treeviewx.getRoot() != null) {
+    if (foldertreeviewx.getRoot() != null) {
       log.debug("A project is already opened.");
       log.debug("Asking whether it should be replaced.");
       Alert alert = new Alert(AlertType.CONFIRMATION);
       alert.setHeaderText("Open new project?");
-      alert.setContentText("There is already an opened project: \n" + treeviewx.getRoot().getValue()
+      alert.setContentText("There is already an opened project: \n" + foldertreeviewx.getRoot().getValue()
               + "\n\nDo you want to close this project and \nopen another one?");
 
       Optional<ButtonType> result = alert.showAndWait();
       if (result.get() == ButtonType.OK) {
-        model.openProject(treeviewx);
+        model.openProject(foldertreeviewx);
       }
     } else {
-      model.openProject(treeviewx);
+      model.openProject(foldertreeviewx);
     }
   }
 
+  /* File -> Close project... */
   @FXML
   private void closeProject(ActionEvent event) {
-    treeviewx.setRoot(null);
+    foldertreeviewx.setRoot(null);
     log.info("Closed project");
   }
 
@@ -115,11 +102,11 @@ public class FXMLController implements Initializable {
     tabpanex.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
 
     // https://stackoverflow.com/questions/17348357/how-to-trigger-event-when-double-click-on-a-tree-node
-    treeviewx.setOnMouseClicked(new EventHandler<MouseEvent>() {
+    foldertreeviewx.setOnMouseClicked(new EventHandler<MouseEvent>() {
       @Override
       public void handle(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() == 2) {
-          Object test = treeviewx.getSelectionModel().getSelectedItem();
+          Object test = foldertreeviewx.getSelectionModel().getSelectedItem();
           if (test instanceof RudiTreeItem) {
             RudiTreeItem item = (RudiTreeItem) test;
             System.out.println("Selected Text : " + item.getValue());
@@ -127,7 +114,7 @@ public class FXMLController implements Initializable {
             try {
               tabdata = new RudiTab(tabpanex, item.getFile());
             } catch (FileNotFoundException ex) {
-              Logger.getLogger(FXMLController.class.getName()).log(Level.SEVERE, null, ex);
+              log.fatal(ex);
             }
           }
         }

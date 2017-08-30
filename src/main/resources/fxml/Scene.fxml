@@ -6,12 +6,10 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -28,7 +26,7 @@
                      <items>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                            <children>
-                              <TreeView fx:id="treeviewx" editable="true" layoutX="69.0" layoutY="76.0" prefHeight="301.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <TreeView fx:id="foldertreeviewx" editable="true" layoutX="69.0" layoutY="76.0" prefHeight="301.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                            </children></AnchorPane>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
                      </items>
@@ -73,9 +71,8 @@
             </MenuBar>
             <ToolBar prefHeight="40.0" prefWidth="200.0">
                <items>
-                  <Button defaultButton="true" mnemonicParsing="false" onAction="#handleButtonAction" text="Compile" />
+                  <Button defaultButton="true" mnemonicParsing="false" text="Compile" />
                   <Button defaultButton="true" mnemonicParsing="false" text="Run" />
-                  <Button fx:id="newTabButton" mnemonicParsing="false" onAction="#openNewTab" text="New Tab" />
                </items>
             </ToolBar>
          </children>
@@ -92,14 +89,6 @@
                   <Insets bottom="2.0" top="2.0" />
                </padding>
             </Label>
-            <ProgressIndicator disable="true" progress="0.43">
-               <padding>
-                  <Insets bottom="2.0" top="2.0" />
-               </padding>
-               <tooltip>
-                  <Tooltip text="blibu" />
-               </tooltip>
-            </ProgressIndicator>
          </children>
       </HBox>
    </bottom>

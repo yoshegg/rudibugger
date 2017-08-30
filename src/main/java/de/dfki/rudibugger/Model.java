@@ -5,7 +5,6 @@
  */
 package de.dfki.rudibugger;
 
-import static de.dfki.rudibugger.MainApp.log;
 import de.dfki.rudibugger.folderstructure.RudiTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.File;
@@ -17,6 +16,7 @@ import javafx.scene.control.TreeView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -24,7 +24,7 @@ import javafx.stage.Stage;
  */
 public class Model {
 
-  // public Logger log;
+  static Logger log = Logger.getLogger("rudiLog");
 
   public Stage stageX;
 
