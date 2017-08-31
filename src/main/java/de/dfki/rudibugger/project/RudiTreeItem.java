@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.dfki.rudibugger.folderstructure;
+package de.dfki.rudibugger.project;
 
 import java.io.File;
 import javafx.scene.control.TreeItem;

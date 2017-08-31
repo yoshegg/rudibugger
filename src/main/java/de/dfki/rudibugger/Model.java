@@ -5,7 +5,7 @@
  */
 package de.dfki.rudibugger;
 
-import de.dfki.rudibugger.folderstructure.RudiTreeItem;
+import de.dfki.rudibugger.project.RudiTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -52,9 +52,25 @@ public class Model {
     }
   }
 
+  public void openProjectYml() {
+    log.debug("Opening project chooser (yml)");
+    FileChooser yml = new FileChooser();
+    yml.setInitialDirectory(new File(System.getProperty("user.home")));
+    yml.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("YAML files (*.yml)", "*.yml", "*.YML", "*.YAML", "*.yaml"));
+    yml.setTitle("Open project .yml");
+    File ymlFile = yml.showOpenDialog(stageX);
+    if (ymlFile == null) {
+      log.debug("Aborted selection of .yml file");
+      return;
+    }
+
+    projectX = ymlFile;
+  }
+
   // https://stackoverflow.com/questions/35070310/javafx-representing-directories
-  public void openProject(TreeView treeviewx) {
-    log.debug("Opening project chooser...");
+  public void openProjectDirectory(TreeView treeviewx) {
+    log.debug("Opening project chooser (directory)");
     DirectoryChooser dc = new DirectoryChooser();
     dc.setInitialDirectory(new File(System.getProperty("user.home")));
     dc.setTitle("Open project directory");

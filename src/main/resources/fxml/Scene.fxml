@@ -52,7 +52,8 @@
                         <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open file(s) to tab(s)..." />
                         <MenuItem mnemonicParsing="false" text="Close file" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" onAction="#openProject" text="Open project directory" />
+                        <MenuItem mnemonicParsing="false" onAction="#openProjectYml" text="Open project .yml file..." />
+                        <MenuItem mnemonicParsing="false" onAction="#openProjectDirectory" text="Open project directory" />
                         <MenuItem mnemonicParsing="false" onAction="#closeProject" text="Close project" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Exit" />
@@ -72,8 +73,8 @@
             </MenuBar>
             <ToolBar prefHeight="40.0" prefWidth="200.0">
                <items>
-                  <Button defaultButton="true" mnemonicParsing="false" text="Compile" />
-                  <Button defaultButton="true" mnemonicParsing="false" text="Run" />
+                  <Button fx:id="compileButton" defaultButton="true" disable="true" mnemonicParsing="false" text="Compile" />
+                  <Button fx:id="runButton" defaultButton="true" disable="true" mnemonicParsing="false" text="Run" />
                </items>
             </ToolBar>
          </children>

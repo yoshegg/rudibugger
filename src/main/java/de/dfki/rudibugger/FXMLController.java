@@ -1,6 +1,6 @@
 package de.dfki.rudibugger;
 
-import de.dfki.rudibugger.folderstructure.RudiTreeItem;
+import de.dfki.rudibugger.project.RudiTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.FileNotFoundException;
 import java.net.URL;
@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -41,6 +42,12 @@ public class FXMLController implements Initializable {
 
   @FXML
   private TabPane tabpanex;
+
+  @FXML
+  private Button compileButton;
+
+  @FXML
+  private Button runButton;
 
   /* The treeview in the upper left part of the window */
   @FXML
@@ -78,7 +85,7 @@ public class FXMLController implements Initializable {
 
   /* File -> Open project directory... */
   @FXML
-  private void openProject(ActionEvent event) {
+  private void openProjectDirectory(ActionEvent event) {
     if (foldertreeviewx.getRoot() != null) {
       log.debug("A project is already opened.");
       log.debug("Asking whether it should be replaced.");
@@ -89,10 +96,21 @@ public class FXMLController implements Initializable {
 
       Optional<ButtonType> result = alert.showAndWait();
       if (result.get() == ButtonType.OK) {
-        model.openProject(foldertreeviewx);
+        model.openProjectDirectory(foldertreeviewx);
       }
     } else {
-      model.openProject(foldertreeviewx);
+      model.openProjectDirectory(foldertreeviewx);
+    }
+  }
+
+  /* File -> Open project .yml file... */
+  @FXML
+  private void openProjectYml(ActionEvent event) {
+    model.openProjectYml();
+    if (model.projectX != null) {
+      runButton.setDisable(false);
+      compileButton.setDisable(false);
+      log.info("Enabled compile and run buttons.");
     }
   }
 
@@ -100,7 +118,12 @@ public class FXMLController implements Initializable {
   @FXML
   private void closeProject(ActionEvent event) {
     foldertreeviewx.setRoot(null);
-    log.info("Closed project");
+    String name = model.projectX.getName();
+    model.projectX = null;
+    log.info("Closed project [" + name + "].");
+    runButton.setDisable(true);
+    compileButton.setDisable(true);
+    log.info("Disabled compile and run buttons.");
   }
 
   @Override
