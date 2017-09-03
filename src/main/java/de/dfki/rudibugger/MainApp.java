@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.log4j.BasicConfigurator;
@@ -47,6 +48,8 @@ public class MainApp extends Application {
     //scene.getStylesheets().add("/styles/Styles.css");
     stage.setTitle("Rudibugger (beta)");
     stage.setScene(scene);
+    Image icon = new Image("file:src/main/resources/icons/baggerschaufel_titlebar_32x32.png");
+    stage.getIcons().add(icon);
 
     // show Rudibugger
     stage.show();
