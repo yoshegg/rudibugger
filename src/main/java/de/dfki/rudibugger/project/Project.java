@@ -26,6 +26,7 @@ public class Project {
     String projName = _ymlFile.getName()
             .substring(0, _ymlFile.getName().length()-4);
     _rootFolder = ymlFile.getParentFile();
+    _rudisFolder = new File(_rootFolder + "/" + PATH_TO_RUDI_FILES);
     log.info("Opening new project [" + projName + "]");
 
 
@@ -62,6 +63,7 @@ public class Project {
   private File _runFile;
   private File _ymlFile;
   private File _rootFolder;
+  private File _rudisFolder;
   private File _ruleLocFile;
   private LinkedHashMap _ymlMap;
   private LinkedHashMap _ruleLocMap;
@@ -90,6 +92,10 @@ public class Project {
 
   public String getRootFolderPath() {
     return ins._rootFolder.getAbsolutePath();
+  }
+
+  public File getRudisFolderPath() {
+    return ins._rudisFolder;
   }
 
   public String getProjectName() {

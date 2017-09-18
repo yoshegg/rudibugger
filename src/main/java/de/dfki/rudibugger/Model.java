@@ -83,6 +83,10 @@ public class Model {
       clearProject();
     }
     projectX = Project.initProject(ymlFile);
+    System.out.println(projectX.getRootFolderPath());
+    System.out.println(projectX.getRudisFolderPath());
+    treeFiles.setRoot(getNodesForDirectory(projectX.getRudisFolderPath()));
+    treeFiles.getRoot().setExpanded(true);
     return true;
   }
 
