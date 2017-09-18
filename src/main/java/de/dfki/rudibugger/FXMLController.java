@@ -106,7 +106,7 @@ public class FXMLController implements Initializable {
       if (result.get() != ButtonType.OK)
         return;
     }
-    model.openProjectDirectory(foldertreeviewx);
+    model.openProjectDirectoryChooser(foldertreeviewx);
   }
 
   /* File -> Open project .yml file... */

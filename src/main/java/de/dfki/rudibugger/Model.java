@@ -87,7 +87,7 @@ public class Model {
   }
 
   // https://stackoverflow.com/questions/35070310/javafx-representing-directories
-  public void openProjectDirectory(TreeView treeviewx) {
+  public void openProjectDirectoryChooser(TreeView treeviewx) {
     log.debug("Opening project chooser (directory)");
     DirectoryChooser dc = new DirectoryChooser();
     dc.setInitialDirectory(new File(System.getProperty("user.home")));
