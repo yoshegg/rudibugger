@@ -10,7 +10,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import javafx.scene.control.CheckBoxTreeItem;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
+import javafx.scene.control.cell.CheckBoxTreeCell;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
@@ -27,11 +34,11 @@ public class Project {
   /* .yml constructor */
   private Project(File ymlFile) {
     _ymlFile = ymlFile;
-    String projName = _ymlFile.getName()
+    _projName = _ymlFile.getName()
             .substring(0, _ymlFile.getName().length()-4);
     _rootFolder = ymlFile.getParentFile();
     _rudisFolder = new File(_rootFolder + "/" + PATH_TO_RUDI_FILES);
-    log.info("Opening new project [" + projName + "]");
+    log.info("Opening new project [" + _projName + "]");
 
     /* load Yaml to work with */
     yaml = new Yaml();
@@ -51,14 +58,19 @@ public class Project {
       _compileFile = null;
       log.info("compile-script has not been found.");
     }
+    retrieveLocRuleTreeView();
 
+
+  }
+
+  public void retrieveLocRuleTreeView() {
     _ruleLocFile = new File(_rootFolder.getPath()
-              + "/" + projName + RULE_LOCATION_SUFFIX);
+              + "/" + _projName + RULE_LOCATION_SUFFIX);
     if (_ruleLocFile.exists()) {
       log.info(_ruleLocFile.getName() + " has been found.");
     } else {
       _ruleLocFile = null;
-      log.info(projName + RULE_LOCATION_SUFFIX + " has not been found.");
+      log.info(_projName + RULE_LOCATION_SUFFIX + " has not been found.");
     }
   }
 
@@ -73,6 +85,7 @@ public class Project {
   private File _ruleLocFile;
   private LinkedHashMap _ymlMap;
   private LinkedHashMap _ruleLocMap;
+  private String _projName;
 
   /* the only instance of the Project */
   private static Project ins = null;
@@ -122,9 +135,42 @@ public class Project {
       return _ruleLocFile;
   }
 
-  public void retrieveRuleLocMap() throws FileNotFoundException {
-    _ruleLocMap = new LinkedHashMap<>();
-    Object load = yaml.load(new FileReader(_ruleLocFile));
-    System.out.println(load);
+  public TreeView retrieveRuleLocMap(TreeView treeRules) throws FileNotFoundException {
+    LinkedHashMap<String,Object> load = (LinkedHashMap<String,Object>)yaml.load(new FileReader(_ruleLocFile));
+    ArrayList<String> keys = new ArrayList<>(load.keySet());
+    if (keys.size() != 1) {
+      log.error("There is more than one main .rudi file.");
+    }
+    String rootKey = keys.get(0);
+    treeRules.setRoot(getNodes(rootKey, load));
+    treeRules.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
+    return treeRules;
+  }
+
+  public TreeItem getNodes(String node, Map load) {
+    TreeItem<String> root = new TreeItem<>(node);
+    for (String f : (Set<String>) ((LinkedHashMap) load.get(node)).keySet()) {
+      // find another Map aka import
+      if (((LinkedHashMap) load.get(node)).get(f) instanceof Map) {
+        root.getChildren().add(getNodes(f, (LinkedHashMap) load.get(node)));
+      }
+
+      // find an integer: f may be a rule and the value its line
+      if (((LinkedHashMap) load.get(node)).get(f) instanceof Integer) {
+        if ("ImportWasInLine".equals(f)) {
+          // ignore for now
+        } else {
+          TreeItem item = new TreeItem(f);
+          root.getChildren().add(item);
+        }
+      }
+      // find a String: the key-value-combination is an ERROR
+      if (((LinkedHashMap) load.get(node)).get(f) instanceof String) {
+        // ignore for now
+      }
+
+
+    }
+    return root;
   }
 }

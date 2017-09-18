@@ -128,11 +128,11 @@ public class FXMLController implements Initializable {
       if (model.projectX != null) {
         if (model.projectX.getRunFile() != null) {
           runButton.setDisable(false);
-          log.info("Enabled run button.");
+          log.debug("Enabled run button.");
         }
         if (model.projectX.getCompileFile() != null) {
           compileButton.setDisable(false);
-          log.info("Enabled compile button.");
+          log.debug("Enabled compile button.");
         }
       }
     }
@@ -144,10 +144,10 @@ public class FXMLController implements Initializable {
     foldertreeviewx.setRoot(null);
     String name = model.projectX.getProjectName();
     Project.clearProject();
-    log.info("Closed project [" + name + "].");
+    log.debug("Closed project [" + name + "].");
     runButton.setDisable(true);
     compileButton.setDisable(true);
-    log.info("Disabled compile and run buttons.");
+    log.debug("Disabled compile and run buttons.");
   }
 
   @FXML
@@ -157,7 +157,7 @@ public class FXMLController implements Initializable {
 
   @FXML
   private void startCompile(ActionEvent event) throws IOException, InterruptedException {
-    model.startCompile();
+    model.startCompile(locRuleViewx);
   }
 
   @Override

@@ -92,7 +92,8 @@ public class Model {
 
     /* retrieve ruleLocMap and show if possible */
     if (projectX.getRuleLocFile() != null) {
-      projectX.retrieveRuleLocMap();
+      treeRules = projectX.retrieveRuleLocMap(treeRules);
+      treeRules.getRoot().setExpanded(true);
     }
     return true;
   }
@@ -140,13 +141,19 @@ public class Model {
     new RudiTab(tabpane);
   }
 
-  public void startCompile() throws IOException, InterruptedException {
+  public void startCompile(TreeView treeRules) throws IOException, InterruptedException {
     log.info("Starting compilation...");
+    Process p;
     if ("Linux".equals(System.getProperty("os.name"))) {
-      Process p = Runtime.getRuntime()
+      p = Runtime.getRuntime()
               .exec("/usr/bin/xterm " + projectX.getCompileFile().toString());
     } else {
-      Process p = Runtime.getRuntime().exec(projectX.getCompileFile().toString());
+      p = Runtime.getRuntime().exec(projectX.getCompileFile().toString());
     }
+    p.waitFor();
+    System.out.println("retrieving");
+    projectX.retrieveLocRuleTreeView();
+    projectX.retrieveRuleLocMap(treeRules);
+    System.out.println("retrieved");
   }
 }
