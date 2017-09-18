@@ -28,7 +28,10 @@
                            <children>
                               <TreeView fx:id="foldertreeviewx" editable="true" layoutX="69.0" layoutY="76.0" prefHeight="301.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                            </children></AnchorPane>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                           <children>
+                              <TreeView fx:id="locRuleViewx" editable="true" prefHeight="301.0" prefWidth="300.0" />
+                           </children></AnchorPane>
                      </items>
                   </SplitPane>
                </children>
@@ -73,8 +76,8 @@
             </MenuBar>
             <ToolBar prefHeight="40.0" prefWidth="200.0">
                <items>
-                  <Button fx:id="compileButton" defaultButton="true" disable="true" mnemonicParsing="false" text="Compile" />
-                  <Button fx:id="runButton" defaultButton="true" disable="true" mnemonicParsing="false" text="Run" />
+                  <Button fx:id="compileButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#startCompile" text="Compile" />
+                  <Button fx:id="runButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#startRun" text="Run" />
                </items>
             </ToolBar>
          </children>

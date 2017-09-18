@@ -1,8 +1,10 @@
 package de.dfki.rudibugger;
 
+import de.dfki.rudibugger.project.Project;
 import de.dfki.rudibugger.project.RudiTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -53,6 +55,12 @@ public class FXMLController implements Initializable {
   @FXML
   private TreeView foldertreeviewx;
 
+  /* The treeview in the lower left part of the window
+   * used to set logging of rules
+   */
+  @FXML
+  private TreeView locRuleViewx;
+
   /* Actually just a testing function, will be removed later */
   @FXML
   private void tabClicked(MouseEvent event) {
@@ -95,22 +103,38 @@ public class FXMLController implements Initializable {
               + "\n\nDo you want to close this project and \nopen another one?");
 
       Optional<ButtonType> result = alert.showAndWait();
-      if (result.get() == ButtonType.OK) {
-        model.openProjectDirectory(foldertreeviewx);
-      }
-    } else {
-      model.openProjectDirectory(foldertreeviewx);
+      if (result.get() != ButtonType.OK)
+        return;
     }
+    model.openProjectDirectory(foldertreeviewx);
   }
 
   /* File -> Open project .yml file... */
   @FXML
   private void openProjectYml(ActionEvent event) {
-    model.openProjectYml();
     if (model.projectX != null) {
-      runButton.setDisable(false);
-      compileButton.setDisable(false);
-      log.info("Enabled compile and run buttons.");
+      log.debug("A project is already opened.");
+      log.debug("Asking whether it should be replaced.");
+      Alert alert = new Alert(AlertType.CONFIRMATION);
+      alert.setHeaderText("Open new project?");
+      alert.setContentText("There is already an opened project: \n" + model.projectX.getProjectName()
+              + "\n\nDo you want to close this project and \nopen another one?");
+
+      Optional<ButtonType> result = alert.showAndWait();
+      if (result.get() != ButtonType.OK)
+        return;
+    }
+    if (model.openProjectYml(foldertreeviewx, locRuleViewx)) {
+      if (model.projectX != null) {
+        if (model.projectX.getRunFile() != null) {
+          runButton.setDisable(false);
+          log.info("Enabled run button.");
+        }
+        if (model.projectX.getCompileFile() != null) {
+          compileButton.setDisable(false);
+          log.info("Enabled compile button.");
+        }
+      }
     }
   }
 
@@ -118,12 +142,22 @@ public class FXMLController implements Initializable {
   @FXML
   private void closeProject(ActionEvent event) {
     foldertreeviewx.setRoot(null);
-    String name = model.projectX.getName();
-    model.projectX = null;
+    String name = model.projectX.getProjectName();
+    Project.clearProject();
     log.info("Closed project [" + name + "].");
     runButton.setDisable(true);
     compileButton.setDisable(true);
     log.info("Disabled compile and run buttons.");
+  }
+
+  @FXML
+  private void startRun(ActionEvent event) {
+
+  }
+
+  @FXML
+  private void startCompile(ActionEvent event) throws IOException, InterruptedException {
+    model.startCompile();
   }
 
   @Override

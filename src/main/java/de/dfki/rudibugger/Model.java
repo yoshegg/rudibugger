@@ -5,10 +5,18 @@
  */
 package de.dfki.rudibugger;
 
+import static de.dfki.rudibugger.FXMLController.log;
+import de.dfki.rudibugger.project.Project;
+import static de.dfki.rudibugger.project.Project.*;
 import de.dfki.rudibugger.project.RudiTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
+import java.awt.GraphicsEnvironment;
+import java.net.URISyntaxException;
+
+import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
@@ -28,7 +36,7 @@ public class Model {
 
   public Stage stageX;
 
-  public File projectX;
+  public Project projectX;
 
   public void openFile(TabPane tabpanex) throws FileNotFoundException {
     log.debug("Opening file chooser...");
@@ -52,20 +60,30 @@ public class Model {
     }
   }
 
-  public void openProjectYml() {
+  /**
+   *
+   * @param treeFiles
+   * @param treeRules
+   * @return true, if new project has been opened, false otherwise
+   */
+  public boolean openProjectYml(TreeView treeFiles, TreeView treeRules) {
     log.debug("Opening project chooser (yml)");
     FileChooser yml = new FileChooser();
     yml.setInitialDirectory(new File(System.getProperty("user.home")));
     yml.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("YAML files (*.yml)", "*.yml", "*.YML", "*.YAML", "*.yaml"));
+            new FileChooser.ExtensionFilter("YAML files (*.yml)", "*.yml", "*.YML"));
     yml.setTitle("Open project .yml");
     File ymlFile = yml.showOpenDialog(stageX);
     if (ymlFile == null) {
       log.debug("Aborted selection of .yml file");
-      return;
+      return false;
     }
-
-    projectX = ymlFile;
+    if (projectX != null) {
+      log.info("Closing old project [" + projectX.getProjectName() + "]");
+      clearProject();
+    }
+    projectX = Project.initProject(ymlFile);
+    return true;
   }
 
   // https://stackoverflow.com/questions/35070310/javafx-representing-directories
@@ -78,8 +96,8 @@ public class Model {
     if (choice == null) {
       log.debug("Aborted selection of project directory");
     } else {
-      projectX = choice;
-      log.info("Chose " + projectX.getAbsolutePath() + " as project's path.");
+      projectX = setDirectory(choice);
+      log.info("Chose " + projectX.getRootFolderPath() + " as project's path.");
       treeviewx.setRoot(getNodesForDirectory(choice));
       treeviewx.getRoot().setExpanded(true);
     }
@@ -109,5 +127,15 @@ public class Model {
 
   public void newEmptyTab(TabPane tabpane) throws FileNotFoundException {
     new RudiTab(tabpane);
+  }
+
+  public void startCompile() throws IOException, InterruptedException {
+    log.info("Starting compilation...");
+    if ("Linux".equals(System.getProperty("os.name"))) {
+      Process p = Runtime.getRuntime()
+              .exec("/usr/bin/xterm " + projectX.getCompileFile().toString());
+    } else {
+      Process p = Runtime.getRuntime().exec(projectX.getCompileFile().toString());
+    }
   }
 }
