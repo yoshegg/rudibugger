@@ -94,45 +94,31 @@ public class FXMLController implements Initializable {
   /* File -> Open project directory... */
   @FXML
   private void openProjectDirectory(ActionEvent event) {
-    if (foldertreeviewx.getRoot() != null) {
-      log.debug("A project is already opened.");
-      log.debug("Asking whether it should be replaced.");
-      Alert alert = new Alert(AlertType.CONFIRMATION);
-      alert.setHeaderText("Open new project?");
-      alert.setContentText("There is already an opened project: \n" + foldertreeviewx.getRoot().getValue()
-              + "\n\nDo you want to close this project and \nopen another one?");
-
-      Optional<ButtonType> result = alert.showAndWait();
-      if (result.get() != ButtonType.OK)
-        return;
+    if (model.projectX != null) {
+      if (Helper.overwriteProjectCheck(model.projectX)) {
+        model.openProjectDirectoryChooser(foldertreeviewx);
+      }
+    } else {
+      model.openProjectDirectoryChooser(foldertreeviewx);
     }
-    model.openProjectDirectoryChooser(foldertreeviewx);
   }
 
   /* File -> Open project .yml file... */
   @FXML
   private void openProjectYml(ActionEvent event) throws FileNotFoundException {
     if (model.projectX != null) {
-      log.debug("A project is already opened.");
-      log.debug("Asking whether it should be replaced.");
-      Alert alert = new Alert(AlertType.CONFIRMATION);
-      alert.setHeaderText("Open new project?");
-      alert.setContentText("There is already an opened project: \n" + model.projectX.getProjectName()
-              + "\n\nDo you want to close this project and \nopen another one?");
+      if (Helper.overwriteProjectCheck(model.projectX)) {
+        if (model.openProjectYml(foldertreeviewx, locRuleViewx)) {
 
-      Optional<ButtonType> result = alert.showAndWait();
-      if (result.get() != ButtonType.OK)
-        return;
-    }
-    if (model.openProjectYml(foldertreeviewx, locRuleViewx)) {
-      if (model.projectX != null) {
-        if (model.projectX.getRunFile() != null) {
-          runButton.setDisable(false);
-          log.debug("Enabled run button.");
-        }
-        if (model.projectX.getCompileFile() != null) {
-          compileButton.setDisable(false);
-          log.debug("Enabled compile button.");
+          // enable buttons of respective files have been found
+          if (model.projectX.getRunFile() != null) {
+            runButton.setDisable(false);
+            log.debug("Enabled run button.");
+          }
+          if (model.projectX.getCompileFile() != null) {
+            compileButton.setDisable(false);
+            log.debug("Enabled compile button.");
+          }
         }
       }
     }
@@ -162,6 +148,8 @@ public class FXMLController implements Initializable {
 
   @Override
   public void initialize(URL url, ResourceBundle rb) {
+    
+    // make all tabs closable with an X button
     tabpanex.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
 
     // https://stackoverflow.com/questions/17348357/how-to-trigger-event-when-double-click-on-a-tree-node

@@ -108,6 +108,7 @@ public class Model {
     if (choice == null) {
       log.debug("Aborted selection of project directory");
     } else {
+      clearProject();
       projectX = setDirectory(choice);
       log.info("Chose " + projectX.getRootFolderPath() + " as project's path.");
       treeviewx.setRoot(getNodesForDirectory(choice));

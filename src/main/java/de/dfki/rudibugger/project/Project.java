@@ -9,12 +9,10 @@ import static de.dfki.rudibugger.Constants.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
@@ -101,6 +99,7 @@ public class Project {
     if (ins == null) {
       ins = new Project();
       ins._rootFolder = directory;
+      ins._projName = directory.getName();
     }
     return ins;
   }
@@ -118,9 +117,7 @@ public class Project {
   }
 
   public String getProjectName() {
-    String wEnding = ins._ymlFile.getName();
-    String woEnding = wEnding.substring(0, wEnding.length()-4);
-    return woEnding;
+    return _projName;
   }
 
   public File getCompileFile() {
