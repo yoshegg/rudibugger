@@ -85,7 +85,9 @@ public class Model {
     projectX = Project.initProject(ymlFile);
     System.out.println(projectX.getRootFolderPath());
     System.out.println(projectX.getRudisFolderPath());
-    treeFiles.setRoot(getNodesForDirectory(projectX.getRudisFolderPath()));
+    TreeItem<String> rudiRoot = getNodesForDirectory(projectX.getRudisFolderPath());
+    rudiRoot.setValue(projectX.getProjectName() + " - .rudi files");
+    treeFiles.setRoot(rudiRoot);
     treeFiles.getRoot().setExpanded(true);
     return true;
   }
