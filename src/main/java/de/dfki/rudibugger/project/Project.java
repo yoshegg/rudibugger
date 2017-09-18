@@ -8,8 +8,11 @@ package de.dfki.rudibugger.project;
 import static de.dfki.rudibugger.Constants.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
 import java.util.LinkedHashMap;
 import org.apache.log4j.Logger;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * This singleton contains all relevant information about the project
@@ -19,6 +22,7 @@ import org.apache.log4j.Logger;
 public class Project {
 
   static Logger log = Logger.getLogger("rudiLog");
+  public Yaml yaml;
 
   /* .yml constructor */
   private Project(File ymlFile) {
@@ -29,6 +33,8 @@ public class Project {
     _rudisFolder = new File(_rootFolder + "/" + PATH_TO_RUDI_FILES);
     log.info("Opening new project [" + projName + "]");
 
+    /* load Yaml to work with */
+    yaml = new Yaml();
 
     _runFile = new File(_rootFolder.getPath() + "/" + RUN_FILE);
     if (_runFile.exists()) {
@@ -110,5 +116,15 @@ public class Project {
 
   public File getRunFile() {
     return _runFile;
+  }
+
+  public File getRuleLocFile() {
+      return _ruleLocFile;
+  }
+
+  public void retrieveRuleLocMap() throws FileNotFoundException {
+    _ruleLocMap = new LinkedHashMap<>();
+    Object load = yaml.load(new FileReader(_ruleLocFile));
+    System.out.println(load);
   }
 }

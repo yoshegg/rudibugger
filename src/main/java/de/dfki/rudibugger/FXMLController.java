@@ -111,7 +111,7 @@ public class FXMLController implements Initializable {
 
   /* File -> Open project .yml file... */
   @FXML
-  private void openProjectYml(ActionEvent event) {
+  private void openProjectYml(ActionEvent event) throws FileNotFoundException {
     if (model.projectX != null) {
       log.debug("A project is already opened.");
       log.debug("Asking whether it should be replaced.");

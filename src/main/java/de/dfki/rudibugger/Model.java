@@ -66,7 +66,8 @@ public class Model {
    * @param treeRules
    * @return true, if new project has been opened, false otherwise
    */
-  public boolean openProjectYml(TreeView treeFiles, TreeView treeRules) {
+  public boolean openProjectYml(TreeView treeFiles, TreeView treeRules)
+          throws FileNotFoundException {
     log.debug("Opening project chooser (yml)");
     FileChooser yml = new FileChooser();
     yml.setInitialDirectory(new File(System.getProperty("user.home")));
@@ -83,12 +84,16 @@ public class Model {
       clearProject();
     }
     projectX = Project.initProject(ymlFile);
-    System.out.println(projectX.getRootFolderPath());
-    System.out.println(projectX.getRudisFolderPath());
+
     TreeItem<String> rudiRoot = getNodesForDirectory(projectX.getRudisFolderPath());
     rudiRoot.setValue(projectX.getProjectName() + " - .rudi files");
     treeFiles.setRoot(rudiRoot);
     treeFiles.getRoot().setExpanded(true);
+
+    /* retrieve ruleLocMap and show if possible */
+    if (projectX.getRuleLocFile() != null) {
+      projectX.retrieveRuleLocMap();
+    }
     return true;
   }
 
