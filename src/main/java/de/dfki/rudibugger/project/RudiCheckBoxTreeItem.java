@@ -11,10 +11,11 @@ import javafx.scene.control.CheckBoxTreeItem;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class RudiLocRuleTreeItem extends CheckBoxTreeItem {
+public class RudiCheckBoxTreeItem extends CheckBoxTreeItem {
 
-  public RudiLocRuleTreeItem(String label) {
+  public RudiCheckBoxTreeItem(String label) {
     super(label);
+    this.indeterminateProperty().set(true);
   }
 
 

@@ -13,9 +13,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import javafx.scene.control.TreeItem;
+import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.control.cell.CheckBoxTreeCell;
+import javafx.scene.control.cell.RudiCheckBoxTreeCell;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
@@ -33,7 +33,7 @@ public class Project {
   private Project(File ymlFile) {
     _ymlFile = ymlFile;
     _projName = _ymlFile.getName()
-            .substring(0, _ymlFile.getName().length()-4);
+            .substring(0, _ymlFile.getName().length() - 4);
     _rootFolder = ymlFile.getParentFile();
     _rudisFolder = new File(_rootFolder + "/" + PATH_TO_RUDI_FILES);
     log.info("Opening new project [" + _projName + "]");
@@ -58,12 +58,11 @@ public class Project {
     }
     retrieveLocRuleTreeView();
 
-
   }
 
   public void retrieveLocRuleTreeView() {
     _ruleLocFile = new File(_rootFolder.getPath()
-              + "/" + _projName + RULE_LOCATION_SUFFIX);
+            + "/" + _projName + RULE_LOCATION_SUFFIX);
     if (_ruleLocFile.exists()) {
       log.info(_ruleLocFile.getName() + " has been found.");
     } else {
@@ -72,7 +71,7 @@ public class Project {
     }
   }
 
-  /* nullary constructor */
+  /* nullary constructor, used when only opening a directory */
   private Project() {}
 
   private File _compileFile;
@@ -129,23 +128,26 @@ public class Project {
   }
 
   public File getRuleLocFile() {
-      return _ruleLocFile;
+    return _ruleLocFile;
   }
 
   public TreeView retrieveRuleLocMap(TreeView treeRules) throws FileNotFoundException {
-    LinkedHashMap<String,Object> load = (LinkedHashMap<String,Object>)yaml.load(new FileReader(_ruleLocFile));
+    LinkedHashMap<String, Object> load
+            = (LinkedHashMap<String, Object>)
+            yaml.load(new FileReader(_ruleLocFile));
     ArrayList<String> keys = new ArrayList<>(load.keySet());
     if (keys.size() != 1) {
       log.error("There is more than one main .rudi file.");
     }
     String rootKey = keys.get(0);
     treeRules.setRoot(getNodes(rootKey, load));
-    treeRules.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
+    treeRules.setCellFactory(RudiCheckBoxTreeCell.<String>forTreeView());
     return treeRules;
   }
 
-  public TreeItem getNodes(String node, Map load) {
-    TreeItem<String> root = new TreeItem<>(node);
+  public CheckBoxTreeItem getNodes(String node, Map load) {
+    CheckBoxTreeItem<String> root = new CheckBoxTreeItem<>(node);
+    root.setExpanded(true);
     for (String f : (Set<String>) ((LinkedHashMap) load.get(node)).keySet()) {
       // find another Map aka import
       if (((LinkedHashMap) load.get(node)).get(f) instanceof Map) {
@@ -157,7 +159,7 @@ public class Project {
         if ("ImportWasInLine".equals(f)) {
           // ignore for now
         } else {
-          TreeItem item = new TreeItem(f);
+          RudiCheckBoxTreeItem item = new RudiCheckBoxTreeItem(f);
           root.getChildren().add(item);
         }
       }
@@ -165,7 +167,6 @@ public class Project {
       if (((LinkedHashMap) load.get(node)).get(f) instanceof String) {
         // ignore for now
       }
-
 
     }
     return root;
