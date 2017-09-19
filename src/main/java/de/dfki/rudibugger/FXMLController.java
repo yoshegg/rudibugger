@@ -6,17 +6,13 @@ import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import org.apache.log4j.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -107,22 +103,21 @@ public class FXMLController implements Initializable {
   @FXML
   private void openProjectYml(ActionEvent event) throws FileNotFoundException {
     if (model.projectX != null) {
-      if (Helper.overwriteProjectCheck(model.projectX)) {
-        if (model.openProjectYml(foldertreeviewx, locRuleViewx)) {
-
-          // enable buttons of respective files have been found
-          if (model.projectX.getRunFile() != null) {
-            runButton.setDisable(false);
-            log.debug("Enabled run button.");
-          }
-          if (model.projectX.getCompileFile() != null) {
-            compileButton.setDisable(false);
-            log.debug("Enabled compile button.");
-          }
-        }
+      if (!Helper.overwriteProjectCheck(model.projectX)) return;
+    }
+    if (model.openProjectYml(foldertreeviewx, locRuleViewx)) {
+      // enable buttons of respective files have been found
+      if (model.projectX.getRunFile() != null) {
+        runButton.setDisable(false);
+        log.debug("Enabled run button.");
+      }
+      if (model.projectX.getCompileFile() != null) {
+        compileButton.setDisable(false);
+        log.debug("Enabled compile button.");
       }
     }
   }
+
 
   /* File -> Close project... */
   @FXML
@@ -148,7 +143,7 @@ public class FXMLController implements Initializable {
 
   @Override
   public void initialize(URL url, ResourceBundle rb) {
-    
+
     // make all tabs closable with an X button
     tabpanex.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
 
