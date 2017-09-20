@@ -1,13 +1,16 @@
-package de.dfki.rudibugger.project;
-
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-
 /*
  * Rudibugger is a debugger for .rudi code
  * written in the context of a bachelor's thesis
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
+package ruleTreeView;
+
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import static ruleTreeView.BasicTreeItem.STATE_ALWAYS;
+import static ruleTreeView.BasicTreeItem.STATE_IF_FALSE;
+import static ruleTreeView.BasicTreeItem.STATE_IF_TRUE;
+import static ruleTreeView.BasicTreeItem.STATE_NEVER;
 
 /**
  * This is the context menu appearing when making a right click
@@ -17,7 +20,7 @@ import javafx.scene.control.MenuItem;
  */
 public class RuleContextMenu extends ContextMenu {
 
-  public RuleContextMenu(RuleTreeItem item) {
+  public RuleContextMenu(BasicTreeItem item) {
     super();
 
     MenuItem always = new MenuItem("always log rule");
@@ -28,19 +31,19 @@ public class RuleContextMenu extends ContextMenu {
     this.getItems().addAll(always, ifTrue, ifFalse, never);
 
     always.setOnAction(e -> {
-      item.setToAlways();
+      item.setState(STATE_ALWAYS);
     });
 
     ifTrue.setOnAction(e -> {
-      item.setToIfTrue();
+      item.setState(STATE_IF_TRUE);
     });
 
     ifFalse.setOnAction(e -> {
-      item.setToIfFalse();
+      item.setState(STATE_IF_FALSE);
     });
 
     never.setOnAction(e -> {
-      item.setToNever();
+      item.setState(STATE_NEVER);
     });
   }
 
