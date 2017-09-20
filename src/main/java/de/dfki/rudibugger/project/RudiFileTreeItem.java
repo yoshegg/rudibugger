@@ -12,9 +12,9 @@ import javafx.scene.control.TreeItem;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class RudiTreeItem extends TreeItem {
+public class RudiFileTreeItem extends TreeItem {
 
-  public RudiTreeItem(Object label) {
+  public RudiFileTreeItem(Object label) {
     super(label);
   }
 

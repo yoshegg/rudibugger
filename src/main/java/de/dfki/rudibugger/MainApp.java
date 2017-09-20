@@ -11,7 +11,6 @@ import javafx.util.Callback;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  *

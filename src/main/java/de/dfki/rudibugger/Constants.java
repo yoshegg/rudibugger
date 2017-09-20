@@ -16,5 +16,5 @@ public class Constants {
   public static String COMPILE_FILE = "compile";
   public static String RUN_FILE = "run.sh";
   public static String RULE_LOCATION_SUFFIX = "RuleLocation.yml";
-
+  
 }

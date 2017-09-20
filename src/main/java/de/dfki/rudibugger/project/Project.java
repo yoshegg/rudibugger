@@ -14,8 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import javafx.scene.control.CheckBoxTreeItem;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.control.cell.RudiCheckBoxTreeCell;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
@@ -141,12 +141,11 @@ public class Project {
     }
     String rootKey = keys.get(0);
     treeRules.setRoot(getNodes(rootKey, load));
-    treeRules.setCellFactory(RudiCheckBoxTreeCell.<String>forTreeView());
     return treeRules;
   }
 
-  public CheckBoxTreeItem getNodes(String node, Map load) {
-    CheckBoxTreeItem<String> root = new CheckBoxTreeItem<>(node);
+  public TreeItem getNodes(String node, Map load) {
+    TreeItem<Object> root = new TreeItem<>(node);
     root.setExpanded(true);
     for (String f : (Set<String>) ((LinkedHashMap) load.get(node)).keySet()) {
       // find another Map aka import
@@ -159,7 +158,8 @@ public class Project {
         if ("ImportWasInLine".equals(f)) {
           // ignore for now
         } else {
-          RudiCheckBoxTreeItem item = new RudiCheckBoxTreeItem(f);
+          RuleTreeItem item = new RuleTreeItem(f,
+                  (int) ((LinkedHashMap) load.get(node)).get(f));
           root.getChildren().add(item);
         }
       }

@@ -1,7 +1,7 @@
 package de.dfki.rudibugger;
 
 import de.dfki.rudibugger.project.Project;
-import de.dfki.rudibugger.project.RudiTreeItem;
+import de.dfki.rudibugger.project.RudiFileTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -153,8 +153,8 @@ public class FXMLController implements Initializable {
       public void handle(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() == 2) {
           Object test = foldertreeviewx.getSelectionModel().getSelectedItem();
-          if (test instanceof RudiTreeItem) {
-            RudiTreeItem item = (RudiTreeItem) test;
+          if (test instanceof RudiFileTreeItem) {
+            RudiFileTreeItem item = (RudiFileTreeItem) test;
             System.out.println("Selected Text : " + item.getValue());
             RudiTab tabdata;
             try {

@@ -8,7 +8,7 @@ package de.dfki.rudibugger;
 import static de.dfki.rudibugger.FXMLController.log;
 import de.dfki.rudibugger.project.Project;
 import static de.dfki.rudibugger.project.Project.*;
-import de.dfki.rudibugger.project.RudiTreeItem;
+import de.dfki.rudibugger.project.RudiFileTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.awt.GraphicsEnvironment;
 import java.net.URISyntaxException;
@@ -128,7 +128,7 @@ public class Model {
         if (f.getName().contains(".")) {
           String fileEnding = f.getName().substring(f.getName().lastIndexOf('.'));
           if (".rudi".equals(fileEnding)) {
-            RudiTreeItem item = new RudiTreeItem(f.getName());
+            RudiFileTreeItem item = new RudiFileTreeItem(f.getName());
             item.setFile(f.getAbsolutePath());
             root.getChildren().add(item);
           }
