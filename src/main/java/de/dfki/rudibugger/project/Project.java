@@ -1,10 +1,11 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Rudibugger is a debugger for .rudi code
+ * written in the context of a bachelor's thesis
+ * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
 package de.dfki.rudibugger.project;
 
+import ruleTreeView.RuleTreeItem;
 import static de.dfki.rudibugger.Constants.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,11 +14,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import javafx.scene.control.CheckBoxTreeItem;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
+import ruleTreeView.ImportTreeItem;
 
 /**
  * This singleton contains all relevant information about the project
@@ -140,19 +140,17 @@ public class Project {
       log.error("There is more than one main .rudi file.");
     }
     String rootKey = keys.get(0);
-    TreeItem<Object> root = new TreeItem<>(rootKey);
+    ImportTreeItem root = new ImportTreeItem(rootKey);
     treeRules.setRoot(getNodes(rootKey, load, root));
     return treeRules;
   }
 
-  public TreeItem getNodes(String node, Map load, TreeItem root) {
-
+  public ImportTreeItem getNodes(String node, Map load, ImportTreeItem root) {
     root.setExpanded(true);
     for (String f : (Set<String>) ((LinkedHashMap) load.get(node)).keySet()) {
       // find another Map aka import
       if (((LinkedHashMap) load.get(node)).get(f) instanceof Map) {
-        TreeItem<Object> item = new TreeItem<>(f);
-
+        ImportTreeItem item = new ImportTreeItem(f, root);
         root.getChildren().add(getNodes(f, (LinkedHashMap) load.get(node), item));
       }
 
