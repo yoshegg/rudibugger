@@ -1,3 +1,9 @@
-.button {
-    -fx-font-weight: bold;
+.ruleLogBox .arrow, .ruleLogBox .arrow-button {
+  -fx-background-color: transparent;
+}
+
+.ruleLogBox {
+  -fx-max-width: 10;
+  -fx-mark-color: white;
+  -fx-max-height: 10;
 }

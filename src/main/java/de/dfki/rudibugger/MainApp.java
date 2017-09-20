@@ -46,7 +46,7 @@ public class MainApp extends Application {
     // define GUI
     Parent root = (Parent) loader.load();
     Scene scene = new Scene(root);
-    //scene.getStylesheets().add("/styles/Styles.css");
+    scene.getStylesheets().add("/styles/Styles.css");
     stage.setTitle("Rudibugger (beta)");
     stage.setScene(scene);
     Image icon = new Image("file:src/main/resources/icons/baggerschaufel_titlebar_32x32.png");
