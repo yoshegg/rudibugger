@@ -55,14 +55,16 @@ public class RuleTreeItem extends TreeItem {
    *
    * @param ruleName
    * @param lineNumber
+   * @param parent
    */
-  public RuleTreeItem(String ruleName, Integer lineNumber) {
+  public RuleTreeItem(String ruleName, Integer lineNumber, TreeItem parent) {
     super();
     HBox hb = new HBox();
     this.setValue(hb);
 
     _ruleName = new Label(ruleName);
     _lineNumber = lineNumber;
+    _parent = parent;
 
     stateIndicator = new ImageView();
     this.setToNever();

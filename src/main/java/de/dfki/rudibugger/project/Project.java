@@ -140,17 +140,20 @@ public class Project {
       log.error("There is more than one main .rudi file.");
     }
     String rootKey = keys.get(0);
-    treeRules.setRoot(getNodes(rootKey, load));
+    TreeItem<Object> root = new TreeItem<>(rootKey);
+    treeRules.setRoot(getNodes(rootKey, load, root));
     return treeRules;
   }
 
-  public TreeItem getNodes(String node, Map load) {
-    TreeItem<Object> root = new TreeItem<>(node);
+  public TreeItem getNodes(String node, Map load, TreeItem root) {
+
     root.setExpanded(true);
     for (String f : (Set<String>) ((LinkedHashMap) load.get(node)).keySet()) {
       // find another Map aka import
       if (((LinkedHashMap) load.get(node)).get(f) instanceof Map) {
-        root.getChildren().add(getNodes(f, (LinkedHashMap) load.get(node)));
+        TreeItem<Object> item = new TreeItem<>(f);
+
+        root.getChildren().add(getNodes(f, (LinkedHashMap) load.get(node), item));
       }
 
       // find an integer: f may be a rule and the value its line
@@ -159,7 +162,8 @@ public class Project {
           // ignore for now
         } else {
           RuleTreeItem item = new RuleTreeItem(f,
-                  (int) ((LinkedHashMap) load.get(node)).get(f));
+                  (int) ((LinkedHashMap) load.get(node)).get(f),
+                  root);
           root.getChildren().add(item);
         }
       }
