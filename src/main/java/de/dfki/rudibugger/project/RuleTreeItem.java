@@ -77,6 +77,10 @@ public class RuleTreeItem extends TreeItem {
            RuleContextMenu cm = new RuleContextMenu(this);
            cm.show(hb, e.getScreenX(), e.getScreenY());
         });
+
+    hb.setOnMouseClicked(e -> {
+          System.out.println("my parent is " + _parent.getValue());
+    });
   }
 
   public void setToAlways() {
