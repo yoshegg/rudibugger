@@ -5,7 +5,7 @@
  */
 package de.dfki.rudibugger.project;
 
-import ruleTreeView.RuleTreeItem;
+import de.dfki.rudibugger.ruleTreeView.RuleTreeItem;
 import static de.dfki.rudibugger.Constants.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,7 +17,7 @@ import java.util.Set;
 import javafx.scene.control.TreeView;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
-import ruleTreeView.ImportTreeItem;
+import de.dfki.rudibugger.ruleTreeView.ImportTreeItem;
 
 /**
  * This singleton contains all relevant information about the project

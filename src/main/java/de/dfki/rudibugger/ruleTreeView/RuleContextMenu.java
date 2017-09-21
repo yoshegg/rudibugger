@@ -3,17 +3,17 @@
  * written in the context of a bachelor's thesis
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
-package ruleTreeView;
+package de.dfki.rudibugger.ruleTreeView;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ToggleGroup;
-import static ruleTreeView.BasicTreeItem.STATE_ALWAYS;
-import static ruleTreeView.BasicTreeItem.STATE_IF_FALSE;
-import static ruleTreeView.BasicTreeItem.STATE_IF_TRUE;
-import static ruleTreeView.BasicTreeItem.STATE_NEVER;
-import static ruleTreeView.BasicTreeItem.STATE_PARTLY;
+import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_ALWAYS;
+import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_IF_FALSE;
+import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_IF_TRUE;
+import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_NEVER;
+import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_PARTLY;
 
 /**
  * This is the context menu appearing when making a right click
