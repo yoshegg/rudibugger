@@ -30,7 +30,16 @@
                            </children></AnchorPane>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                            <children>
-                              <TreeView fx:id="locRuleViewx" editable="true" prefHeight="300.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <VBox prefHeight="300.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <TreeView fx:id="locRuleViewx" editable="true" prefHeight="300.0" prefWidth="300.0" />
+                                    <HBox>
+                                       <children>
+                                          <Button mnemonicParsing="false" text="Expand all" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
                            </children></AnchorPane>
                      </items>
                   </SplitPane>
