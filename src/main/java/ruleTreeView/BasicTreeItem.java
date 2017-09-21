@@ -41,6 +41,9 @@ public class BasicTreeItem extends TreeItem {
   /* the icon to indicate the _state */
   private final ImageView stateIndicator;
 
+  /* the ContextMenu of the TreeItem */
+  private RuleContextMenu contextMenu;
+
   /* the state describes how the rule(s) should be logged */
   private int _state;
   public static final int STATE_ALWAYS = 0;
@@ -64,9 +67,12 @@ public class BasicTreeItem extends TreeItem {
     hb.getChildren().add(_label);
     hb.setAlignment(Pos.CENTER_LEFT);
 
+    RuleContextMenu contextMenu = new RuleContextMenu(this);
+    contextMenu.initializeContextMenu();
+
     hb.setOnContextMenuRequested(e -> {
-      RuleContextMenu cm = new RuleContextMenu(this);
-      cm.show(hb, e.getScreenX(), e.getScreenY());
+      contextMenu.retrieveState(_state);
+      contextMenu.show(hb, e.getScreenX(), e.getScreenY());
     });
   }
 
