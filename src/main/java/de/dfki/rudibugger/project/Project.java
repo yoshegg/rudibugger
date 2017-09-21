@@ -147,7 +147,6 @@ public class Project {
   }
 
   public ImportTreeItem getNodes(String node, Map load, ImportTreeItem root) {
-//    root.setExpanded(true);
     for (String f : (Set<String>) ((LinkedHashMap) load.get(node)).keySet()) {
       // find another Map aka import
       if (((LinkedHashMap) load.get(node)).get(f) instanceof Map) {
