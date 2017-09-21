@@ -17,6 +17,7 @@ import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
@@ -145,16 +146,21 @@ public class Model {
   public void startCompile(TreeView treeRules) throws IOException, InterruptedException {
     log.info("Starting compilation...");
     Process p;
+    String compileScript = projectX.getCompileFile().toString();
+    String[] cmd = { "/usr/bin/xterm", "-e", compileScript, "-b"};
+    log.debug("Executing the following command: " + Arrays.toString(cmd));
     if ("Linux".equals(System.getProperty("os.name"))) {
-      p = Runtime.getRuntime()
-              .exec("/usr/bin/xterm " + projectX.getCompileFile().toString());
+      p = Runtime.getRuntime().exec(cmd);
     } else {
-      p = Runtime.getRuntime().exec(projectX.getCompileFile().toString());
+      p = Runtime.getRuntime().exec(projectX.getCompileFile().toString() + "-b");
     }
     p.waitFor();
-    System.out.println("retrieving");
-    projectX.retrieveLocRuleTreeView();
-    projectX.retrieveRuleLocMap(treeRules);
-    System.out.println("retrieved");
+    try {
+      projectX.retrieveLocRuleTreeView();
+      projectX.retrieveRuleLocMap(treeRules);
+    } catch (FileNotFoundException e) {
+      log.error("Couldn't find the new RuleLocation.yml file. Was there "
+              + "a problem executing the compile script?");
+    }
   }
 }
