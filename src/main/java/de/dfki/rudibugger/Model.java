@@ -37,7 +37,7 @@ public class Model {
 
   public Stage stageX;
 
-  public volatile Project projectX;
+  public Project projectX;
 
   public void openFile(TabPane tabpanex) throws FileNotFoundException {
     log.debug("Opening file chooser...");
@@ -85,7 +85,6 @@ public class Model {
       clearProject();
     }
     projectX = Project.initProject(ymlFile);
-    projectX.setRuleTreeView(treeRules);
 
     TreeItem<String> rudiRoot = getNodesForDirectory(projectX.getRudisFolderPath());
     rudiRoot.setValue(projectX.getProjectName() + " - .rudi files");
@@ -94,7 +93,8 @@ public class Model {
 
     /* retrieve ruleLocMap and show if possible */
     if (projectX.getRuleLocFile() != null) {
-      projectX.retrieveRuleLocMap();
+      treeRules = projectX.retrieveRuleLocMap(treeRules);
+      treeRules.getRoot().setExpanded(true);
     }
     return true;
   }
@@ -154,13 +154,13 @@ public class Model {
     } else {
       p = Runtime.getRuntime().exec(projectX.getCompileFile().toString() + "-b");
     }
-//    p.waitFor();
-//    try {
-//      projectX.retrieveLocRuleTreeView();
-//      projectX.retrieveRuleLocMap();
-//    } catch (FileNotFoundException e) {
-//      log.error("Couldn't find the new RuleLocation.yml file. Was there "
-//              + "a problem executing the compile script?");
-//    }
+    p.waitFor();
+    try {
+      projectX.retrieveLocRuleTreeView();
+      projectX.retrieveRuleLocMap(treeRules);
+    } catch (FileNotFoundException e) {
+      log.error("Couldn't find the new RuleLocation.yml file. Was there "
+              + "a problem executing the compile script?");
+    }
   }
 }

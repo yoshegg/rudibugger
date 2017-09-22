@@ -7,7 +7,6 @@ package de.dfki.rudibugger.project;
 
 import de.dfki.rudibugger.ruleTreeView.RuleTreeItem;
 import static de.dfki.rudibugger.Constants.*;
-import de.dfki.rudibugger.WatchServices.Watch;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -82,7 +81,7 @@ public class Project {
   private File _rudisFolder;
   private File _ruleLocFile;
   private LinkedHashMap _ymlMap;
-  private TreeView _ruleTreeView;
+  private LinkedHashMap _ruleLocMap;
   private String _projName;
 
   /* the only instance of the Project */
@@ -92,8 +91,6 @@ public class Project {
     if (ins == null) {
       ins = new Project(ymlFile);
     }
-    Watch watch = new Watch();
-    watch.createProjectWatch(ins);
     return ins;
   }
 
@@ -134,30 +131,19 @@ public class Project {
     return _ruleLocFile;
   }
 
-  public void setRuleTreeView(TreeView treeRules) {
-    _ruleTreeView = treeRules;
-  }
-
-  public TreeView getRuleTreeView() {
-    return _ruleTreeView;
-  }
-
-  public TreeView retrieveRuleLocMap() throws FileNotFoundException {
-    log.debug("Yaml file: " + yaml);
-    log.debug("_ruleLocFile: " + _ruleLocFile);
+  public TreeView retrieveRuleLocMap(TreeView treeRules) throws FileNotFoundException {
     LinkedHashMap<String, Object> load
             = (LinkedHashMap<String, Object>)
             yaml.load(new FileReader(_ruleLocFile));
-    log.debug("By Yaml loaded Map: " + load);
     ArrayList<String> keys = new ArrayList<>(load.keySet());
     if (keys.size() != 1) {
       log.error("There is more than one main .rudi file.");
     }
     String rootKey = keys.get(0);
     ImportTreeItem root = new ImportTreeItem(rootKey);
-    _ruleTreeView.setRoot(getNodes(rootKey, load, root));
+    treeRules.setRoot(getNodes(rootKey, load, root));
     root.setExpanded(true);
-    return _ruleTreeView;
+    return treeRules;
   }
 
   public ImportTreeItem getNodes(String node, Map load, ImportTreeItem root) {
