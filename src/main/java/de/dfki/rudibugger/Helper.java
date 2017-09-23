@@ -38,4 +38,29 @@ public class Helper {
     return result.get() == ButtonType.OK;
   }
 
+  // taken from https://stackoverflow.com/questions/17307761/is-there-a-java-equivalent-to-pythons-easy-string-splicing
+
+  public static String slice_start(String s, int startIndex) {
+    if (startIndex < 0) {
+      startIndex = s.length() + startIndex;
+    }
+    return s.substring(startIndex);
+  }
+
+  public static String slice_end(String s, int endIndex) {
+    if (endIndex < 0) {
+      endIndex = s.length() + endIndex;
+    }
+    return s.substring(0, endIndex);
+  }
+
+  public static String slice_range(String s, int startIndex, int endIndex) {
+    if (startIndex < 0) {
+      startIndex = s.length() + startIndex;
+    }
+    if (endIndex < 0) {
+      endIndex = s.length() + endIndex;
+    }
+    return s.substring(startIndex, endIndex);
+  }
 }
