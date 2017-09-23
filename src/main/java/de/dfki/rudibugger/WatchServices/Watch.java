@@ -7,6 +7,7 @@ package de.dfki.rudibugger.WatchServices;
 
 import de.dfki.rudibugger.project.Project;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -15,6 +16,7 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import javafx.application.Platform;
 import org.apache.log4j.Logger;
 
 /**
@@ -37,7 +39,7 @@ public class Watch {
       public void run() {
         try {
           eventLoop();
-        } catch (IOException ex) {
+        } catch (IOException|InterruptedException ex) {
           watchingTread = null;
         }
       }
@@ -85,7 +87,7 @@ public class Watch {
     startListening();
   }
 
-  public void eventLoop() throws IOException {
+  public void eventLoop() throws IOException, InterruptedException {
     for (;;) {
 
       // watch for changes in the root folder
@@ -107,8 +109,16 @@ public class Watch {
         Path filename = ev.context();
 
         log.debug("Root folder change: " + filename);
+        // wait for the file being finished
+        Thread.sleep(500);
         _project.retrieveLocRuleTreeView();
-        _project.retrieveRuleLocMap();
+        Platform.runLater(() -> {
+          try {
+            _project.retrieveRuleLocMap();
+          } catch (FileNotFoundException ex) {
+            log.error(ex);
+          }
+        });
       }
 
       rootKey.reset();
