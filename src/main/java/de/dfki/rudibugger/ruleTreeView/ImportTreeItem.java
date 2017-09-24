@@ -5,9 +5,7 @@
  */
 package de.dfki.rudibugger.ruleTreeView;
 
-import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.RULE_ICON_PATH;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 /**
  *
@@ -15,17 +13,35 @@ import javafx.scene.image.ImageView;
  */
 public class ImportTreeItem extends BasicTreeItem {
 
-  static Image imgNever = new Image(RULE_ICON_PATH + "file.png");
+  /* the different icons used as indicator */
+  static final String FILE_ICON_PATH
+          = "file:src/main/resources/icons/RudiLogFileStatus/";
+  static Image imgAlways = new Image(FILE_ICON_PATH + "Always.png");
+  static Image imgIfTrue = new Image(FILE_ICON_PATH + "IfTrue.png");
+  static Image imgIfFalse = new Image(FILE_ICON_PATH + "IfFalse.png");
+  static Image imgNever = new Image(FILE_ICON_PATH + "Never.png");
+  static Image imgPartly = new Image(FILE_ICON_PATH + "Partly.png");
 
-
-  public ImportTreeItem(String importName, BasicTreeItem parent) {
-    super(importName, parent);
-    ImageView folderIcon = new ImageView();
-    folderIcon.setImage(imgNever);
-    _hb.getChildren().add(0, folderIcon);
+  /* the constructor */
+  public ImportTreeItem(String importName) {
+    super(importName);
   }
 
-  public ImportTreeItem(String importName) {
-    this(importName, null);
+  /* returns the requested folder icon */
+  public static Image getImage(int state) {
+    switch (state) {
+      case STATE_ALWAYS:
+        return imgAlways;
+      case STATE_IF_TRUE:
+        return imgIfTrue;
+      case STATE_IF_FALSE:
+        return imgIfFalse;
+      case STATE_NEVER:
+        return imgNever;
+      case STATE_PARTLY:
+        return imgPartly;
+      default:
+        return null;
+    }
   }
 }

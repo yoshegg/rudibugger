@@ -6,6 +6,7 @@
 package de.dfki.rudibugger.ruleTreeView;
 
 import java.util.HashSet;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
@@ -20,29 +21,14 @@ import org.apache.log4j.Logger;
  */
 public class BasicTreeItem extends TreeItem {
 
+  /* the logger */
   static Logger log = Logger.getLogger("rudiLog");
-
-
-  /* the different icons used as indicator */
-  static final String RULE_ICON_PATH
-          = "file:src/main/resources/icons/RudiLogRuleStatus/";
-  static Image imgAlways = new Image(RULE_ICON_PATH + "Always.png");
-  static Image imgIfTrue = new Image(RULE_ICON_PATH + "IfTrue.png");
-  static Image imgIfFalse = new Image(RULE_ICON_PATH + "IfFalse.png");
-  static Image imgNever = new Image(RULE_ICON_PATH + "Never.png");
-  static Image imgPartly = new Image(RULE_ICON_PATH + "Partly.png");
-
-  /* the parent TreeItem */
-  private final BasicTreeItem _parent;
 
   /* the label of the TreeItem */
   private final Label _label;
 
   /* the icon to indicate the _state */
   private final ImageView stateIndicator;
-
-  /* the ContextMenu of the TreeItem */
-  private RuleContextMenu contextMenu;
 
   /* the state describes how the rule(s) should be logged */
   private int _state;
@@ -52,22 +38,28 @@ public class BasicTreeItem extends TreeItem {
   public static final int STATE_NEVER = 3;
   public static final int STATE_PARTLY = 9;
 
+  /**
+   * the HBox of the TreeItem, maybe it needs to be modified from
+   * a more specific class
+   */
   public HBox _hb;
 
-  public BasicTreeItem(String text, BasicTreeItem parent) {
+  /* the constructor */
+  public BasicTreeItem(String text) {
     super();
-    _hb = new HBox();
-    this.setValue(_hb);
 
-    _parent = parent;
+    /* initialise label and icon */
     _label = new Label(text);
-
     stateIndicator = new ImageView();
     this.setToNever();
 
+    /* fill HBox */
+    _hb = new HBox();
+    this.setValue(_hb);
     _hb.getChildren().add(stateIndicator);
     _hb.getChildren().add(_label);
     _hb.setAlignment(Pos.CENTER_LEFT);
+
 
     RuleContextMenu contextMenu = new RuleContextMenu(this);
     contextMenu.initializeContextMenu();
@@ -78,53 +70,59 @@ public class BasicTreeItem extends TreeItem {
     });
   }
 
+  /********************************
+   * SET STATUS FUNCTIONS - START *
+   ********************************
+   * TODO: The following functions may be removed later
+   */
   private void setToAlways() {
-    stateIndicator.setImage(imgAlways);
+    stateIndicator.setImage(getIcon(STATE_ALWAYS));
     _state = STATE_ALWAYS;
   }
 
   private void setToIfTrue() {
-    stateIndicator.setImage(imgIfTrue);
+    stateIndicator.setImage(getIcon(STATE_IF_TRUE));
     _state = STATE_IF_TRUE;
   }
 
   private void setToIfFalse() {
-    stateIndicator.setImage(imgIfFalse);
+    stateIndicator.setImage(getIcon(STATE_IF_FALSE));
     _state = STATE_IF_FALSE;
   }
 
   private void setToNever() {
-    stateIndicator.setImage(imgNever);
+    stateIndicator.setImage(getIcon(STATE_NEVER));
     _state = STATE_NEVER;
   }
 
   private void setToPartly() {
-    stateIndicator.setImage(imgPartly);
+    stateIndicator.setImage(getIcon(STATE_PARTLY));
     _state = STATE_PARTLY;
-    if (_parent != null) {
-      updateParentState();
-    }
   }
 
-  /**
-   * This function sets the state of a rule or the entire .rudi file
-   * and makes sure to refresh the TreeView.
-   *
-   * @param state a CONSTANT integer
+  /******************************
+   * SET STATUS FUNCTIONS - END *
+   ******************************
+   * TODO: The following functions may be removed later
    */
-  public void setState(int state) {
-    setState(state, true);
+
+  /**
+   * returns the needed icon (file or checkbox)
+   */
+  private Image getIcon(Integer state) {
+    if (this instanceof RuleTreeItem) {
+      return RuleTreeItem.getImage(state);
+    } else {
+      return ImportTreeItem.getImage(state);
+    }
   }
 
   /**
    * sets the state of a BasicTreeItem
    *
    * @param state
-   * @param goUp will only be set to false, if children are changed
-   * after a parent has been changed first. Otherwise we get a
-   * StackOverflowError
    */
-  private void setState(int state, boolean goUp) {
+  public void setState(int state) {
     switch (state) {
       case STATE_ALWAYS:
         setToAlways();
@@ -138,43 +136,89 @@ public class BasicTreeItem extends TreeItem {
       case STATE_NEVER:
         setToNever();
         break;
+      case STATE_PARTLY:
+        setToPartly();
+        break;
     }
-    if (_parent != null && goUp) {
-      updateParentState();
-    }
+
+    /* unify underlying rules */
     if (this instanceof ImportTreeItem) {
-      this.getChildren().forEach((item) -> {
-        ((BasicTreeItem) item).setState(state, false);
+      this.getAllChildren().forEach((item) -> {
+        item.setStateHelper(_state);
       });
+    }
+
+    /* update parent's state and recursively the parent's parent */
+    BasicTreeItem parent = this.getParentImport();
+    while (parent != null) {
+      HashSet<BasicTreeItem> allChildren = parent.getAllChildren();
+      if (nodesHaveSameStates(allChildren)){
+        parent.setStateHelper(state);
+      } else {
+        parent.setStateHelper(STATE_PARTLY);
+      }
+      parent = parent.getParentImport();
     }
   }
 
+  /* this function only updates the state of a selected TreeItem */
+  private void setStateHelper(int state) {
+    switch (state) {
+      case STATE_ALWAYS:
+        setToAlways();
+        break;
+      case STATE_IF_TRUE:
+        setToIfTrue();
+        break;
+      case STATE_IF_FALSE:
+        setToIfFalse();
+        break;
+      case STATE_NEVER:
+        setToNever();
+        break;
+      case STATE_PARTLY:
+        setToPartly();
+        break;
+    }
+  }
+
+  /* returns the private field _state */
   public int getState() {
     return _state;
   }
 
+  /* returns the private field _label */
   public Label getLabel() {
     return _label;
   }
 
-  /**
-   * This function updates the state of parent nodes in the TreeView.
-   *
-   * If all children have the same state, the parent node will get the
-   * same state and the grandparent will also be checked (and so on).
-   * Otherwise the parent state will be set to 'partly' and all the other
-   * parent nodes will be likewise.
-   */
-  public void updateParentState() {
-    HashSet states = new HashSet();
-    _parent.getChildren().forEach((item) -> {
-      states.add((((BasicTreeItem) item)).getState());
+  /* returns all Children of a selected TreeItem */
+  private HashSet<BasicTreeItem> getAllChildren() {
+    HashSet<BasicTreeItem> allChildren = new HashSet<>();
+    ObservableList children = this.getChildren();
+    allChildren.addAll(children);
+    children.forEach((item) -> {
+      allChildren.addAll(((BasicTreeItem) item).getAllChildren());
     });
-    if (states.size() == 1) {
-      _parent.setState(_state);
-    } else {
-      _parent.setToPartly();
-    }
+    return allChildren;
+  }
 
+  /* returns the file the TreeItem was imported from */
+  private ImportTreeItem getParentImport() {
+    TreeItem parent = this.getParent();
+    if (parent == null) return null;
+    while (! (parent instanceof ImportTreeItem)) {
+      parent = parent.getParent();
+    }
+    return (ImportTreeItem) parent;
+  }
+
+  /* checks if a collection of TreeItems has the same state */
+  private boolean nodesHaveSameStates(HashSet<BasicTreeItem> items) {
+    HashSet states = new HashSet();
+    items.forEach((i) -> {
+      states.add((((BasicTreeItem) i)).getState());
+    });
+    return states.size() == 1;
   }
 }

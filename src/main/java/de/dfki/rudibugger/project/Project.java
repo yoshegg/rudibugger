@@ -7,7 +7,9 @@ package de.dfki.rudibugger.project;
 
 import de.dfki.rudibugger.ruleTreeView.RuleTreeItem;
 import static de.dfki.rudibugger.Constants.*;
+import static de.dfki.rudibugger.Helper.*;
 import de.dfki.rudibugger.WatchServices.Watch;
+import de.dfki.rudibugger.ruleTreeView.BasicTreeItem;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -143,12 +145,9 @@ public class Project {
   }
 
   public TreeView retrieveRuleLocMap() throws FileNotFoundException {
-    log.debug("Yaml file: " + yaml);
-    log.debug("_ruleLocFile: " + _ruleLocFile);
     LinkedHashMap<String, Object> load
             = (LinkedHashMap<String, Object>)
             yaml.load(new FileReader(_ruleLocFile));
-    log.debug("By Yaml loaded Map: " + load);
     ArrayList<String> keys = new ArrayList<>(load.keySet());
     if (keys.size() != 1) {
       log.error("There is more than one main .rudi file.");
@@ -160,23 +159,40 @@ public class Project {
     return _ruleTreeView;
   }
 
-  public ImportTreeItem getNodes(String node, Map load, ImportTreeItem root) {
+  public BasicTreeItem getNodes(String node, Map load, BasicTreeItem root) {
     for (String f : (Set<String>) ((LinkedHashMap) load.get(node)).keySet()) {
-      // find another Map aka import
+
+      // find another Map aka import / rule
       if (((LinkedHashMap) load.get(node)).get(f) instanceof Map) {
-        ImportTreeItem item = new ImportTreeItem(f, root);
-        root.getChildren().add(getNodes(f, (LinkedHashMap) load.get(node), item));
+        LinkedHashMap tempMap
+                = (LinkedHashMap) ((LinkedHashMap) load.get(node)).get(f);
+
+        // find a new import
+        if (tempMap.containsKey("%ImportWasInLine")) {
+          ImportTreeItem item = new ImportTreeItem(f);
+          root.getChildren().add(getNodes(f, (LinkedHashMap) load.get(node), item));
+        }
+
+        // find a new rule
+        else {
+          String correctedName = f;
+          if (correctedName.contains("%")) {
+            correctedName = slice_end(f, -2);
+          }
+          int inLine = (int) ((LinkedHashMap) ((LinkedHashMap) load.get(node)).get(f)).get("%InLine");
+          RuleTreeItem item = new RuleTreeItem(correctedName,
+                  inLine);
+          root.getChildren().add(getNodes(f, (LinkedHashMap) load.get(node), item));
+        }
       }
 
       // find an integer: f may be a rule and the value its line
       if (((LinkedHashMap) load.get(node)).get(f) instanceof Integer) {
-        if ("ImportWasInLine".equals(f)) {
+        // .rudi file import
+        if ("%ImportWasInLine".equals(f)) {
           // ignore for now
-        } else {
-          RuleTreeItem item = new RuleTreeItem(f,
-                  (int) ((LinkedHashMap) load.get(node)).get(f),
-                  root);
-          root.getChildren().add(item);
+        } else if ("%InLine".equals(f)) {
+          // ignore for now
         }
       }
       // find a String: the key-value-combination is an ERROR

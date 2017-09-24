@@ -7,6 +7,7 @@ package de.dfki.rudibugger.ruleTreeView;
 
 import java.io.File;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 
 /**
  * This class represents every known fact about a rule:
@@ -15,8 +16,17 @@ import javafx.scene.control.Label;
  */
 public class RuleTreeItem extends BasicTreeItem {
 
+  /* the different icons used as indicator */
+  static final String RULE_ICON_PATH
+          = "file:src/main/resources/icons/RudiLogRuleStatus/";
+  static Image imgAlways = new Image(RULE_ICON_PATH + "Always.png");
+  static Image imgIfTrue = new Image(RULE_ICON_PATH + "IfTrue.png");
+  static Image imgIfFalse = new Image(RULE_ICON_PATH + "IfFalse.png");
+  static Image imgNever = new Image(RULE_ICON_PATH + "Never.png");
+  static Image imgPartly = new Image(RULE_ICON_PATH + "Partly.png");
+
   /* the name of the rule */
-  private final Label _ruleName;
+  private final String _ruleName;
 
   /* the file the rule comes from */
   private File _sourceFile;
@@ -24,16 +34,29 @@ public class RuleTreeItem extends BasicTreeItem {
   /* the line in which the rule appears in the file */
   private final int _lineNumber;
 
-  /**
-   *
-   * @param ruleName
-   * @param lineNumber
-   * @param parent
-   */
-  public RuleTreeItem(String ruleName, Integer lineNumber, BasicTreeItem parent) {
-    super(ruleName, parent);
+  /* the constructor */
+  public RuleTreeItem(String ruleName, Integer lineNumber) {
+    super(ruleName);
 
     _lineNumber = lineNumber;
-    _ruleName = getLabel();
+    _ruleName = ruleName;
+  }
+
+  /* returns the requested checkbox icon */
+  public static Image getImage(int state) {
+    switch (state) {
+      case STATE_ALWAYS:
+        return imgAlways;
+      case STATE_IF_TRUE:
+        return imgIfTrue;
+      case STATE_IF_FALSE:
+        return imgIfFalse;
+      case STATE_NEVER:
+        return imgNever;
+      case STATE_PARTLY:
+        return imgPartly;
+      default:
+        return null;
+    }
   }
 }
