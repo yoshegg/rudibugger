@@ -3,6 +3,7 @@ package de.dfki.rudibugger;
 import de.dfki.rudibugger.project.Project;
 import de.dfki.rudibugger.project.RudiFileTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
@@ -106,6 +107,27 @@ public class FXMLController implements Initializable {
       if (!Helper.overwriteProjectCheck(model.projectX)) return;
     }
     if (model.openProjectYml(foldertreeviewx, locRuleViewx)) {
+      // enable buttons of respective files have been found
+      if (model.projectX.getRunFile() != null) {
+        runButton.setDisable(false);
+        log.debug("Enabled run button.");
+      }
+      if (model.projectX.getCompileFile() != null) {
+        compileButton.setDisable(false);
+        log.debug("Enabled compile button.");
+      }
+    }
+  }
+
+  /* for testing purposes: open dipal */
+  @FXML
+  private void openDipal(ActionEvent event) throws FileNotFoundException {
+    File ymlFile = new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml");
+    if (model.projectX != null) {
+      if (!Helper.overwriteProjectCheck(model.projectX)) return;
+    }
+
+    if (model.processOpeningProjectYml(ymlFile, foldertreeviewx, locRuleViewx)) {
       // enable buttons of respective files have been found
       if (model.projectX.getRunFile() != null) {
         runButton.setDisable(false);

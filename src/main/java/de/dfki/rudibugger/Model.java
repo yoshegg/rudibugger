@@ -5,15 +5,10 @@
  */
 package de.dfki.rudibugger;
 
-import static de.dfki.rudibugger.FXMLController.log;
 import de.dfki.rudibugger.project.Project;
 import static de.dfki.rudibugger.project.Project.*;
 import de.dfki.rudibugger.project.RudiFileTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
-import java.awt.GraphicsEnvironment;
-import java.net.URISyntaxException;
-
-import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -84,6 +79,11 @@ public class Model {
       log.info("Closing old project [" + projectX.getProjectName() + "]");
       clearProject();
     }
+    return processOpeningProjectYml(ymlFile, treeFiles, treeRules);
+  }
+
+  public boolean processOpeningProjectYml(File ymlFile, TreeView treeFiles, TreeView treeRules)
+          throws FileNotFoundException {
     projectX = Project.initProject(ymlFile);
     projectX.setRuleTreeView(treeRules);
 
