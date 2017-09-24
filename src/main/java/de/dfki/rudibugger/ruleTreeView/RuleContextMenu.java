@@ -7,13 +7,14 @@ package de.dfki.rudibugger.ruleTreeView;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.ToggleGroup;
 import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_ALWAYS;
 import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_IF_FALSE;
 import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_IF_TRUE;
 import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_NEVER;
-import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_PARTLY;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 
 /**
  * This is the context menu appearing when making a right click
@@ -23,72 +24,104 @@ import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_PARTLY;
  */
 public class RuleContextMenu extends ContextMenu {
 
-  RadioMenuItem always;
-  RadioMenuItem ifTrue;
-  RadioMenuItem ifFalse;
-  RadioMenuItem never;
-  RadioMenuItem partly;
+  /* the text of the different MenuItems */
+  private final CheckMenuItem CMI_ALWAYS
+          = new CheckMenuItem("Always log rule");
+  private final CheckMenuItem CMI_IF_TRUE
+          = new CheckMenuItem("Log rule if true");
+  private final CheckMenuItem CMI_IF_FALSE
+          = new CheckMenuItem("Log rule if false");
+  private final CheckMenuItem CMI_NEVER
+          = new CheckMenuItem("Never log rule");
+  private final MenuItem CMI_ALWAYS_WITH_CHILDREN
+          = new MenuItem("Always log rule and children");
+  private final MenuItem CMI_IF_TRUE_WITH_CHILDREN
+          = new MenuItem("Log rule including children if true");
+  private final MenuItem CMI_IF_FALSE_WITH_CHILDREN
+          = new MenuItem("Log rule including children if false");
+  private final MenuItem CMI_NEVER_WITH_CHILDREN
+          = new MenuItem("Never log rule and children");
 
-  private BasicTreeItem _item;
+  /* the clicked RuleMenuItem */
+  private final RuleTreeItem _item;
 
-  public RuleContextMenu(BasicTreeItem item) {
+  /* the constructor */
+  public RuleContextMenu(RuleTreeItem item) {
     super();
     _item = item;
+
+    initializeRuleLoggingMenuItems();
+    retrieveState(_item.getState());
   }
 
-  public void initializeContextMenu() {
+  /* set MenuItems' ActionEvents */
+  private void initializeRuleLoggingMenuItems() {
 
-    // set text of menu items
-    always = new RadioMenuItem("always log rule");
-    ifTrue = new RadioMenuItem("log rule if true");
-    ifFalse = new RadioMenuItem("log rule if false");
-    never = new RadioMenuItem("never log rule");
-
-    // this menu item won't be added, but will be in the toggle group
-    partly = new RadioMenuItem();
-
-    // set actions when menu items are clicked
-    always.setOnAction((ActionEvent e) -> {
+    /* set actions when menu items are clicked */
+    CMI_ALWAYS.setOnAction((ActionEvent e) -> {
       _item.setState(STATE_ALWAYS);
     });
-    ifTrue.setOnAction((ActionEvent e) -> {
+    CMI_IF_TRUE.setOnAction((ActionEvent e) -> {
       _item.setState(STATE_IF_TRUE);
     });
-    ifFalse.setOnAction((ActionEvent e) -> {
+    CMI_IF_FALSE.setOnAction((ActionEvent e) -> {
       _item.setState(STATE_IF_FALSE);
     });
-    never.setOnAction((ActionEvent e) -> {
+    CMI_NEVER.setOnAction((ActionEvent e) -> {
       _item.setState(STATE_NEVER);
     });
+    this.getItems().addAll(CMI_ALWAYS, CMI_IF_TRUE, CMI_IF_FALSE, CMI_NEVER);
 
-    // put all the menu items into one group so that only one can be selected
-    ToggleGroup tG = new ToggleGroup();
-    always.setToggleGroup(tG);
-    ifTrue.setToggleGroup(tG);
-    ifFalse.setToggleGroup(tG);
-    never.setToggleGroup(tG);
-    partly.setToggleGroup(tG);
-
-    // add the menu items to the context menu
-    this.getItems().addAll(always, ifTrue, ifFalse, never);
+    /* if there are children, provide more options */
+    if (! _item.getChildren().isEmpty()) {
+      SeparatorMenuItem sep = new SeparatorMenuItem();
+      Menu childrenMenu = new Menu("Children");
+      CMI_ALWAYS_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
+        _item.setState(STATE_ALWAYS);
+        unifyChildren(STATE_ALWAYS);
+      });
+      CMI_IF_TRUE_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
+        _item.setState(STATE_IF_TRUE);
+        unifyChildren(STATE_IF_TRUE);
+      });
+      CMI_IF_FALSE_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
+        _item.setState(STATE_IF_FALSE);
+        unifyChildren(STATE_IF_FALSE);
+      });
+      CMI_NEVER_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
+        _item.setState(STATE_NEVER);
+        unifyChildren(STATE_NEVER);
+      });
+      childrenMenu.getItems().addAll(CMI_ALWAYS_WITH_CHILDREN,
+              CMI_IF_TRUE_WITH_CHILDREN, CMI_IF_FALSE_WITH_CHILDREN,
+              CMI_NEVER_WITH_CHILDREN);
+      this.getItems().addAll(sep, childrenMenu);
+    }
   }
 
-  public void retrieveState(Integer state) {
+  /* get the state from the TreeItem */
+  private void retrieveState(Integer state) {
     switch (state) {
       case STATE_ALWAYS:
-        always.setSelected(true);
+        CMI_ALWAYS.setSelected(true);
         break;
       case STATE_IF_TRUE:
-        ifTrue.setSelected(true);
+        CMI_IF_TRUE.setSelected(true);
         break;
       case STATE_IF_FALSE:
-        ifFalse.setSelected(true);
+        CMI_IF_FALSE.setSelected(true);
         break;
       case STATE_NEVER:
-        never.setSelected(true);
+        CMI_NEVER.setSelected(true);
         break;
-      case STATE_PARTLY:
-        partly.setSelected(true);
     }
+  }
+
+  /* unify children rules */
+  private void unifyChildren(Integer state) {
+    ((BasicTreeItem) _item).getAllChildren().forEach((item) -> {
+      item.setState(state);
+    }
+    );
   }
 }

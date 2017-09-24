@@ -6,7 +6,6 @@
 package de.dfki.rudibugger.ruleTreeView;
 
 import java.io.File;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 
 /**
@@ -40,6 +39,12 @@ public class RuleTreeItem extends BasicTreeItem {
 
     _lineNumber = lineNumber;
     _ruleName = ruleName;
+
+    /* the specific context menu for rules */
+    _hb.setOnContextMenuRequested((e) -> {
+      RuleContextMenu contextMenu = new RuleContextMenu(this);
+      contextMenu.show(_hb, e.getScreenX(), e.getScreenY());
+    });
   }
 
   /* returns the requested checkbox icon */
