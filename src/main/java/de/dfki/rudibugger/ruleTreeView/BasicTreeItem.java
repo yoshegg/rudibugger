@@ -59,15 +59,6 @@ public class BasicTreeItem extends TreeItem {
     _hb.getChildren().add(stateIndicator);
     _hb.getChildren().add(_label);
     _hb.setAlignment(Pos.CENTER_LEFT);
-
-
-    RuleContextMenu contextMenu = new RuleContextMenu(this);
-    contextMenu.initializeContextMenu();
-
-    _hb.setOnContextMenuRequested(e -> {
-      contextMenu.retrieveState(_state);
-      contextMenu.show(_hb, e.getScreenX(), e.getScreenY());
-    });
   }
 
   /********************************
