@@ -52,10 +52,12 @@ public class BasicTreeItem extends TreeItem {
   public static final int STATE_NEVER = 3;
   public static final int STATE_PARTLY = 9;
 
+  public HBox _hb;
+
   public BasicTreeItem(String text, BasicTreeItem parent) {
     super();
-    HBox hb = new HBox();
-    this.setValue(hb);
+    _hb = new HBox();
+    this.setValue(_hb);
 
     _parent = parent;
     _label = new Label(text);
@@ -63,16 +65,16 @@ public class BasicTreeItem extends TreeItem {
     stateIndicator = new ImageView();
     this.setToNever();
 
-    hb.getChildren().add(stateIndicator);
-    hb.getChildren().add(_label);
-    hb.setAlignment(Pos.CENTER_LEFT);
+    _hb.getChildren().add(stateIndicator);
+    _hb.getChildren().add(_label);
+    _hb.setAlignment(Pos.CENTER_LEFT);
 
     RuleContextMenu contextMenu = new RuleContextMenu(this);
     contextMenu.initializeContextMenu();
 
-    hb.setOnContextMenuRequested(e -> {
+    _hb.setOnContextMenuRequested(e -> {
       contextMenu.retrieveState(_state);
-      contextMenu.show(hb, e.getScreenX(), e.getScreenY());
+      contextMenu.show(_hb, e.getScreenX(), e.getScreenY());
     });
   }
 
