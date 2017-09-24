@@ -184,7 +184,7 @@ public class BasicTreeItem extends TreeItem {
   }
 
   /* returns all Children of a selected TreeItem */
-  private HashSet<BasicTreeItem> getAllChildren() {
+  protected HashSet<BasicTreeItem> getAllChildren() {
     HashSet<BasicTreeItem> allChildren = new HashSet<>();
     ObservableList children = this.getChildren();
     allChildren.addAll(children);
