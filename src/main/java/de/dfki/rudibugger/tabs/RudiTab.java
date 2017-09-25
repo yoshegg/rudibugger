@@ -1,12 +1,12 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Rudibugger is a debugger for .rudi code
+ * written in the context of a bachelor's thesis
+ * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
 package de.dfki.rudibugger.tabs;
 
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
 import java.util.Scanner;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -20,6 +20,7 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
  */
 public class RudiTab extends Tab {
 
+  /* the logger */
   static Logger log = Logger.getLogger("rudiLog");
 
   /**
@@ -33,55 +34,51 @@ public class RudiTab extends Tab {
   /**
    * creates a new tab with codeArea reading in a file (if provided)
    */
-  public RudiTab(TabPane tabpane, File file) throws FileNotFoundException {
+  public RudiTab(TabPane tabpane, Path file) throws FileNotFoundException {
+    super();
 
-    // create new tab and add it to tabpane
+    /* create new tab and add it to tabpane */
     Tab tab = new Tab("Tab " + (tabpane.getTabs().size() + 1));
     tabpane.getTabs().add(tab);
     tabpane.getSelectionModel().select(tab);
 
-    // give the tab a name
+    /* give the tab a name */
     if (file == null) {
       tab.setText("Untitled " +  tab.getText());
     } else {
-      tab.setText(file.getName());
+      tab.setText(file.getFileName().toString());
     }
 
-    // create a CodeArea
+    /* create a CodeArea */
     RudiCodeArea codeArea = new RudiCodeArea();
     codeArea.initializeCodeArea();
 
-//    codeArea.setWrapText(false); // does not work well
-//    codeArea.setParagraphGraphicFactory(
-//            LineNumberFactory.get(codeArea, digits -> "%"+ (digits < 2 ? 2 : digits) + "d"));
-
-    // add Scrollbar to tab's content
+    /* add Scrollbar to tab's content */
     VirtualizedScrollPane textAreaWithScrollBar = new VirtualizedScrollPane<>(codeArea);
 
-    // set TextArea to fit parent VirtualizedScrollPane
+    /* set TextArea to fit parent VirtualizedScrollPane */
     AnchorPane.setTopAnchor(textAreaWithScrollBar, 0.0);
     AnchorPane.setRightAnchor(textAreaWithScrollBar, 0.0);
     AnchorPane.setLeftAnchor(textAreaWithScrollBar, 0.0);
     AnchorPane.setBottomAnchor(textAreaWithScrollBar, 0.0);
     AnchorPane content = new AnchorPane(textAreaWithScrollBar);
 
-    // set css
+    /* set css */
     try {
       content.getStylesheets().add("/styles/java-keywords.css");
     } catch (NullPointerException e) {
       log.fatal("The provided css file could not be found.");
     }
 
-    // read in file (if provided)
-    // https://stackoverflow.com/questions/27222205/javafx-read-from-text-file-and-display-in-textarea
+    /* read in file (if provided) */
     if (file != null) {
-      Scanner s = new Scanner((File) file).useDelimiter("\n");
+      Scanner s = new Scanner(file.toFile()).useDelimiter("\n");
       while (s.hasNext()) {
         codeArea.appendText(s.next() + "\n");
       }
     }
 
-    // load content into tab
+    /* load content into tab */
     tab.setContent(content);
   }
 

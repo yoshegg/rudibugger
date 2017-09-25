@@ -63,7 +63,7 @@ public class FXMLController implements Initializable {
           RudiFileTreeItem item = (RudiFileTreeItem) test;
           RudiTab tabdata;
           try {
-            tabdata = new RudiTab(tabPane, item.getFile().toFile());
+            tabdata = new RudiTab(tabPane, item.getFile());
           } catch (FileNotFoundException ex) {
             log.fatal(ex);
           }

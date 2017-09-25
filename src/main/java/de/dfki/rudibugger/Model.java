@@ -62,7 +62,7 @@ public class Model {
     }
     // iterate over chosen files and open them in a new tab
     for (Object file : selectedFiles) {
-      RudiTab tab = new RudiTab(tabpanex, (File) file);
+      RudiTab tab = new RudiTab(tabpanex, (Path) file);
     }
   }
 
