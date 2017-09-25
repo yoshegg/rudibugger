@@ -37,7 +37,7 @@ public class MainApp extends Application {
 
     /* initialize FXMLController */
     final Model model = new Model();
-    model.setYaml(yaml);
+    model.yaml = yaml;
     FXMLLoader loader = new FXMLLoader();
     loader.setLocation(getClass().getResource("/fxml/Scene.fxml"));
     loader.setControllerFactory((Class<?> aClass) -> new FXMLController(model));

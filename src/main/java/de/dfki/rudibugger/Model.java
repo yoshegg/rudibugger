@@ -6,7 +6,6 @@
 package de.dfki.rudibugger;
 
 import de.dfki.rudibugger.project.Project;
-import static de.dfki.rudibugger.project.Project.*;
 import de.dfki.rudibugger.project.RudiFileTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.File;
@@ -32,17 +31,16 @@ import org.yaml.snakeyaml.Yaml;
  */
 public class Model {
 
+  /* the logger */
   static Logger log = Logger.getLogger("rudiLog");
 
+  /* the main stage */
   public Stage stageX;
 
-  public Yaml _yaml;
+  /* the only yaml instance */
+  public Yaml yaml;
 
-  public volatile Project projectX;
-
-  public void setYaml(Yaml yaml) {
-    _yaml = yaml;
-  }
+  public Project projectX;
 
   public void openFile(TabPane tabpanex) throws FileNotFoundException {
     log.debug("Opening file chooser...");
@@ -96,7 +94,7 @@ public class Model {
 
   public boolean processOpeningProjectYml(Path ymlFile, TreeView treeFiles, TreeView treeRules)
           throws FileNotFoundException, IOException {
-    projectX = new Project(ymlFile, _yaml);
+    projectX = new Project(ymlFile, yaml);
     projectX.initProject();
     projectX.setRuleTreeView(treeRules);
 

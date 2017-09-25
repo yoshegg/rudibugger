@@ -15,7 +15,6 @@ import java.nio.file.Path;
 import java.util.ResourceBundle;
 import org.apache.log4j.Logger;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -166,7 +165,6 @@ public class FXMLController implements Initializable {
   private void closeProject(ActionEvent event) {
     folderTreeView.setRoot(null);
     String name = model.projectX.getProjectName();
-//    Project.clearProject();
     log.debug("Closed project [" + name + "].");
     runButton.setDisable(true);
     compileButton.setDisable(true);
