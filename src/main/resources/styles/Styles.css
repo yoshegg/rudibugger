@@ -7,3 +7,8 @@
   -fx-mark-color: white;
   -fx-max-height: 10;
 }
+
+.testButton {
+  -fx-base: green;
+  -fx-text-fill: white;
+}

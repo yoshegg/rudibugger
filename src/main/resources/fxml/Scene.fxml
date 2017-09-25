@@ -87,7 +87,7 @@
                <items>
                   <Button fx:id="compileButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#startCompile" text="Compile" />
                   <Button fx:id="runButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#startRun" text="Run" />
-                  <Button fx:id="dipalButton" defaultButton="true" layoutX="86.0" layoutY="11.0" mnemonicParsing="false" onAction="#openDipal" text="Open dipal" />
+                  <Button fx:id="dipalButton" defaultButton="true" layoutX="86.0" layoutY="11.0" mnemonicParsing="false" onAction="#openDipal" styleClass="testButton" stylesheets="@../styles/Styles.css" text="Open dipal" />
                </items>
             </ToolBar>
          </children>
