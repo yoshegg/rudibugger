@@ -25,6 +25,9 @@ public class RudiTab extends Tab {
   /* the associated file */
   private Path _file;
 
+  /* the codeArea */
+  public RudiCodeArea _codeArea;
+
   /* creates a new empty tab */
   public RudiTab() {
     super();
@@ -46,11 +49,12 @@ public class RudiTab extends Tab {
     }
 
     /* create a CodeArea */
-    RudiCodeArea codeArea = new RudiCodeArea();
-    codeArea.initializeCodeArea();
+    _codeArea = new RudiCodeArea();
+    _codeArea.initializeCodeArea();
 
     /* add Scrollbar to tab's content */
-    VirtualizedScrollPane textAreaWithScrollBar = new VirtualizedScrollPane<>(codeArea);
+    VirtualizedScrollPane textAreaWithScrollBar
+            = new VirtualizedScrollPane<>(_codeArea);
 
     /* set TextArea to fit parent VirtualizedScrollPane */
     AnchorPane.setTopAnchor(textAreaWithScrollBar, 0.0);
@@ -71,12 +75,15 @@ public class RudiTab extends Tab {
       try {
       Scanner s = new Scanner(_file.toFile()).useDelimiter("\n");
       while (s.hasNext()) {
-        codeArea.appendText(s.next() + "\n");
+        _codeArea.appendText(s.next() + "\n");
       }
       } catch (FileNotFoundException e) {
         log.error("Something went wrong while reading in " + _file.getFileName().toString());
       }
     }
+
+    /* set the shown part of the file */
+    _codeArea.showParagraphAtTop(0);
 
     /* load content into tab */
     this.setContent(content);

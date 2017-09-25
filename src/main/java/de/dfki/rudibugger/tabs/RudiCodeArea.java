@@ -19,7 +19,7 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  * based on https://github.com/TomasMikula/RichTextFX/blob/master/richtextfx-demos/src/main/java/org/fxmisc/richtext/demo/JavaKeywords.java
- * but slightly modified. 
+ * but slightly modified.
  */
 public class RudiCodeArea extends CodeArea {
 
