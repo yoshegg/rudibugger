@@ -26,13 +26,13 @@
                      <items>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                            <children>
-                              <TreeView fx:id="foldertreeviewx" editable="true" layoutX="69.0" layoutY="76.0" prefHeight="301.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <TreeView fx:id="folderTreeView" editable="true" layoutX="69.0" layoutY="76.0" prefHeight="301.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                            </children></AnchorPane>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                            <children>
                               <VBox prefHeight="300.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <children>
-                                    <TreeView fx:id="locRuleViewx" editable="true" prefHeight="300.0" prefWidth="300.0" />
+                                    <TreeView fx:id="ruleTreeView" editable="true" prefHeight="300.0" prefWidth="300.0" />
                                     <HBox>
                                        <children>
                                           <Button mnemonicParsing="false" text="Expand all" />
@@ -47,7 +47,7 @@
             </AnchorPane>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <TabPane fx:id="tabpanex" onMouseClicked="#tabClicked" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                  <TabPane fx:id="tabPane" onMouseClicked="#tabClicked" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                </children>
             </AnchorPane>
          </items>
@@ -62,21 +62,21 @@
                      <items>
                         <MenuItem mnemonicParsing="false" onAction="#newEmptyTab" text="New empty tab" />
                         <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open file(s) to tab(s)..." />
-                        <MenuItem mnemonicParsing="false" text="Close file" />
+                        <MenuItem disable="true" mnemonicParsing="false" onAction="#closeFile" text="Close file" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#openProjectYml" text="Open project .yml file..." />
-                        <MenuItem mnemonicParsing="false" onAction="#openProjectDirectory" text="Open project directory" />
-                        <MenuItem mnemonicParsing="false" onAction="#closeProject" text="Close project" />
+                        <MenuItem mnemonicParsing="false" onAction="#openProjectDirectory" text="Open project directory..." />
+                        <MenuItem disable="true" mnemonicParsing="false" onAction="#closeProject" text="Close project" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Exit" />
                      </items>
                   </Menu>
-                  <Menu mnemonicParsing="false" text="Edit">
+                  <Menu disable="true" mnemonicParsing="false" text="Edit">
                      <items>
                         <MenuItem mnemonicParsing="false" text="Delete" />
                      </items>
                   </Menu>
-                  <Menu mnemonicParsing="false" text="Help">
+                  <Menu disable="true" mnemonicParsing="false" text="Help">
                      <items>
                         <MenuItem mnemonicParsing="false" text="About" />
                      </items>
@@ -96,7 +96,7 @@
    <bottom>
       <HBox prefHeight="20.0" prefWidth="494.0" BorderPane.alignment="CENTER">
          <children>
-            <Label fx:id="statusbar" text="Testing...">
+            <Label fx:id="statusBar" text="Testing...">
                <HBox.margin>
                   <Insets left="5.0" />
                </HBox.margin>

@@ -1,6 +1,10 @@
+/*
+ * Rudibugger is a debugger for .rudi code
+ * written in the context of a bachelor's thesis
+ * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+ */
 package de.dfki.rudibugger;
 
-import de.dfki.rudibugger.project.Project;
 import de.dfki.rudibugger.project.RudiFileTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.File;
@@ -29,46 +33,95 @@ import javafx.scene.input.MouseEvent;
  */
 public class FXMLController implements Initializable {
 
+  /* the logger */
   static Logger log = Logger.getLogger("rudiLog");
 
+  /* the model */
   private final Model model;
 
+
+  /*********************************************
+   * The constructor and its initialize method *
+   *********************************************/
+
+  /* the constructor binds the model to the controller */
   public FXMLController(Model model) {
     this.model = model;
   }
 
-  @FXML
-  private Label statusbar;
+  @Override
+  public void initialize(URL url, ResourceBundle rb) {
 
-  @FXML
-  private TabPane tabpanex;
+    /* make all tabs closable with an X button */
+    tabPane.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
 
+    /* what should happen when a .rudi file is double clicked */
+    folderTreeView.setOnMouseClicked((MouseEvent mouseEvent) -> {
+      if (mouseEvent.getClickCount() == 2) {
+        Object test = folderTreeView.getSelectionModel().getSelectedItem();
+        if (test instanceof RudiFileTreeItem) {
+          RudiFileTreeItem item = (RudiFileTreeItem) test;
+          RudiTab tabdata;
+          try {
+            tabdata = new RudiTab(tabPane, item.getFile().toFile());
+          } catch (FileNotFoundException ex) {
+            log.fatal(ex);
+          }
+        }
+      }
+    });
+  }
+
+
+  /******************************
+   * The different GUI elements *
+   ******************************/
+
+  /* statusbar at the bottom */
+  @FXML
+  private Label statusBar;
+
+  /* the TabPane */
+  @FXML
+  private TabPane tabPane;
+
+  /* the compile button */
   @FXML
   private Button compileButton;
 
+  /* the run button */
   @FXML
   private Button runButton;
 
-  /* The treeview in the upper left part of the window */
+  /* The TreeView showing the content of the rudi folder (or root folder) */
   @FXML
-  private TreeView foldertreeviewx;
+  private TreeView folderTreeView;
 
-  /* The treeview in the lower left part of the window
-   * used to set logging of rules
-   */
+  /* The TreeView showing the different rudi rules and imports */
   @FXML
-  private TreeView locRuleViewx;
+  private TreeView ruleTreeView;
 
-  /* Actually just a testing function, will be removed later */
+
+  /********************************
+   * Menu actions (from menu bar) *
+   ********************************/
+
+  /* File -> New empty tab */
   @FXML
-  private void tabClicked(MouseEvent event) {
-    log.debug("tab clicked!");
+  private void newEmptyTab(ActionEvent event) throws FileNotFoundException {
+    model.newEmptyTab(tabPane);
+  }
 
-    if (event.getButton() == MouseButton.MIDDLE) {
-      log.debug("Middle mouse button clicked!");
-      Tab selectedTab = tabpanex.getSelectionModel().getSelectedItem();
-      log.debug(selectedTab);
-    }
+  /* File -> Open file(s) to tabs(s)... */
+  @FXML
+  private void openFile(ActionEvent event) throws FileNotFoundException {
+    model.openFile(tabPane);
+  }
+
+  /* File -> Close file */
+  @FXML
+  private void closeFile(ActionEvent event) {
+    log.warn("Action \"Close file\" is not implemented yet");
   }
 
   /* File -> Exit */
@@ -77,37 +130,13 @@ public class FXMLController implements Initializable {
     MainApp.exitRudibugger();
   }
 
-  /* File -> New empty tab */
-  @FXML
-  private void newEmptyTab(ActionEvent event) throws FileNotFoundException {
-    model.newEmptyTab(tabpanex);
-  }
-
-  /* File -> Open file(s) to tabs(s)... */
-  @FXML
-  private void openFile(ActionEvent event) throws FileNotFoundException {
-    model.openFile(tabpanex);
-  }
-
-  /* File -> Open project directory... */
-  @FXML
-  private void openProjectDirectory(ActionEvent event) throws IOException {
-    if (model.projectX != null) {
-      if (Helper.overwriteProjectCheck(model.projectX)) {
-        model.openProjectDirectoryChooser(foldertreeviewx);
-      }
-    } else {
-      model.openProjectDirectoryChooser(foldertreeviewx);
-    }
-  }
-
   /* File -> Open project .yml file... */
   @FXML
   private void openProjectYml(ActionEvent event) throws FileNotFoundException, IOException {
     if (model.projectX != null) {
       if (!Helper.overwriteProjectCheck(model.projectX)) return;
     }
-    if (model.openProjectYml(foldertreeviewx, locRuleViewx)) {
+    if (model.openProjectYml(folderTreeView, ruleTreeView)) {
       // enable buttons of respective files have been found
       if (model.projectX.getRunFile() != null) {
         runButton.setDisable(false);
@@ -119,6 +148,52 @@ public class FXMLController implements Initializable {
       }
     }
   }
+
+  /* File -> Open project directory... */
+  @FXML
+  private void openProjectDirectory(ActionEvent event) throws IOException {
+    if (model.projectX != null) {
+      if (Helper.overwriteProjectCheck(model.projectX)) {
+        model.openProjectDirectoryChooser(folderTreeView);
+      }
+    } else {
+      model.openProjectDirectoryChooser(folderTreeView);
+    }
+  }
+
+  /* File -> Close project... */
+  @FXML
+  private void closeProject(ActionEvent event) {
+    folderTreeView.setRoot(null);
+    String name = model.projectX.getProjectName();
+//    Project.clearProject();
+    log.debug("Closed project [" + name + "].");
+    runButton.setDisable(true);
+    compileButton.setDisable(true);
+    log.debug("Disabled compile and run buttons.");
+  }
+
+
+  /******************
+   * Button actions *
+   ******************/
+
+  /* Clicking the compile button */
+  @FXML
+  private void startCompile(ActionEvent event) throws IOException, InterruptedException {
+    model.startCompile(ruleTreeView);
+  }
+
+  /* Clicking the run button */
+  @FXML
+  private void startRun(ActionEvent event) {
+    log.warn("\"Run\" is not implemented yet.");
+  }
+
+
+  /****************
+   * TESTING ONLY *
+   ****************/
 
   /* for testing purposes: open dipal */
   @FXML
@@ -128,7 +203,7 @@ public class FXMLController implements Initializable {
       if (!Helper.overwriteProjectCheck(model.projectX)) return;
     }
 
-    if (model.processOpeningProjectYml(ymlFile, foldertreeviewx, locRuleViewx)) {
+    if (model.processOpeningProjectYml(ymlFile, folderTreeView, ruleTreeView)) {
       // enable buttons of respective files have been found
       if (model.projectX.getRunFile() != null) {
         runButton.setDisable(false);
@@ -141,53 +216,14 @@ public class FXMLController implements Initializable {
     }
   }
 
-
-  /* File -> Close project... */
+  /* Actually just a testing function, will be removed later */
   @FXML
-  private void closeProject(ActionEvent event) {
-    foldertreeviewx.setRoot(null);
-    String name = model.projectX.getProjectName();
-//    Project.clearProject();
-    log.debug("Closed project [" + name + "].");
-    runButton.setDisable(true);
-    compileButton.setDisable(true);
-    log.debug("Disabled compile and run buttons.");
-  }
-
-  @FXML
-  private void startRun(ActionEvent event) {
-
-  }
-
-  @FXML
-  private void startCompile(ActionEvent event) throws IOException, InterruptedException {
-    model.startCompile(locRuleViewx);
-  }
-
-  @Override
-  public void initialize(URL url, ResourceBundle rb) {
-
-    // make all tabs closable with an X button
-    tabpanex.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
-
-    // https://stackoverflow.com/questions/17348357/how-to-trigger-event-when-double-click-on-a-tree-node
-    foldertreeviewx.setOnMouseClicked(new EventHandler<MouseEvent>() {
-      @Override
-      public void handle(MouseEvent mouseEvent) {
-        if (mouseEvent.getClickCount() == 2) {
-          Object test = foldertreeviewx.getSelectionModel().getSelectedItem();
-          if (test instanceof RudiFileTreeItem) {
-            RudiFileTreeItem item = (RudiFileTreeItem) test;
-            System.out.println("Selected Text : " + item.getValue());
-            RudiTab tabdata;
-            try {
-              tabdata = new RudiTab(tabpanex, item.getFile().toFile());
-            } catch (FileNotFoundException ex) {
-              log.fatal(ex);
-            }
-          }
-        }
-      }
-    });
+  private void tabClicked(MouseEvent event) {
+    log.debug("tab clicked!");
+    if (event.getButton() == MouseButton.MIDDLE) {
+      log.debug("Middle mouse button clicked!");
+      Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+      log.debug(selectedTab);
+    }
   }
 }
