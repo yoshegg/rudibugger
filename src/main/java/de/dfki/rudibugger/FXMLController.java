@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 import org.apache.log4j.Logger;
 import javafx.event.ActionEvent;
@@ -90,7 +91,7 @@ public class FXMLController implements Initializable {
 
   /* File -> Open project directory... */
   @FXML
-  private void openProjectDirectory(ActionEvent event) {
+  private void openProjectDirectory(ActionEvent event) throws IOException {
     if (model.projectX != null) {
       if (Helper.overwriteProjectCheck(model.projectX)) {
         model.openProjectDirectoryChooser(foldertreeviewx);
@@ -102,7 +103,7 @@ public class FXMLController implements Initializable {
 
   /* File -> Open project .yml file... */
   @FXML
-  private void openProjectYml(ActionEvent event) throws FileNotFoundException {
+  private void openProjectYml(ActionEvent event) throws FileNotFoundException, IOException {
     if (model.projectX != null) {
       if (!Helper.overwriteProjectCheck(model.projectX)) return;
     }
@@ -121,8 +122,8 @@ public class FXMLController implements Initializable {
 
   /* for testing purposes: open dipal */
   @FXML
-  private void openDipal(ActionEvent event) throws FileNotFoundException {
-    File ymlFile = new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml");
+  private void openDipal(ActionEvent event) throws FileNotFoundException, IOException {
+    Path ymlFile = new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath();
     if (model.projectX != null) {
       if (!Helper.overwriteProjectCheck(model.projectX)) return;
     }
@@ -146,7 +147,7 @@ public class FXMLController implements Initializable {
   private void closeProject(ActionEvent event) {
     foldertreeviewx.setRoot(null);
     String name = model.projectX.getProjectName();
-    Project.clearProject();
+//    Project.clearProject();
     log.debug("Closed project [" + name + "].");
     runButton.setDisable(true);
     compileButton.setDisable(true);
@@ -180,7 +181,7 @@ public class FXMLController implements Initializable {
             System.out.println("Selected Text : " + item.getValue());
             RudiTab tabdata;
             try {
-              tabdata = new RudiTab(tabpanex, item.getFile());
+              tabdata = new RudiTab(tabpanex, item.getFile().toFile());
             } catch (FileNotFoundException ex) {
               log.fatal(ex);
             }

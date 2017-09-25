@@ -5,7 +5,7 @@
  */
 package de.dfki.rudibugger.project;
 
-import java.io.File;
+import java.nio.file.Path;
 import javafx.scene.control.TreeItem;
 
 /**
@@ -18,14 +18,14 @@ public class RudiFileTreeItem extends TreeItem {
     super(label);
   }
 
-  private String path;
+  private Path _path;
 
-  public void setFile(String path) {
-    this.path = path;
+  public void setFile(Path path) {
+    this._path = path;
   }
 
-  public File getFile() {
-    return new File(path);
+  public Path getFile() {
+    return _path;
   }
 
 }

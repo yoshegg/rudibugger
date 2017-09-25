@@ -62,13 +62,13 @@ public class Watch {
 
   public void createProjectWatch(Project proj) {
     _project = proj;
-    File rootFolder = new File(_project.getRootFolderPath());
-    File rudisFolder = _project.getRudisFolderPath();
+    Path rootFolder = _project.getRootFolder();
+    Path rudisFolder = _project.getRudisFolder();
     try {
       _watcherRootFolder = FileSystems.getDefault().newWatchService();
       _watcherRudisFolder = FileSystems.getDefault().newWatchService();
-      rootFolder.toPath().register(_watcherRootFolder, ENTRY_MODIFY);
-      rudisFolder.toPath().register(_watcherRudisFolder, ENTRY_MODIFY);
+      rootFolder.register(_watcherRootFolder, ENTRY_MODIFY);
+      rudisFolder.register(_watcherRudisFolder, ENTRY_MODIFY);
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
     }
@@ -77,10 +77,10 @@ public class Watch {
 
   public void createDirectoryWatch(Project proj) {
     _project = proj;
-    File rootFolder = new File(_project.getRootFolderPath());
+    Path rootFolder = _project.getRootFolder();
     try {
       _watcherRootFolder = FileSystems.getDefault().newWatchService();
-      rootFolder.toPath().register(_watcherRootFolder, ENTRY_MODIFY);
+      rootFolder.register(_watcherRootFolder, ENTRY_MODIFY);
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
     }

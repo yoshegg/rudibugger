@@ -12,6 +12,9 @@ import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import javafx.scene.control.TabPane;
@@ -21,6 +24,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  *
@@ -32,7 +36,13 @@ public class Model {
 
   public Stage stageX;
 
+  public Yaml _yaml;
+
   public volatile Project projectX;
+
+  public void setYaml(Yaml yaml) {
+    _yaml = yaml;
+  }
 
   public void openFile(TabPane tabpanex) throws FileNotFoundException {
     log.debug("Opening file chooser...");
@@ -63,31 +73,34 @@ public class Model {
    * @return true, if new project has been opened, false otherwise
    */
   public boolean openProjectYml(TreeView treeFiles, TreeView treeRules)
-          throws FileNotFoundException {
+          throws FileNotFoundException, IOException {
     log.debug("Opening project chooser (yml)");
     FileChooser yml = new FileChooser();
     yml.setInitialDirectory(new File(System.getProperty("user.home")));
     yml.getExtensionFilters().addAll(
             new FileChooser.ExtensionFilter("YAML files (*.yml)", "*.yml", "*.YML"));
     yml.setTitle("Open project .yml");
-    File ymlFile = yml.showOpenDialog(stageX);
-    if (ymlFile == null) {
+    File ymlFile2 = yml.showOpenDialog(stageX);
+
+    if (ymlFile2 == null) {
       log.debug("Aborted selection of .yml file");
       return false;
     }
     if (projectX != null) {
       log.info("Closing old project [" + projectX.getProjectName() + "]");
-      clearProject();
+//      clearProject();
     }
+    Path ymlFile = ymlFile2.toPath();
     return processOpeningProjectYml(ymlFile, treeFiles, treeRules);
   }
 
-  public boolean processOpeningProjectYml(File ymlFile, TreeView treeFiles, TreeView treeRules)
-          throws FileNotFoundException {
-    projectX = Project.initProject(ymlFile);
+  public boolean processOpeningProjectYml(Path ymlFile, TreeView treeFiles, TreeView treeRules)
+          throws FileNotFoundException, IOException {
+    projectX = new Project(ymlFile, _yaml);
+    projectX.initProject();
     projectX.setRuleTreeView(treeRules);
 
-    TreeItem<String> rudiRoot = getNodesForDirectory(projectX.getRudisFolderPath());
+    TreeItem<String> rudiRoot = getNodesForDirectory(projectX.getRudisFolder());
     rudiRoot.setValue(projectX.getProjectName() + " - .rudi files");
     treeFiles.setRoot(rudiRoot);
     treeFiles.getRoot().setExpanded(true);
@@ -100,18 +113,20 @@ public class Model {
   }
 
   // https://stackoverflow.com/questions/35070310/javafx-representing-directories
-  public void openProjectDirectoryChooser(TreeView treeviewx) {
+  public void openProjectDirectoryChooser(TreeView treeviewx) throws IOException {
     log.debug("Opening project chooser (directory)");
     DirectoryChooser dc = new DirectoryChooser();
     dc.setInitialDirectory(new File(System.getProperty("user.home")));
     dc.setTitle("Open project directory");
-    File choice = dc.showDialog(stageX);
-    if (choice == null) {
+    File choice2 = dc.showDialog(stageX);
+    if (choice2 == null) {
       log.debug("Aborted selection of project directory");
     } else {
-      clearProject();
-      projectX = setDirectory(choice);
-      log.info("Chose " + projectX.getRootFolderPath() + " as project's path.");
+//      clearProject();
+      Path choice = choice2.toPath();
+      projectX = new Project();
+      projectX.setDirectory(choice);
+      log.info("Chose " + projectX.getRootFolder() + " as project's path.");
       treeviewx.setRoot(getNodesForDirectory(choice));
       treeviewx.getRoot().setExpanded(true);
     }
@@ -120,19 +135,17 @@ public class Model {
   /*
    * Returns a TreeItem representation of the specified directory
    */
-  public TreeItem<String> getNodesForDirectory(File directory) {
-    TreeItem<String> root = new TreeItem<String>(directory.getName());
-    for (File f : directory.listFiles()) {
-      if (f.isDirectory()) { //Then we call the function recursively
+  public TreeItem<String> getNodesForDirectory(Path directory) throws IOException {
+    TreeItem<String> root = new TreeItem<>(directory.toString());
+    DirectoryStream<Path> stream = Files.newDirectoryStream(directory);
+    for (Path f : stream) {
+      if (Files.isDirectory(f)) { //Then we call the function recursively
         root.getChildren().add(getNodesForDirectory(f));
       } else {
-        if (f.getName().contains(".")) {
-          String fileEnding = f.getName().substring(f.getName().lastIndexOf('.'));
-          if (".rudi".equals(fileEnding)) {
-            RudiFileTreeItem item = new RudiFileTreeItem(f.getName());
-            item.setFile(f.getAbsolutePath());
-            root.getChildren().add(item);
-          }
+        if (f.toString().toLowerCase().endsWith(".rudi")) {
+          RudiFileTreeItem item = new RudiFileTreeItem(f.getFileName().toString());
+          item.setFile(f);
+          root.getChildren().add(item);
         }
       }
     }
@@ -154,13 +167,5 @@ public class Model {
     } else {
       p = Runtime.getRuntime().exec(projectX.getCompileFile().toString() + "-b");
     }
-//    p.waitFor();
-//    try {
-//      projectX.retrieveLocRuleTreeView();
-//      projectX.retrieveRuleLocMap();
-//    } catch (FileNotFoundException e) {
-//      log.error("Couldn't find the new RuleLocation.yml file. Was there "
-//              + "a problem executing the compile script?");
-//    }
   }
 }
