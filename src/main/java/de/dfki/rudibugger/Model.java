@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
@@ -141,12 +143,24 @@ public class Model {
    * Returns a TreeItem representation of the specified directory
    */
   public TreeItem<String> getNodesForDirectory(Path directory) throws IOException {
-    TreeItem<String> root = new TreeItem<>(directory.toString());
+    TreeItem<String> root = new TreeItem<>(directory.getFileName().toString());
+
+    /* get a sorted list of this directory's files */
     DirectoryStream<Path> stream = Files.newDirectoryStream(directory);
-    for (Path f : stream) {
-      if (Files.isDirectory(f)) { //Then we call the function recursively
+    List<Path> list = new ArrayList<>();
+    stream.forEach(list::add);
+    list.sort(
+      (Path h1, Path h2) -> h1.getFileName().toString().toLowerCase()
+              .compareTo(h2.getFileName().toString().toLowerCase()));
+
+    /* iterate over the found files */
+    for (Path f : list) {
+      /* if we find another directory, we call the function recursively */
+      if (Files.isDirectory(f)) {
         root.getChildren().add(getNodesForDirectory(f));
-      } else {
+      }
+      /* else we make sure to only have .rudi files */
+      else {
         if (f.toString().toLowerCase().endsWith(".rudi")) {
           RudiFileTreeItem item = new RudiFileTreeItem(f.getFileName().toString());
           item.setFile(f);
