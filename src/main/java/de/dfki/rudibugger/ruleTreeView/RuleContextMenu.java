@@ -57,6 +57,20 @@ public class RuleContextMenu extends ContextMenu {
   /* set MenuItems' ActionEvents */
   private void initializeRuleLoggingMenuItems() {
 
+    /* set open MenuItem */
+    MenuItem openFile = new MenuItem("Open "
+            + _item.getSourceFile().getFileName().toString());
+    openFile.setOnAction((ActionEvent e) -> {
+      _item.project.getRudiHBox().getTab(_item.getSourceFile());
+    });
+    MenuItem openRule = new MenuItem("Open rule (line "
+            + _item.getLineNumber() + ")");
+    openRule.setOnAction((ActionEvent e) -> {
+      _item.project.getRudiHBox().getTabAtPosition(_item.getSourceFile(),
+              _item.getLineNumber());
+    });
+    SeparatorMenuItem sep = new SeparatorMenuItem();
+
     /* set actions when menu items are clicked */
     CMI_ALWAYS.setOnAction((ActionEvent e) -> {
       _item.setState(STATE_ALWAYS);
@@ -70,11 +84,11 @@ public class RuleContextMenu extends ContextMenu {
     CMI_NEVER.setOnAction((ActionEvent e) -> {
       _item.setState(STATE_NEVER);
     });
-    this.getItems().addAll(CMI_ALWAYS, CMI_IF_TRUE, CMI_IF_FALSE, CMI_NEVER);
+    this.getItems().addAll(openFile, openRule, sep, CMI_ALWAYS, CMI_IF_TRUE, CMI_IF_FALSE, CMI_NEVER);
 
     /* if there are children, provide more options */
     if (! _item.getChildren().isEmpty()) {
-      SeparatorMenuItem sep = new SeparatorMenuItem();
+      SeparatorMenuItem sep2 = new SeparatorMenuItem();
       Menu childrenMenu = new Menu("Children");
       CMI_ALWAYS_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
         _item.setState(STATE_ALWAYS);
@@ -95,7 +109,7 @@ public class RuleContextMenu extends ContextMenu {
       childrenMenu.getItems().addAll(CMI_ALWAYS_WITH_CHILDREN,
               CMI_IF_TRUE_WITH_CHILDREN, CMI_IF_FALSE_WITH_CHILDREN,
               CMI_NEVER_WITH_CHILDREN);
-      this.getItems().addAll(sep, childrenMenu);
+      this.getItems().addAll(sep2, childrenMenu);
     }
   }
 

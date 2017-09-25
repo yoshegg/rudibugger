@@ -8,6 +8,8 @@ package de.dfki.rudibugger.tabs;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.Scanner;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import org.apache.log4j.Logger;
@@ -31,11 +33,14 @@ public class RudiTab extends Tab {
   /* creates a new empty tab */
   public RudiTab() {
     super();
+    this.setOnCloseRequest((Event arg0) -> {
+      ((RudiHBox) this.getTabPane().getParent()).removeTabFromOpenTabs(this);
+    });
   }
 
   /* creates a new tab and links a file to it */
   public RudiTab(Path file) {
-    super();
+    this();
     _file = file;
   }
 
@@ -84,9 +89,14 @@ public class RudiTab extends Tab {
 
     /* set the shown part of the file */
     _codeArea.showParagraphAtTop(0);
+    _codeArea.moveTo(0, 0);
 
     /* load content into tab */
     this.setContent(content);
 
+  }
+
+  public Path getFile() {
+    return _file;
   }
 }

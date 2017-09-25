@@ -121,4 +121,12 @@ public class RudiCodeArea extends CodeArea {
     spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
     return spansBuilder.create();
   }
+
+  public void showParagraphPretty(int line) {
+    if (line > 4) {
+      this.showParagraphAtTop(line - 5);
+    } else {
+      this.showParagraphAtTop(0);
+    }
+  }
 }

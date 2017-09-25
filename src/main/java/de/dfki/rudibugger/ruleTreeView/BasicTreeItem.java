@@ -199,8 +199,8 @@ public class BasicTreeItem extends TreeItem {
     return allChildren;
   }
 
-  /* returns the file the TreeItem was imported from */
-  private ImportTreeItem getParentImport() {
+  /* returns the ImportTreeItem the rule was imported from */
+  protected ImportTreeItem getParentImport() {
     TreeItem parent = this.getParent();
     if (parent == null) return null;
     while (! (parent instanceof ImportTreeItem)) {

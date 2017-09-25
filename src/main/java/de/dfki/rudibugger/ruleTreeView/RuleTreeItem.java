@@ -7,6 +7,7 @@ package de.dfki.rudibugger.ruleTreeView;
 
 import de.dfki.rudibugger.project.Project;
 import java.io.File;
+import java.nio.file.Path;
 import javafx.scene.image.Image;
 
 /**
@@ -27,9 +28,6 @@ public class RuleTreeItem extends BasicTreeItem {
 
   /* the name of the rule */
   private final String _ruleName;
-
-  /* the file the rule comes from */
-  private File _sourceFile;
 
   /* the line in which the rule appears in the file */
   private final int _lineNumber;
@@ -64,5 +62,15 @@ public class RuleTreeItem extends BasicTreeItem {
       default:
         return null;
     }
+  }
+
+  /* get source file */
+  public Path getSourceFile() {
+    return this.getParentImport().getFile();
+  }
+
+  /* get line number */
+  public Integer getLineNumber() {
+    return this._lineNumber;
   }
 }

@@ -47,7 +47,7 @@ public class RudiHBox extends HBox {
     return _openTabs.containsKey(id);
   }
 
-  
+
   /***************************************
    * RudiTab generation / retrieval      *
    * manages open TabPanes and open Tabs *
@@ -83,6 +83,37 @@ public class RudiHBox extends HBox {
       _openTabs.put(file, tab);
       return tab;
     }
+  }
+
+  /* get a RudiTab based on a file */
+  public RudiTab getTabAtPosition(Path file, Integer line) {
+
+    /* if the tab is already open, select it */
+    if (isFileOpen(file)) {
+      RudiTab tab = _openTabs.get(file);
+      tab._codeArea.showParagraphPretty(line-1);
+      tab._codeArea.moveTo(line-1, 0);
+      tab.getTabPane().getSelectionModel().select(tab);
+      return tab;
+    }
+
+    /* if not, open it in the recent TabPane */
+    else {
+      RudiTab tab = new RudiTab(file);
+      tab.setContent();
+      tab._codeArea.showParagraphPretty(line-1);
+      tab._codeArea.moveTo(line-1, 0);
+      RudiTabPane tabPane = getTabPane();
+      tabPane.getTabs().add(tab);
+      tabPane.getSelectionModel().select(tab);
+      _openTabs.put(file, tab);
+      return tab;
+    }
+  }
+
+  /* close a Tab and remove it from openTabs */
+  public void removeTabFromOpenTabs(RudiTab tab) {
+    _openTabs.remove(tab.getFile());
   }
 
   /* creates a new RudiTabPane or gets the most recent */
