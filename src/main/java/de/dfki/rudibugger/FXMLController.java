@@ -6,6 +6,7 @@
 package de.dfki.rudibugger;
 
 import de.dfki.rudibugger.project.RudiFileTreeItem;
+import de.dfki.rudibugger.tabs.RudiHBox;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,12 +20,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.TreeView;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 
 /**
  *
@@ -48,11 +46,14 @@ public class FXMLController implements Initializable {
     this.model = model;
   }
 
+  /* this method is automatically called */
   @Override
   public void initialize(URL url, ResourceBundle rb) {
 
-    /* make all tabs closable with an X button */
-    tabPane.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
+    /* initialise the RudiHBox for the RudiTabPane(s) */
+    tabPaneBack = new RudiHBox();
+    tabPaneBack.fitToParentAnchorPane();
+    tabAnchorPane.getChildren().add(tabPaneBack);
 
     /* what should happen when a .rudi file is double clicked */
     folderTreeView.setOnMouseClicked((MouseEvent mouseEvent) -> {
@@ -60,12 +61,7 @@ public class FXMLController implements Initializable {
         Object test = folderTreeView.getSelectionModel().getSelectedItem();
         if (test instanceof RudiFileTreeItem) {
           RudiFileTreeItem item = (RudiFileTreeItem) test;
-          RudiTab tabdata;
-          try {
-            tabdata = new RudiTab(tabPane, item.getFile());
-          } catch (FileNotFoundException ex) {
-            log.fatal(ex);
-          }
+          RudiTab tab = tabPaneBack.getTab(item.getFile());
         }
       }
     });
@@ -80,9 +76,12 @@ public class FXMLController implements Initializable {
   @FXML
   private Label statusBar;
 
-  /* the TabPane */
+  /* the ground AnchorPane of the HBox containing the tabPane(s) */
   @FXML
-  private TabPane tabPane;
+  private AnchorPane tabAnchorPane;
+
+  /* the RudiHBox on top of tabAnchorPane */
+  private RudiHBox tabPaneBack;
 
   /* the compile button */
   @FXML
@@ -108,13 +107,13 @@ public class FXMLController implements Initializable {
   /* File -> New empty tab */
   @FXML
   private void newEmptyTab(ActionEvent event) throws FileNotFoundException {
-    model.newEmptyTab(tabPane);
+    model.newEmptyTab(tabPaneBack);
   }
 
   /* File -> Open file(s) to tabs(s)... */
   @FXML
   private void openFile(ActionEvent event) throws FileNotFoundException {
-    model.openFile(tabPane);
+    model.openFile(tabPaneBack);
   }
 
   /* File -> Close file */
@@ -214,14 +213,14 @@ public class FXMLController implements Initializable {
     }
   }
 
-  /* Actually just a testing function, will be removed later */
-  @FXML
-  private void tabClicked(MouseEvent event) {
-    log.debug("tab clicked!");
-    if (event.getButton() == MouseButton.MIDDLE) {
-      log.debug("Middle mouse button clicked!");
-      Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
-      log.debug(selectedTab);
-    }
-  }
+//  /* Actually just a testing function, will be removed later */
+//  @FXML
+//  private void tabClicked(MouseEvent event) {
+//    log.debug("tab clicked!");
+//    if (event.getButton() == MouseButton.MIDDLE) {
+//      log.debug("Middle mouse button clicked!");
+//      Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+//      log.debug(selectedTab);
+//    }
+//  }
 }

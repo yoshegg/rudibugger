@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.Scanner;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 import org.apache.log4j.Logger;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -23,30 +22,27 @@ public class RudiTab extends Tab {
   /* the logger */
   static Logger log = Logger.getLogger("rudiLog");
 
-  /**
-   * creates a new empty tab with codeArea
-   * e.g. new file, maybe as starting point after startup
-   */
-  public RudiTab(TabPane tabpane) throws FileNotFoundException {
-    this(tabpane, null);
+  /* the associated file */
+  private Path _file;
+
+  /* creates a new empty tab */
+  public RudiTab() {
+    super();
   }
 
-  /**
-   * creates a new tab with codeArea reading in a file (if provided)
-   */
-  public RudiTab(TabPane tabpane, Path file) throws FileNotFoundException {
+  /* creates a new tab and links a file to it */
+  public RudiTab(Path file) {
     super();
+    _file = file;
+  }
 
-    /* create new tab and add it to tabpane */
-    Tab tab = new Tab("Tab " + (tabpane.getTabs().size() + 1));
-    tabpane.getTabs().add(tab);
-    tabpane.getSelectionModel().select(tab);
+  public void setContent() {
 
-    /* give the tab a name */
-    if (file == null) {
-      tab.setText("Untitled " +  tab.getText());
+    /* set the title of the tab */
+    if (_file == null) {
+      this.setText("Untitled RudiTab");
     } else {
-      tab.setText(file.getFileName().toString());
+      this.setText(_file.getFileName().toString());
     }
 
     /* create a CodeArea */
@@ -71,16 +67,19 @@ public class RudiTab extends Tab {
     }
 
     /* read in file (if provided) */
-    if (file != null) {
-      Scanner s = new Scanner(file.toFile()).useDelimiter("\n");
+    if (_file != null) {
+      try {
+      Scanner s = new Scanner(_file.toFile()).useDelimiter("\n");
       while (s.hasNext()) {
         codeArea.appendText(s.next() + "\n");
+      }
+      } catch (FileNotFoundException e) {
+        log.error("Something went wrong while reading in " + _file.getFileName().toString());
       }
     }
 
     /* load content into tab */
-    tab.setContent(content);
+    this.setContent(content);
+
   }
-
-
 }

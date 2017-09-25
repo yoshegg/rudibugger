@@ -7,6 +7,7 @@ package de.dfki.rudibugger;
 
 import de.dfki.rudibugger.project.Project;
 import de.dfki.rudibugger.project.RudiFileTreeItem;
+import de.dfki.rudibugger.tabs.RudiHBox;
 import de.dfki.rudibugger.tabs.RudiTab;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,6 +20,7 @@ import java.util.List;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -42,7 +44,7 @@ public class Model {
 
   public Project projectX;
 
-  public void openFile(TabPane tabpanex) throws FileNotFoundException {
+  public void openFile(RudiHBox tabPaneBack) throws FileNotFoundException {
     log.debug("Opening file chooser...");
     FileChooser fileChooser = new FileChooser();
 
@@ -60,7 +62,7 @@ public class Model {
     }
     // iterate over chosen files and open them in a new tab
     for (Object file : selectedFiles) {
-      RudiTab tab = new RudiTab(tabpanex, (Path) file);
+      tabPaneBack.getTab(((File) file).toPath());
     }
   }
 
@@ -150,8 +152,8 @@ public class Model {
     return root;
   }
 
-  public void newEmptyTab(TabPane tabpane) throws FileNotFoundException {
-    new RudiTab(tabpane);
+  public void newEmptyTab(RudiHBox tabPaneBack) throws FileNotFoundException {
+    tabPaneBack.getNewEmptyTab();
   }
 
   public void startCompile(TreeView treeRules) throws IOException, InterruptedException {
