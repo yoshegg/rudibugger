@@ -12,7 +12,6 @@ import de.dfki.rudibugger.ruleTreeView.BasicTreeItem;
 import de.dfki.rudibugger.ruleTreeView.ImportTreeItem;
 import de.dfki.rudibugger.ruleTreeView.RuleTreeItem;
 import de.dfki.rudibugger.tabs.RudiHBox;
-import de.dfki.rudibugger.tabs.RudiTabPane;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import javafx.scene.control.TreeView;
