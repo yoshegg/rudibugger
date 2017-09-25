@@ -11,6 +11,8 @@ import de.dfki.rudibugger.WatchServices.Watch;
 import de.dfki.rudibugger.ruleTreeView.BasicTreeItem;
 import de.dfki.rudibugger.ruleTreeView.ImportTreeItem;
 import de.dfki.rudibugger.ruleTreeView.RuleTreeItem;
+import de.dfki.rudibugger.tabs.RudiHBox;
+import de.dfki.rudibugger.tabs.RudiTabPane;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import javafx.scene.control.TreeView;
@@ -42,8 +44,12 @@ public class Project {
   private Path _rootFolder;
   private Path _rudisFolder;
   private Path _ruleLocFile;
-  private TreeView _ruleTreeView;
   private String _projName;
+
+  /* diverse GUI elements */
+  private TreeView _ruleTreeView;
+  private TreeView _fileTreeView;
+  private RudiHBox _tabPaneBack;
 
   public Yaml _yaml;
 
@@ -141,6 +147,22 @@ public class Project {
     return _ruleTreeView;
   }
 
+  public void setFileTreeView(TreeView treeFiles) {
+    _fileTreeView = treeFiles;
+  }
+
+  public TreeView getFileTreeView() {
+    return _fileTreeView;
+  }
+
+  public void setRudiHBox(RudiHBox tabPaneBack) {
+    _tabPaneBack = tabPaneBack;
+  }
+
+  public RudiHBox getRudiHBox() {
+    return _tabPaneBack;
+  }
+
   public TreeView retrieveRuleLocMap() throws FileNotFoundException {
     LinkedHashMap<String, Object> load
             = (LinkedHashMap<String, Object>)
@@ -150,7 +172,7 @@ public class Project {
       log.error("There is more than one main .rudi file.");
     }
     String rootKey = keys.get(0);
-    ImportTreeItem root = new ImportTreeItem(rootKey);
+    ImportTreeItem root = new ImportTreeItem(rootKey, this);
     _ruleTreeView.setRoot(getNodes(rootKey, load, root));
     root.setExpanded(true);
     return _ruleTreeView;
@@ -166,7 +188,7 @@ public class Project {
 
         // find a new import
         if (tempMap.containsKey("%ImportWasInLine")) {
-          ImportTreeItem item = new ImportTreeItem(f);
+          ImportTreeItem item = new ImportTreeItem(f, this);
           root.getChildren().add(getNodes(f, (LinkedHashMap) load.get(node), item));
         }
 
@@ -178,7 +200,7 @@ public class Project {
           }
           int inLine = (int) ((LinkedHashMap) ((LinkedHashMap) load.get(node)).get(f)).get("%InLine");
           RuleTreeItem item = new RuleTreeItem(correctedName,
-                  inLine);
+                  inLine, this);
           root.getChildren().add(getNodes(f, (LinkedHashMap) load.get(node), item));
         }
       }

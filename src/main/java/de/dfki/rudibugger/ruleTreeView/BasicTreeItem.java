@@ -5,6 +5,7 @@
  */
 package de.dfki.rudibugger.ruleTreeView;
 
+import de.dfki.rudibugger.project.Project;
 import java.util.HashSet;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -44,9 +45,15 @@ public class BasicTreeItem extends TreeItem {
    */
   public HBox _hb;
 
+  /* the project with its GUI elements */
+  public Project project;
+
   /* the constructor */
-  public BasicTreeItem(String text) {
+  public BasicTreeItem(String text, Project proj) {
     super();
+
+    /* bind project to field */
+    project = proj;
 
     /* initialise label and icon */
     _label = new Label(text);
@@ -93,9 +100,7 @@ public class BasicTreeItem extends TreeItem {
 
   /******************************
    * SET STATUS FUNCTIONS - END *
-   ******************************
-   * TODO: The following functions may be removed later
-   */
+   ******************************/
 
   /**
    * returns the needed icon (file or checkbox)

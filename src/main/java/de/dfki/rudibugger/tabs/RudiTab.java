@@ -73,10 +73,10 @@ public class RudiTab extends Tab {
     /* read in file (if provided) */
     if (_file != null) {
       try {
-      Scanner s = new Scanner(_file.toFile()).useDelimiter("\n");
-      while (s.hasNext()) {
-        _codeArea.appendText(s.next() + "\n");
-      }
+        Scanner s = new Scanner(_file.toFile()).useDelimiter("\n");
+        while (s.hasNext()) {
+          _codeArea.appendText(s.next() + "\n");
+        }
       } catch (FileNotFoundException e) {
         log.error("Something went wrong while reading in " + _file.getFileName().toString());
       }

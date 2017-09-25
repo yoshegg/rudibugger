@@ -70,9 +70,11 @@ public class Model {
    *
    * @param treeFiles
    * @param treeRules
+   * @param tabPaneBack
    * @return true, if new project has been opened, false otherwise
    */
-  public boolean openProjectYml(TreeView treeFiles, TreeView treeRules)
+  public boolean openProjectYml(TreeView treeFiles, TreeView treeRules,
+          RudiHBox tabPaneBack)
           throws FileNotFoundException, IOException {
     log.debug("Opening project chooser (yml)");
     FileChooser yml = new FileChooser();
@@ -91,14 +93,17 @@ public class Model {
 //      clearProject();
     }
     Path ymlFile = ymlFile2.toPath();
-    return processOpeningProjectYml(ymlFile, treeFiles, treeRules);
+    return processOpeningProjectYml(ymlFile, treeFiles, treeRules, tabPaneBack);
   }
 
-  public boolean processOpeningProjectYml(Path ymlFile, TreeView treeFiles, TreeView treeRules)
+  public boolean processOpeningProjectYml(Path ymlFile, TreeView treeFiles,
+          TreeView treeRules, RudiHBox tabPaneBack)
           throws FileNotFoundException, IOException {
     projectX = new Project(ymlFile, yaml);
     projectX.initProject();
     projectX.setRuleTreeView(treeRules);
+    projectX.setFileTreeView(treeFiles);
+    projectX.setRudiHBox(tabPaneBack);
 
     TreeItem<String> rudiRoot = getNodesForDirectory(projectX.getRudisFolder());
     rudiRoot.setValue(projectX.getProjectName() + " - .rudi files");

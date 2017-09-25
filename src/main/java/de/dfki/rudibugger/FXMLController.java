@@ -21,6 +21,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
@@ -134,7 +135,7 @@ public class FXMLController implements Initializable {
     if (model.projectX != null) {
       if (!Helper.overwriteProjectCheck(model.projectX)) return;
     }
-    if (model.openProjectYml(folderTreeView, ruleTreeView)) {
+    if (model.openProjectYml(folderTreeView, ruleTreeView, tabPaneBack)) {
       // enable buttons of respective files have been found
       if (model.projectX.getRunFile() != null) {
         runButton.setDisable(false);
@@ -194,13 +195,15 @@ public class FXMLController implements Initializable {
 
   /* for testing purposes: open dipal */
   @FXML
-  private void openDipal(ActionEvent event) throws FileNotFoundException, IOException {
+  private void openDipal(ActionEvent event)
+          throws FileNotFoundException, IOException {
     Path ymlFile = new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath();
     if (model.projectX != null) {
       if (!Helper.overwriteProjectCheck(model.projectX)) return;
     }
 
-    if (model.processOpeningProjectYml(ymlFile, folderTreeView, ruleTreeView)) {
+    if (model.processOpeningProjectYml(ymlFile, folderTreeView, ruleTreeView,
+            tabPaneBack)) {
       // enable buttons of respective files have been found
       if (model.projectX.getRunFile() != null) {
         runButton.setDisable(false);

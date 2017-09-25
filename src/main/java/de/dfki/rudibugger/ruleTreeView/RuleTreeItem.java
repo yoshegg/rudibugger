@@ -5,6 +5,7 @@
  */
 package de.dfki.rudibugger.ruleTreeView;
 
+import de.dfki.rudibugger.project.Project;
 import java.io.File;
 import javafx.scene.image.Image;
 
@@ -34,8 +35,8 @@ public class RuleTreeItem extends BasicTreeItem {
   private final int _lineNumber;
 
   /* the constructor */
-  public RuleTreeItem(String ruleName, Integer lineNumber) {
-    super(ruleName);
+  public RuleTreeItem(String ruleName, Integer lineNumber, Project proj) {
+    super(ruleName, proj);
 
     _lineNumber = lineNumber;
     _ruleName = ruleName;
