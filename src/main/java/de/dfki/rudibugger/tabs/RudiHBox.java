@@ -6,6 +6,7 @@
 package de.dfki.rudibugger.tabs;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -70,6 +71,7 @@ public class RudiHBox extends HBox {
     if (isFileOpen(file)) {
       RudiTab tab = _openTabs.get(file);
       tab.getTabPane().getSelectionModel().select(tab);
+//      tab._codeArea.setParagraphStyle(5, Collections.singletonList("isRule"));
       return tab;
     }
 
@@ -81,6 +83,7 @@ public class RudiHBox extends HBox {
       tabPane.getTabs().add(tab);
       tabPane.getSelectionModel().select(tab);
       _openTabs.put(file, tab);
+//      tab._codeArea.setParagraphStyle(5, Collections.singletonList("isRule"));
       return tab;
     }
   }
@@ -93,6 +96,7 @@ public class RudiHBox extends HBox {
       RudiTab tab = _openTabs.get(file);
       tab._codeArea.showParagraphPretty(line-1);
       tab._codeArea.moveTo(line-1, 0);
+//      tab._codeArea.setParagraphStyle(5, Collections.singletonList("isRule"));
       tab.getTabPane().getSelectionModel().select(tab);
       return tab;
     }
