@@ -6,9 +6,11 @@
 package de.dfki.rudibugger.ruleTreeView;
 
 import de.dfki.rudibugger.project.Project;
-import java.io.File;
 import java.nio.file.Path;
 import javafx.scene.image.Image;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 
 /**
  * This class represents every known fact about a rule:
@@ -40,10 +42,29 @@ public class RuleTreeItem extends BasicTreeItem {
     _ruleName = ruleName;
 
     /* the specific context menu for rules */
-    _hb.setOnContextMenuRequested((e) -> {
+    _hb.setOnContextMenuRequested((ContextMenuEvent e) -> {
       RuleContextMenu contextMenu = new RuleContextMenu(this);
       contextMenu.show(_hb, e.getScreenX(), e.getScreenY());
     });
+
+    /* switch through the different states when clicking on the CheckBox */
+    _hb.getChildren().get(0).setOnMouseClicked((MouseEvent e) -> {
+      if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY) {
+        cycleThroughStates();
+      }
+    });
+
+
+
+//    addEventHandler(MouseEvent.ANY, (MouseEvent event) -> {
+//        if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
+//        if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
+//          System.out.println("hello"); // perform some action
+//        }
+//
+//        event.consume();
+//      }
+//    });
   }
 
   /* returns the requested checkbox icon */
@@ -72,5 +93,23 @@ public class RuleTreeItem extends BasicTreeItem {
   /* get line number */
   public Integer getLineNumber() {
     return this._lineNumber;
+  }
+
+  /* cycle through different states */
+  private void cycleThroughStates() {
+    switch (this.getState()) {
+      case STATE_ALWAYS:
+        this.setState(STATE_IF_TRUE);
+        break;
+      case STATE_IF_TRUE:
+        this.setState(STATE_IF_FALSE);
+        break;
+      case STATE_IF_FALSE:
+        this.setState(STATE_NEVER);
+        break;
+      case STATE_NEVER:
+        this.setState(STATE_ALWAYS);
+        break;
+    }
   }
 }
