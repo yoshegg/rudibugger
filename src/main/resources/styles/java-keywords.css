@@ -28,3 +28,7 @@
 .paragraph-box:has-caret {
     -fx-background-color: #b4ddee;
 }
+
+.isRule {
+    -fx-background-color: #b4ddee;
+}

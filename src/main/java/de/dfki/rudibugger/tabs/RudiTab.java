@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.Scanner;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import org.apache.log4j.Logger;

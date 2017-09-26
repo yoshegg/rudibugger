@@ -1,7 +1,7 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Rudibugger is a debugger for .rudi code
+ * written in the context of a bachelor's thesis
+ * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
 package de.dfki.rudibugger.tabs;
 
@@ -73,30 +73,6 @@ public class RudiCodeArea extends CodeArea {
       this.setStyleSpans(0, computeHighlighting(this.getText()));
     }
   }
-
-
-//  private static final String sampleCode = String.join("\n", new String[]{
-//    "package com.example;",
-//    "",
-//    "import java.util.*;",
-//    "",
-//    "public class Foo extends Bar implements Baz {",
-//    "",
-//    "    /*",
-//    "     * multi-line comment",
-//    "     */",
-//    "    public static void main(String[] args) {",
-//    "        // single-line comment",
-//    "        for(String arg: args) {",
-//    "            if(arg.length() != 0)",
-//    "                System.out.println(arg);",
-//    "            else",
-//    "                System.err.println(\"Warning: empty string as argument\");",
-//    "        }",
-//    "    }",
-//    "",
-//    "}"
-//  });
 
   private static StyleSpans<Collection<String>> computeHighlighting(String text) {
     Matcher matcher = PATTERN.matcher(text);
