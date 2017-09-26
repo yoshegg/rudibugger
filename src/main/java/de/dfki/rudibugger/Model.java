@@ -7,6 +7,7 @@ package de.dfki.rudibugger;
 
 import de.dfki.rudibugger.project.Project;
 import de.dfki.rudibugger.project.RudiFileTreeItem;
+import de.dfki.rudibugger.project.RudiFolderTreeItem;
 import de.dfki.rudibugger.tabs.RudiHBox;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -138,8 +139,8 @@ public class Model {
   /*
    * Returns a TreeItem representation of the specified directory
    */
-  public TreeItem<String> getNodesForDirectory(Path directory) throws IOException {
-    TreeItem<String> root = new TreeItem<>(directory.getFileName().toString());
+  public RudiFolderTreeItem getNodesForDirectory(Path directory) throws IOException {
+    RudiFolderTreeItem root = new RudiFolderTreeItem(directory.getFileName().toString());
 
     /* get a sorted list of this directory's files */
     DirectoryStream<Path> stream = Files.newDirectoryStream(directory);
