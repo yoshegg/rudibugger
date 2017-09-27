@@ -28,6 +28,3 @@ hs_err_pid*
 /target/
 /nbproject/
 
-# Netbeans files
-nb-configuration.xml
-nbactions.xml
