@@ -20,6 +20,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -100,37 +102,44 @@ public class FXMLController implements Initializable {
   private TreeView ruleTreeView;
 
 
-  /********************************
-   * Menu actions (from menu bar) *
-   ********************************/
+  /**************************************
+   * Menu items actions (from menu bar) *
+   **************************************/
 
-  /* File -> New empty tab */
+  /********* File *********/
+
+
+  /** MenuItem "New Project..." */
   @FXML
-  private void newEmptyTab(ActionEvent event) throws FileNotFoundException {
+  private MenuItem newProjectItem;
+
+  /** Action "New Project..." */
+  @FXML
+  private void newProjectAction(ActionEvent event) {
+    model.createNewProject();
+  }
+
+
+  /** MenuItem "New rudi File..." */
+  @FXML
+  private MenuItem newRudiFileItem;
+
+  /** Action "New rudi File..." */
+  @FXML
+  private void newRudiFileAction(ActionEvent event)
+          throws FileNotFoundException {
     model.newEmptyTab(tabPaneBack);
   }
 
-  /* File -> Open file(s) to tabs(s)... */
-  @FXML
-  private void openFile(ActionEvent event) throws FileNotFoundException {
-    model.openFile(tabPaneBack);
-  }
 
-  /* File -> Close file */
+  /** MenuItem "Open Project..." */
   @FXML
-  private void closeFile(ActionEvent event) {
-    log.warn("Action \"Close file\" is not implemented yet");
-  }
+  private MenuItem openProjectItem;
 
-  /* File -> Exit */
+  /** Action "New rudi File..." */
   @FXML
-  private void closeApplication(ActionEvent event) {
-    MainApp.exitRudibugger();
-  }
-
-  /* File -> Open project .yml file... */
-  @FXML
-  private void openProjectYml(ActionEvent event) throws FileNotFoundException, IOException {
+  private void openProjectAction(ActionEvent event)
+          throws FileNotFoundException, IOException {
     if (model.projectX != null) {
       if (!Helper.overwriteProjectCheck(model.projectX)) return;
     }
@@ -147,21 +156,20 @@ public class FXMLController implements Initializable {
     }
   }
 
-  /* File -> Open project directory... */
-  @FXML
-  private void openProjectDirectory(ActionEvent event) throws IOException {
-    if (model.projectX != null) {
-      if (Helper.overwriteProjectCheck(model.projectX)) {
-        model.openProjectDirectoryChooser(folderTreeView);
-      }
-    } else {
-      model.openProjectDirectoryChooser(folderTreeView);
-    }
-  }
 
-  /* File -> Close project... */
+  /** Menu "Open Recent Project" */
   @FXML
-  private void closeProject(ActionEvent event) {
+  private Menu openRecentProjectMenu;
+
+
+  /** MenuItem "Close Project" */
+  @FXML
+  private MenuItem closeProjectItem;
+
+  /** Action "Close Project" */
+  @FXML
+  private void closeProjectAction(ActionEvent event)
+          throws FileNotFoundException {
     folderTreeView.setRoot(null);
     String name = model.projectX.getProjectName();
     log.debug("Closed project [" + name + "].");
@@ -169,6 +177,67 @@ public class FXMLController implements Initializable {
     compileButton.setDisable(true);
     log.debug("Disabled compile and run buttons.");
   }
+
+
+  /** Menu "Load logging state" */
+  @FXML
+  private Menu loadLoggingStateMenu;
+
+
+  /** MenuItem "Save logging state..." */
+  @FXML
+  private MenuItem saveLoggingStateItem;
+
+  /** Action "Save logging state" */
+  @FXML
+  private void saveLoggingStateAction(ActionEvent event) {
+
+  }
+
+
+  /** MenuItem "Save" */
+  @FXML
+  private MenuItem saveItem;
+
+  /** Action "Save" */
+  @FXML
+  private void saveAction(ActionEvent event) {
+
+  }
+
+
+  /** MenuItem "Save as..." */
+  @FXML
+  private MenuItem saveAsItem;
+
+  /** Action "Save as..." */
+  @FXML
+  private void saveAsAction(ActionEvent event) {
+
+  }
+
+
+  /** MenuItem "Save all" */
+  @FXML
+  private MenuItem saveAllItem;
+
+  /** Action "Save all" */
+  @FXML
+  private void saveAllAction(ActionEvent event) {
+
+  }
+
+
+  /** MenuItem "Exit" */
+  @FXML
+  private MenuItem exitItem;
+
+  /** Action "Exit" */
+  @FXML
+  private void exitAction(ActionEvent event) {
+    MainApp.exitRudibugger();
+  }
+
 
 
   /******************

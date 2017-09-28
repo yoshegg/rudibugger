@@ -184,4 +184,12 @@ public class Model {
       p = Runtime.getRuntime().exec(projectX.getCompileFile().toString() + "-b");
     }
   }
+
+  void createNewProject() {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  }
+
+  void openNewProject() {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  }
 }

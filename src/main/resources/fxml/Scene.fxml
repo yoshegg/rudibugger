@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.ToolBar?>
@@ -20,7 +21,7 @@
 
 <BorderPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.rudibugger.FXMLController">
    <center>
-      <SplitPane dividerPositions="0.30691056910569103" prefHeight="302.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <SplitPane dividerPositions="0.30561122244488975" prefHeight="302.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <items>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" SplitPane.resizableWithParent="false">
                <children>
@@ -34,10 +35,29 @@
                            <children>
                               <VBox prefHeight="300.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <children>
-                                    <TreeView fx:id="ruleTreeView" editable="true" prefHeight="300.0" prefWidth="300.0" />
-                                    <HBox>
+                                    <TreeView fx:id="ruleTreeView" editable="true" prefHeight="300.0" prefWidth="300.0" VBox.vgrow="ALWAYS" />
+                                    <HBox alignment="CENTER_LEFT" fillHeight="false" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="299.0" spacing="5.0" VBox.vgrow="NEVER">
                                        <children>
-                                          <Button mnemonicParsing="false" text="Expand all" />
+                                          <Button mnemonicParsing="false">
+                                             <HBox.margin>
+                                                <Insets left="5.0" />
+                                             </HBox.margin>
+                                             <graphic>
+                                                <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@../icons/RudiLogRuleStatus/Partly.png" />
+                                                   </image>
+                                                </ImageView>
+                                             </graphic>
+                                             <padding>
+                                                <Insets bottom="4.0" left="8.0" right="8.0" top="4.0" />
+                                             </padding></Button>
+                                          <Button layoutX="12.0" layoutY="12.0" mnemonicParsing="false" text="Expand all">
+                                             <padding>
+                                                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                             </padding>
+                                          </Button>
+                                          <Separator orientation="VERTICAL" prefHeight="200.0" />
                                        </children>
                                     </HBox>
                                  </children>
@@ -58,12 +78,12 @@
                <menus>
                   <Menu mnemonicParsing="false" text="File">
                      <items>
-                        <MenuItem disable="true" mnemonicParsing="false" text="New Project...">
+                        <MenuItem fx:id="newProjectItem" disable="true" mnemonicParsing="false" onAction="#newProjectAction" text="New Project...">
                            <accelerator>
                               <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                            </accelerator>
                         </MenuItem>
-                        <MenuItem mnemonicParsing="false" onAction="#newEmptyTab" text="New rudi File...">
+                        <MenuItem fx:id="newRudiFileItem" mnemonicParsing="false" onAction="#newRudiFileAction" text="New rudi File...">
                            <accelerator>
                               <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                            </accelerator>
@@ -76,37 +96,37 @@
                            </graphic>
                         </MenuItem>
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" onAction="#openProjectYml" text="Open Project...">
+                        <MenuItem fx:id="openProjectItem" mnemonicParsing="false" onAction="#openProjectAction" text="Open Project...">
                            <accelerator>
                               <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                            </accelerator></MenuItem>
-                        <Menu mnemonicParsing="false" text="Open Recent Project">
+                        <Menu fx:id="openRecentProjectMenu" mnemonicParsing="false" text="Open Recent Project">
                           <items>
                             <MenuItem disable="true" mnemonicParsing="false" text="Empty" />
                           </items>
                         </Menu>
-                        <MenuItem disable="true" mnemonicParsing="false" onAction="#closeProject" text="Close project" />
+                        <MenuItem fx:id="closeProjectItem" disable="true" mnemonicParsing="false" onAction="#closeProjectAction" text="Close Project" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <Menu mnemonicParsing="false" text="Load logging state...">
+                        <Menu fx:id="loadLoggingStateMenu" mnemonicParsing="false" text="Load logging state">
                           <items>
                             <MenuItem disable="true" mnemonicParsing="false" text="Empty" />
                           </items>
                         </Menu>
-                        <MenuItem disable="true" mnemonicParsing="false" text="Save logging state..." />
+                        <MenuItem fx:id="saveLoggingStateItem" disable="true" mnemonicParsing="false" onAction="#saveLoggingStateAction" text="Save logging state..." />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem disable="true" mnemonicParsing="false" text="Save">
+                        <MenuItem fx:id="saveItem" disable="true" mnemonicParsing="false" onAction="#saveAction" text="Save">
                            <accelerator>
                               <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                            </accelerator>
                         </MenuItem>
-                        <MenuItem disable="true" mnemonicParsing="false" text="Save As..." />
-                        <MenuItem disable="true" mnemonicParsing="false" text="Save All">
+                        <MenuItem fx:id="saveAsItem" disable="true" mnemonicParsing="false" onAction="#saveAsAction" text="Save As..." />
+                        <MenuItem fx:id="saveAllItem" disable="true" mnemonicParsing="false" onAction="#saveAllAction" text="Save All">
                            <accelerator>
                               <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                            </accelerator>
                         </MenuItem>
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" onAction="#closeApplication" text="Exit" />
+                        <MenuItem fx:id="exitItem" mnemonicParsing="false" onAction="#exitAction" text="Exit" />
                      </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Edit">
