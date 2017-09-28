@@ -9,7 +9,6 @@ import de.dfki.rudibugger.project.Project;
 import de.dfki.rudibugger.project.RudiFileTreeItem;
 import de.dfki.rudibugger.project.RudiFolderTreeItem;
 import de.dfki.rudibugger.tabs.RudiHBox;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -20,8 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
@@ -32,38 +29,16 @@ import org.yaml.snakeyaml.Yaml;
  */
 public class Model {
 
-  /* the logger */
+  /** the logger */
   static Logger log = Logger.getLogger("rudiLog");
 
-  /* the main stage */
+  /** the main stage */
   public Stage stageX;
 
-  /* the only yaml instance */
+  /** the only yaml instance */
   public Yaml yaml;
 
   public Project projectX;
-
-  public void openFile(RudiHBox tabPaneBack) throws FileNotFoundException {
-    log.debug("Opening file chooser...");
-    FileChooser fileChooser = new FileChooser();
-
-    // Set extension filter
-    FileChooser.ExtensionFilter extFilterRUDI = new FileChooser.ExtensionFilter("RUDI files (*.rudi)", "*.rudi", "*.RUDI");
-    FileChooser.ExtensionFilter extFilterALL = new FileChooser.ExtensionFilter("All files", "*.*");
-    fileChooser.getExtensionFilters().addAll(extFilterRUDI);
-    fileChooser.getExtensionFilters().addAll(extFilterALL);
-
-    fileChooser.setTitle("Open .rudi file(s)");
-    List selectedFiles = fileChooser.showOpenMultipleDialog(stageX);
-    if (selectedFiles == null) {
-      log.debug("Aborted selection of .rudi file(s)");
-      return;
-    }
-    // iterate over chosen files and open them in a new tab
-    for (Object file : selectedFiles) {
-      tabPaneBack.getTab(((File) file).toPath());
-    }
-  }
 
   /**
    *
@@ -71,31 +46,15 @@ public class Model {
    * @param treeRules
    * @param tabPaneBack
    * @return true, if new project has been opened, false otherwise
+   * @throws java.io.IOException
    */
   public boolean openProjectYml(TreeView treeFiles, TreeView treeRules,
-          RudiHBox tabPaneBack)
-          throws FileNotFoundException, IOException {
-    log.debug("Opening project chooser (yml)");
-    FileChooser yml = new FileChooser();
-    yml.setInitialDirectory(new File(System.getProperty("user.home")));
-    yml.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("YAML files (*.yml)", "*.yml", "*.YML"));
-    yml.setTitle("Open project .yml");
-    File ymlFile2 = yml.showOpenDialog(stageX);
-
-    if (ymlFile2 == null) {
-      log.debug("Aborted selection of .yml file");
-      return false;
-    }
-    if (projectX != null) {
-      log.info("Closing old project [" + projectX.getProjectName() + "]");
-//      clearProject();
-    }
-    Path ymlFile = ymlFile2.toPath();
-    return processOpeningProjectYml(ymlFile, treeFiles, treeRules, tabPaneBack);
+          RudiHBox tabPaneBack) throws IOException {
+    Path ymlFile = HelperWindows.openYmlProjectFile(stageX);
+    return processProjectYml(ymlFile, treeFiles, treeRules, tabPaneBack);
   }
 
-  public boolean processOpeningProjectYml(Path ymlFile, TreeView treeFiles,
+  public boolean processProjectYml(Path ymlFile, TreeView treeFiles,
           TreeView treeRules, RudiHBox tabPaneBack)
           throws FileNotFoundException, IOException {
     projectX = new Project(ymlFile, yaml);
@@ -114,26 +73,6 @@ public class Model {
       projectX.retrieveRuleLocMap();
     }
     return true;
-  }
-
-  // https://stackoverflow.com/questions/35070310/javafx-representing-directories
-  public void openProjectDirectoryChooser(TreeView treeviewx) throws IOException {
-    log.debug("Opening project chooser (directory)");
-    DirectoryChooser dc = new DirectoryChooser();
-    dc.setInitialDirectory(new File(System.getProperty("user.home")));
-    dc.setTitle("Open project directory");
-    File choice2 = dc.showDialog(stageX);
-    if (choice2 == null) {
-      log.debug("Aborted selection of project directory");
-    } else {
-//      clearProject();
-      Path choice = choice2.toPath();
-      projectX = new Project();
-      projectX.setDirectory(choice);
-      log.info("Chose " + projectX.getRootFolder() + " as project's path.");
-      treeviewx.setRoot(getNodesForDirectory(choice));
-      treeviewx.getRoot().setExpanded(true);
-    }
   }
 
   /*
@@ -168,8 +107,8 @@ public class Model {
     return root;
   }
 
-  public void newEmptyTab(RudiHBox tabPaneBack) throws FileNotFoundException {
-    tabPaneBack.getNewEmptyTab();
+  public void newRudiFile() throws FileNotFoundException {
+    projectX.getRudiHBox().getNewEmptyTab();
   }
 
   public void startCompile(TreeView treeRules) throws IOException, InterruptedException {
@@ -186,10 +125,6 @@ public class Model {
   }
 
   void createNewProject() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-  }
-
-  void openNewProject() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    log.info("Not implemented yet.");
   }
 }

@@ -5,11 +5,6 @@
  */
 package de.dfki.rudibugger;
 
-import de.dfki.rudibugger.project.Project;
-import java.util.Optional;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
 import org.apache.log4j.Logger;
 
 /**
@@ -19,24 +14,6 @@ import org.apache.log4j.Logger;
 public class Helper {
 
   static Logger log = Logger.getLogger("rudiLog");
-
-  /**
-   * This function asks the user explicitly to close the current project and
-   * open another one.
-   * @param proj
-   * @return true if user accepted to overwrite currently opened project
-   */
-  public static boolean overwriteProjectCheck(Project proj) {
-    log.debug("A project is already opened.");
-    log.debug("Asking whether it should be replaced.");
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setHeaderText("Open new project?");
-    alert.setContentText(
-            "There is already an opened project: \n" + proj.getProjectName()
-            + "\n\nDo you want to close this project and \nopen another one?");
-    Optional<ButtonType> result = alert.showAndWait();
-    return result.get() == ButtonType.OK;
-  }
 
   // taken from https://stackoverflow.com/questions/17307761/is-there-a-java-equivalent-to-pythons-easy-string-splicing
 

@@ -128,7 +128,7 @@ public class FXMLController implements Initializable {
   @FXML
   private void newRudiFileAction(ActionEvent event)
           throws FileNotFoundException {
-    model.newEmptyTab(tabPaneBack);
+    model.newRudiFile();
   }
 
 
@@ -136,12 +136,12 @@ public class FXMLController implements Initializable {
   @FXML
   private MenuItem openProjectItem;
 
-  /** Action "New rudi File..." */
+  /** Action "Open Project..." */
   @FXML
   private void openProjectAction(ActionEvent event)
           throws FileNotFoundException, IOException {
     if (model.projectX != null) {
-      if (!Helper.overwriteProjectCheck(model.projectX)) return;
+      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
     }
     if (model.openProjectYml(folderTreeView, ruleTreeView, tabPaneBack)) {
       // enable buttons of respective files have been found
@@ -267,10 +267,10 @@ public class FXMLController implements Initializable {
           throws FileNotFoundException, IOException {
     Path ymlFile = new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath();
     if (model.projectX != null) {
-      if (!Helper.overwriteProjectCheck(model.projectX)) return;
+      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
     }
 
-    if (model.processOpeningProjectYml(ymlFile, folderTreeView, ruleTreeView,
+    if (model.processProjectYml(ymlFile, folderTreeView, ruleTreeView,
             tabPaneBack)) {
       // enable buttons of respective files have been found
       if (model.projectX.getRunFile() != null) {
@@ -283,15 +283,4 @@ public class FXMLController implements Initializable {
       }
     }
   }
-
-//  /* Actually just a testing function, will be removed later */
-//  @FXML
-//  private void tabClicked(MouseEvent event) {
-//    log.debug("tab clicked!");
-//    if (event.getButton() == MouseButton.MIDDLE) {
-//      log.debug("Middle mouse button clicked!");
-//      Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
-//      log.debug(selectedTab);
-//    }
-//  }
 }

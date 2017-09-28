@@ -39,9 +39,9 @@ public class Project {
   /* diverse private fields */
   private Path _compileFile;
   private Path _runFile;
-  private Path _ymlFile;
+  private final Path _ymlFile;
   private Path _rootFolder;
-  private Path _rudisFolder;
+  private final Path _rudisFolder;
   private Path _ruleLocFile;
   private String _projName;
 
@@ -84,10 +84,6 @@ public class Project {
     retrieveLocRuleTreeView();
 
   }
-
-  /* nullary constructor, used when only opening a directory */
-  public Project() {}
-
 
   public void initProject() {
     Watch watch = new Watch();
