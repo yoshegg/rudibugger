@@ -10,7 +10,6 @@ import javafx.scene.image.Image;
 import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.project.Project;
 import java.nio.file.Paths;
-import javafx.scene.input.MouseEvent;
 
 /**
  *

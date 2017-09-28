@@ -13,6 +13,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import org.apache.log4j.Logger;
 
@@ -20,7 +22,7 @@ import org.apache.log4j.Logger;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class BasicTreeItem extends TreeItem {
+public class BasicTreeItem extends TreeItem<HBox> {
 
   /* the logger */
   static Logger log = Logger.getLogger("rudiLog");
@@ -58,7 +60,14 @@ public class BasicTreeItem extends TreeItem {
     /* initialise label and icon */
     _label = new Label(text);
     stateIndicator = new ImageView();
-    this.setToNever();
+    this.setState(STATE_NEVER);
+
+    /* disable doubleclick expand/collapse when clicking on the icon */
+    stateIndicator.addEventFilter(MouseEvent.MOUSE_PRESSED, (MouseEvent e) -> {
+      if (e.getClickCount() % 2 == 0 && e.getButton().equals(MouseButton.PRIMARY)) {
+        e.consume();
+      }
+    });
 
     /* fill HBox */
     _hb = new HBox();

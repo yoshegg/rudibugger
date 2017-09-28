@@ -53,18 +53,6 @@ public class RuleTreeItem extends BasicTreeItem {
         cycleThroughStates();
       }
     });
-
-
-
-//    addEventHandler(MouseEvent.ANY, (MouseEvent event) -> {
-//        if (event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
-//        if (event.getEventType().equals(MouseEvent.MOUSE_CLICKED)) {
-//          System.out.println("hello"); // perform some action
-//        }
-//
-//        event.consume();
-//      }
-//    });
   }
 
   /* returns the requested checkbox icon */
