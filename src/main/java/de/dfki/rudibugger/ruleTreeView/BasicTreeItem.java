@@ -77,40 +77,6 @@ public class BasicTreeItem extends TreeItem<HBox> {
     _hb.setAlignment(Pos.CENTER_LEFT);
   }
 
-  /********************************
-   * SET STATUS FUNCTIONS - START *
-   ********************************
-   * TODO: The following functions may be removed later
-   */
-  private void setToAlways() {
-    stateIndicator.setImage(getIcon(STATE_ALWAYS));
-    _state = STATE_ALWAYS;
-  }
-
-  private void setToIfTrue() {
-    stateIndicator.setImage(getIcon(STATE_IF_TRUE));
-    _state = STATE_IF_TRUE;
-  }
-
-  private void setToIfFalse() {
-    stateIndicator.setImage(getIcon(STATE_IF_FALSE));
-    _state = STATE_IF_FALSE;
-  }
-
-  private void setToNever() {
-    stateIndicator.setImage(getIcon(STATE_NEVER));
-    _state = STATE_NEVER;
-  }
-
-  private void setToPartly() {
-    stateIndicator.setImage(getIcon(STATE_PARTLY));
-    _state = STATE_PARTLY;
-  }
-
-  /******************************
-   * SET STATUS FUNCTIONS - END *
-   ******************************/
-
   /**
    * returns the needed icon (file or checkbox)
    */
@@ -127,24 +93,11 @@ public class BasicTreeItem extends TreeItem<HBox> {
    *
    * @param state
    */
-  public void setState(int state) {
-    switch (state) {
-      case STATE_ALWAYS:
-        setToAlways();
-        break;
-      case STATE_IF_TRUE:
-        setToIfTrue();
-        break;
-      case STATE_IF_FALSE:
-        setToIfFalse();
-        break;
-      case STATE_NEVER:
-        setToNever();
-        break;
-      case STATE_PARTLY:
-        setToPartly();
-        break;
-    }
+  public final void setState(int state) {
+
+    /* set state and adapt icon */
+    _state = state;
+    stateIndicator.setImage(getIcon(state));
 
     /* unify underlying rules */
     if (this instanceof ImportTreeItem) {
@@ -168,23 +121,10 @@ public class BasicTreeItem extends TreeItem<HBox> {
 
   /* this function only updates the state of a selected TreeItem */
   private void setStateHelper(int state) {
-    switch (state) {
-      case STATE_ALWAYS:
-        setToAlways();
-        break;
-      case STATE_IF_TRUE:
-        setToIfTrue();
-        break;
-      case STATE_IF_FALSE:
-        setToIfFalse();
-        break;
-      case STATE_NEVER:
-        setToNever();
-        break;
-      case STATE_PARTLY:
-        setToPartly();
-        break;
-    }
+
+    /* set state and adapt icon */
+    _state = state;
+    stateIndicator.setImage(getIcon(state));
   }
 
   /* returns the private field _state */
