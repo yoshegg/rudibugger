@@ -5,6 +5,7 @@
  */
 package de.dfki.rudibugger.ruleTreeView;
 
+import de.dfki.rudibugger.mvc.Rule;
 import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_ALWAYS;
 import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_IF_FALSE;
 import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_IF_TRUE;
@@ -91,11 +92,11 @@ public class ImportContextMenu extends ContextMenu {
     }
   }
 
-  /* unify children rules */
-  private void unifyChildren(Integer state) {
-    ((BasicTreeItem) _item).getAllChildren().forEach((item) -> {
-      item.setState(state);
-    }
-    );
-  }
+//  /* unify children rules */
+//  private void unifyChildren(Integer state) {
+//    ((BasicTreeItem) _item).getAllChildren().forEach((item) -> {
+//      item.setState(state);
+//    }
+//    );
+//  }
 }

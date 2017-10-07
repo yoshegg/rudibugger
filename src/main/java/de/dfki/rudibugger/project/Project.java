@@ -8,6 +8,7 @@ package de.dfki.rudibugger.project;
 import static de.dfki.rudibugger.Constants.*;
 import static de.dfki.rudibugger.Helper.*;
 import de.dfki.rudibugger.WatchServices.Watch;
+import de.dfki.rudibugger.mvc.Rule;
 import de.dfki.rudibugger.ruleTreeView.BasicTreeItem;
 import de.dfki.rudibugger.ruleTreeView.ImportTreeItem;
 import de.dfki.rudibugger.ruleTreeView.RuleTreeItem;
@@ -167,7 +168,9 @@ public class Project {
       log.error("There is more than one main .rudi file.");
     }
     String rootKey = keys.get(0);
-    ImportTreeItem root = new ImportTreeItem(rootKey, this);
+    Rule test = new Rule();
+    test.setRuleName(rootKey);
+    ImportTreeItem root = new ImportTreeItem(test, this);
     _ruleTreeView.setRoot(getNodes(rootKey, load, root));
     root.setExpanded(true);
     return _ruleTreeView;
@@ -183,7 +186,9 @@ public class Project {
 
         // find a new import
         if (tempMap.containsKey("%ImportWasInLine")) {
-          ImportTreeItem item = new ImportTreeItem(f, this);
+          Rule test = new Rule();
+          test.setRuleName(f);
+          ImportTreeItem item = new ImportTreeItem(test, this);
           root.getChildren().add(getNodes(f, (LinkedHashMap) load.get(node), item));
         }
 
@@ -193,8 +198,10 @@ public class Project {
           if (correctedName.contains("%")) {
             correctedName = slice_end(f, -2);
           }
+          Rule test = new Rule();
+          test.setRuleName(correctedName);
           int inLine = (int) ((LinkedHashMap) ((LinkedHashMap) load.get(node)).get(f)).get("%InLine");
-          RuleTreeItem item = new RuleTreeItem(correctedName,
+          RuleTreeItem item = new RuleTreeItem(test,
                   inLine, this);
           root.getChildren().add(getNodes(f, (LinkedHashMap) load.get(node), item));
         }

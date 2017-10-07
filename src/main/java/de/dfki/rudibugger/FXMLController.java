@@ -5,6 +5,8 @@
  */
 package de.dfki.rudibugger;
 
+import de.dfki.rudibugger.mvc.RudiComponent;
+import de.dfki.rudibugger.mvc.Rule;
 import de.dfki.rudibugger.project.RudiFileTreeItem;
 import de.dfki.rudibugger.tabs.RudiHBox;
 import de.dfki.rudibugger.tabs.RudiTab;
@@ -22,6 +24,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -67,6 +70,23 @@ public class FXMLController implements Initializable {
         }
       }
     });
+
+    ruleTreeView.setCellFactory(param -> {
+      TreeCell<Rule> treeCell = new TreeCell<Rule>() {
+        @Override
+        protected void updateItem(Rule item, boolean empty) {
+          super.updateItem(item, empty);
+          if (item == null || empty) {
+            setText("");
+            setGraphic(null);
+            return;
+          }
+
+          setText(((Rule) item).getRuleName());
+        }
+      };
+      return treeCell;
+    });
   }
 
 
@@ -95,7 +115,7 @@ public class FXMLController implements Initializable {
 
   /* The TreeView showing the content of the rudi folder (or root folder) */
   @FXML
-  private TreeView folderTreeView;
+  private TreeView<RudiComponent> folderTreeView;
 
   /* The TreeView showing the different rudi rules and imports */
   @FXML

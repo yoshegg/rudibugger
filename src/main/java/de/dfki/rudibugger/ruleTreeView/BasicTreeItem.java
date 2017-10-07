@@ -5,6 +5,8 @@
  */
 package de.dfki.rudibugger.ruleTreeView;
 
+import de.dfki.rudibugger.mvc.RudiComponent;
+import de.dfki.rudibugger.mvc.Rule;
 import de.dfki.rudibugger.project.Project;
 import java.util.HashSet;
 import javafx.collections.ObservableList;
@@ -22,7 +24,7 @@ import org.apache.log4j.Logger;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class BasicTreeItem extends TreeItem<HBox> {
+public class BasicTreeItem<T> extends TreeItem<RudiComponent> {
 
   /* the logger */
   static Logger log = Logger.getLogger("rudiLog");
@@ -51,14 +53,14 @@ public class BasicTreeItem extends TreeItem<HBox> {
   public Project project;
 
   /* the constructor */
-  public BasicTreeItem(String text, Project proj) {
+  public BasicTreeItem(Rule text, Project proj) {
     super();
 
     /* bind project to field */
     project = proj;
 
     /* initialise label and icon */
-    _label = new Label(text);
+    _label = new Label(text.getRuleName());
     stateIndicator = new ImageView();
     this.setState(STATE_NEVER);
 
@@ -71,7 +73,7 @@ public class BasicTreeItem extends TreeItem<HBox> {
 
     /* fill HBox */
     _hb = new HBox();
-    this.setValue(_hb);
+//    this.setValue(_hb);
     _hb.getChildren().add(stateIndicator);
     _hb.getChildren().add(_label);
     _hb.setAlignment(Pos.CENTER_LEFT);
