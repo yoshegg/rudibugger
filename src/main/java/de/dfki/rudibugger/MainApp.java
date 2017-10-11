@@ -5,12 +5,16 @@
  */
 package de.dfki.rudibugger;
 
+import de.dfki.rudibugger.Controller.*;
+import de.dfki.rudibugger.mvc.DataModel;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
@@ -40,18 +44,58 @@ public class MainApp extends Application {
     /* initialize YAML */
     yaml = new Yaml();
 
-    /* initialize FXMLController */
-    final Model model = new Model();
+
+    /*
+     * INITIALIZE CONTROLLERS AND FXMLs
+     */
+
+    /* create root BorderPane */
+    BorderPane root = new BorderPane();
+
+    /* initialize menuBar (top of BorderPane) */
+    FXMLLoader menuLoader = new FXMLLoader(getClass().getResource("/fxml/menuBar.fxml"));
+    root.setTop(menuLoader.load());
+    MenuController menuController = menuLoader.getController();
+
+    /* initialize statusBar (bottom of BorderPane) */
+    FXMLLoader statusLoader = new FXMLLoader(getClass().getResource("/fxml/statusBar.fxml"));
+    root.setBottom(statusLoader.load());
+    StatusBarController statusBarController = statusLoader.getController();
+
+    /* prepare SplitPane in the center of the root BorderPane */
+    SplitPane centeredSplitPane = new SplitPane();
+    centeredSplitPane.setOrientation(Orientation.HORIZONTAL);
+    centeredSplitPane.setDividerPositions(0.30);
+    root.setCenter(centeredSplitPane);
+
+    /* initialize sideBar (left part of centerPane) */
+    FXMLLoader sideBarLoader = new FXMLLoader(getClass().getResource("/fxml/sideBar.fxml"));
+    centeredSplitPane.getItems().add(sideBarLoader.load());
+    SideBarController sideBarController = sideBarLoader.getController();
+
+    /* initalize editor (right part of centerPane) */
+    FXMLLoader editorLoader = new FXMLLoader(getClass().getResource("/fxml/editor.fxml"));
+    centeredSplitPane.getItems().add(editorLoader.load());
+    EditorController editorController = editorLoader.getController();
+
+
+    /*
+     * INITIALIZE DATA MODEL
+     */
+
+    DataModel model = new DataModel();
+    menuController.initModel(model);
+    statusBarController.initModel(model);
+    sideBarController.initModel(model);
+    editorController.initModel(model);
+
+    /* initialize general FXMLController */
     model.yaml = yaml;
-    FXMLLoader loader = new FXMLLoader();
-    loader.setLocation(getClass().getResource("/fxml/Scene.fxml"));
-    loader.setControllerFactory((Class<?> aClass) -> new FXMLController(model));
 
     /* bind stage to field */
     model.stageX = stage;
 
     /* define GUI */
-    Parent root = (Parent) loader.load();
     Scene scene = new Scene(root);
     scene.getStylesheets().add("/styles/Styles.css");
     stage.setTitle("Rudibugger (beta)");

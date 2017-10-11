@@ -3,8 +3,9 @@
  * written in the context of a bachelor's thesis
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
-package de.dfki.rudibugger;
+package de.dfki.rudibugger.mvc;
 
+import de.dfki.rudibugger.HelperWindows;
 import de.dfki.rudibugger.project.Project;
 import de.dfki.rudibugger.project.RudiFileTreeItem;
 import de.dfki.rudibugger.project.RudiFolderTreeItem;
@@ -17,6 +18,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
@@ -27,7 +32,7 @@ import org.yaml.snakeyaml.Yaml;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class Model {
+public class DataModel {
 
   /** the logger */
   static Logger log = Logger.getLogger("rudiLog");
@@ -38,7 +43,30 @@ public class Model {
   /** the only yaml instance */
   public Yaml yaml;
 
+
+  /* TODO: Remove? */
   public Project projectX;
+
+  /* TODO: comment */
+  private final ObservableList<Rule> ruleList = FXCollections.observableArrayList();
+
+  public final ObservableList<Rule> getRuleMap() {
+    return ruleList;
+  }
+
+
+  /* statusBar */
+  private StringProperty statusBar;
+  public void setStatusBar(String value) { statusBarProperty().set(value); }
+  public String getStatusBar() { return statusBarProperty().get(); }
+  public StringProperty statusBarProperty() {
+      if (statusBar == null) statusBar = new SimpleStringProperty(this, "firstName");
+      return statusBar;
+  }
+
+
+
+  /* OLD */
 
   /**
    *
@@ -124,7 +152,8 @@ public class Model {
     }
   }
 
-  void createNewProject() {
+  public void createNewProject() {
     log.info("Not implemented yet.");
   }
+
 }
