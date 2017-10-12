@@ -196,7 +196,7 @@ public class MenuController {
   /* Clicking the compile button */
   @FXML
   private void startCompile(ActionEvent event) throws IOException, InterruptedException {
-//    model.startCompile(ruleTreeView);
+    model.startCompile(model.ruleTreeView);
   }
 
   /* Clicking the run button */
