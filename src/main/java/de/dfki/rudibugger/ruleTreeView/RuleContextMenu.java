@@ -58,11 +58,6 @@ public class RuleContextMenu extends ContextMenu {
   private void initializeRuleLoggingMenuItems() {
 
     /* set open MenuItem */
-    MenuItem openFile = new MenuItem("Open "
-            + _item.getSourceFile().getFileName().toString());
-    openFile.setOnAction((ActionEvent e) -> {
-      _item.project.getRudiHBox().getTab(_item.getSourceFile());
-    });
     MenuItem openRule = new MenuItem("Open rule (line "
             + _item.getLineNumber() + ")");
     openRule.setOnAction((ActionEvent e) -> {
@@ -84,33 +79,33 @@ public class RuleContextMenu extends ContextMenu {
     CMI_NEVER.setOnAction((ActionEvent e) -> {
       _item.setState(STATE_NEVER);
     });
-    this.getItems().addAll(openFile, openRule, sep, CMI_ALWAYS, CMI_IF_TRUE, CMI_IF_FALSE, CMI_NEVER);
+    this.getItems().addAll(openRule, sep, CMI_ALWAYS, CMI_IF_TRUE, CMI_IF_FALSE, CMI_NEVER);
 
-//    /* if there are children, provide more options */
-//    if (! _item.getChildren().isEmpty()) {
-//      SeparatorMenuItem sep2 = new SeparatorMenuItem();
-//      Menu childrenMenu = new Menu("Children");
-//      CMI_ALWAYS_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
-//        _item.setState(STATE_ALWAYS);
-//        unifyChildren(STATE_ALWAYS);
-//      });
-//      CMI_IF_TRUE_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
-//        _item.setState(STATE_IF_TRUE);
-//        unifyChildren(STATE_IF_TRUE);
-//      });
-//      CMI_IF_FALSE_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
-//        _item.setState(STATE_IF_FALSE);
-//        unifyChildren(STATE_IF_FALSE);
-//      });
-//      CMI_NEVER_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
-//        _item.setState(STATE_NEVER);
-//        unifyChildren(STATE_NEVER);
-//      });
-//      childrenMenu.getItems().addAll(CMI_ALWAYS_WITH_CHILDREN,
-//              CMI_IF_TRUE_WITH_CHILDREN, CMI_IF_FALSE_WITH_CHILDREN,
-//              CMI_NEVER_WITH_CHILDREN);
-//      this.getItems().addAll(sep2, childrenMenu);
-//    }
+    /* if there are children, provide more options */
+    if (! _item.getChildren().isEmpty()) {
+      SeparatorMenuItem sep2 = new SeparatorMenuItem();
+      Menu childrenMenu = new Menu("Children");
+      CMI_ALWAYS_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
+        _item.setState(STATE_ALWAYS);
+        unifyChildren(STATE_ALWAYS);
+      });
+      CMI_IF_TRUE_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
+        _item.setState(STATE_IF_TRUE);
+        unifyChildren(STATE_IF_TRUE);
+      });
+      CMI_IF_FALSE_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
+        _item.setState(STATE_IF_FALSE);
+        unifyChildren(STATE_IF_FALSE);
+      });
+      CMI_NEVER_WITH_CHILDREN.setOnAction((ActionEvent e) -> {
+        _item.setState(STATE_NEVER);
+        unifyChildren(STATE_NEVER);
+      });
+      childrenMenu.getItems().addAll(CMI_ALWAYS_WITH_CHILDREN,
+              CMI_IF_TRUE_WITH_CHILDREN, CMI_IF_FALSE_WITH_CHILDREN,
+              CMI_NEVER_WITH_CHILDREN);
+      this.getItems().addAll(sep2, childrenMenu);
+    }
   }
 
   /* get the state from the TreeItem */
@@ -131,11 +126,11 @@ public class RuleContextMenu extends ContextMenu {
     }
   }
 
-//  /* unify children rules */
-//  private void unifyChildren(Integer state) {
-//    ((BasicTreeItem) _item).getAllChildren().forEach((item) -> {
-//      item.setState(state);
-//    }
-//    );
-//  }
+  /* unify children rules */
+  private void unifyChildren(Integer state) {
+    ((BasicTreeItem) _item).getAllChildren().forEach((item) -> {
+      item.setState(state);
+    }
+    );
+  }
 }
