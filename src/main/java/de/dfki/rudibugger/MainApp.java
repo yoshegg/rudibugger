@@ -68,12 +68,12 @@ public class MainApp extends Application {
     centeredSplitPane.setDividerPositions(0.30);
     root.setCenter(centeredSplitPane);
 
-    /* initialize sideBar (left part of centerPane) */
+    /* initialize sideBar (left part of centeredSplitPane) */
     FXMLLoader sideBarLoader = new FXMLLoader(getClass().getResource("/fxml/sideBar.fxml"));
     centeredSplitPane.getItems().add(sideBarLoader.load());
     SideBarController sideBarController = sideBarLoader.getController();
 
-    /* initalize editor (right part of centerPane) */
+    /* initalize editor (right part of centeredSplitPane) */
     FXMLLoader editorLoader = new FXMLLoader(getClass().getResource("/fxml/editor.fxml"));
     centeredSplitPane.getItems().add(editorLoader.load());
     EditorController editorController = editorLoader.getController();
@@ -89,6 +89,7 @@ public class MainApp extends Application {
     sideBarController.initModel(model);
     editorController.initModel(model);
 
+    
     /* initialize general FXMLController */
     model.yaml = yaml;
 

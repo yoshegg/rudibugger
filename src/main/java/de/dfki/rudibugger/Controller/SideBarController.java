@@ -7,9 +7,12 @@ package de.dfki.rudibugger.Controller;
 
 import de.dfki.rudibugger.mvc.DataModel;
 import de.dfki.rudibugger.mvc.Rule;
+import de.dfki.rudibugger.project.RudiFileTreeItem;
+import de.dfki.rudibugger.tabs.RudiTab;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.MouseEvent;
 import org.apache.log4j.Logger;
 
 /**
@@ -30,34 +33,38 @@ public class SideBarController {
     }
     this.model = model;
 
+    /* TODO: REMOVE  */
+    model.ruleTreeView = ruleTreeView;
+    model.fileTreeView = fileTreeView;
+
     /* TODO: what should happen when a .rudi file is double clicked */
-//    folderTreeView.setOnMouseClicked((MouseEvent mouseEvent) -> {
-//      if (mouseEvent.getClickCount() == 2) {
-//        Object test = folderTreeView.getSelectionModel().getSelectedItem();
-//        if (test instanceof RudiFileTreeItem) {
-//          RudiFileTreeItem item = (RudiFileTreeItem) test;
-//          RudiTab tab = tabPaneBack.getTab(item.getFile());
-//        }
-//      }
-//    });
+    fileTreeView.setOnMouseClicked((MouseEvent mouseEvent) -> {
+      if (mouseEvent.getClickCount() == 2) {
+        Object test = fileTreeView.getSelectionModel().getSelectedItem();
+        if (test instanceof RudiFileTreeItem) {
+          RudiFileTreeItem item = (RudiFileTreeItem) test;
+          RudiTab tab = model.tabPaneBack.getTab(item.getFile());
+        }
+      }
+    });
 
     /* TODO: this is probably wrong */
-    ruleTreeView.setCellFactory(param -> {
-      TreeCell<Rule> treeCell = new TreeCell<Rule>() {
-        @Override
-        protected void updateItem(Rule item, boolean empty) {
-          super.updateItem(item, empty);
-          if (item == null || empty) {
-            setText("");
-            setGraphic(null);
-            return;
-          }
-
-          setText(((Rule) item).getRuleName());
-        }
-      };
-      return treeCell;
-    });
+//    ruleTreeView.setCellFactory(param -> {
+//      TreeCell<Rule> treeCell = new TreeCell<Rule>() {
+//        @Override
+//        protected void updateItem(Rule item, boolean empty) {
+//          super.updateItem(item, empty);
+//          if (item == null || empty) {
+//            setText("");
+//            setGraphic(null);
+//            return;
+//          }
+//
+//          setText(((Rule) item).getRuleName());
+//        }
+//      };
+//      return treeCell;
+//    });
   }
 
   /**
@@ -72,6 +79,6 @@ public class SideBarController {
 
   /* The TreeView showing the content of the rudi folder (or root folder) */
   @FXML
-  private TreeView folderTreeView;
+  private TreeView fileTreeView;
 
 }

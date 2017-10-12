@@ -68,6 +68,15 @@ public class DataModel {
 
   /* OLD */
 
+  /* TODO: Transform to be MVC conform */
+
+  public TreeView ruleTreeView;
+  public TreeView fileTreeView;
+  public RudiHBox tabPaneBack;
+
+
+
+
   /**
    *
    * @param treeFiles

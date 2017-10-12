@@ -5,7 +5,7 @@
  */
 package de.dfki.rudibugger.ruleTreeView;
 
-import de.dfki.rudibugger.mvc.Rule;
+//import de.dfki.rudibugger.mvc.Rule;
 import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_ALWAYS;
 import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_IF_FALSE;
 import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_IF_TRUE;

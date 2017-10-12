@@ -33,6 +33,9 @@ public class EditorController {
     tabPaneBack = new RudiHBox();
     tabPaneBack.fitToParentAnchorPane();
     tabAnchorPane.getChildren().add(tabPaneBack);
+
+    /* TODO: REMOVE */
+    model.tabPaneBack = tabPaneBack;
   }
 
 

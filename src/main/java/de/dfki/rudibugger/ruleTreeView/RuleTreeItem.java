@@ -6,7 +6,7 @@
 package de.dfki.rudibugger.ruleTreeView;
 
 import de.dfki.rudibugger.mvc.RudiComponent;
-import de.dfki.rudibugger.mvc.Rule;
+//import de.dfki.rudibugger.mvc.Rule;
 import de.dfki.rudibugger.project.Project;
 import java.nio.file.Path;
 import javafx.scene.image.Image;
@@ -20,7 +20,7 @@ import javafx.scene.input.MouseEvent;
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  * @param <Rule>
  */
-public class RuleTreeItem extends BasicTreeItem<RudiComponent> {
+public class RuleTreeItem extends BasicTreeItem {
 
   /* the different icons used as indicator */
   static final String RULE_ICON_PATH
@@ -38,11 +38,11 @@ public class RuleTreeItem extends BasicTreeItem<RudiComponent> {
   private final int _lineNumber;
 
   /* the constructor */
-  public RuleTreeItem(Rule ruleName, Integer lineNumber, Project proj) {
+  public RuleTreeItem(String ruleName, Integer lineNumber, Project proj) {
     super(ruleName, proj);
 
     _lineNumber = lineNumber;
-    _ruleName = ruleName.getRuleName();
+    _ruleName = ruleName;
 
     /* the specific context menu for rules */
     _hb.setOnContextMenuRequested((ContextMenuEvent e) -> {

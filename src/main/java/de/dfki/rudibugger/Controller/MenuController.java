@@ -89,20 +89,20 @@ public class MenuController {
   @FXML
   private void openProjectAction(ActionEvent event)
           throws FileNotFoundException, IOException {
-//    if (model.projectX != null) {
-//      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
-//    }
-//    if (model.openProjectYml(folderTreeView, ruleTreeView, tabPaneBack)) {
-//      // enable buttons of respective files have been found
-//      if (model.projectX.getRunFile() != null) {
-//        runButton.setDisable(false);
-//        log.debug("Enabled run button.");
-//      }
-//      if (model.projectX.getCompileFile() != null) {
-//        compileButton.setDisable(false);
-//        log.debug("Enabled compile button.");
-//      }
-//    }
+    if (model.projectX != null) {
+      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
+    }
+    if (model.openProjectYml(model.fileTreeView, model.ruleTreeView, model.tabPaneBack)) {
+      // enable buttons of respective files have been found
+      if (model.projectX.getRunFile() != null) {
+        runButton.setDisable(false);
+        log.debug("Enabled run button.");
+      }
+      if (model.projectX.getCompileFile() != null) {
+        compileButton.setDisable(false);
+        log.debug("Enabled compile button.");
+      }
+    }
   }
 
 
@@ -119,12 +119,12 @@ public class MenuController {
   @FXML
   private void closeProjectAction(ActionEvent event)
           throws FileNotFoundException {
-//    folderTreeView.setRoot(null);
-//    String name = model.projectX.getProjectName();
-//    log.debug("Closed project [" + name + "].");
-//    runButton.setDisable(true);
-//    compileButton.setDisable(true);
-//    log.debug("Disabled compile and run buttons.");
+    model.fileTreeView.setRoot(null);
+    String name = model.projectX.getProjectName();
+    log.debug("Closed project [" + name + "].");
+    runButton.setDisable(true);
+    compileButton.setDisable(true);
+    log.debug("Disabled compile and run buttons.");
   }
 
 
@@ -211,22 +211,22 @@ public class MenuController {
   @FXML
   private void openDipal(ActionEvent event)
           throws FileNotFoundException, IOException {
-//    Path ymlFile = new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath();
-//    if (model.projectX != null) {
-//      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
-//    }
-//
-//    if (model.processProjectYml(ymlFile, folderTreeView, ruleTreeView,
-//            tabPaneBack)) {
-//      // enable buttons of respective files have been found
-//      if (model.projectX.getRunFile() != null) {
-//        runButton.setDisable(false);
-//        log.debug("Enabled run button.");
-//      }
-//      if (model.projectX.getCompileFile() != null) {
-//        compileButton.setDisable(false);
-//        log.debug("Enabled compile button.");
-//      }
-//    }
+    Path ymlFile = new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath();
+    if (model.projectX != null) {
+      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
+    }
+
+    if (model.processProjectYml(ymlFile, model.fileTreeView,  model.ruleTreeView,
+             model.tabPaneBack)) {
+      // enable buttons of respective files have been found
+      if (model.projectX.getRunFile() != null) {
+        runButton.setDisable(false);
+        log.debug("Enabled run button.");
+      }
+      if (model.projectX.getCompileFile() != null) {
+        compileButton.setDisable(false);
+        log.debug("Enabled compile button.");
+      }
+    }
   }
 }

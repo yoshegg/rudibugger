@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import javafx.scene.image.Image;
 import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.mvc.RudiComponent;
-import de.dfki.rudibugger.mvc.Rule;
+//import de.dfki.rudibugger.mvc.Rule;
 import de.dfki.rudibugger.project.Project;
 import java.nio.file.Paths;
 
@@ -17,7 +17,7 @@ import java.nio.file.Paths;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class ImportTreeItem extends BasicTreeItem<RudiComponent> {
+public class ImportTreeItem extends BasicTreeItem {
 
   /* the associated file */
   private final Path _file;
@@ -32,7 +32,7 @@ public class ImportTreeItem extends BasicTreeItem<RudiComponent> {
   static Image imgPartly = new Image(FILE_ICON_PATH + "Partly.png");
 
   /* the constructor */
-  public ImportTreeItem(Rule importName, Project proj) {
+  public ImportTreeItem(String importName, Project proj) {
     super(importName, proj);
     _file = Paths.get(project.getRootFolder() + "/"
             + PATH_TO_RUDI_FILES + importName + ".rudi");
