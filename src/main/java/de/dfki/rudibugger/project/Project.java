@@ -7,6 +7,7 @@ package de.dfki.rudibugger.project;
 
 import static de.dfki.rudibugger.Constants.*;
 import static de.dfki.rudibugger.Helper.*;
+import de.dfki.rudibugger.WatchServices.RuleLocationWatch;
 import de.dfki.rudibugger.WatchServices.Watch;
 //import de.dfki.rudibugger.mvc.Rule;
 import de.dfki.rudibugger.ruleTreeView.BasicTreeItem;
@@ -87,8 +88,8 @@ public class Project {
   }
 
   public void initProject() {
-    Watch watch = new Watch();
-    watch.createProjectWatch(this);
+    RuleLocationWatch watch = new RuleLocationWatch();
+    watch.createRuleLocationWatch(this);
   }
 
   public void setDirectory(Path directory) {
