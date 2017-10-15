@@ -5,9 +5,8 @@
  */
 package de.dfki.rudibugger.WatchServices;
 
-import static de.dfki.rudibugger.Constants.RULE_LOCATION_SUFFIX;
-import de.dfki.rudibugger.project.Project;
-import java.io.FileNotFoundException;
+import static de.dfki.rudibugger.Constants.*;
+import de.dfki.rudibugger.DataModel;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -28,9 +27,6 @@ import org.apache.log4j.Logger;
 public class RuleLocationWatch {
 
   static Logger log = Logger.getLogger("ruleLocWatch");
-
-  // TODO: REMOVE the Project
-  private volatile Project _project;
 
   /** the Thread in which the WatchService is run */
   private volatile Thread watchingTread;
@@ -64,19 +60,22 @@ public class RuleLocationWatch {
   /** the corresponding WatchSercie */
   private WatchService _watchService;
 
-  /** this Path contains the momentary modified file */
+  /** this Path contains the currently modified file */
   private Path changingFile;
+
+  /** the DataModel */
+  DataModel _model;
 
   /**
    * this function must be called to create a WatchService for ~RuleLocation.yml
+   * @param model
    */
-  public void createRuleLocationWatch(Project proj) {
-    _project = proj;
-    Path rootFolder = _project.getRootFolder();
+  public void createRuleLocationWatch(DataModel model) {
+    _model = model;
 
     try {
       _watchService = FileSystems.getDefault().newWatchService();
-      rootFolder.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE);
+      model.getRootFolder().register(_watchService, ENTRY_MODIFY, ENTRY_CREATE);
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
     }
@@ -161,17 +160,11 @@ public class RuleLocationWatch {
             log.debug("[" + changingFile + "] is ready.");
           }
 
-          /* no more changes are detected, reload the DataModel */
+          /* no more changes are detected, notify DataModel to reload */
           if (watchKey == null) {
-            _project.retrieveLocRuleTreeView();
             Platform.runLater(() -> {
-              try {
-                _project.retrieveRuleLocMap(); // TODO: use DataModel
-                log.debug("[" + changingFile + "] has "
-                        + "been created/modified and (therefore) reloaded.");
-              } catch (FileNotFoundException | NullPointerException ex) {
-                log.error(ex);
-              }
+              log.debug("[" + changingFile + "] has changed.");
+              _model.setRuleModelChangeStatus(RULE_MODEL_CHANGED);
             });
             ruleLocationFileChanged = false;
             break;
