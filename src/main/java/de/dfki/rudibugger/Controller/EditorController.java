@@ -5,7 +5,7 @@
  */
 package de.dfki.rudibugger.Controller;
 
-import de.dfki.rudibugger.mvc.DataModel;
+import de.dfki.rudibugger.DataModel;
 import de.dfki.rudibugger.tabs.RudiHBox;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;

@@ -6,7 +6,6 @@
 package de.dfki.rudibugger;
 
 import de.dfki.rudibugger.Controller.*;
-import de.dfki.rudibugger.mvc.DataModel;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -19,7 +18,6 @@ import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  *
@@ -28,10 +26,7 @@ import org.yaml.snakeyaml.Yaml;
 public class MainApp extends Application {
 
   /* the logger */
-  static Logger log = Logger.getLogger("rudiLog");
-
-  /* a YAML instance for further use of YAML */
-  public Yaml yaml;
+  static Logger log = Logger.getLogger("mainLog");
 
   @Override
   public void start(Stage stage) throws Exception {
@@ -41,15 +36,11 @@ public class MainApp extends Application {
     PropertyConfigurator.configure("src/main/resources/log4j/log4j.properties");
     log.info("Starting Rudibugger");
 
-    /* initialize YAML */
-    yaml = new Yaml();
-
-
     /*
      * INITIALIZE CONTROLLERS AND FXMLs
      */
 
-    /* create root BorderPane */
+ /* create root BorderPane */
     BorderPane root = new BorderPane();
 
     /* initialize menuBar (top of BorderPane) */
@@ -82,16 +73,12 @@ public class MainApp extends Application {
     /*
      * INITIALIZE DATA MODEL
      */
-
     DataModel model = new DataModel();
+    model.initialize();
     menuController.initModel(model);
     statusBarController.initModel(model);
     sideBarController.initModel(model);
     editorController.initModel(model);
-
-    
-    /* initialize general FXMLController */
-    model.yaml = yaml;
 
     /* bind stage to field */
     model.stageX = stage;

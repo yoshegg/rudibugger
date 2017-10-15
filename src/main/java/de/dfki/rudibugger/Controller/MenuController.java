@@ -7,11 +7,12 @@ package de.dfki.rudibugger.Controller;
 
 import de.dfki.rudibugger.HelperWindows;
 import de.dfki.rudibugger.MainApp;
-import de.dfki.rudibugger.mvc.DataModel;
-import java.io.File;
+import de.dfki.rudibugger.DataModel;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -25,17 +26,34 @@ import org.apache.log4j.Logger;
  */
 public class MenuController {
 
-  /* the logger */
+  /** the logger of the MenuController */
   static Logger log = Logger.getLogger("rudiLog");
 
-  /* the model */
+  /** the DataModel */
   private DataModel model;
 
+  /** This function connects this controller to the DataModel
+   *
+   * @param model
+   */
   public void initModel(DataModel model) {
     if (this.model != null) {
       throw new IllegalStateException("Model can only be initialized once");
     }
     this.model = model;
+
+    model.compileFileProperty().addListener(new ChangeListener() {
+      @Override
+      public void changed(ObservableValue o, Object oldVal,
+              Object newVal) {
+        log.debug("As a compile file has been found, the button was enabled.");
+        if (newVal != null) {
+          compileButton.setDisable(false);
+        } else {
+          compileButton.setDisable(true);
+        }
+      }
+    });
   }
 
 
@@ -88,21 +106,24 @@ public class MenuController {
   /** Action "Open Project..." */
   @FXML
   private void openProjectAction(ActionEvent event)
-          throws FileNotFoundException, IOException {
-    if (model.projectX != null) {
-      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
-    }
-    if (model.openProjectYml(model.fileTreeView, model.ruleTreeView, model.tabPaneBack)) {
-      // enable buttons of respective files have been found
-      if (model.projectX.getRunFile() != null) {
-        runButton.setDisable(false);
-        log.debug("Enabled run button.");
-      }
-      if (model.projectX.getCompileFile() != null) {
-        compileButton.setDisable(false);
-        log.debug("Enabled compile button.");
-      }
-    }
+          throws FileNotFoundException, IOException, IllegalAccessException {
+//    if (model.projectX != null) {
+//      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
+//    }
+//    if (model.openProjectYml(model.fileTreeView, model.ruleTreeView, model.tabPaneBack)) {
+//      // enable buttons of respective files have been found
+//      if (model.projectX.getRunFile() != null) {
+//        runButton.setDisable(false);
+//        log.debug("Enabled run button.");
+//      }
+//      if (model.projectX.getCompileFile() != null) {
+//        compileButton.setDisable(false);
+//        log.debug("Enabled compile button.");
+//      }
+//    }
+
+    Path ymlFile = HelperWindows.openYmlProjectFile(model.stageX);
+    model.initProject(ymlFile);
   }
 
 
@@ -119,12 +140,12 @@ public class MenuController {
   @FXML
   private void closeProjectAction(ActionEvent event)
           throws FileNotFoundException {
-    model.fileTreeView.setRoot(null);
-    String name = model.projectX.getProjectName();
-    log.debug("Closed project [" + name + "].");
-    runButton.setDisable(true);
-    compileButton.setDisable(true);
-    log.debug("Disabled compile and run buttons.");
+//    model.fileTreeView.setRoot(null);
+//    String name = model.projectX.getProjectName();
+//    log.debug("Closed project [" + name + "].");
+//    runButton.setDisable(true);
+//    compileButton.setDisable(true);
+//    log.debug("Disabled compile and run buttons.");
   }
 
 
@@ -196,7 +217,7 @@ public class MenuController {
   /* Clicking the compile button */
   @FXML
   private void startCompile(ActionEvent event) throws IOException, InterruptedException {
-    model.startCompile(model.ruleTreeView);
+    model.startCompile();
   }
 
   /* Clicking the run button */
@@ -210,23 +231,23 @@ public class MenuController {
   /* for testing purposes: open dipal */
   @FXML
   private void openDipal(ActionEvent event)
-          throws FileNotFoundException, IOException {
-    Path ymlFile = new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath();
-    if (model.projectX != null) {
-      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
-    }
-
-    if (model.processProjectYml(ymlFile, model.fileTreeView,  model.ruleTreeView,
-             model.tabPaneBack)) {
-      // enable buttons of respective files have been found
-      if (model.projectX.getRunFile() != null) {
-        runButton.setDisable(false);
-        log.debug("Enabled run button.");
-      }
-      if (model.projectX.getCompileFile() != null) {
-        compileButton.setDisable(false);
-        log.debug("Enabled compile button.");
-      }
-    }
+          throws FileNotFoundException, IOException, IllegalAccessException {
+//    Path ymlFile = new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath();
+//    if (model.projectX != null) {
+//      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
+//    }
+//
+//    if (model.processProjectYml(ymlFile, model.fileTreeView,  model.ruleTreeView,
+//             model.tabPaneBack)) {
+//      // enable buttons of respective files have been found
+//      if (model.projectX.getRunFile() != null) {
+//        runButton.setDisable(false);
+//        log.debug("Enabled run button.");
+//      }
+//      if (model.projectX.getCompileFile() != null) {
+//        compileButton.setDisable(false);
+//        log.debug("Enabled compile button.");
+//      }
+//    }
   }
 }

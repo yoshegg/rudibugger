@@ -1,7 +1,11 @@
+/*
+ * Rudibugger is a debugger for .rudi code
+ * written in the context of a bachelor's thesis
+ * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+ */
 package de.dfki.rudibugger;
 
 import static de.dfki.rudibugger.Constants.*;
-import de.dfki.rudibugger.project.Project;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -12,12 +16,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 
-/*
- * Rudibugger is a debugger for .rudi code
- * written in the context of a bachelor's thesis
- * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
- */
-
 /**
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
@@ -25,7 +23,7 @@ import org.apache.log4j.Logger;
 public final class HelperWindows {
 
   /** the logger */
-  static Logger log = Logger.getLogger("HelperWindows");
+  static Logger log = Logger.getLogger("HelperWin");
 
   /**
    * private constructor to obstruct instantiating an object of this utility
@@ -41,7 +39,7 @@ public final class HelperWindows {
    * @return Integer stating to replace current project, open new window or do
    * nothing
    */
-  public static int overwriteProjectCheck(Project proj) {
+  public static int overwriteProjectCheck(DataModel proj) {
     log.debug("Asking what should happen because of the open project.");
 
     /* defining an Alert Window */

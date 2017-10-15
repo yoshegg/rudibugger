@@ -5,7 +5,7 @@
  */
 package de.dfki.rudibugger.Controller;
 
-import de.dfki.rudibugger.mvc.DataModel;
+import de.dfki.rudibugger.DataModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import org.apache.log4j.Logger;
