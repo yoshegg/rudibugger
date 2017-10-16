@@ -18,7 +18,6 @@ import de.dfki.rudibugger.tabs.RudiTab;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import org.apache.log4j.Logger;
@@ -69,6 +68,10 @@ public class SideBarController {
             log.debug("TreeView has been adapted.");
             model.setRuleModelChangeStatus(RULE_MODEL_UNCHANGED);
             break;
+          case RULE_MODEL_REMOVED:
+            log.debug("RuleModel has been resetted / removed");
+            ruleTreeView.setRoot(null);
+            model.setRuleModelChangeStatus(RULE_MODEL_UNCHANGED);
           case RULE_MODEL_UNCHANGED:
             break;
           default:

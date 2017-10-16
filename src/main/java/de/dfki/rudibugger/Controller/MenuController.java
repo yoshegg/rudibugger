@@ -5,9 +5,12 @@
  */
 package de.dfki.rudibugger.Controller;
 
+import static de.dfki.rudibugger.Constants.*;
+
 import de.dfki.rudibugger.HelperWindows;
 import de.dfki.rudibugger.MainApp;
 import de.dfki.rudibugger.DataModel;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -27,7 +30,7 @@ import org.apache.log4j.Logger;
 public class MenuController {
 
   /** the logger of the MenuController */
-  static Logger log = Logger.getLogger("rudiLog");
+  static Logger log = Logger.getLogger("GUIlog");
 
   /** the DataModel */
   private DataModel model;
@@ -46,11 +49,24 @@ public class MenuController {
       @Override
       public void changed(ObservableValue o, Object oldVal,
               Object newVal) {
-        log.debug("As a compile file has been found, the button was enabled.");
         if (newVal != null) {
+          log.debug("As a compile file has been found, the button was enabled.");
           compileButton.setDisable(false);
         } else {
           compileButton.setDisable(true);
+        }
+      }
+    });
+    
+    model.projectStatusProperty().addListener(new ChangeListener() {
+      @Override
+      public void changed(ObservableValue o, Object oldVal, Object newVal) {
+        if ((int) newVal == PROJECT_OPEN) {
+          log.debug("Project open: enable GUI-elements.");
+          closeProjectItem.setDisable(false);
+        } else if ((int) newVal == PROJECT_CLOSED) {
+          log.debug("Project closed: disable GUI-elements.");
+          closeProjectItem.setDisable(true);
         }
       }
     });
@@ -140,12 +156,7 @@ public class MenuController {
   @FXML
   private void closeProjectAction(ActionEvent event)
           throws FileNotFoundException {
-//    model.fileTreeView.setRoot(null);
-//    String name = model.projectX.getProjectName();
-//    log.debug("Closed project [" + name + "].");
-//    runButton.setDisable(true);
-//    compileButton.setDisable(true);
-//    log.debug("Disabled compile and run buttons.");
+    model.resetProject();
   }
 
 
@@ -232,7 +243,7 @@ public class MenuController {
   @FXML
   private void openDipal(ActionEvent event)
           throws FileNotFoundException, IOException, IllegalAccessException {
-//    Path ymlFile = new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath();
+    model.initProject(new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath());
 //    if (model.projectX != null) {
 //      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
 //    }

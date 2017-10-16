@@ -20,9 +20,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -33,7 +31,6 @@ import org.yaml.snakeyaml.Yaml;
 import static de.dfki.rudibugger.Helper.*;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.scene.control.TreeItem;
 
 /**
  * The DataModel represents the business logic of rudibugger.
@@ -57,13 +54,14 @@ public class DataModel {
 
 
   /*****************************************************************************
-   * THE INITIALIZER METHODS
+   * THE INITIALIZER METHODS & RESET METHOD
    ****************************************************************************/
 
   /** initialize the DataModel */
   public void initialize() {
     yaml = new Yaml();
-    _compileFile = new SimpleObjectProperty(null);
+    _compileFile = new SimpleObjectProperty<>(null);
+    _runFile = new SimpleObjectProperty<>(null);
   }
 
   /**
@@ -80,6 +78,7 @@ public class DataModel {
     initProjectWatches();
     initFileView();
     initRules();
+    setProjectStatus(PROJECT_OPEN);
     log.info("Initializing done.");
   }
 
@@ -127,17 +126,26 @@ public class DataModel {
       log.info(_projectName.getValue() + "'s " + COMPILE_FILE
               + " could not be found.");
     }
-
-    _runFile = new SimpleObjectProperty(Paths
-            .get(_rootFolder.toString() + "/" + RUN_FILE));
-    if (Files.exists(_runFile.getValue())) {
+    
+    Path runPath = Paths.get(_rootFolder.toString() + "/"  + RUN_FILE);
+    if (Files.exists(runPath)) {
+      _runFile.setValue(runPath);
       log.debug(_runFile.getValue().getFileName().toString()
               + " has been found.");
     } else {
-      _runFile = null;
       log.info(_projectName.getValue() + "'s " + RUN_FILE
               + " could not be found.");
     }
+  }
+  
+  public void resetProject() {
+    log.info("Closing [" + _projectName.getValue() + "]...");
+    _compileFile.setValue(null);
+    _runFile.setValue(null);
+    _rudiFolder = null;
+    ruleModel = null;
+    setRuleModelChangeStatus(RULE_MODEL_REMOVED);
+    setProjectStatus(PROJECT_CLOSED);
   }
 
 
@@ -189,6 +197,12 @@ public class DataModel {
   private ObjectProperty<Path> _runFile;
   public Path getRunFile() { return _runFile.getValue(); }
   public ObjectProperty<Path> runFileProperty() { return _runFile; }
+  
+  /** Project status */
+  private final IntegerProperty _projectStatus 
+          = new SimpleIntegerProperty(PROJECT_CLOSED);
+  public void setProjectStatus(int val) { _projectStatus.set(val); }
+  public IntegerProperty projectStatusProperty() { return _projectStatus; }
 
 
 
