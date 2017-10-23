@@ -31,7 +31,11 @@ public class Constants {
   public static final int RULE_MODEL_NEWLY_CREATED = 1;
   public static final int RULE_MODEL_CHANGED = 2;
   public static final int RULE_MODEL_REMOVED = 9;
-  
+
   public static final int PROJECT_OPEN = 1;
   public static final int PROJECT_CLOSED = 0;
+
+  public static final int FILE_USED = 1;
+  public static final int FILE_NOT_USED = 0;
+  public static final int FILE_IS_MAIN = 2;
 }

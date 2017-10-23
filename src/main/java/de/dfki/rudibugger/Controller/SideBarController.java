@@ -8,16 +8,25 @@ package de.dfki.rudibugger.Controller;
 import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.RuleStore.Import;
 import de.dfki.rudibugger.DataModel;
+import de.dfki.rudibugger.RudiList.RudiListViewCell;
+import de.dfki.rudibugger.RudiList.RudiPath;
 import de.dfki.rudibugger.RuleStore.Rule;
 import de.dfki.rudibugger.project.RudiFileTreeItem;
 import de.dfki.rudibugger.RuleTreeView.BasicTreeItem;
 import de.dfki.rudibugger.RuleTreeView.ImportTreeItem;
 import de.dfki.rudibugger.RuleTreeView.RuleTreeItem;
-import de.dfki.rudibugger.project.RudiFolderTreeItem;
 import de.dfki.rudibugger.tabs.RudiTab;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ListBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.SetChangeListener;
 import javafx.fxml.FXML;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import org.apache.log4j.Logger;
@@ -47,6 +56,19 @@ public class SideBarController {
     }
     this.model = model;
 
+    rudiListView.setCellFactory(value -> new RudiListViewCell());
+
+    model.projectStatusProperty().addListener(new ChangeListener() {
+      @Override
+      public void changed(ObservableValue o, Object oldVal,
+              Object newVal) {
+        switch ((int) newVal) {
+          case PROJECT_OPEN:
+            rudiListView.setItems(model.rudiList);
+        }
+      }
+    });
+
 
     /* this Listener builds or modifies the TreeView, if the RuleModel
     was changed.*/
@@ -59,20 +81,17 @@ public class SideBarController {
             log.debug("RuleModel has been found, building TreeView...");
             ruleTreeView.setRoot(buildTreeView(model));
             log.debug("TreeView based on RuleModel has been built.");
-            model.setRuleModelChangeStatus(RULE_MODEL_UNCHANGED);
+            markFilesInRudiList();
             break;
           case RULE_MODEL_CHANGED:
             log.debug("RuleModel has been modified, adapting TreeView...");
             log.debug("FUNCTION TO BE IMPLEMENTED YET");
             ruleTreeView.setRoot(buildTreeView(model));
             log.debug("TreeView has been adapted.");
-            model.setRuleModelChangeStatus(RULE_MODEL_UNCHANGED);
             break;
           case RULE_MODEL_REMOVED:
             log.debug("RuleModel has been resetted / removed");
             ruleTreeView.setRoot(null);
-            model.setRuleModelChangeStatus(RULE_MODEL_UNCHANGED);
-          case RULE_MODEL_UNCHANGED:
             break;
           default:
             break;
@@ -82,16 +101,37 @@ public class SideBarController {
 
 
 
-    /* TODO: what should happen when a .rudi file is double clicked */
-    fileTreeView.setOnMouseClicked((MouseEvent mouseEvent) -> {
+    /* open a new tab or select the already opened tab from the selected file */
+    rudiListView.setOnMouseClicked((MouseEvent mouseEvent) -> {
       if (mouseEvent.getClickCount() == 2) {
-        Object test = model.fileTreeView .getSelectionModel().getSelectedItem();
-        if (test instanceof RudiFileTreeItem) {
-          RudiFileTreeItem item = (RudiFileTreeItem) test;
-          RudiTab tab = model.tabPaneBack.getTab(item.getFile());
+        Object test = rudiListView .getSelectionModel().getSelectedItem();
+        if (test instanceof RudiPath) {
+          System.out.println("test");
+//          RudiFileTreeItem item = (RudiFileTreeItem) test;
+//          RudiTab tab = model.tabPaneBack.getTab(item.getFile());
         }
       }
     });
+  }
+
+  public void markFilesInRudiList() {
+    for (RudiPath x : model.rudiList) {
+
+      /* mark the main .rudi file */
+      if (model.ruleModel.rootImport.getSource().getFileName().equals(x.getPath().getFileName())) {
+        System.out.println("bla");
+        x._usedProperty().setValue(FILE_IS_MAIN);
+        continue;
+      }
+
+      /* mark the other files */
+      if (model.ruleModel.importSet.contains(x.getPath().getFileName())) {
+        x._usedProperty().setValue(FILE_USED);
+      } else {
+        x._usedProperty().setValue(FILE_NOT_USED);
+      }
+    }
+    rudiListView.refresh();
   }
 
   public static ImportTreeItem buildTreeView(DataModel model) {
@@ -165,9 +205,7 @@ public class SideBarController {
     }
   }
 
-  public static RudiFolderTreeItem buildFileView(DataModel model) {
-    return new RudiFolderTreeItem("root");
-  }
+
 
   /**
    * ****************************
@@ -179,8 +217,8 @@ public class SideBarController {
   @FXML
   private TreeView ruleTreeView;
 
-  /* The TreeView showing the content of the rudi folder */
+  /* The ListView showing the content of the rudi folder */
   @FXML
-  private TreeView fileTreeView;
+  private ListView<RudiPath> rudiListView;
 
 }

@@ -6,6 +6,7 @@
 package de.dfki.rudibugger;
 
 import static de.dfki.rudibugger.Constants.*;
+import de.dfki.rudibugger.Controller.SideBarController;
 import de.dfki.rudibugger.RuleStore.RuleModel;
 import de.dfki.rudibugger.WatchServices.RuleLocationWatch;
 import de.dfki.rudibugger.project.RudiFileTreeItem;
@@ -24,13 +25,16 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 import static de.dfki.rudibugger.Helper.*;
+import de.dfki.rudibugger.RudiList.RudiPath;
+import de.dfki.rudibugger.WatchServices.RudiFolderWatch;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  * The DataModel represents the business logic of rudibugger.
@@ -62,6 +66,7 @@ public class DataModel {
     yaml = new Yaml();
     _compileFile = new SimpleObjectProperty<>(null);
     _runFile = new SimpleObjectProperty<>(null);
+    _rudiFolder = new SimpleObjectProperty<>(null);
   }
 
   /**
@@ -76,16 +81,39 @@ public class DataModel {
             .toString() + "]");
     initProjectFields(selectedProjectYml);
     initProjectWatches();
-    initFileView();
+    readInRudiFiles();
     initRules();
     setProjectStatus(PROJECT_OPEN);
     log.info("Initializing done.");
   }
 
   private void initProjectWatches() {
-    RuleLocationWatch watch = new RuleLocationWatch();
-    watch.createRuleLocationWatch(this);
+    RuleLocationWatch ruleLocWatch = new RuleLocationWatch();
+    ruleLocWatch.createRuleLocationWatch(this);
+    RudiFolderWatch rudiFolderWatch = new RudiFolderWatch();
+    rudiFolderWatch.createRudiFolderWatch(this);
   }
+
+  private void readInRudiFiles() throws IOException {
+    rudiList = FXCollections.observableArrayList();
+
+
+    /* get a sorted list of this directory's files */
+    DirectoryStream<Path> stream = Files.newDirectoryStream(
+            _rudiFolder.getValue());
+    List<Path> list = new ArrayList<>();
+    stream.forEach(list::add);
+    list.sort(
+      (Path h1, Path h2) -> h1.getFileName().toString().toLowerCase()
+              .compareTo(h2.getFileName().toString().toLowerCase()));
+
+    list.forEach((x) -> {
+      if (x.getFileName().toString().endsWith(".rudi")) {
+        rudiList.add(new RudiPath(x));
+      }
+    });
+  }
+
 
   private void initRules() {
     _ruleLocFile = Paths.get(_rootFolder.toString() + "/"
@@ -107,14 +135,13 @@ public class DataModel {
             .getFileName().toString(), -4));
     _rootFolder = selectedProjectYml.getParent();
 
-    _rudiFolder = Paths.get(_rootFolder + "/" + PATH_TO_RUDI_FILES);
-    if (Files.exists(_rudiFolder)) {
+    Path rudiFolder = (Paths.get(_rootFolder + "/" + PATH_TO_RUDI_FILES));
+    if (Files.exists(rudiFolder)) {
       log.debug(".rudi folder has been found.");
-      // TODO: Switch IntegerProperty to start fileView
+      _rudiFolder.setValue(rudiFolder);
     } else {
-      _rudiFolder = null;
       log.error(".rudi folder could not be found.");
-      // TODO: stop working
+      _rudiFolder.setValue(null);
     }
 
     Path compilePath = Paths.get(_rootFolder.toString() + "/"  + COMPILE_FILE);
@@ -126,7 +153,7 @@ public class DataModel {
       log.info(_projectName.getValue() + "'s " + COMPILE_FILE
               + " could not be found.");
     }
-    
+
     Path runPath = Paths.get(_rootFolder.toString() + "/"  + RUN_FILE);
     if (Files.exists(runPath)) {
       _runFile.setValue(runPath);
@@ -137,12 +164,12 @@ public class DataModel {
               + " could not be found.");
     }
   }
-  
+
   public void resetProject() {
     log.info("Closing [" + _projectName.getValue() + "]...");
     _compileFile.setValue(null);
     _runFile.setValue(null);
-    _rudiFolder = null;
+    _rudiFolder.setValue(null);
     ruleModel = null;
     setRuleModelChangeStatus(RULE_MODEL_REMOVED);
     setProjectStatus(PROJECT_CLOSED);
@@ -176,8 +203,12 @@ public class DataModel {
   public Path getRootFolder() { return _rootFolder; }
 
   /** RudiFolder (where .rudi files sleep) */
-  private Path _rudiFolder;
-  public Path getRudiFolder() { return _rudiFolder; }
+  private ObjectProperty<Path> _rudiFolder;
+  public Path getRudiFolder() { return _rudiFolder.getValue(); }
+  public ObjectProperty<Path> rudiFolderProperty() { return _rudiFolder; }
+
+  /** .rudi files */
+  public ObservableList<RudiPath> rudiList;
 
   /** RuleLocationFile */
   private Path _ruleLocFile;
@@ -197,9 +228,9 @@ public class DataModel {
   private ObjectProperty<Path> _runFile;
   public Path getRunFile() { return _runFile.getValue(); }
   public ObjectProperty<Path> runFileProperty() { return _runFile; }
-  
+
   /** Project status */
-  private final IntegerProperty _projectStatus 
+  private final IntegerProperty _projectStatus
           = new SimpleIntegerProperty(PROJECT_CLOSED);
   public void setProjectStatus(int val) { _projectStatus.set(val); }
   public IntegerProperty projectStatusProperty() { return _projectStatus; }
@@ -214,7 +245,6 @@ public class DataModel {
 
   /* TODO: Transform to be MVC conform */
 
-  public TreeView fileTreeView;
   public RudiHBox tabPaneBack;
 
   public RudiHBox getRudiHBox() {
@@ -274,10 +304,4 @@ public class DataModel {
     log.info("Not implemented yet.");
   }
 
-  public RudiFolderTreeItem fileViewRoot;
-
-  private void initFileView() throws IOException {
-    fileViewRoot = getNodesForDirectory(_rudiFolder);
-    fileViewRoot.setValue(_projectName.getValue() + " - .rudi files");
-  }
 }

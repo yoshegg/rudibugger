@@ -44,7 +44,7 @@ public class RuleLocationWatch {
       }
     };
     watchingTread.setDaemon(true);
-    watchingTread.setName("watchingTread");
+    watchingTread.setName("ruleLocWatchingTread");
     watchingTread.start();
     log.info("RuleLocationWatch has been started.");
   }

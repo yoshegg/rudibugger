@@ -10,8 +10,11 @@ import java.io.FileReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
@@ -28,14 +31,23 @@ public class RuleModel {
   /** The logger of the the RuleModel */
   static Logger log = Logger.getLogger("RuleModel");
 
-  /** Constructs a new RuleModel. */
+  /** Constructs a new RuleModel */
   private RuleModel() {
     log.debug("An empty RuleModel has been created");
+    importSet = new HashSet();
   }
 
+  /**
+   * Function to create a new RuleModel
+   *
+   * @return created RuleModel
+   */
   public static RuleModel createNewRuleModel() {
     return new RuleModel();
   }
+
+  /** This set represents all of the used Imports path */
+  public Set<Path> importSet;
 
   /**
    * This field represents the root of the tree-like structure used to represent
@@ -83,6 +95,11 @@ public class RuleModel {
     /* get the name of the main .rudi file */
     String mainRudiName = keys.get(0);
     Import mainRudi = new Import(mainRudiName);
+    mainRudi.setSource(Paths.get(mainRudiName + ".rudi"));
+
+
+    /* remember usage of this import */
+    importSet.add(mainRudi.getSource());
 
     /* variable to shorten expression to get to children */
     LinkedHashMap<String, Object> mainRudiChildren
@@ -123,11 +140,14 @@ public class RuleModel {
       if (((LinkedHashMap) children.get(child))
               .containsKey("%ImportWasInLine")) {
         Import newImport = new Import(child);
-        newImport.setSource(Paths.get(child));
+        newImport.setSource(Paths.get(child + ".rudi"));
         newImport.setLine((Integer) ((LinkedHashMap) children
                 .get(child)).get("%ImportWasInLine"));
         returnList.add(newImport);
         ((LinkedHashMap) children.get(child)).remove("%ImportWasInLine");
+
+        /* remember usage of this import */
+        importSet.add(newImport.getSource());
 
         /* remove error messages before */
         ArrayList<String> errors = new ArrayList();
