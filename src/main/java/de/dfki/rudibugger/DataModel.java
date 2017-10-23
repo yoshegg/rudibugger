@@ -97,7 +97,6 @@ public class DataModel {
   private void readInRudiFiles() throws IOException {
     rudiList = FXCollections.observableArrayList();
 
-
     /* get a sorted list of this directory's files */
     DirectoryStream<Path> stream = Files.newDirectoryStream(
             _rudiFolder.getValue());
@@ -115,7 +114,7 @@ public class DataModel {
   }
 
 
-  private void initRules() {
+  public void initRules() {
     _ruleLocFile = Paths.get(_rootFolder.toString() + "/"
             + _projectName.getValue() + RULE_LOCATION_SUFFIX);
     if (Files.exists(_ruleLocFile)) {
@@ -173,6 +172,20 @@ public class DataModel {
     ruleModel = null;
     setRuleModelChangeStatus(RULE_MODEL_REMOVED);
     setProjectStatus(PROJECT_CLOSED);
+  }
+  
+  /*****************************************************************************
+   * UPDATE METHODS FOR THE CURRENT PROJECT AKA DATAMODEL
+   ****************************************************************************/
+  
+  public void updateProject() {
+    updateRules();
+  }
+  
+  private void updateRules() {
+    log.debug("Updating the RuleModel");
+    ruleModel.updateRuleModel(_ruleLocFile);
+    setRuleModelChangeStatus(RULE_MODEL_CHANGED);
   }
 
 

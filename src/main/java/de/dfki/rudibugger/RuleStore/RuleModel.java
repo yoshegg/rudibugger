@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
@@ -54,6 +52,17 @@ public class RuleModel {
    * all the rules of the RuleModel.
    */
   public Import rootImport;
+  
+  /**
+   * This function updates the tree-like structure.
+   * TODO: right now it only re-reads everything
+   *
+   * @param ruleLocYml
+  */
+  public void updateRuleModel(Path ruleLocYml) {
+    importSet.clear();
+    rootImport = readInRuleLocationFile(ruleLocYml);
+  }
 
   /**
    * This function creates the tree-like structure for the very first time.

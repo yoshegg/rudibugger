@@ -160,11 +160,15 @@ public class RuleLocationWatch {
             log.debug("[" + changingFile + "] is ready.");
           }
 
-          /* no more changes are detected, notify DataModel to reload */
+          /* no more changes are detected, update the project */
           if (watchKey == null) {
             Platform.runLater(() -> {
               log.debug("[" + changingFile + "] has changed.");
-              _model.setRuleModelChangeStatus(RULE_MODEL_CHANGED);
+              if (_model.getRuleLocFile() == null) {
+                _model.initRules();
+              } else {
+                _model.updateProject();
+              }
             });
             ruleLocationFileChanged = false;
             break;

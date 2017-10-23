@@ -11,20 +11,11 @@ import de.dfki.rudibugger.DataModel;
 import de.dfki.rudibugger.RudiList.RudiListViewCell;
 import de.dfki.rudibugger.RudiList.RudiPath;
 import de.dfki.rudibugger.RuleStore.Rule;
-import de.dfki.rudibugger.project.RudiFileTreeItem;
 import de.dfki.rudibugger.RuleTreeView.BasicTreeItem;
 import de.dfki.rudibugger.RuleTreeView.ImportTreeItem;
 import de.dfki.rudibugger.RuleTreeView.RuleTreeItem;
-import de.dfki.rudibugger.tabs.RudiTab;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ListBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.collections.SetChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TreeView;
@@ -56,7 +47,7 @@ public class SideBarController {
     }
     this.model = model;
 
-    rudiListView.setCellFactory(value -> new RudiListViewCell());
+    
 
     model.projectStatusProperty().addListener(new ChangeListener() {
       @Override
@@ -68,6 +59,8 @@ public class SideBarController {
         }
       }
     });
+    
+    rudiListView.setCellFactory(value -> new RudiListViewCell());
 
 
     /* this Listener builds or modifies the TreeView, if the RuleModel
@@ -78,20 +71,34 @@ public class SideBarController {
               Object newVal) {
         switch ((int) newVal) {
           case RULE_MODEL_NEWLY_CREATED:
-            log.debug("RuleModel has been found, building TreeView...");
+            log.debug("RuleModel has been found.");
+            log.debug("Building TreeView...");
             ruleTreeView.setRoot(buildTreeView(model));
             log.debug("TreeView based on RuleModel has been built.");
+            log.debug("Marking used .rudi files...");
             markFilesInRudiList();
+            log.debug("Marked used .rudi files.");
+            model.ruleModelChangeProperty().setValue(RULE_MODEL_UNCHANGED);
             break;
           case RULE_MODEL_CHANGED:
-            log.debug("RuleModel has been modified, adapting TreeView...");
+            log.debug("RuleModel has been modified.");
+            log.debug("Adapting ruleTreeView");
             log.debug("FUNCTION TO BE IMPLEMENTED YET");
             ruleTreeView.setRoot(buildTreeView(model));
-            log.debug("TreeView has been adapted.");
+            log.debug("ruleTreeView has been adapted.");
+            log.debug("Remarking used .rudi files...");
+            markFilesInRudiList();
+            log.debug("Remarked used .rudi files.");
+            model.ruleModelChangeProperty().setValue(RULE_MODEL_UNCHANGED);
             break;
           case RULE_MODEL_REMOVED:
             log.debug("RuleModel has been resetted / removed");
             ruleTreeView.setRoot(null);
+            // TODO: reset file view
+            log.debug("GUI has been resetted.");
+            model.ruleModelChangeProperty().setValue(RULE_MODEL_UNCHANGED);
+            break;
+          case RULE_MODEL_UNCHANGED:
             break;
           default:
             break;
@@ -114,12 +121,16 @@ public class SideBarController {
     });
   }
 
-  public void markFilesInRudiList() {
+  /**
+   * This function is used to mark the files in the ListView according to 
+   * their state.
+   */
+  private void markFilesInRudiList() {
     for (RudiPath x : model.rudiList) {
 
       /* mark the main .rudi file */
-      if (model.ruleModel.rootImport.getSource().getFileName().equals(x.getPath().getFileName())) {
-        System.out.println("bla");
+      if (model.ruleModel.rootImport.getSource().getFileName().equals(
+              x.getPath().getFileName())) {
         x._usedProperty().setValue(FILE_IS_MAIN);
         continue;
       }
@@ -131,6 +142,8 @@ public class SideBarController {
         x._usedProperty().setValue(FILE_NOT_USED);
       }
     }
+    
+    /* let the cells reload according to their usage state */
     rudiListView.refresh();
   }
 
