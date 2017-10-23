@@ -5,26 +5,25 @@
  */
 package de.dfki.rudibugger.RudiList;
 
-import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import static de.dfki.rudibugger.Constants.*;
 
 /**
- *
+ * This ListCell is used to visualize the different .rudi files according to 
+ * their usage stage in the current project.
+ * 
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RudiListViewCell extends ListCell<RudiPath> {
 
   static final String RULE_ICON_PATH
           = "file:src/main/resources/icons/FilesAndFolders/";
-  static Image enabled = new Image(RULE_ICON_PATH
-          + "enabled.png");
-  static Image disabled = new Image(RULE_ICON_PATH
-          + "disabled.png");
-  static Image main = new Image(RULE_ICON_PATH
-          + "main.png");
+  
+  static Image enabled = new Image(RULE_ICON_PATH + "enabled.png");
+  static Image disabled = new Image(RULE_ICON_PATH + "disabled.png");
+  static Image main = new Image(RULE_ICON_PATH + "main.png");
 
   @Override
   protected void updateItem(RudiPath rudiPath, boolean empty) {
@@ -39,7 +38,6 @@ public class RudiListViewCell extends ListCell<RudiPath> {
 
       setText(rudiPath.toString());
 
-
       switch (rudiPath._usedProperty().getValue()) {
         case FILE_IS_MAIN:
           setGraphic(new ImageView(main));
@@ -52,7 +50,7 @@ public class RudiListViewCell extends ListCell<RudiPath> {
           break;
         default:
           break;
-      }
+        }
 
     }
   }
