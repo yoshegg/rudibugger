@@ -18,7 +18,8 @@
     <!-- Used as the 'Vendor' for JNLP generation -->
     <name>DFKI</name>
   </organization>
-
+  
+  <!-- local repo, not used anymore
   <repositories>
     <repository>
       <id>local-repo</id>
@@ -26,6 +27,7 @@
       <url>file://${project.basedir}/localRepo</url>
     </repository>
   </repositories>
+  -->
 
   <build>
     <plugins>
@@ -149,11 +151,6 @@
         <scope>test</scope>
       </dependency>
 
-      <dependency>
-        <groupId>org.fxmisc.livedirs</groupId>
-        <artifactId>livedirsfx</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-      </dependency>
     </dependencies>
 
 </project>
