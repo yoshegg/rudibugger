@@ -14,10 +14,15 @@ import de.dfki.rudibugger.RuleStore.Rule;
 import de.dfki.rudibugger.RuleTreeView.BasicTreeItem;
 import de.dfki.rudibugger.RuleTreeView.ImportTreeItem;
 import de.dfki.rudibugger.RuleTreeView.RuleTreeItem;
+import de.dfki.rudibugger.RuleTreeViewState.RuleTreeViewState;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import org.apache.log4j.Logger;
@@ -47,7 +52,7 @@ public class SideBarController {
     }
     this.model = model;
 
-    
+
 
     model.projectStatusProperty().addListener(new ChangeListener() {
       @Override
@@ -59,7 +64,7 @@ public class SideBarController {
         }
       }
     });
-    
+
     rudiListView.setCellFactory(value -> new RudiListViewCell());
 
 
@@ -74,6 +79,7 @@ public class SideBarController {
             log.debug("RuleModel has been found.");
             log.debug("Building TreeView...");
             ruleTreeView.setRoot(buildTreeView(model));
+            ruleTreeView.getRoot().setExpanded(true);
             log.debug("TreeView based on RuleModel has been built.");
             log.debug("Marking used .rudi files...");
             markFilesInRudiList();
@@ -83,7 +89,9 @@ public class SideBarController {
           case RULE_MODEL_CHANGED:
             log.debug("RuleModel has been modified.");
             log.debug("Adapting ruleTreeView");
-            log.debug("FUNCTION TO BE IMPLEMENTED YET");
+            log.debug("FUNCTION TO BE IMPLEMENTED YET"); //TODO
+            RuleTreeViewState ruleTreeViewState = new RuleTreeViewState();
+            ruleTreeViewState.retrieveTreeExpansionState(ruleTreeView);
             ruleTreeView.setRoot(buildTreeView(model));
             log.debug("ruleTreeView has been adapted.");
             log.debug("Remarking used .rudi files...");
@@ -122,7 +130,7 @@ public class SideBarController {
   }
 
   /**
-   * This function is used to mark the files in the ListView according to 
+   * This function is used to mark the files in the ListView according to
    * their state.
    */
   private void markFilesInRudiList() {
@@ -142,8 +150,9 @@ public class SideBarController {
         x._usedProperty().setValue(FILE_NOT_USED);
       }
     }
-    
+
     /* let the cells reload according to their usage state */
+    // TODO: https://stackoverflow.com/questions/14682881/binding-image-in-javafx
     rudiListView.refresh();
   }
 
