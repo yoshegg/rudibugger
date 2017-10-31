@@ -14,15 +14,11 @@ import de.dfki.rudibugger.RuleStore.Rule;
 import de.dfki.rudibugger.RuleTreeView.BasicTreeItem;
 import de.dfki.rudibugger.RuleTreeView.ImportTreeItem;
 import de.dfki.rudibugger.RuleTreeView.RuleTreeItem;
-import de.dfki.rudibugger.RuleTreeViewState.RuleTreeViewState;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import de.dfki.rudibugger.RuleTreeView.RuleTreeViewState;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import org.apache.log4j.Logger;
@@ -42,6 +38,12 @@ public class SideBarController {
   private DataModel model;
 
   /**
+   * the RuleTreeViewState, needed to save and load the expansion and rule
+   * logging state of the RuleTreeView
+   */
+  private RuleTreeViewState ruleTreeViewState;
+
+  /**
    * This function connects this controller to the DataModel
    *
    * @param model
@@ -53,7 +55,7 @@ public class SideBarController {
     this.model = model;
 
 
-
+    /* this Listener keeps the listView containing the .rudi files up to date */
     model.projectStatusProperty().addListener(new ChangeListener() {
       @Override
       public void changed(ObservableValue o, Object oldVal,
@@ -68,7 +70,7 @@ public class SideBarController {
     rudiListView.setCellFactory(value -> new RudiListViewCell());
 
 
-    /* this Listener builds or modifies the TreeView, if the RuleModel
+    /* this Listener builds or modifies the RuleTreeView, if the RuleModel
     was changed.*/
     model.ruleModelChangeProperty().addListener(new ChangeListener() {
       @Override
@@ -80,6 +82,8 @@ public class SideBarController {
             log.debug("Building TreeView...");
             ruleTreeView.setRoot(buildTreeView(model));
             ruleTreeView.getRoot().setExpanded(true);
+            ruleTreeViewState = new RuleTreeViewState();
+            ruleTreeViewState.retrieveTreeState(ruleTreeView);
             log.debug("TreeView based on RuleModel has been built.");
             log.debug("Marking used .rudi files...");
             markFilesInRudiList();
@@ -89,10 +93,8 @@ public class SideBarController {
           case RULE_MODEL_CHANGED:
             log.debug("RuleModel has been modified.");
             log.debug("Adapting ruleTreeView");
-            log.debug("FUNCTION TO BE IMPLEMENTED YET"); //TODO
-            RuleTreeViewState ruleTreeViewState = new RuleTreeViewState();
-            ruleTreeViewState.retrieveTreeExpansionState(ruleTreeView);
             ruleTreeView.setRoot(buildTreeView(model));
+            ruleTreeViewState.setTreeState(ruleTreeView);
             log.debug("ruleTreeView has been adapted.");
             log.debug("Remarking used .rudi files...");
             markFilesInRudiList();
@@ -130,7 +132,7 @@ public class SideBarController {
   }
 
   /**
-   * This function is used to mark the files in the ListView according to
+   * This function is used to mark the files in the <b>rudiList</b> according to
    * their state.
    */
   private void markFilesInRudiList() {
@@ -220,9 +222,9 @@ public class SideBarController {
       return newRuleItem;
     }
 
-    /* our new object is neither Rule nor Import */
+    /* our new object is neither Rule nor Import, this should never happen */
     else {
-      log.error("tried to read in an object that is not an Import or Rule.");
+      log.error("tried to read in an object that is not an Import or a Rule.");
       return null;
     }
   }
