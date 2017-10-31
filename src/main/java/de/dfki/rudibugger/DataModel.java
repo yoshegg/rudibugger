@@ -28,6 +28,8 @@ import org.yaml.snakeyaml.Yaml;
 import static de.dfki.rudibugger.Helper.*;
 import de.dfki.rudibugger.RudiList.RudiPath;
 import de.dfki.rudibugger.WatchServices.RudiFolderWatch;
+import java.util.Collections;
+import java.util.Comparator;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
@@ -185,6 +187,18 @@ public class DataModel {
     log.debug("Updating the RuleModel");
     ruleModel.updateRuleModel(_ruleLocFile);
     setRuleModelChangeStatus(RULE_MODEL_CHANGED);
+  }
+
+  public void removeRudiPath(Path file) {
+    log.debug("Removing RudiPath from list");
+    rudiList.remove(new RudiPath(file));
+  }
+
+  public void addRudiPath(Path file) {
+    log.debug("Add new RudiPath to list");
+    rudiList.add(new RudiPath(file));
+    rudiList.sort((a, b) -> a.getPath().toString().toLowerCase()
+            .compareTo(b.getPath().toString().toLowerCase()));
   }
 
 

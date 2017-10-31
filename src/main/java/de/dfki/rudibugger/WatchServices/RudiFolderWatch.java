@@ -8,15 +8,18 @@ package de.dfki.rudibugger.WatchServices;
 import static de.dfki.rudibugger.Constants.RULE_LOCATION_SUFFIX;
 import static de.dfki.rudibugger.Constants.RULE_MODEL_CHANGED;
 import de.dfki.rudibugger.DataModel;
+import de.dfki.rudibugger.RudiList.RudiPath;
 import static de.dfki.rudibugger.WatchServices.RuleLocationWatch.log;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import static java.nio.file.StandardWatchEventKinds.*;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.HashSet;
+import javafx.application.Platform;
 import org.apache.log4j.Logger;
 
 /**
@@ -111,27 +114,38 @@ public class RudiFolderWatch {
         }
 
         WatchEvent<Path> ev = (WatchEvent<Path>) event;
-        Path filename = ev.context();
+        Path filename = _model.getRudiFolder().resolve(ev.context());
 
 
         /* is rudi folder changing? */
         if ((kind == ENTRY_CREATE || kind == ENTRY_DELETE)
                 && filename.getFileName().toString().endsWith(".rudi")) {
-          HashSet addedRudis = new HashSet();
-          HashSet removedRudis = new HashSet();
 
           /* rudi file added */
           if (kind == ENTRY_CREATE) {
-            addedRudis.add(filename);
-            log.info("rudi file added: " + filename);
+
+            Platform.runLater(new Runnable() {
+              @Override
+              public void run() {
+                _model.addRudiPath(filename);
+                log.info("rudi file added: " + filename);
+              }
+            });
+
           }
 
           /* rudi file deleted */
           if (kind == ENTRY_DELETE) {
-            removedRudis.add(filename);
-            log.info("rudi file deleted: " + filename);
-          }
 
+            Platform.runLater(new Runnable() {
+              @Override
+              public void run() {
+                _model.removeRudiPath(filename);
+                log.info("rudi file deleted: " + filename);
+              }
+            });
+
+          }
         }
       }
 
