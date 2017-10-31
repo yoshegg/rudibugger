@@ -17,8 +17,6 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.HashSet;
-import java.util.concurrent.TimeUnit;
-import javafx.application.Platform;
 import org.apache.log4j.Logger;
 
 /**
@@ -60,7 +58,7 @@ public class RudiFolderWatch {
   /**
    * stop listening for folder changes
    */
-  private void shutDownListener() {
+  public void shutDownListener() {
     Thread thr = watchingTread;
     if (thr != null) {
       thr.interrupt();
@@ -133,7 +131,7 @@ public class RudiFolderWatch {
             removedRudis.add(filename);
             log.info("rudi file deleted: " + filename);
           }
-          
+
         }
       }
 

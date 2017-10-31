@@ -18,12 +18,12 @@ import static de.dfki.rudibugger.Constants.*;
  */
 public class RudiListViewCell extends ListCell<RudiPath> {
 
-  static final String RULE_ICON_PATH
+  static final String FILE_ICON_PATH
           = "file:src/main/resources/icons/FilesAndFolders/";
   
-  static Image enabled = new Image(RULE_ICON_PATH + "enabled.png");
-  static Image disabled = new Image(RULE_ICON_PATH + "disabled.png");
-  static Image main = new Image(RULE_ICON_PATH + "main.png");
+  static Image enabled = new Image(FILE_ICON_PATH + "enabled.png");
+  static Image disabled = new Image(FILE_ICON_PATH + "disabled.png");
+  static Image main = new Image(FILE_ICON_PATH + "main.png");
 
   @Override
   protected void updateItem(RudiPath rudiPath, boolean empty) {

@@ -50,7 +50,7 @@ public class RuleLocationWatch {
   }
 
   /** stop listening for file changes */
-  private void shutDownListener() {
+  public void shutDownListener() {
     Thread thr = watchingTread;
     if (thr != null) {
       thr.interrupt();

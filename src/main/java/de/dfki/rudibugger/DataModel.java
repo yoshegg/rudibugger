@@ -85,9 +85,9 @@ public class DataModel {
   }
 
   private void initProjectWatches() {
-    RuleLocationWatch ruleLocWatch = new RuleLocationWatch();
+    ruleLocWatch = new RuleLocationWatch();
     ruleLocWatch.createRuleLocationWatch(this);
-    RudiFolderWatch rudiFolderWatch = new RudiFolderWatch();
+    rudiFolderWatch = new RudiFolderWatch();
     rudiFolderWatch.createRudiFolderWatch(this);
   }
 
@@ -167,6 +167,8 @@ public class DataModel {
     _runFile.setValue(null);
     _rudiFolder.setValue(null);
     ruleModel = null;
+    ruleLocWatch.shutDownListener();
+    rudiFolderWatch.shutDownListener();
     setRuleModelChangeStatus(RULE_MODEL_REMOVED);
     setProjectStatus(PROJECT_CLOSED);
   }
@@ -245,7 +247,8 @@ public class DataModel {
   public void setProjectStatus(int val) { _projectStatus.set(val); }
   public IntegerProperty projectStatusProperty() { return _projectStatus; }
 
-
+  private RuleLocationWatch ruleLocWatch;
+  private RudiFolderWatch rudiFolderWatch;
 
 
 
