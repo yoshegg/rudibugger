@@ -63,6 +63,10 @@ public class SideBarController {
         switch ((int) newVal) {
           case PROJECT_OPEN:
             rudiListView.setItems(model.rudiList);
+            break;
+          case PROJECT_CLOSED:
+            rudiListView.setItems(null);
+            break;
         }
       }
     });
@@ -83,7 +87,6 @@ public class SideBarController {
             ruleTreeView.setRoot(buildTreeView(model));
             ruleTreeView.getRoot().setExpanded(true);
             ruleTreeViewState = new RuleTreeViewState();
-            ruleTreeViewState.retrieveTreeState(ruleTreeView);
             log.debug("TreeView based on RuleModel has been built.");
             log.debug("Marking used .rudi files...");
             markFilesInRudiList();
@@ -93,6 +96,7 @@ public class SideBarController {
           case RULE_MODEL_CHANGED:
             log.debug("RuleModel has been modified.");
             log.debug("Adapting ruleTreeView");
+            ruleTreeViewState.retrieveTreeState(ruleTreeView);
             ruleTreeView.setRoot(buildTreeView(model));
             ruleTreeViewState.setTreeState(ruleTreeView);
             log.debug("ruleTreeView has been adapted.");
