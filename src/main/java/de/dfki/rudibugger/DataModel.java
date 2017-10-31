@@ -6,11 +6,8 @@
 package de.dfki.rudibugger;
 
 import static de.dfki.rudibugger.Constants.*;
-import de.dfki.rudibugger.Controller.SideBarController;
 import de.dfki.rudibugger.RuleStore.RuleModel;
 import de.dfki.rudibugger.WatchServices.RuleLocationWatch;
-import de.dfki.rudibugger.project.RudiFileTreeItem;
-import de.dfki.rudibugger.project.RudiFolderTreeItem;
 import de.dfki.rudibugger.tabs.RudiHBox;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -70,7 +67,7 @@ public class DataModel {
   }
 
   /**
-   * this method initializes a given project.
+   * This method initializes a given project.
    *
    * @param selectedProjectYml the selected .yml file from the file
    * selection dialogue
@@ -173,15 +170,15 @@ public class DataModel {
     setRuleModelChangeStatus(RULE_MODEL_REMOVED);
     setProjectStatus(PROJECT_CLOSED);
   }
-  
+
   /*****************************************************************************
    * UPDATE METHODS FOR THE CURRENT PROJECT AKA DATAMODEL
    ****************************************************************************/
-  
+
   public void updateProject() {
     updateRules();
   }
-  
+
   private void updateRules() {
     log.debug("Updating the RuleModel");
     ruleModel.updateRuleModel(_ruleLocFile);
@@ -262,38 +259,6 @@ public class DataModel {
 
   public RudiHBox getRudiHBox() {
     return tabPaneBack;
-  }
-
-  /*
-   * Returns a TreeItem representation of the specified directory
-   */
-  public RudiFolderTreeItem getNodesForDirectory(Path directory) throws IOException {
-    RudiFolderTreeItem root = new RudiFolderTreeItem(directory.getFileName().toString());
-
-    /* get a sorted list of this directory's files */
-    DirectoryStream<Path> stream = Files.newDirectoryStream(directory);
-    List<Path> list = new ArrayList<>();
-    stream.forEach(list::add);
-    list.sort(
-      (Path h1, Path h2) -> h1.getFileName().toString().toLowerCase()
-              .compareTo(h2.getFileName().toString().toLowerCase()));
-
-    /* iterate over the found files */
-    for (Path f : list) {
-      /* if we find another directory, we call the function recursively */
-      if (Files.isDirectory(f)) {
-        root.getChildren().add(getNodesForDirectory(f));
-      }
-      /* else we make sure to only have .rudi files */
-      else {
-        if (f.toString().toLowerCase().endsWith(".rudi")) {
-          RudiFileTreeItem item = new RudiFileTreeItem(f.getFileName().toString());
-          item.setFile(f);
-          root.getChildren().add(item);
-        }
-      }
-    }
-    return root;
   }
 
   public void newRudiFile() throws FileNotFoundException {
