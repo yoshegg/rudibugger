@@ -40,7 +40,7 @@ public class MainApp extends Application {
      * INITIALIZE CONTROLLERS AND FXMLs
      */
 
- /* create root BorderPane */
+    /* create root BorderPane */
     BorderPane root = new BorderPane();
 
     /* initialize menuBar (top of BorderPane) */
