@@ -190,15 +190,28 @@ public class DataModel {
   }
 
   public void removeRudiPath(Path file) {
-    log.debug("Removing RudiPath from list");
     rudiList.remove(new RudiPath(file));
   }
 
-  public void addRudiPath(Path file) {
-    log.debug("Add new RudiPath to list");
-    rudiList.add(new RudiPath(file));
-    rudiList.sort((a, b) -> a.getPath().toString().toLowerCase()
-            .compareTo(b.getPath().toString().toLowerCase()));
+  /**
+   * This function adds a newly appeared file to the rudiList. Unfortunately it
+   * may be that this file has been modified externally and therefore is
+   * recognized as ENTRY_CREATE first. Because of this true or false are
+   * returned so that the logger may log correctly.
+   *
+   * @param file
+   * @return true if added, false if not added (already there)
+   */
+  public boolean addRudiPath(Path file) {
+    RudiPath temp = new RudiPath(file);
+    if (! rudiList.contains(temp)) {
+      rudiList.add(new RudiPath(file));
+      rudiList.sort((a, b) -> a.getPath().toString().toLowerCase()
+              .compareTo(b.getPath().toString().toLowerCase()));
+      return true;
+    } else {
+      return false;
+    }
   }
 
 

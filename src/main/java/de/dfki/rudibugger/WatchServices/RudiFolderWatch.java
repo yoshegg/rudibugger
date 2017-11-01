@@ -5,20 +5,14 @@
  */
 package de.dfki.rudibugger.WatchServices;
 
-import static de.dfki.rudibugger.Constants.RULE_LOCATION_SUFFIX;
-import static de.dfki.rudibugger.Constants.RULE_MODEL_CHANGED;
 import de.dfki.rudibugger.DataModel;
-import de.dfki.rudibugger.RudiList.RudiPath;
-import static de.dfki.rudibugger.WatchServices.RuleLocationWatch.log;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import static java.nio.file.StandardWatchEventKinds.*;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.HashSet;
 import javafx.application.Platform;
 import org.apache.log4j.Logger;
 
@@ -127,11 +121,17 @@ public class RudiFolderWatch {
             Platform.runLater(new Runnable() {
               @Override
               public void run() {
-                _model.addRudiPath(filename);
-                log.info("rudi file added: " + filename);
+                if (_model.addRudiPath(filename))
+                  log.info("rudi file added: " + filename);
               }
             });
 
+          }
+
+          /* rudi file modified */
+          if (kind == ENTRY_MODIFY) {
+            // TODO
+            log.info("rudi file has been modified: " + filename);
           }
 
           /* rudi file deleted */

@@ -5,9 +5,6 @@
  */
 package de.dfki.rudibugger.RuleTreeView;
 
-import de.dfki.rudibugger.RuleTreeView.BasicTreeItem;
-import de.dfki.rudibugger.RuleTreeView.ImportTreeItem;
-import de.dfki.rudibugger.RuleTreeView.RuleTreeItem;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
@@ -115,19 +112,18 @@ public class RuleTreeViewState {
     /* get root TreeItem of TreeView */
     BasicTreeItem root = (BasicTreeItem) tw.getRoot();
 
-    /* the root of the RuleTreeViewState object */
-    RuleStateItem treeViewItem;
-    treeViewItem = new RuleStateItem(root.getLabel().getText(),
+    /* the root has not been created yet or the name does not match */
+    if (_root == null || ! _root.label.equals(root.getLabel().getText())) {
+      _root = new RuleStateItem(root.getLabel().getText(),
             root.isExpanded(), root.stateProperty().getValue());
-
-    /* mark as Import */
-    treeViewItem.isImport(true);
+      _root.isImport(true);
+    } else {
+      _root.updateRuleStateItem(root.isExpanded(), root.stateProperty().getValue());
+    }
 
     /* create the children and add them */
-    treeViewItem.addChildren(retrieveTreeStateHelper(root));
+    _root.addChildren(retrieveTreeStateHelper(root, _root));
 
-    /* set this item as root */
-    _root = treeViewItem;
 
     /* return the RuleTreeViewState */
     return this;
@@ -135,7 +131,7 @@ public class RuleTreeViewState {
   }
 
   private HashMap<String, RuleStateItem>
-          retrieveTreeStateHelper(BasicTreeItem tempItem) {
+          retrieveTreeStateHelper(BasicTreeItem tempItem, RuleStateItem ruleItem) {
 
     /* the returned RuleTreeViewStateItems */
     HashMap<String, RuleStateItem> map = new HashMap<>();
@@ -144,18 +140,23 @@ public class RuleTreeViewState {
     for (Object child : tempItem.getChildren()) {
       BasicTreeItem item = (BasicTreeItem) child;
 
-      /* create the next RuleTreeViewStateItem */
+      /* is the child already known? if not: create a new one */
       RuleStateItem ruleStateItem;
-      ruleStateItem = new RuleStateItem(item.getLabel().getText(),
-              item.isExpanded(), item.stateProperty().getValue());
+      if (ruleItem.getChildrenNames().contains(item.getLabel().getText())) {
+        ruleStateItem = ruleItem.getChild(item.getLabel().getText());
+        ruleStateItem.updateRuleStateItem(item.isExpanded(), item.stateProperty().getValue());
+      } else {
+        ruleStateItem = new RuleStateItem(item.getLabel().getText(),
+                item.isExpanded(), item.stateProperty().getValue());
 
-      /* if it is an import, mark it */
-      if (item instanceof ImportTreeItem) {
-        ruleStateItem.isImport(true);
+        /* if it is an import, mark it */
+        if (item instanceof ImportTreeItem) {
+          ruleStateItem.isImport(true);
+        }
       }
 
       /* create the children and add them */
-      ruleStateItem.addChildren(retrieveTreeStateHelper(item));
+      ruleStateItem.addChildren(retrieveTreeStateHelper(item, ruleStateItem));
 
       /* add them to the returned set */
       map.put(item.getLabel().getText(), ruleStateItem);
