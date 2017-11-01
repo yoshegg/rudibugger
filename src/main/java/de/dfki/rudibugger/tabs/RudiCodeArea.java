@@ -43,6 +43,8 @@ public class RudiCodeArea extends CodeArea {
   private static final String BRACE_PATTERN = "\\{|\\}";
   private static final String BRACKET_PATTERN = "\\[|\\]";
   private static final String SEMICOLON_PATTERN = "\\;";
+  private static final String RULELABEL_PATTERN = "((?<=\\n)|(?<=^))([a-zA-Z0-9_])+(?=\\:)";
+  private static final String IMPORT_PATTERN = "((?<=^import)|(?<=\\nimport))\\s+([a-zA-Z]|[0-9]|_)+(?=\\;)";
   private static final String STRING_PATTERN = "\"([^\"\\\\]|\\\\.)*\"";
   private static final String COMMENT_PATTERN = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
 
@@ -54,6 +56,8 @@ public class RudiCodeArea extends CodeArea {
           + "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")"
           + "|(?<STRING>" + STRING_PATTERN + ")"
           + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
+          + "|(?<RULELABEL>" + RULELABEL_PATTERN + ")"
+          + "|(?<IMPORT>" + IMPORT_PATTERN + ")"
   );
 
   public RudiCodeArea() {
@@ -88,6 +92,8 @@ public class RudiCodeArea extends CodeArea {
               : matcher.group("SEMICOLON") != null ? "semicolon"
               : matcher.group("STRING") != null ? "string"
               : matcher.group("COMMENT") != null ? "comment"
+              : matcher.group("RULELABEL") != null ? "isRule"
+              : matcher.group("IMPORT") != null ? "isImport"
               : null;
       /* never happens */ assert styleClass != null;
       spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);

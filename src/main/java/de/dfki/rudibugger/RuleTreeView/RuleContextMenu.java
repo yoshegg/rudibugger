@@ -3,14 +3,11 @@
  * written in the context of a bachelor's thesis
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
-package de.dfki.rudibugger.ruleTreeView;
+package de.dfki.rudibugger.RuleTreeView;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
-import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_ALWAYS;
-import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_IF_FALSE;
-import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_IF_TRUE;
-import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_NEVER;
+import static de.dfki.rudibugger.Constants.*;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -51,23 +48,18 @@ public class RuleContextMenu extends ContextMenu {
     _item = item;
 
     initializeRuleLoggingMenuItems();
-    retrieveState(_item.getState());
+    retrieveState(_item.stateProperty().get());
   }
 
   /* set MenuItems' ActionEvents */
   private void initializeRuleLoggingMenuItems() {
 
     /* set open MenuItem */
-    MenuItem openFile = new MenuItem("Open "
-            + _item.getSourceFile().getFileName().toString());
-    openFile.setOnAction((ActionEvent e) -> {
-      _item.project.getRudiHBox().getTab(_item.getSourceFile());
-    });
     MenuItem openRule = new MenuItem("Open rule (line "
-            + _item.getLineNumber() + ")");
+            + _item.lineProperty().getValue().toString() + ")");
     openRule.setOnAction((ActionEvent e) -> {
-      _item.project.getRudiHBox().getTabAtPosition(_item.getSourceFile(),
-              _item.getLineNumber());
+      _item._model.getRudiHBox().getTabAtPosition(_item.getSourceFile(),
+              _item.lineProperty().getValue());
     });
     SeparatorMenuItem sep = new SeparatorMenuItem();
 
@@ -84,7 +76,7 @@ public class RuleContextMenu extends ContextMenu {
     CMI_NEVER.setOnAction((ActionEvent e) -> {
       _item.setState(STATE_NEVER);
     });
-    this.getItems().addAll(openFile, openRule, sep, CMI_ALWAYS, CMI_IF_TRUE, CMI_IF_FALSE, CMI_NEVER);
+    this.getItems().addAll(openRule, sep, CMI_ALWAYS, CMI_IF_TRUE, CMI_IF_FALSE, CMI_NEVER);
 
     /* if there are children, provide more options */
     if (! _item.getChildren().isEmpty()) {

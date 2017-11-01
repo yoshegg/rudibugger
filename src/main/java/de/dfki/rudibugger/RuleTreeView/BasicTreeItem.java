@@ -3,10 +3,12 @@
  * written in the context of a bachelor's thesis
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
-package de.dfki.rudibugger.ruleTreeView;
+package de.dfki.rudibugger.RuleTreeView;
 
-import de.dfki.rudibugger.project.Project;
+import static de.dfki.rudibugger.Constants.*;
 import java.util.HashSet;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -33,13 +35,12 @@ public class BasicTreeItem extends TreeItem<HBox> {
   /* the icon to indicate the _state */
   private final ImageView stateIndicator;
 
+  /* the line this object was declared */
+  private final IntegerProperty _line;
+
   /* the state describes how the rule(s) should be logged */
-  private int _state;
-  public static final int STATE_ALWAYS = 0;
-  public static final int STATE_IF_TRUE = 1;
-  public static final int STATE_IF_FALSE = 2;
-  public static final int STATE_NEVER = 3;
-  public static final int STATE_PARTLY = 9;
+  private IntegerProperty _state;
+
 
   /**
    * the HBox of the TreeItem, maybe it needs to be modified from
@@ -47,20 +48,19 @@ public class BasicTreeItem extends TreeItem<HBox> {
    */
   public HBox _hb;
 
-  /* the project with its GUI elements */
-  public Project project;
 
   /* the constructor */
-  public BasicTreeItem(String text, Project proj) {
+  public BasicTreeItem(String text, Integer line) {
     super();
-
-    /* bind project to field */
-    project = proj;
 
     /* initialise label and icon */
     _label = new Label(text);
     stateIndicator = new ImageView();
+    _state = new SimpleIntegerProperty();
     this.setState(STATE_NEVER);
+
+    _line = new SimpleIntegerProperty(line);
+
 
     /* disable doubleclick expand/collapse when clicking on the icon */
     stateIndicator.addEventFilter(MouseEvent.MOUSE_PRESSED, (MouseEvent e) -> {
@@ -96,13 +96,13 @@ public class BasicTreeItem extends TreeItem<HBox> {
   public final void setState(int state) {
 
     /* set state and adapt icon */
-    _state = state;
+    _state.set(state);
     stateIndicator.setImage(getIcon(state));
 
     /* unify underlying rules */
     if (this instanceof ImportTreeItem) {
       this.getAllChildren().forEach((item) -> {
-        item.setStateHelper(_state);
+        item.setStateHelper(_state.get());
       });
     }
 
@@ -123,13 +123,17 @@ public class BasicTreeItem extends TreeItem<HBox> {
   private void setStateHelper(int state) {
 
     /* set state and adapt icon */
-    _state = state;
+    _state.set(state);
     stateIndicator.setImage(getIcon(state));
   }
 
   /* returns the private field _state */
-  public int getState() {
+  public IntegerProperty stateProperty() {
     return _state;
+  }
+
+  public IntegerProperty lineProperty() {
+    return _line;
   }
 
   /* returns the private field _label */
@@ -162,7 +166,7 @@ public class BasicTreeItem extends TreeItem<HBox> {
   private boolean nodesHaveSameStates(HashSet<BasicTreeItem> items) {
     HashSet states = new HashSet();
     items.forEach((i) -> {
-      states.add((((BasicTreeItem) i)).getState());
+      states.add((((BasicTreeItem) i)).stateProperty().get());
     });
     return states.size() == 1;
   }

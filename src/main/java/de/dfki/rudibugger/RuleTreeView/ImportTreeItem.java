@@ -3,12 +3,13 @@
  * written in the context of a bachelor's thesis
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
-package de.dfki.rudibugger.ruleTreeView;
+package de.dfki.rudibugger.RuleTreeView;
 
 import java.nio.file.Path;
 import javafx.scene.image.Image;
 import static de.dfki.rudibugger.Constants.*;
-import de.dfki.rudibugger.project.Project;
+import de.dfki.rudibugger.RuleStore.Import;
+import de.dfki.rudibugger.DataModel;
 import java.nio.file.Paths;
 
 /**
@@ -29,13 +30,17 @@ public class ImportTreeItem extends BasicTreeItem {
   static Image imgNever = new Image(FILE_ICON_PATH + "Never.png");
   static Image imgPartly = new Image(FILE_ICON_PATH + "Partly.png");
 
-  /* the constructor */
-  public ImportTreeItem(String importName, Project proj) {
-    super(importName, proj);
-    _file = Paths.get(project.getRootFolder() + "/"
-            + PATH_TO_RUDI_FILES + importName + ".rudi");
+  /* model */
+  DataModel _model;
 
-    /* the specific context menu for rules */
+  /* the constructor */
+  public ImportTreeItem(Import content, DataModel model) {
+    super(content.getImportName(), content.getLine());
+    _model = model;
+    _file = Paths.get(model.getRootFolder() + "/"
+            + PATH_TO_RUDI_FILES + content.getImportName() + ".rudi");
+
+    /* the specific context menu for imports */
     _hb.setOnContextMenuRequested((e) -> {
       ImportContextMenu contextMenu = new ImportContextMenu(this);
       contextMenu.show(_hb, e.getScreenX(), e.getScreenY());

@@ -3,12 +3,9 @@
  * written in the context of a bachelor's thesis
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
-package de.dfki.rudibugger.ruleTreeView;
+package de.dfki.rudibugger.RuleTreeView;
 
-import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_ALWAYS;
-import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_IF_FALSE;
-import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_IF_TRUE;
-import static de.dfki.rudibugger.ruleTreeView.BasicTreeItem.STATE_NEVER;
+import static de.dfki.rudibugger.Constants.*;
 import javafx.event.ActionEvent;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
@@ -41,7 +38,7 @@ public class ImportContextMenu extends ContextMenu {
     _item = item;
 
     initializeMenuItems();
-    retrieveState(_item.getState());
+    retrieveState(_item.stateProperty().get());
   }
 
   /* set logging MenuItems' ActionEvents */
@@ -51,7 +48,7 @@ public class ImportContextMenu extends ContextMenu {
     MenuItem openFile = new MenuItem("Open "
             + _item.getFile().getFileName().toString());
     openFile.setOnAction((ActionEvent e) -> {
-      _item.project.getRudiHBox().getTab(_item.getFile());
+      _item._model.getRudiHBox().getTab(_item.getFile());
     });
     SeparatorMenuItem sep = new SeparatorMenuItem();
 
@@ -91,11 +88,11 @@ public class ImportContextMenu extends ContextMenu {
     }
   }
 
-  /* unify children rules */
-  private void unifyChildren(Integer state) {
-    ((BasicTreeItem) _item).getAllChildren().forEach((item) -> {
-      item.setState(state);
-    }
-    );
-  }
+//  /* unify children rules */
+//  private void unifyChildren(Integer state) {
+//    ((BasicTreeItem) _item).getAllChildren().forEach((item) -> {
+//      item.setState(state);
+//    }
+//    );
+//  }
 }
