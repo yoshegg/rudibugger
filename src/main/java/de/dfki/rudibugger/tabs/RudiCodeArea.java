@@ -43,8 +43,8 @@ public class RudiCodeArea extends CodeArea {
   private static final String BRACE_PATTERN = "\\{|\\}";
   private static final String BRACKET_PATTERN = "\\[|\\]";
   private static final String SEMICOLON_PATTERN = "\\;";
-  private static final String RULELABEL_PATTERN = "((?<=\\n)|(?<=^))([a-zA-Z0-9_])+(?=\\:)";
-  private static final String IMPORT_PATTERN = "((?<=^import)|(?<=\\nimport))\\s+([a-zA-Z]|[0-9]|_)+(?=\\;)";
+  private static final String RULELABEL_PATTERN = "((?<=\\n)|(?<=^)) *([a-zA-Z0-9_])+(?=\\:)";
+  private static final String IMPORT_PATTERN = "((?<=^import)|(?<=\\nimport)) +[a-zA-Z0-9_]+(?=\\;)";
   private static final String STRING_PATTERN = "\"([^\"\\\\]|\\\\.)*\"";
   private static final String COMMENT_PATTERN = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
 
