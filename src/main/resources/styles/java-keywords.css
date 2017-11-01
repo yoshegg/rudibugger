@@ -30,5 +30,15 @@
 }
 
 .isRule {
-    -fx-background-color: #b4ddee;
+    -fx-background-fill: #efefef;
+    -fx-background-color: #efefef;
+    -fx-fill: green;
+    -fx-font-weight: bold;
+}
+
+.isImport {
+    -fx-background-fill: #efefef;
+    -fx-background-color: #efefef;
+    -fx-fill: red;
+    -fx-font-weight: bold;
 }
