@@ -36,6 +36,11 @@ public class MainApp extends Application {
     PropertyConfigurator.configure("src/main/resources/log4j/log4j.properties");
     log.info("Starting Rudibugger");
 
+    /* improve font rendering, caused by JavaFX bug */
+    /* https://github.com/FXMisc/RichTextFX/wiki/Known-Issues */
+    System.setProperty("prism.lcdtext", "false");
+    System.setProperty("prism.text", "t2k");
+
     /*
      * INITIALIZE CONTROLLERS AND FXMLs
      */
