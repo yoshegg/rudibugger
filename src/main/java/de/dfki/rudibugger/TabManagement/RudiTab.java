@@ -3,7 +3,7 @@
  * written in the context of a bachelor's thesis
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
-package de.dfki.rudibugger.tabs;
+package de.dfki.rudibugger.TabManagement;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
@@ -32,9 +32,6 @@ public class RudiTab extends Tab {
   /* creates a new empty tab */
   public RudiTab() {
     super();
-    this.setOnCloseRequest((Event arg0) -> {
-      ((RudiHBox) this.getTabPane().getParent()).removeTabFromOpenTabs(this);
-    });
   }
 
   /* creates a new tab and links a file to it */
@@ -82,7 +79,8 @@ public class RudiTab extends Tab {
           _codeArea.appendText(s.next() + "\n");
         }
       } catch (FileNotFoundException e) {
-        log.error("Something went wrong while reading in " + _file.getFileName().toString());
+        log.error("Something went wrong while reading in "
+                + _file.getFileName().toString());
       }
     }
 

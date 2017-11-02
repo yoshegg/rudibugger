@@ -48,10 +48,10 @@ public class ImportContextMenu extends ContextMenu {
     MenuItem openFile = new MenuItem("Open "
             + _item.getFile().getFileName().toString());
     openFile.setOnAction((ActionEvent e) -> {
-      _item._model.getRudiHBox().getTab(_item.getFile());
+      _item._model.requestTabOfFile(_item.getFile());
     });
+    
     SeparatorMenuItem sep = new SeparatorMenuItem();
-
 
     /* set actions when logging menu items are clicked */
     CMI_ALWAYS.setOnAction((ActionEvent e) -> {
@@ -88,11 +88,4 @@ public class ImportContextMenu extends ContextMenu {
     }
   }
 
-//  /* unify children rules */
-//  private void unifyChildren(Integer state) {
-//    ((BasicTreeItem) _item).getAllChildren().forEach((item) -> {
-//      item.setState(state);
-//    }
-//    );
-//  }
 }

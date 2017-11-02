@@ -33,19 +33,19 @@ public class MenuController {
   static Logger log = Logger.getLogger("GUIlog");
 
   /** the DataModel */
-  private DataModel model;
+  private DataModel _model;
 
   /** This function connects this controller to the DataModel
    *
    * @param model
    */
   public void initModel(DataModel model) {
-    if (this.model != null) {
+    if (this._model != null) {
       throw new IllegalStateException("Model can only be initialized once");
     }
-    this.model = model;
+    _model = model;
 
-    model.compileFileProperty().addListener(new ChangeListener() {
+    _model.compileFileProperty().addListener(new ChangeListener() {
       @Override
       public void changed(ObservableValue o, Object oldVal,
               Object newVal) {
@@ -57,7 +57,7 @@ public class MenuController {
         }
       }
     });
-    
+
     model.projectStatusProperty().addListener(new ChangeListener() {
       @Override
       public void changed(ObservableValue o, Object oldVal, Object newVal) {
@@ -99,7 +99,7 @@ public class MenuController {
   /** Action "New Project..." */
   @FXML
   private void newProjectAction(ActionEvent event) {
-    model.createNewProject();
+    _model.createNewProject();
   }
 
 
@@ -111,7 +111,7 @@ public class MenuController {
   @FXML
   private void newRudiFileAction(ActionEvent event)
           throws FileNotFoundException {
-    model.newRudiFile();
+    log.debug("method missing");
   }
 
 
@@ -138,8 +138,8 @@ public class MenuController {
 //      }
 //    }
 
-    Path ymlFile = HelperWindows.openYmlProjectFile(model.stageX);
-    model.initProject(ymlFile);
+    Path ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
+    _model.initProject(ymlFile);
   }
 
 
@@ -156,7 +156,7 @@ public class MenuController {
   @FXML
   private void closeProjectAction(ActionEvent event)
           throws FileNotFoundException {
-    model.resetProject();
+    _model.closeProject();
   }
 
 
@@ -228,7 +228,7 @@ public class MenuController {
   /* Clicking the compile button */
   @FXML
   private void startCompile(ActionEvent event) throws IOException, InterruptedException {
-    model.startCompile();
+    _model.startCompile();
   }
 
   /* Clicking the run button */
@@ -243,7 +243,7 @@ public class MenuController {
   @FXML
   private void openDipal(ActionEvent event)
           throws FileNotFoundException, IOException, IllegalAccessException {
-    model.initProject(new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath());
+    _model.initProject(new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath());
 //    if (model.projectX != null) {
 //      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
 //    }

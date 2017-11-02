@@ -17,6 +17,7 @@ import de.dfki.rudibugger.RuleTreeView.RuleTreeItem;
 import de.dfki.rudibugger.RuleTreeView.RuleTreeViewState;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TreeView;
@@ -71,7 +72,18 @@ public class SideBarController {
       }
     });
 
+    /* define how a cell in this ListView looks like */
     rudiListView.setCellFactory(value -> new RudiListViewCell());
+
+    /* open a new tab or select the already opened tab from the selected file */
+    rudiListView.setOnMouseClicked((MouseEvent mouseEvent) -> {
+      if (mouseEvent.getClickCount() == 2) {
+        Object test = rudiListView .getSelectionModel().getSelectedItem();
+        if (test instanceof RudiPath) {
+          model.requestTabOfFile(((RudiPath) test).getPath());
+        }
+      }
+    });
 
 
     /* this Listener builds or modifies the RuleTreeView, if the RuleModel
@@ -116,20 +128,6 @@ public class SideBarController {
             break;
           default:
             break;
-        }
-      }
-    });
-
-
-
-    /* open a new tab or select the already opened tab from the selected file */
-    rudiListView.setOnMouseClicked((MouseEvent mouseEvent) -> {
-      if (mouseEvent.getClickCount() == 2) {
-        Object test = rudiListView .getSelectionModel().getSelectedItem();
-        if (test instanceof RudiPath) {
-          System.out.println("test");
-//          RudiFileTreeItem item = (RudiFileTreeItem) test;
-//          RudiTab tab = model.tabPaneBack.getTab(item.getFile());
         }
       }
     });

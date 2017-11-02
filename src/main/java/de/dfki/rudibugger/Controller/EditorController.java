@@ -6,9 +6,9 @@
 package de.dfki.rudibugger.Controller;
 
 import de.dfki.rudibugger.DataModel;
-import de.dfki.rudibugger.tabs.RudiHBox;
+import de.dfki.rudibugger.TabManagement.TabStore;
 import javafx.fxml.FXML;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import org.apache.log4j.Logger;
 
 /**
@@ -21,33 +21,39 @@ public class EditorController {
   static Logger log = Logger.getLogger("rudiLog");
 
   /* the model */
-  private DataModel model;
+  private DataModel _model;
 
   public void initModel(DataModel model) {
-    if (this.model != null) {
+    if (_model != null) {
       throw new IllegalStateException("Model can only be initialized once");
     }
-    this.model = model;
+    _model = model;
 
-    /* initialise the RudiHBox for the RudiTabPane(s) */
-    tabPaneBack = new RudiHBox();
-    tabPaneBack.fitToParentAnchorPane();
-    tabAnchorPane.getChildren().add(tabPaneBack);
+    /* intialise the TabStore */
+    tabStore = new TabStore(tabBox);
 
-    /* TODO: REMOVE */
-    model.tabPaneBack = tabPaneBack;
+    /* this listener waits for tab requests */
+    _model.requestedFileProperty().addListener((arg, oldVal, newVal) -> {
+      if (newVal != null) {
+        tabStore.openTab(newVal);
+      }
+    _model.requestedFileProperty().setValue(null);
+    });
   }
 
+  /*****************************************************************************
+   * The Tab Management
+   ****************************************************************************/
 
-  /******************************
-   * The different GUI elements *
-   ******************************/
+  private TabStore tabStore;
 
-  /* the ground AnchorPane of the HBox containing the tabPane(s) */
+
+  /*****************************************************************************
+   * The different GUI elements
+   ****************************************************************************/
+
+  /* The HBox containing the tabPane(s) */
   @FXML
-  private AnchorPane tabAnchorPane;
-
-  /* the RudiHBox on top of tabAnchorPane */
-  private RudiHBox tabPaneBack;
+  private HBox tabBox;
 
 }

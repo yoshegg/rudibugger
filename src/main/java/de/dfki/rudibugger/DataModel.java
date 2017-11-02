@@ -8,8 +8,6 @@ package de.dfki.rudibugger;
 import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.RuleStore.RuleModel;
 import de.dfki.rudibugger.WatchServices.RuleLocationWatch;
-import de.dfki.rudibugger.tabs.RudiHBox;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -27,9 +25,8 @@ import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 import static de.dfki.rudibugger.Helper.*;
 import de.dfki.rudibugger.RudiList.RudiPath;
+import de.dfki.rudibugger.TabManagement.FileAtPos;
 import de.dfki.rudibugger.WatchServices.RudiFolderWatch;
-import java.util.Collections;
-import java.util.Comparator;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
@@ -163,7 +160,7 @@ public class DataModel {
     }
   }
 
-  public void resetProject() {
+  public void closeProject() {
     log.info("Closing [" + _projectName.getValue() + "]...");
     _compileFile.setValue(null);
     _runFile.setValue(null);
@@ -214,6 +211,25 @@ public class DataModel {
     }
   }
 
+  /*****************************************************************************
+   * FILE MANAGEMENT (OPENING, SAVING etc.)
+   ****************************************************************************/
+
+  private final ObjectProperty<FileAtPos> requestedFile
+          = new SimpleObjectProperty<>();
+
+  public ObjectProperty<FileAtPos> requestedFileProperty() {
+    return requestedFile;
+  }
+
+  public void requestTabOfFile(Path file) {
+    requestTabOfRule(file, 1);
+  }
+
+  public void requestTabOfRule(Path file, Integer position) {
+    FileAtPos temp = new FileAtPos(file, position);
+    requestedFile.setValue(temp);
+  }
 
   /*****************************************************************************
    * UNDERLYING FIELDS / PROPERTIES OF THE CURRENT PROJECT AKA DATAMODEL
@@ -274,26 +290,14 @@ public class DataModel {
   public void setProjectStatus(int val) { _projectStatus.set(val); }
   public IntegerProperty projectStatusProperty() { return _projectStatus; }
 
+  /* The WatchServices */
   private RuleLocationWatch ruleLocWatch;
   private RudiFolderWatch rudiFolderWatch;
 
 
-
-
-
-  /* OLD */
-
-  /* TODO: Transform to be MVC conform */
-
-  public RudiHBox tabPaneBack;
-
-  public RudiHBox getRudiHBox() {
-    return tabPaneBack;
-  }
-
-  public void newRudiFile() throws FileNotFoundException {
-    tabPaneBack.getNewEmptyTab();
-  }
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
 
   public void startCompile() throws IOException, InterruptedException {
     log.info("Starting compilation...");

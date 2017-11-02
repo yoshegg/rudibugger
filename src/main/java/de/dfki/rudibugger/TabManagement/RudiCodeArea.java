@@ -3,7 +3,7 @@
  * written in the context of a bachelor's thesis
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
-package de.dfki.rudibugger.tabs;
+package de.dfki.rudibugger.TabManagement;
 
 import java.util.Collection;
 import java.util.Collections;
