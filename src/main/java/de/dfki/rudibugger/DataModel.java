@@ -28,6 +28,9 @@ import de.dfki.rudibugger.RudiList.RudiPath;
 import de.dfki.rudibugger.TabManagement.FileAtPos;
 import de.dfki.rudibugger.TabManagement.RudiTab;
 import de.dfki.rudibugger.WatchServices.RudiFolderWatch;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Map;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.beans.property.IntegerProperty;
@@ -164,6 +167,16 @@ public class DataModel {
     } else {
       log.info(_projectName.getValue() + "'s " + RUN_FILE
               + " could not be found.");
+    }
+    try {
+      String temp = ((Map<String, String>)
+              yaml.load(new FileInputStream(selectedProjectYml.toFile())))
+              .get("wrapperClass");
+      String[] split = temp.split("\\.");
+      String wrapperName = split[split.length-1];
+      _wrapperClass = _rudiFolder.getValue().resolve(wrapperName + ".rudi");
+    } catch (IOException e) {
+      log.error("Could not read .yml config file");
     }
   }
 
@@ -343,7 +356,7 @@ public class DataModel {
 
   /** statusBar */
   private final StringProperty statusBar = new SimpleStringProperty();
-  public void setStatusBar(String value) { statusBarProperty().set(value); }
+  private void setStatusBar(String value) { statusBarProperty().set(value); }
   public String getStatusBar() { return statusBarProperty().get(); }
   public StringProperty statusBarProperty() { return statusBar; }
 
@@ -403,6 +416,10 @@ public class DataModel {
   private ObjectProperty<Path> _runFile;
   public Path getRunFile() { return _runFile.getValue(); }
   public ObjectProperty<Path> runFileProperty() { return _runFile; }
+
+  /** WrapperClass */
+  private Path _wrapperClass;
+  public Path getWrapperClass() { return _wrapperClass; }
 
   /** Project status */
   private final IntegerProperty _projectStatus

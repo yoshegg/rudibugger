@@ -11,19 +11,20 @@ import javafx.scene.image.ImageView;
 import static de.dfki.rudibugger.Constants.*;
 
 /**
- * This ListCell is used to visualize the different .rudi files according to 
+ * This ListCell is used to visualize the different .rudi files according to
  * their usage stage in the current project.
- * 
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RudiListViewCell extends ListCell<RudiPath> {
 
   static final String FILE_ICON_PATH
           = "file:src/main/resources/icons/FilesAndFolders/";
-  
+
   static Image enabled = new Image(FILE_ICON_PATH + "enabled.png");
   static Image disabled = new Image(FILE_ICON_PATH + "disabled.png");
   static Image main = new Image(FILE_ICON_PATH + "main.png");
+  static Image wrapper = new Image(FILE_ICON_PATH + "wrapper.png");
 
   @Override
   protected void updateItem(RudiPath rudiPath, boolean empty) {
@@ -41,6 +42,9 @@ public class RudiListViewCell extends ListCell<RudiPath> {
       switch (rudiPath._usedProperty().getValue()) {
         case FILE_IS_MAIN:
           setGraphic(new ImageView(main));
+          break;
+        case FILE_IS_WRAPPER:
+          setGraphic(new ImageView(wrapper));
           break;
         case FILE_USED:
           setGraphic(new ImageView(enabled));

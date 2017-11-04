@@ -136,6 +136,13 @@ public class SideBarController {
         continue;
       }
 
+      /* mark the wrapper file */
+      if (model.getWrapperClass().getFileName()
+              .equals(x.getPath().getFileName())) {
+        x._usedProperty().setValue(FILE_IS_WRAPPER);
+        continue;
+      }
+
       /* mark the other files */
       if (model.ruleModel.importSet.contains(x.getPath().getFileName())) {
         x._usedProperty().setValue(FILE_USED);
