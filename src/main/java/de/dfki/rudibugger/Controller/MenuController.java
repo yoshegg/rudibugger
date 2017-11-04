@@ -91,7 +91,7 @@ public class MenuController {
             saveItem.setDisable(true);
           }
         });
-        
+
         saveAsItem.setDisable(false);
 
       /* a newly created file can only be saved as */
@@ -273,6 +273,6 @@ public class MenuController {
   @FXML
   private void openDipal(ActionEvent event)
           throws FileNotFoundException, IOException, IllegalAccessException {
-    _model.initProject(new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath());
+    _model.initProject(new File("/home/christophe/projects/dialoguemanager/dipalCompile.yml").toPath());
   }
 }
