@@ -28,6 +28,8 @@ import de.dfki.rudibugger.RudiList.RudiPath;
 import de.dfki.rudibugger.TabManagement.FileAtPos;
 import de.dfki.rudibugger.TabManagement.RudiTab;
 import de.dfki.rudibugger.WatchServices.RudiFolderWatch;
+import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
@@ -35,6 +37,7 @@ import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 
 /**
  * The DataModel represents the business logic of rudibugger.
@@ -219,22 +222,32 @@ public class DataModel {
    * FILE MANAGEMENT (OPENING, SAVING etc.)
    ****************************************************************************/
 
-  private final ObjectProperty<FileAtPos> requestedFile
-          = new SimpleObjectProperty<>();
-
-  public ObjectProperty<FileAtPos> requestedFileProperty() {
-    return requestedFile;
-  }
-
+  /**
+   * This function needs to be called when a new tab showing a certain file
+   * should be opened.
+   *
+   * @param file the wanted file
+   */
   public void requestTabOfFile(Path file) {
     requestTabOfRule(file, 1);
   }
 
+  /**
+   * This function needs to be called when a new tab showing a certain rule from
+   * a specific file should be opened.
+   *
+   * @param file the wanted file
+   * @param position the line of the wanted rule
+   */
   public void requestTabOfRule(Path file, Integer position) {
     FileAtPos temp = new FileAtPos(file, position);
     requestedFile.setValue(temp);
   }
 
+  /**
+   * This function is called when a file should be <b>quick-saved</b> (overwrite
+   * the old version of the file).
+   */
   public void updateFile() {
     RudiTab tab = selectedTab.getValue();
     Path file = tab.getFile();
@@ -244,19 +257,30 @@ public class DataModel {
       tab.setText(file.getFileName().toString());
       tab.waitForModif();
       log.debug("File " + file.getFileName() + " has been saved.");
+      notifySaved(file.getFileName().toString());
     }
   }
 
+  /**
+   * This function is called when the content of a tab should be saved as a new
+   * file.
+   */
   public void saveFileAs() {
     RudiTab tab = selectedTab.getValue();
     String content = tab.getRudiCode();
 
     FileChooser fileChooser = new FileChooser();
     fileChooser.setInitialDirectory(_rudiFolder.getValue().toFile());
-    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("rudi file (*.rudi)", "*.rudi");
+    FileChooser.ExtensionFilter extFilter
+            = new FileChooser.ExtensionFilter("rudi file (*.rudi)", "*.rudi");
     fileChooser.getExtensionFilters().add(extFilter);
-    Path file = (fileChooser.showSaveDialog(stageX)).toPath();
-    if (! file.getFileName().toString().endsWith(".rudi")) {
+    Path file;
+    try {
+      file = (fileChooser.showSaveDialog(stageX)).toPath();
+    } catch (NullPointerException e) {
+      return;
+    }
+      if (! file.getFileName().toString().endsWith(".rudi")) {
       file = Paths.get(file.toString() + ".rudi");
     }
 
@@ -278,6 +302,13 @@ public class DataModel {
     }
   }
 
+  /**
+   * This hidden function is called by every save request.
+   *
+   * @param file the path of the to-be-saved file
+   * @param content the content of the to-be-saved file
+   * @return
+   */
   private boolean saveFile(Path file, String content) {
     try {
       Files.write(file, content.getBytes());
@@ -287,6 +318,8 @@ public class DataModel {
       return false;
     }
   }
+
+  /******** Properties **********/
 
   private final ObjectProperty<RudiTab> selectedTab
           = new SimpleObjectProperty<>();
@@ -298,6 +331,34 @@ public class DataModel {
     return requestedCloseTab;
   }
 
+  private final ObjectProperty<FileAtPos> requestedFile
+          = new SimpleObjectProperty<>();
+  public ObjectProperty<FileAtPos> requestedFileProperty() {
+    return requestedFile;
+  }
+
+  /*****************************************************************************
+   * NOTIFICATIONS
+   ****************************************************************************/
+
+  /** statusBar */
+  private final StringProperty statusBar = new SimpleStringProperty();
+  public void setStatusBar(String value) { statusBarProperty().set(value); }
+  public String getStatusBar() { return statusBarProperty().get(); }
+  public StringProperty statusBarProperty() { return statusBar; }
+
+  /**
+   * This function changes the statusBar temporarily to indicate that a file has
+   * been saved.
+   *
+   * @param file the file that has been saved
+   */
+  private void notifySaved(String file) {
+    setStatusBar("Saved " + file + ".");
+    PauseTransition pause = new PauseTransition(Duration.seconds(3));
+    pause.setOnFinished(e -> setStatusBar(null));
+    pause.play();
+  }
 
   /*****************************************************************************
    * UNDERLYING FIELDS / PROPERTIES OF THE CURRENT PROJECT AKA DATAMODEL
@@ -311,15 +372,6 @@ public class DataModel {
           = new SimpleIntegerProperty(RULE_MODEL_UNCHANGED);
   public void setRuleModelChangeStatus(int val) { ruleModelChanged.set(val); }
   public IntegerProperty ruleModelChangeProperty() { return ruleModelChanged; }
-
-  /** statusBar */
-  private StringProperty statusBar;
-  public void setStatusBar(String value) { statusBarProperty().set(value); }
-  public String getStatusBar() { return statusBarProperty().get(); }
-  public StringProperty statusBarProperty() {
-      if (statusBar == null) statusBar = new SimpleStringProperty(this, "firstName"); // TODO
-      return statusBar;
-  }
 
   /** RootFolder (where the project sleeps) */
   private Path _rootFolder;
