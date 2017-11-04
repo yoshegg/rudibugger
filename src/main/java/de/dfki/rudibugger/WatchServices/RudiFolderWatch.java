@@ -13,6 +13,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.HashSet;
 import javafx.application.Platform;
 import org.apache.log4j.Logger;
 
@@ -31,6 +32,16 @@ public class RudiFolderWatch {
    * the Thread in which the WatchService is run
    */
   private volatile Thread watchingTread;
+
+  /**
+   * the corresponding WatchSercie
+   */
+  private WatchService _watchService;
+
+  /**
+   * the DataModel
+   */
+  private DataModel _model;
 
   /**
    * start listening for folder changes
@@ -61,16 +72,6 @@ public class RudiFolderWatch {
       thr.interrupt();
     }
   }
-
-  /**
-   * the corresponding WatchSercie
-   */
-  private WatchService _watchService;
-
-  /**
-   * the DataModel
-   */
-  DataModel _model;
 
   public void createRudiFolderWatch(DataModel model) {
     _model = model;
@@ -112,7 +113,8 @@ public class RudiFolderWatch {
 
 
         /* is rudi folder changing? */
-        if ((kind == ENTRY_CREATE || kind == ENTRY_DELETE)
+        if ((kind == ENTRY_CREATE || kind == ENTRY_DELETE
+                || kind == ENTRY_MODIFY)
                 && filename.getFileName().toString().endsWith(".rudi")) {
 
           /* rudi file added */
@@ -130,8 +132,8 @@ public class RudiFolderWatch {
 
           /* rudi file modified */
           if (kind == ENTRY_MODIFY) {
-            // TODO
-            log.info("rudi file has been modified: " + filename);
+            // TODO: make better
+            //log.info("rudi file has been modified : " + filename);
           }
 
           /* rudi file deleted */
