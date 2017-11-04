@@ -26,11 +26,15 @@ import org.yaml.snakeyaml.Yaml;
 import static de.dfki.rudibugger.Helper.*;
 import de.dfki.rudibugger.RudiList.RudiPath;
 import de.dfki.rudibugger.TabManagement.FileAtPos;
+import de.dfki.rudibugger.TabManagement.RudiTab;
 import de.dfki.rudibugger.WatchServices.RudiFolderWatch;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.stage.FileChooser;
 
 /**
  * The DataModel represents the business logic of rudibugger.
@@ -230,6 +234,70 @@ public class DataModel {
     FileAtPos temp = new FileAtPos(file, position);
     requestedFile.setValue(temp);
   }
+
+  public void updateFile() {
+    RudiTab tab = selectedTab.getValue();
+    Path file = tab.getFile();
+    String content = tab.getRudiCode();
+
+    if (saveFile(file, content)) {
+      tab.setText(file.getFileName().toString());
+      tab.waitForModif();
+      log.debug("File " + file.getFileName() + " has been saved.");
+    }
+  }
+
+  public void saveFileAs() {
+    RudiTab tab = selectedTab.getValue();
+    String content = tab.getRudiCode();
+
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setInitialDirectory(_rudiFolder.getValue().toFile());
+    FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("rudi file (*.rudi)", "*.rudi");
+    fileChooser.getExtensionFilters().add(extFilter);
+    Path file = (fileChooser.showSaveDialog(stageX)).toPath();
+    if (! file.getFileName().toString().endsWith(".rudi")) {
+      file = Paths.get(file.toString() + ".rudi");
+    }
+
+    if (saveFile(file, content)) {
+
+      /* close old tab */
+      EventHandler<Event> handler = tab.getOnClosed();
+      if (null != handler) {
+        handler.handle(null);
+      } else {
+        requestedCloseTabProperty().setValue(tab);
+        tab.getTabPane().getTabs().remove(tab);
+      }
+
+      /* open a new tab */
+      requestTabOfFile(file);
+
+      log.debug("File " + file.getFileName() + " has been saved.");
+    }
+  }
+
+  private boolean saveFile(Path file, String content) {
+    try {
+      Files.write(file, content.getBytes());
+      return true;
+    } catch (IOException e) {
+      log.error("could not save " + file);
+      return false;
+    }
+  }
+
+  private final ObjectProperty<RudiTab> selectedTab
+          = new SimpleObjectProperty<>();
+  public ObjectProperty<RudiTab> selectedTabProperty() { return selectedTab; }
+
+  private final ObjectProperty<RudiTab> requestedCloseTab
+          = new SimpleObjectProperty<>();
+  public ObjectProperty<RudiTab> requestedCloseTabProperty() {
+    return requestedCloseTab;
+  }
+
 
   /*****************************************************************************
    * UNDERLYING FIELDS / PROPERTIES OF THE CURRENT PROJECT AKA DATAMODEL

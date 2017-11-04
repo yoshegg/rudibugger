@@ -32,13 +32,24 @@ public class EditorController {
     /* intialise the TabStore */
     tabStore = new TabStore(tabBox);
 
-    /* this listener waits for tab requests */
+    /* this listener waits for tab requests: open or switch to */
     _model.requestedFileProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal != null) {
         tabStore.openTab(newVal);
       }
     _model.requestedFileProperty().setValue(null);
     });
+
+    /* this listener waits for tab requests: close */
+    _model.requestedCloseTabProperty().addListener((arg, oldVal, newVal) -> {
+      if (newVal != null) {
+        tabStore.closeTab(newVal);
+      }
+    });
+
+    /* this listener represents the current active tab */
+    _model.selectedTabProperty().bindBidirectional(
+            tabStore.currentTabProperty());
   }
 
   /*****************************************************************************

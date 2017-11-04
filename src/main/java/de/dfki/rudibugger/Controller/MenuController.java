@@ -10,6 +10,7 @@ import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.HelperWindows;
 import de.dfki.rudibugger.MainApp;
 import de.dfki.rudibugger.DataModel;
+import de.dfki.rudibugger.TabManagement.RudiTab;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class MenuController {
       }
     });
 
-    model.projectStatusProperty().addListener(new ChangeListener() {
+    _model.projectStatusProperty().addListener(new ChangeListener() {
       @Override
       public void changed(ObservableValue o, Object oldVal, Object newVal) {
         if ((int) newVal == PROJECT_OPEN) {
@@ -68,6 +69,35 @@ public class MenuController {
           log.debug("Project closed: disable GUI-elements.");
           closeProjectItem.setDisable(true);
         }
+      }
+    });
+
+    /* this Listener enables saving depending on the selected tab */
+    _model.selectedTabProperty().addListener((o, oldVal, newVal) -> {
+
+      /* no tab is opened */
+      if (newVal == null) {
+        saveItem.setDisable(true);
+        saveAsItem.setDisable(true);
+
+      /* one known tab is selected and can be saved */
+      } else if (((RudiTab) newVal).isKnown()) {
+
+        /* wait until the tab content has been modified */
+        newVal.hasBeenModifiedProperty().addListener((o2, oldVal2, newVal2) -> {
+          if (newVal2) {
+            saveItem.setDisable(false);
+          } else {
+            saveItem.setDisable(true);
+          }
+        });
+        
+        saveAsItem.setDisable(false);
+
+      /* a newly created file can only be saved as */
+      } else if (! ((RudiTab) newVal).isKnown()) {
+        saveItem.setDisable(true);
+        saveAsItem.setDisable(false);
       }
     });
   }
@@ -183,7 +213,7 @@ public class MenuController {
   /** Action "Save" */
   @FXML
   private void saveAction(ActionEvent event) {
-
+    _model.updateFile();
   }
 
 
@@ -194,7 +224,7 @@ public class MenuController {
   /** Action "Save as..." */
   @FXML
   private void saveAsAction(ActionEvent event) {
-
+    _model.saveFileAs();
   }
 
 
@@ -244,21 +274,5 @@ public class MenuController {
   private void openDipal(ActionEvent event)
           throws FileNotFoundException, IOException, IllegalAccessException {
     _model.initProject(new File("/home/christophe/projects/dialoguemanager.dipal/dipal.yml").toPath());
-//    if (model.projectX != null) {
-//      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
-//    }
-//
-//    if (model.processProjectYml(ymlFile, model.fileTreeView,  model.ruleTreeView,
-//             model.tabPaneBack)) {
-//      // enable buttons of respective files have been found
-//      if (model.projectX.getRunFile() != null) {
-//        runButton.setDisable(false);
-//        log.debug("Enabled run button.");
-//      }
-//      if (model.projectX.getCompileFile() != null) {
-//        compileButton.setDisable(false);
-//        log.debug("Enabled compile button.");
-//      }
-//    }
   }
 }

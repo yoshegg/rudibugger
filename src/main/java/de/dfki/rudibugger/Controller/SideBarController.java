@@ -15,9 +15,6 @@ import de.dfki.rudibugger.RuleTreeView.BasicTreeItem;
 import de.dfki.rudibugger.RuleTreeView.ImportTreeItem;
 import de.dfki.rudibugger.RuleTreeView.RuleTreeItem;
 import de.dfki.rudibugger.RuleTreeView.RuleTreeViewState;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TreeView;
@@ -57,18 +54,14 @@ public class SideBarController {
 
 
     /* this Listener keeps the listView containing the .rudi files up to date */
-    model.projectStatusProperty().addListener(new ChangeListener() {
-      @Override
-      public void changed(ObservableValue o, Object oldVal,
-              Object newVal) {
-        switch ((int) newVal) {
-          case PROJECT_OPEN:
-            rudiListView.setItems(model.rudiList);
-            break;
-          case PROJECT_CLOSED:
-            rudiListView.setItems(null);
-            break;
-        }
+    model.projectStatusProperty().addListener((o, oldVal, newVal) -> {
+      switch ((int) newVal) {
+        case PROJECT_OPEN:
+          rudiListView.setItems(model.rudiList);
+          break;
+        case PROJECT_CLOSED:
+          rudiListView.setItems(null);
+          break;
       }
     });
 
@@ -88,47 +81,43 @@ public class SideBarController {
 
     /* this Listener builds or modifies the RuleTreeView, if the RuleModel
     was changed.*/
-    model.ruleModelChangeProperty().addListener(new ChangeListener() {
-      @Override
-      public void changed(ObservableValue o, Object oldVal,
-              Object newVal) {
-        switch ((int) newVal) {
-          case RULE_MODEL_NEWLY_CREATED:
-            log.debug("RuleModel has been found.");
-            log.debug("Building TreeView...");
-            ruleTreeView.setRoot(buildTreeView(model));
-            ruleTreeView.getRoot().setExpanded(true);
-            ruleTreeViewState = new RuleTreeViewState();
-            log.debug("TreeView based on RuleModel has been built.");
-            log.debug("Marking used .rudi files...");
-            markFilesInRudiList();
-            log.debug("Marked used .rudi files.");
-            model.ruleModelChangeProperty().setValue(RULE_MODEL_UNCHANGED);
-            break;
-          case RULE_MODEL_CHANGED:
-            log.debug("RuleModel has been modified.");
-            log.debug("Adapting ruleTreeView");
-            ruleTreeViewState.retrieveTreeState(ruleTreeView);
-            ruleTreeView.setRoot(buildTreeView(model));
-            ruleTreeViewState.setTreeState(ruleTreeView);
-            log.debug("ruleTreeView has been adapted.");
-            log.debug("Remarking used .rudi files...");
-            markFilesInRudiList();
-            log.debug("Remarked used .rudi files.");
-            model.ruleModelChangeProperty().setValue(RULE_MODEL_UNCHANGED);
-            break;
-          case RULE_MODEL_REMOVED:
-            log.debug("RuleModel has been resetted / removed");
-            ruleTreeView.setRoot(null);
-            // TODO: reset file view
-            log.debug("GUI has been resetted.");
-            model.ruleModelChangeProperty().setValue(RULE_MODEL_UNCHANGED);
-            break;
-          case RULE_MODEL_UNCHANGED:
-            break;
-          default:
-            break;
-        }
+    model.ruleModelChangeProperty().addListener((o, oldVal, newVal) -> {
+      switch ((int) newVal) {
+        case RULE_MODEL_NEWLY_CREATED:
+          log.debug("RuleModel has been found.");
+          log.debug("Building TreeView...");
+          ruleTreeView.setRoot(buildTreeView(model));
+          ruleTreeView.getRoot().setExpanded(true);
+          ruleTreeViewState = new RuleTreeViewState();
+          log.debug("TreeView based on RuleModel has been built.");
+          log.debug("Marking used .rudi files...");
+          markFilesInRudiList();
+          log.debug("Marked used .rudi files.");
+          model.ruleModelChangeProperty().setValue(RULE_MODEL_UNCHANGED);
+          break;
+        case RULE_MODEL_CHANGED:
+          log.debug("RuleModel has been modified.");
+          log.debug("Adapting ruleTreeView");
+          ruleTreeViewState.retrieveTreeState(ruleTreeView);
+          ruleTreeView.setRoot(buildTreeView(model));
+          ruleTreeViewState.setTreeState(ruleTreeView);
+          log.debug("ruleTreeView has been adapted.");
+          log.debug("Remarking used .rudi files...");
+          markFilesInRudiList();
+          log.debug("Remarked used .rudi files.");
+          model.ruleModelChangeProperty().setValue(RULE_MODEL_UNCHANGED);
+          break;
+        case RULE_MODEL_REMOVED:
+          log.debug("RuleModel has been resetted / removed");
+          ruleTreeView.setRoot(null);
+          // TODO: reset file view
+          log.debug("GUI has been resetted.");
+          model.ruleModelChangeProperty().setValue(RULE_MODEL_UNCHANGED);
+          break;
+        case RULE_MODEL_UNCHANGED:
+          break;
+        default:
+          break;
       }
     });
   }

@@ -8,7 +8,10 @@ package de.dfki.rudibugger.TabManagement;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.Scanner;
-import javafx.event.Event;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import org.apache.log4j.Logger;
@@ -20,14 +23,17 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
  */
 public class RudiTab extends Tab {
 
-  /* the logger */
+  /** the logger */
   static Logger log = Logger.getLogger("rudiLog");
 
-  /* the associated file */
+  /** the associated file */
   private Path _file;
 
-  /* the codeArea */
-  public RudiCodeArea _codeArea;
+  /** the codeArea */
+  protected RudiCodeArea _codeArea;
+
+  /** is this a known file or a new one? */
+  private Boolean isKnown;
 
   /* creates a new empty tab */
   public RudiTab() {
@@ -82,6 +88,9 @@ public class RudiTab extends Tab {
         log.error("Something went wrong while reading in "
                 + _file.getFileName().toString());
       }
+      isKnown = true;
+    } else {
+      isKnown = false;
     }
 
     /* set the shown part of the file */
@@ -91,9 +100,54 @@ public class RudiTab extends Tab {
     /* load content into tab */
     this.setContent(content);
 
+    /* wait for modifications */
+    waitForModif();
+
   }
 
+  private final BooleanProperty hasBeenModified = new SimpleBooleanProperty();
+  public BooleanProperty hasBeenModifiedProperty() { return hasBeenModified; }
+
+  public void waitForModif() {
+    hasBeenModified.setValue(false);
+    _codeArea.textProperty().addListener(cl);
+  }
+
+  private ChangeListener cl = (ChangeListener) new ChangeListener() {
+    @Override
+    public void changed(ObservableValue o, Object oldValue, Object newValue) {
+      setText("*" + RudiTab.this.getText());
+      hasBeenModified.setValue(true);
+      o.removeListener(cl);
+    }
+  };
+
+  /**
+   * Indicates that the file is not a new, unsaved file
+   *
+   * @return
+   */
+  public Boolean isKnown() {
+    return isKnown;
+  }
+
+  /**
+   * Returns the file this tab is associated to
+   *
+   * @return
+   */
   public Path getFile() {
     return _file;
   }
+
+  /**
+   * Returns the .rudi code shown in the tab
+   *
+   * @return
+   */
+  public String getRudiCode() {
+    return _codeArea.getText();
+  }
+
+
 }

@@ -7,6 +7,8 @@ package de.dfki.rudibugger.TabManagement;
 
 import java.nio.file.Path;
 import java.util.HashMap;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -41,6 +43,12 @@ public class TabStore {
   /** a field to remember the current tabPane */
   private TabPane currentTabPane;
 
+  /** a Property to remember the current tab */
+  private ObjectProperty<RudiTab> currentTab
+          = new SimpleObjectProperty<>();
+  public ObjectProperty<RudiTab> currentTabProperty() { return currentTab; }
+
+
   public TabStore(HBox ap) {
     tabBox = ap;
     openTabs = new HashMap<>();
@@ -52,8 +60,14 @@ public class TabStore {
       TabPane tp = new TabPane();
       tp.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
       HBox.setHgrow(tp, Priority.ALWAYS);
-     tabBox.getChildren().add(tp);
+      tabBox.getChildren().add(tp);
       currentTabPane = tp;
+
+      /* define a listener to automatically transmit the selected RudiTab */
+      currentTabPane.getSelectionModel().selectedItemProperty()
+              .addListener((o, oldVal, newVal) -> {
+        currentTabProperty().setValue((RudiTab) newVal);
+      });
     }
     currentTabPane.getTabs().add(tab);
 
