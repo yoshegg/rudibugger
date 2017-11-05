@@ -28,19 +28,25 @@ import de.dfki.rudibugger.RudiList.RudiPath;
 import de.dfki.rudibugger.TabManagement.FileAtPos;
 import de.dfki.rudibugger.TabManagement.RudiTab;
 import de.dfki.rudibugger.WatchServices.RudiFolderWatch;
-import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import javafx.animation.PauseTransition;
-import javafx.animation.Timeline;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
+import org.yaml.snakeyaml.DumperOptions;
 
 /**
  * The DataModel represents the business logic of rudibugger.
@@ -62,6 +68,58 @@ public class DataModel {
   /** the main stage, necessary when opening additional windows e.g. prompts */
   public Stage stageX;
 
+  /** the global configuration directory */
+  public Path globalConfig = Paths.get(System.getProperty("user.home"),
+          ".config", "rudibugger");
+
+
+  /*****************************************************************************
+   * GLOBAL KNOWLEDGE
+   ****************************************************************************/
+
+  public ObservableList<String> _recentProjects;
+  private Path _recentProjectsFile;
+
+  /** initialize global knowledge */
+  public void initializeGlobalKnowledge() {
+
+    /* get recent projects */
+    ObservableList<String> recentProjects;
+    _recentProjectsFile = globalConfig.resolve("recentProjects.yml");
+    try {
+      ArrayList tempList = (ArrayList) yaml.load(
+              new FileInputStream(_recentProjectsFile.toFile()));
+      recentProjects = FXCollections.observableArrayList(tempList);
+    } catch (FileNotFoundException e) {
+      log.error("Error while reading in recent projects");
+      recentProjects = FXCollections.observableArrayList();
+    } catch (NullPointerException e) {
+      log.debug("No recent projects could be found");
+      recentProjects = FXCollections.observableArrayList();
+    }
+    _recentProjects = recentProjects;
+  }
+
+  /** keep global knowledge up-to-date */
+  public void keepGlobalKnowledgeUpToDate() {
+    _recentProjects.addListener((ListChangeListener.Change<? extends String> c) -> {
+      yaml.dump(_recentProjects);
+      try {
+        FileWriter writer = new FileWriter(_recentProjectsFile.toFile());
+        yaml.dump(_recentProjects, writer);
+      } catch (IOException e) {
+        log.error("could not update recent projects history.");
+      }
+    });
+  }
+
+  private void addToRecentProjects(Path project) {
+    String projPath = project.toString();
+    if (_recentProjects.contains(projPath)) {
+      _recentProjects.remove(projPath);
+    }
+    _recentProjects.add(0, projPath);
+  }
 
   /*****************************************************************************
    * THE INITIALIZER METHODS & RESET METHOD
@@ -69,7 +127,9 @@ public class DataModel {
 
   /** initialize the DataModel */
   public void initialize() {
-    yaml = new Yaml();
+    DumperOptions options = new DumperOptions();
+    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+    yaml = new Yaml(options);
     _compileFile = new SimpleObjectProperty<>(null);
     _runFile = new SimpleObjectProperty<>(null);
     _rudiFolder = new SimpleObjectProperty<>(null);
@@ -83,14 +143,46 @@ public class DataModel {
    * @throws java.io.IOException
    */
   public void initProject(Path selectedProjectYml) throws IOException {
+    if (! verifyIfUsableProject(selectedProjectYml)) {
+      log.error("Given file can not be used to create a project.");
+      return;
+    }
     log.info("Initializing new project [" + selectedProjectYml.getFileName()
             .toString() + "]");
+    addToRecentProjects(selectedProjectYml);
     initProjectFields(selectedProjectYml);
     initProjectWatches();
     readInRudiFiles();
     initRules();
     setProjectStatus(PROJECT_OPEN);
     log.info("Initializing done.");
+  }
+
+  /**
+   * This just checks a few things to verify that the given .yml represents a
+   * project.
+   *
+   * @param yml
+   * @return true, if all keys could be found, else false
+   */
+  private boolean verifyIfUsableProject(Path yml) {
+    HashMap<String, String> map;
+    try {
+      map = (HashMap<String, String>) yaml.load(new FileInputStream(yml.toFile()));
+    } catch (IOException e) {
+      log.error(e);
+      return false;
+    }
+    HashSet<String> keysToCheckOn = new HashSet() {
+      {
+        add("outputDirectory");
+        add("wrapperClass");
+        add("ontologyFile");
+        add("rootPackage");
+      }
+    };
+    return map.keySet().containsAll(keysToCheckOn);
+
   }
 
   private void initProjectWatches() {

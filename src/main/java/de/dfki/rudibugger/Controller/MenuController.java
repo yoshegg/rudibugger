@@ -15,8 +15,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -51,7 +53,8 @@ public class MenuController {
       public void changed(ObservableValue o, Object oldVal,
               Object newVal) {
         if (newVal != null) {
-          log.debug("As a compile file has been found, the button was enabled.");
+          log.debug("As a compile file has been found, "
+                  + "the button was enabled.");
           compileButton.setDisable(false);
         } else {
           compileButton.setDisable(true);
@@ -100,12 +103,78 @@ public class MenuController {
         saveAsItem.setDisable(false);
       }
     });
+
+    /* initalize the recent projets submenu */
+    if (! _model._recentProjects.isEmpty()) {
+      buildRecentProjectsMenu();
+    }
+
+    /* this Listener keeps track of the recent projects menu item */
+    _model._recentProjects.addListener(
+            (ListChangeListener.Change<? extends String> c) -> {
+      buildRecentProjectsMenu();
+    });
+  }
+
+  private void buildRecentProjectsMenu() {
+    openRecentProjectMenu.getItems().clear();
+    _model._recentProjects.forEach((x) -> {
+      MenuItem mi = new MenuItem(x);
+      mi.setOnAction((event) -> {
+        checkForOpenProject(Paths.get(x));
+      });
+      openRecentProjectMenu.getItems().add(mi);
+    });
+  }
+
+  /**
+   * This function is used to check for open projects
+   *
+   * @param ymlFile null, if the project has not been defined yet, else the Path
+   * to the project's .yml file
+   */
+  private void checkForOpenProject(Path ymlFile) {
+
+    /* a project is already open */
+    if (_model.projectStatusProperty().getValue() == PROJECT_OPEN) {
+      switch (HelperWindows.overwriteProjectCheck(_model)) {
+        case OVERWRITE_CHECK_CURRENT_WINDOW:
+          if (ymlFile == null)
+            ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
+          if (ymlFile == null) { return; }
+          _model.closeProject();
+          try {
+            _model.initProject(ymlFile);
+          } catch (IOException e) {
+            log.error("Could not read in " + ymlFile.getFileName());
+          }
+          break;
+        case OVERWRITE_CHECK_NEW_WINDOW:
+        //TODO: not implemented yet.
+        case OVERWRITE_CHECK_CANCEL:
+          break;
+      }
+    }
+
+    /* no project is open */
+    else {
+      if (ymlFile == null)
+        ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
+      if (ymlFile == null) {
+        return;
+      }
+      try {
+        _model.initProject(ymlFile);
+      } catch (IOException e) {
+        log.error("Could not read in " + ymlFile.getFileName());
+      }
+    }
   }
 
 
-  /******************************
-   * The different GUI elements *
-   ******************************/
+  /*****************************************************************************
+   * The different GUI elements
+   ****************************************************************************/
 
   /* the compile button */
   @FXML
@@ -115,9 +184,10 @@ public class MenuController {
   @FXML
   private Button runButton;
 
-  /**************************************
-   * Menu items actions (from menu bar) *
-   **************************************/
+
+  /*****************************************************************************
+   * Menu items actions (from menu bar)
+   ****************************************************************************/
 
   /********* File *********/
 
@@ -153,23 +223,7 @@ public class MenuController {
   @FXML
   private void openProjectAction(ActionEvent event)
           throws FileNotFoundException, IOException, IllegalAccessException {
-//    if (model.projectX != null) {
-//      if (HelperWindows.overwriteProjectCheck(model.projectX) != 0) return;
-//    }
-//    if (model.openProjectYml(model.fileTreeView, model.ruleTreeView, model.tabPaneBack)) {
-//      // enable buttons of respective files have been found
-//      if (model.projectX.getRunFile() != null) {
-//        runButton.setDisable(false);
-//        log.debug("Enabled run button.");
-//      }
-//      if (model.projectX.getCompileFile() != null) {
-//        compileButton.setDisable(false);
-//        log.debug("Enabled compile button.");
-//      }
-//    }
-
-    Path ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
-    _model.initProject(ymlFile);
+    checkForOpenProject(null);
   }
 
 
@@ -251,9 +305,9 @@ public class MenuController {
 
 
 
-  /******************
-   * Button actions *
-   ******************/
+  /*****************************************************************************
+   * Button actions
+  *****************************************************************************/
 
   /* Clicking the compile button */
   @FXML

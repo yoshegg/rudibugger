@@ -6,6 +6,7 @@
 package de.dfki.rudibugger;
 
 import de.dfki.rudibugger.Controller.*;
+import java.nio.file.Files;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -25,7 +26,7 @@ import org.apache.log4j.PropertyConfigurator;
  */
 public class MainApp extends Application {
 
-  /* the logger */
+  /** the logger */
   static Logger log = Logger.getLogger("mainLog");
 
   @Override
@@ -41,20 +42,22 @@ public class MainApp extends Application {
     System.setProperty("prism.lcdtext", "false");
     System.setProperty("prism.text", "t2k");
 
-    /*
+    /***************************************************************************
      * INITIALIZE CONTROLLERS AND FXMLs
-     */
+     **************************************************************************/
 
     /* create root BorderPane */
     BorderPane root = new BorderPane();
 
     /* initialize menuBar (top of BorderPane) */
-    FXMLLoader menuLoader = new FXMLLoader(getClass().getResource("/fxml/menuBar.fxml"));
+    FXMLLoader menuLoader = new FXMLLoader(getClass()
+            .getResource("/fxml/menuBar.fxml"));
     root.setTop(menuLoader.load());
     MenuController menuController = menuLoader.getController();
 
     /* initialize statusBar (bottom of BorderPane) */
-    FXMLLoader statusLoader = new FXMLLoader(getClass().getResource("/fxml/statusBar.fxml"));
+    FXMLLoader statusLoader = new FXMLLoader(getClass()
+            .getResource("/fxml/statusBar.fxml"));
     root.setBottom(statusLoader.load());
     StatusBarController statusBarController = statusLoader.getController();
 
@@ -65,25 +68,44 @@ public class MainApp extends Application {
     root.setCenter(centeredSplitPane);
 
     /* initialize sideBar (left part of centeredSplitPane) */
-    FXMLLoader sideBarLoader = new FXMLLoader(getClass().getResource("/fxml/sideBar.fxml"));
+    FXMLLoader sideBarLoader = new FXMLLoader(getClass()
+            .getResource("/fxml/sideBar.fxml"));
     centeredSplitPane.getItems().add(sideBarLoader.load());
     SideBarController sideBarController = sideBarLoader.getController();
 
     /* initalize editor (right part of centeredSplitPane) */
-    FXMLLoader editorLoader = new FXMLLoader(getClass().getResource("/fxml/editor.fxml"));
+    FXMLLoader editorLoader = new FXMLLoader(getClass()
+            .getResource("/fxml/editor.fxml"));
     centeredSplitPane.getItems().add(editorLoader.load());
     EditorController editorController = editorLoader.getController();
 
 
-    /*
+    /***************************************************************************
      * INITIALIZE DATA MODEL
-     */
+     **************************************************************************/
+
     DataModel model = new DataModel();
+
+    /* create a global config folder if there is none */
+    if (! Files.exists(model.globalConfig)) {
+      model.globalConfig.toFile().mkdirs();
+      Files.createFile(model.globalConfig.resolve("recentProjects.yml"));
+      log.info("Created global config folder (first start of rudibugger");
+    }
+
     model.initialize();
+    model.initializeGlobalKnowledge();
+    model.keepGlobalKnowledgeUpToDate();
+    
     menuController.initModel(model);
     statusBarController.initModel(model);
     sideBarController.initModel(model);
     editorController.initModel(model);
+
+
+    /***************************************************************************
+     * PREPARE GUI
+     **************************************************************************/
 
     /* bind stage to field */
     model.stageX = stage;
@@ -93,7 +115,8 @@ public class MainApp extends Application {
     scene.getStylesheets().add("/styles/Styles.css");
     stage.setTitle("Rudibugger (beta)");
     stage.setScene(scene);
-    Image icon = new Image("file:src/main/resources/icons/baggerschaufel_titlebar_32x32.png");
+    Image icon = new Image("file:src/main/resources/"
+            + "icons/baggerschaufel_titlebar_32x32.png");
     stage.getIcons().add(icon);
 
     /* show Rudibugger */

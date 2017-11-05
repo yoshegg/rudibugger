@@ -57,13 +57,13 @@ public final class HelperWindows {
     alert.getButtonTypes().setAll(currentWindow, newWindow, cancel);
 
     /* TODO: remove this if the according functions are implemented */
-    alert.getDialogPane().lookupButton(currentWindow).setDisable(true);
+    alert.getDialogPane().lookupButton(currentWindow).setDisable(false);
     alert.getDialogPane().lookupButton(newWindow).setDisable(true);
 
     /* open the window and bind its choice to variable */
     Optional<ButtonType> result = alert.showAndWait();
 
-    /* defin return value */
+    /* define return value */
     if (result.get() == currentWindow) {
       return OVERWRITE_CHECK_CURRENT_WINDOW;
     } else if (result.get() == newWindow) {
