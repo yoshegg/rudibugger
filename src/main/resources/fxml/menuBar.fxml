@@ -22,7 +22,7 @@
                         <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <MenuItem fx:id="newRudiFileItem" mnemonicParsing="false" onAction="#newRudiFileAction" text="New rudi File...">
+                  <MenuItem fx:id="newRudiFileItem" disable="true" mnemonicParsing="false" onAction="#newRudiFileAction" text="New rudi File...">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
@@ -59,12 +59,11 @@
                         <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <MenuItem fx:id="saveAsItem" disable="true" mnemonicParsing="false" onAction="#saveAsAction" text="Save As..." />
-                  <MenuItem fx:id="saveAllItem" disable="true" mnemonicParsing="false" onAction="#saveAllAction" text="Save All">
+                  <MenuItem fx:id="saveAsItem" disable="true" mnemonicParsing="false" onAction="#saveAsAction" text="Save As...">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="saveAllItem" disable="true" mnemonicParsing="false" onAction="#saveAllAction" text="Save All" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="exitItem" mnemonicParsing="false" onAction="#exitAction" text="Exit" />
                </items>

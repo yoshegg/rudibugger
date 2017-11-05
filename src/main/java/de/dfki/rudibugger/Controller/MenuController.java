@@ -11,13 +11,10 @@ import de.dfki.rudibugger.HelperWindows;
 import de.dfki.rudibugger.MainApp;
 import de.dfki.rudibugger.DataModel;
 import de.dfki.rudibugger.TabManagement.RudiTab;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -48,34 +45,42 @@ public class MenuController {
     }
     _model = model;
 
-    _model.compileFileProperty().addListener(new ChangeListener() {
-      @Override
-      public void changed(ObservableValue o, Object oldVal,
-              Object newVal) {
-        if (newVal != null) {
-          log.debug("As a compile file has been found, "
-                  + "the button was enabled.");
-          compileButton.setDisable(false);
-        } else {
-          compileButton.setDisable(true);
-        }
+    /* this listener checks for a compile file */
+    _model.compileFileProperty().addListener((o, oldVal, newVal) -> {
+      if (newVal != null) {
+        log.debug("As a compile file has been found, "
+                + "the button was enabled.");
+        compileButton.setDisable(false);
+      } else {
+        compileButton.setDisable(true);
       }
     });
 
-    _model.projectStatusProperty().addListener(new ChangeListener() {
-      @Override
-      public void changed(ObservableValue o, Object oldVal, Object newVal) {
-        if ((int) newVal == PROJECT_OPEN) {
-          log.debug("Project open: enable GUI-elements.");
-          closeProjectItem.setDisable(false);
-        } else if ((int) newVal == PROJECT_CLOSED) {
-          log.debug("Project closed: disable GUI-elements.");
-          closeProjectItem.setDisable(true);
-        }
+    /* this listener checks for a run file */
+    _model.runFileProperty().addListener((o, oldVal, newVal) -> {
+      if (newVal != null) {
+        log.debug("As a run file has been found, "
+                + "the button was enabled.");
+        runButton.setDisable(false);
+      } else {
+        runButton.setDisable(true);
       }
     });
 
-    /* this Listener enables saving depending on the selected tab */
+    /* this listener checks if a project has been opened */
+    _model.projectStatusProperty().addListener((o, oldVal, newVal) -> {
+      if ((int) newVal == PROJECT_OPEN) {
+        log.debug("Project open: enable GUI-elements.");
+        closeProjectItem.setDisable(false);
+        newRudiFileItem.setDisable(false);
+      } else if ((int) newVal == PROJECT_CLOSED) {
+        log.debug("Project closed: disable GUI-elements.");
+        closeProjectItem.setDisable(true);
+        newRudiFileItem.setDisable(true);
+      }
+    });
+
+    /* this listener enables saving depending on the selected tab */
     _model.selectedTabProperty().addListener((o, oldVal, newVal) -> {
 
       /* no tab is opened */
@@ -104,12 +109,12 @@ public class MenuController {
       }
     });
 
-    /* initalize the recent projets submenu */
+    /* initalize the recent projets submenu... */
     if (! _model._recentProjects.isEmpty()) {
       buildRecentProjectsMenu();
     }
 
-    /* this Listener keeps track of the recent projects menu item */
+    /* ... then keep track of changes */
     _model._recentProjects.addListener(
             (ListChangeListener.Change<? extends String> c) -> {
       buildRecentProjectsMenu();
@@ -211,7 +216,7 @@ public class MenuController {
   @FXML
   private void newRudiFileAction(ActionEvent event)
           throws FileNotFoundException {
-    log.debug("method missing");
+    _model.requestTabOfFile(null);
   }
 
 
@@ -311,7 +316,8 @@ public class MenuController {
 
   /* Clicking the compile button */
   @FXML
-  private void startCompile(ActionEvent event) throws IOException, InterruptedException {
+  private void startCompile(ActionEvent event) throws IOException,
+          InterruptedException {
     _model.startCompile();
   }
 
@@ -327,6 +333,6 @@ public class MenuController {
   @FXML
   private void openDipal(ActionEvent event)
           throws FileNotFoundException, IOException, IllegalAccessException {
-    _model.initProject(new File("/home/christophe/projects/dialoguemanager/dipalCompile.yml").toPath());
+    checkForOpenProject(Paths.get("/home/christophe/projects/dialoguemanager/dipalCompile.yml"));
   }
 }
