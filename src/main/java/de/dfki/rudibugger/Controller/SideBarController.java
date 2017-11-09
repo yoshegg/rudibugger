@@ -229,13 +229,24 @@ public class SideBarController {
     }
   }
 
+  private static void expandTreeItem(BasicTreeItem item) {
+    item.setExpanded(true);
+    item.getChildren().forEach((child) -> {
+      expandTreeItem((BasicTreeItem) child);
+    });
+  }
+
+  private static void collapseTreeItem(BasicTreeItem item) {
+    item.setExpanded(false);
+    item.getChildren().forEach((child) -> {
+      collapseTreeItem((BasicTreeItem) child);
+    });
+  }
 
 
-  /**
-   * ****************************
+  /*****************************************************************************
    * The different GUI elements *
-   *****************************
-   */
+   ****************************************************************************/
 
   /* The TreeView showing the different rudi rules and imports */
   @FXML
@@ -244,5 +255,27 @@ public class SideBarController {
   /* The ListView showing the content of the rudi folder */
   @FXML
   private ListView<RudiPath> rudiListView;
+
+
+  /*****************************************************************************
+   * GUI ACTIONS
+   ****************************************************************************/
+
+  /** Expand all TreeItems */
+  @FXML
+  private void expandAll(ActionEvent event) {
+    if (ruleTreeView.getRoot() != null) {
+      expandTreeItem((BasicTreeItem) ruleTreeView.getRoot());
+    }
+  }
+
+  /** Collapse all TreeItems (Except for the root) */
+  @FXML
+  private void collapseAll(ActionEvent event) {
+    if (ruleTreeView.getRoot() != null) {
+      collapseTreeItem((BasicTreeItem) ruleTreeView.getRoot());
+      ruleTreeView.getRoot().setExpanded(true);
+    }
+  }
 
 }

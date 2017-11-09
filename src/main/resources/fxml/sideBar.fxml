@@ -28,14 +28,14 @@
                         <TreeView fx:id="ruleTreeView" editable="true" prefHeight="300.0" prefWidth="300.0" VBox.vgrow="ALWAYS" />
                         <HBox alignment="CENTER_LEFT" fillHeight="false" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="299.0" spacing="5.0" VBox.vgrow="NEVER">
                            <children>
-                              <Button mnemonicParsing="false">
+                              <Button mnemonicParsing="false" onAction="#collapseAll">
                                  <HBox.margin>
                                     <Insets left="5.0" />
                                  </HBox.margin>
                                  <graphic>
                                     <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
-                                          <Image url="@../icons/baggerschaufel_titlebar_32x32.png" />
+                                          <Image url="@../icons/sidebar/collapse.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
@@ -43,9 +43,16 @@
                                     <Insets bottom="4.0" left="8.0" right="8.0" top="4.0" />
                                  </padding>
                               </Button>
-                              <Button layoutX="12.0" layoutY="12.0" mnemonicParsing="false" text="Expand all">
+                              <Button layoutX="15.0" layoutY="13.0" mnemonicParsing="false" onAction="#expandAll">
+                                 <graphic>
+                                    <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../icons/sidebar/expand.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
                                  <padding>
-                                    <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                                    <Insets bottom="4.0" left="8.0" right="8.0" top="4.0" />
                                  </padding>
                               </Button>
                               <Separator orientation="VERTICAL" prefHeight="200.0" />
