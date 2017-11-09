@@ -32,10 +32,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.IntegerProperty;
@@ -144,7 +142,7 @@ public class DataModel {
    * @throws java.io.IOException
    */
   public void initProject(Path selectedProjectYml) throws IOException {
-    if (! verifyIfUsableProject(selectedProjectYml)) {
+    if (! getConfiguration(selectedProjectYml)) {
       log.error("Given file can not be used to create a project.");
       return;
     }
@@ -166,10 +164,10 @@ public class DataModel {
    * @param yml
    * @return true, if all keys could be found, else false
    */
-  private boolean verifyIfUsableProject(Path yml) {
-    HashMap<String, String> map;
+  private boolean getConfiguration(Path yml) {
+    HashMap<String, Object> map;
     try {
-      map = (HashMap<String, String>) yaml.load(new FileInputStream(yml.toFile()));
+      map = (HashMap<String, Object>) yaml.load(new FileInputStream(yml.toFile()));
     } catch (IOException e) {
       log.error(e);
       return false;
@@ -182,8 +180,8 @@ public class DataModel {
         add("rootPackage");
       }
     };
-    // TODO: Place correctly
-    genJava = Paths.get(map.get("outputDirectory"));
+    /* store configuration */
+    _configs = map;
     return map.keySet().containsAll(keysToCheckOn);
 
   }
@@ -217,7 +215,6 @@ public class DataModel {
 
   public void initRules() {
     _ruleLocFile = _rootFolder.resolve(genJava.resolve(RULE_LOCATION_FILE));
-    System.out.println(_ruleLocFile);
     if (Files.exists(_ruleLocFile)) {
       log.debug(_ruleLocFile.getFileName().toString() + " has been found.");
       ruleModel = RuleModel.createNewRuleModel();
@@ -263,16 +260,16 @@ public class DataModel {
       log.info(_projectName.getValue() + "'s " + RUN_FILE
               + " could not be found.");
     }
-    try {
-      String temp = ((Map<String, String>)
-              yaml.load(new FileInputStream(selectedProjectYml.toFile())))
-              .get("wrapperClass");
-      String[] split = temp.split("\\.");
-      String wrapperName = split[split.length-1];
-      _wrapperClass = _rudiFolder.getValue().resolve(wrapperName + RUDI_FILE_EXTENSION);
-    } catch (IOException e) {
-      log.error("Could not read .yml config file");
-    }
+
+    /* set the gen-java path */
+    genJava = _rootFolder.resolve(Paths.get((String) _configs.get("outputDirectory")));
+
+    /* set the wrapper class */
+    String temp = (String) _configs.get("wrapperClass");
+    String[] split = temp.split("\\.");
+    String wrapperName = split[split.length-1];
+    _wrapperClass = _rudiFolder.getValue().resolve(wrapperName + RUDI_FILE_EXTENSION);
+
   }
 
   public void closeProject() {
@@ -472,6 +469,9 @@ public class DataModel {
   /*****************************************************************************
    * UNDERLYING FIELDS / PROPERTIES OF THE CURRENT PROJECT AKA DATAMODEL
    ****************************************************************************/
+
+  /** Configuration as defined in the project's .yml */
+  private Map<String, Object> _configs;
 
   /** the RuleModel represents all the data concerning rules */
   public RuleModel ruleModel;

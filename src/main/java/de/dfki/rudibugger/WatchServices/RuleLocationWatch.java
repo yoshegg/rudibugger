@@ -75,7 +75,8 @@ public class RuleLocationWatch {
 
     try {
       _watchService = FileSystems.getDefault().newWatchService();
-      model.getRootFolder().register(_watchService, ENTRY_MODIFY, ENTRY_CREATE);
+      model.genJava.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE);
+      log.debug("registered " + model.genJava);
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
     }
@@ -105,7 +106,7 @@ public class RuleLocationWatch {
           WatchEvent.Kind<?> kind = event.kind();
 
           if (kind == OVERFLOW) {
-            log.error("An overflow while checking RuleLocation.yml's "
+            log.error("An overflow while checking RuleLoc.yml's "
                     + "folder occured.");
             continue;
           }
@@ -113,10 +114,10 @@ public class RuleLocationWatch {
           WatchEvent<Path> ev = (WatchEvent<Path>) event;
           changingFile = ev.context();
 
-          /* is ~RuleLocation.yml changing? */
+          /* is RuleLoc.yml changing? */
           if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)
                   && changingFile.getFileName().toString()
-                          .endsWith(RULE_LOCATION_FILE)) {
+                              .equals(RULE_LOCATION_FILE)) {
             ruleLocationFileChanged = true;
             log.debug("[" + changingFile + "] is being modified / created.");
           }
@@ -145,7 +146,7 @@ public class RuleLocationWatch {
               /* is ~RuleLocation.yml changing? */
               if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)
                       && changingFile.getFileName().toString()
-                              .endsWith(RULE_LOCATION_FILE)) {
+                              .equals(RULE_LOCATION_FILE)) {
                 log.debug("[" + changingFile + "] is still being modified.");
               }
               /* is some other file changing? */
