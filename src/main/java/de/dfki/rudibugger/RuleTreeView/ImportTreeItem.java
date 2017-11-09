@@ -11,6 +11,8 @@ import javafx.scene.image.Image;
 import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.DataModel;
 import java.nio.file.Paths;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 
 /**
  *
@@ -30,24 +32,34 @@ public class ImportTreeItem extends BasicTreeItem {
   static Image imgNever = new Image(FILE_ICON_PATH + "Never.png");
   static Image imgPartly = new Image(FILE_ICON_PATH + "Partly.png");
 
-  /* model */
-  DataModel _model;
+  /** DataModel */
+  public final DataModel _model;
 
   /* the constructor */
   public ImportTreeItem(ImportInfo content, DataModel model) {
-    super(content.getLabel(), content.getLine());
+    super(content);
     _model = model;
     _file = Paths.get(model.getRootFolder() + "/"
             + PATH_TO_RUDI_FILES + content.getLabel()+ RUDI_FILE_EXTENSION);
+    defineControls();
+  }
 
+  private void defineControls() {
     /* the specific context menu for imports */
     _hb.setOnContextMenuRequested((e) -> {
       ImportContextMenu contextMenu = new ImportContextMenu(this);
       contextMenu.show(_hb, e.getScreenX(), e.getScreenY());
     });
+
+    /* open File if clicked on label */
+    _hb.getChildren().get(1).setOnMouseClicked((MouseEvent e) -> {
+      if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY) {
+        _model.requestTabOfFile(_file);
+      }
+    });
   }
 
-  /* returns the requested folder icon */
+  /** Returns the requested folder icon */
   public static Image getImage(int state) {
     switch (state) {
       case STATE_ALWAYS:
@@ -65,7 +77,7 @@ public class ImportTreeItem extends BasicTreeItem {
     }
   }
 
-  /* get file */
+  /** get file */
   public Path getFile() {
     return _file;
   }
