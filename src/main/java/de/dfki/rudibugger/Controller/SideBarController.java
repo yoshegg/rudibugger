@@ -16,6 +16,7 @@ import de.dfki.rudibugger.RuleTreeView.BasicTreeItem;
 import de.dfki.rudibugger.RuleTreeView.ImportTreeItem;
 import de.dfki.rudibugger.RuleTreeView.RuleTreeItem;
 import de.dfki.rudibugger.RuleTreeView.RuleTreeViewState;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TreeView;
@@ -165,9 +166,6 @@ public class SideBarController {
     /* build rootItem */
     ImportTreeItem rootItem = new ImportTreeItem(model.ruleModel.rootImport, model);
 
-//    /* bind rootItem's properties to the Import */
-//   rootItem. rootImport.getLabel() .bindBidirectional(rootItem.getLabel().textProperty());
-
     /* iterate over rootImport's children and add them to the rootItem */
     for (BasicInfo obj : rootImport.getChildren()) {
       rootItem.getChildren().add(buildTreeViewHelper(obj, model));
@@ -187,10 +185,6 @@ public class SideBarController {
       /* build newImportItem */
       ImportTreeItem newImportItem = new ImportTreeItem(newImport, model);
 
-//      /* bind newImportItem's properties to the Import */
-//      newImport.importNameProperty()
-//              .bindBidirectional(newImportItem.getLabel().textProperty());
-
       /* iterate over newImport's children and add them to the rootItem */
       for (BasicInfo obj : newImport.getChildren()) {
         newImportItem.getChildren().add(buildTreeViewHelper(obj, model));
@@ -207,13 +201,6 @@ public class SideBarController {
 
       /* bind newRuleItem's properties to the Rule */
       newRuleItem.setState(newRule.getState());
-
-//      newRule.ruleNameProperty()
-//              .bindBidirectional(newRuleItem.getLabel().textProperty());
-//      newRule.ruleStateProperty()
-//              .bindBidirectional(newRuleItem.stateProperty());
-//      newRule.lineProperty()
-//              .bindBidirectional(newRuleItem.lineProperty());
 
       /* iterate over newRule's children and add them to the rootItem */
       for (BasicInfo obj : newRule.getChildren()) {
