@@ -208,7 +208,7 @@ public class DataModel {
               .compareTo(h2.getFileName().toString().toLowerCase()));
 
     list.forEach((x) -> {
-      if (x.getFileName().toString().endsWith(".rudi")) {
+      if (x.getFileName().toString().endsWith(RUDI_FILE_EXTENSION)) {
         rudiList.add(new RudiPath(x));
       }
     });
@@ -269,7 +269,7 @@ public class DataModel {
               .get("wrapperClass");
       String[] split = temp.split("\\.");
       String wrapperName = split[split.length-1];
-      _wrapperClass = _rudiFolder.getValue().resolve(wrapperName + ".rudi");
+      _wrapperClass = _rudiFolder.getValue().resolve(wrapperName + RUDI_FILE_EXTENSION);
     } catch (IOException e) {
       log.error("Could not read .yml config file");
     }
@@ -380,7 +380,8 @@ public class DataModel {
     FileChooser fileChooser = new FileChooser();
     fileChooser.setInitialDirectory(_rudiFolder.getValue().toFile());
     FileChooser.ExtensionFilter extFilter
-            = new FileChooser.ExtensionFilter("rudi file (*.rudi)", "*.rudi");
+            = new FileChooser.ExtensionFilter
+        ("rudi file (*" + RUDI_FILE_EXTENSION + ")", "*" + RUDI_FILE_EXTENSION);
     fileChooser.getExtensionFilters().add(extFilter);
     Path file;
     try {
@@ -388,8 +389,8 @@ public class DataModel {
     } catch (NullPointerException e) {
       return;
     }
-      if (! file.getFileName().toString().endsWith(".rudi")) {
-      file = Paths.get(file.toString() + ".rudi");
+      if (! file.getFileName().toString().endsWith(RUDI_FILE_EXTENSION)) {
+      file = Paths.get(file.toString() + RUDI_FILE_EXTENSION);
     }
 
     if (saveFile(file, content)) {

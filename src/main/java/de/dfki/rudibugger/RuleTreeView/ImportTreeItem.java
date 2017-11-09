@@ -38,7 +38,7 @@ public class ImportTreeItem extends BasicTreeItem {
     super(content.getLabel(), content.getLine());
     _model = model;
     _file = Paths.get(model.getRootFolder() + "/"
-            + PATH_TO_RUDI_FILES + content.getLabel()+ ".rudi");
+            + PATH_TO_RUDI_FILES + content.getLabel()+ RUDI_FILE_EXTENSION);
 
     /* the specific context menu for imports */
     _hb.setOnContextMenuRequested((e) -> {

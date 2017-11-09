@@ -5,6 +5,7 @@
  */
 package de.dfki.rudibugger.WatchServices;
 
+import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.DataModel;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -13,7 +14,6 @@ import static java.nio.file.StandardWatchEventKinds.*;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.HashSet;
 import javafx.application.Platform;
 import org.apache.log4j.Logger;
 
@@ -115,7 +115,8 @@ public class RudiFolderWatch {
         /* is rudi folder changing? */
         if ((kind == ENTRY_CREATE || kind == ENTRY_DELETE
                 || kind == ENTRY_MODIFY)
-                && filename.getFileName().toString().endsWith(".rudi")) {
+                && filename.getFileName().toString()
+                        .endsWith(RUDI_FILE_EXTENSION)) {
 
           /* rudi file added */
           if (kind == ENTRY_CREATE) {

@@ -50,7 +50,7 @@ public class RuleTreeItem extends BasicTreeItem {
     }
     ImportInfo realParent = (ImportInfo) parent;
     _file = Paths.get(model.getRootFolder() + "/"
-            + PATH_TO_RUDI_FILES + realParent.getLabel() + ".rudi");
+            + PATH_TO_RUDI_FILES + realParent.getLabel() + RUDI_FILE_EXTENSION);
 
     /* the specific context menu for rules */
     _hb.setOnContextMenuRequested((ContextMenuEvent e) -> {

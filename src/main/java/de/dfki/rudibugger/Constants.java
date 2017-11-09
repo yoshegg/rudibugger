@@ -15,6 +15,7 @@ public class Constants {
   public static String COMPILE_FILE = "compile";
   public static String RUN_FILE = "run.sh";
   public static String RULE_LOCATION_FILE = "RuleLoc.yml";
+  public static String RUDI_FILE_EXTENSION = ".rudi";
 
   public static final int OVERWRITE_CHECK_CANCEL = 0;
   public static final int OVERWRITE_CHECK_CURRENT_WINDOW = 1;
