@@ -14,7 +14,7 @@ public class Constants {
   public static String PATH_TO_RUDI_FILES = "src/main/rudi/";
   public static String COMPILE_FILE = "compile";
   public static String RUN_FILE = "run.sh";
-  public static String RULE_LOCATION_SUFFIX = "RuleLocation.yml";
+  public static String RULE_LOCATION_FILE = "RuleLoc.yml";
 
   public static final int OVERWRITE_CHECK_CANCEL = 0;
   public static final int OVERWRITE_CHECK_CURRENT_WINDOW = 1;

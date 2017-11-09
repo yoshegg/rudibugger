@@ -116,7 +116,7 @@ public class RuleLocationWatch {
           /* is ~RuleLocation.yml changing? */
           if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)
                   && changingFile.getFileName().toString()
-                          .endsWith(RULE_LOCATION_SUFFIX)) {
+                          .endsWith(RULE_LOCATION_FILE)) {
             ruleLocationFileChanged = true;
             log.debug("[" + changingFile + "] is being modified / created.");
           }
@@ -145,7 +145,7 @@ public class RuleLocationWatch {
               /* is ~RuleLocation.yml changing? */
               if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)
                       && changingFile.getFileName().toString()
-                              .endsWith(RULE_LOCATION_SUFFIX)) {
+                              .endsWith(RULE_LOCATION_FILE)) {
                 log.debug("[" + changingFile + "] is still being modified.");
               }
               /* is some other file changing? */

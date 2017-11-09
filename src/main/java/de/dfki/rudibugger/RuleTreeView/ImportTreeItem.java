@@ -5,10 +5,10 @@
  */
 package de.dfki.rudibugger.RuleTreeView;
 
+import de.dfki.mlt.rudimant.common.ImportInfo;
 import java.nio.file.Path;
 import javafx.scene.image.Image;
 import static de.dfki.rudibugger.Constants.*;
-import de.dfki.rudibugger.RuleStore.Import;
 import de.dfki.rudibugger.DataModel;
 import java.nio.file.Paths;
 
@@ -34,11 +34,11 @@ public class ImportTreeItem extends BasicTreeItem {
   DataModel _model;
 
   /* the constructor */
-  public ImportTreeItem(Import content, DataModel model) {
-    super(content.getImportName(), content.getLine());
+  public ImportTreeItem(ImportInfo content, DataModel model) {
+    super(content.getLabel(), content.getLine());
     _model = model;
     _file = Paths.get(model.getRootFolder() + "/"
-            + PATH_TO_RUDI_FILES + content.getImportName() + ".rudi");
+            + PATH_TO_RUDI_FILES + content.getLabel()+ ".rudi");
 
     /* the specific context menu for imports */
     _hb.setOnContextMenuRequested((e) -> {

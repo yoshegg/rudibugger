@@ -5,8 +5,10 @@
  */
 package de.dfki.rudibugger.RuleTreeView;
 
+import de.dfki.mlt.rudimant.common.BasicInfo;
+import de.dfki.mlt.rudimant.common.ImportInfo;
+import de.dfki.mlt.rudimant.common.RuleInfo;
 import static de.dfki.rudibugger.Constants.*;
-import de.dfki.rudibugger.RuleStore.Rule;
 import de.dfki.rudibugger.DataModel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,11 +41,16 @@ public class RuleTreeItem extends BasicTreeItem {
   DataModel _model;
 
   /* the constructor */
-  public RuleTreeItem(Rule content, DataModel model) {
-    super(content.getRuleName(), content.getLine());
+  public RuleTreeItem(RuleInfo content, DataModel model) {
+    super(content.getLabel(), content.getLine());
     _model = model;
+    BasicInfo parent = content.getParent();
+    while (! (parent instanceof ImportInfo)) {
+      parent = parent.getParent();
+    }
+    ImportInfo realParent = (ImportInfo) parent;
     _file = Paths.get(model.getRootFolder() + "/"
-            + PATH_TO_RUDI_FILES + content.getSource() + ".rudi");
+            + PATH_TO_RUDI_FILES + realParent.getLabel() + ".rudi");
 
     /* the specific context menu for rules */
     _hb.setOnContextMenuRequested((ContextMenuEvent e) -> {

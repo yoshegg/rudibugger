@@ -28,6 +28,7 @@ import de.dfki.rudibugger.RudiList.RudiPath;
 import de.dfki.rudibugger.TabManagement.FileAtPos;
 import de.dfki.rudibugger.TabManagement.RudiTab;
 import de.dfki.rudibugger.WatchServices.RudiFolderWatch;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -181,6 +182,8 @@ public class DataModel {
         add("rootPackage");
       }
     };
+    // TODO: Place correctly
+    genJava = Paths.get(map.get("outputDirectory"));
     return map.keySet().containsAll(keysToCheckOn);
 
   }
@@ -213,16 +216,16 @@ public class DataModel {
 
 
   public void initRules() {
-    _ruleLocFile = Paths.get(_rootFolder.toString() + "/"
-            + _projectName.getValue() + RULE_LOCATION_SUFFIX);
+    _ruleLocFile = _rootFolder.resolve(genJava.resolve(RULE_LOCATION_FILE));
+    System.out.println(_ruleLocFile);
     if (Files.exists(_ruleLocFile)) {
       log.debug(_ruleLocFile.getFileName().toString() + " has been found.");
       ruleModel = RuleModel.createNewRuleModel();
-      ruleModel.readInRuleLocationFileFirstTime(_ruleLocFile);
+      ruleModel.readInRuleModel(_ruleLocFile);
       setRuleModelChangeStatus(RULE_MODEL_NEWLY_CREATED);
     } else {
       _ruleLocFile = null;
-      log.warn(_projectName.getValue() + "'s " + RULE_LOCATION_SUFFIX
+      log.warn(_projectName.getValue() + "'s " + RULE_LOCATION_FILE
               + " could not be found.");
     }
   }
@@ -294,7 +297,7 @@ public class DataModel {
 
   private void updateRules() {
     log.debug("Updating the RuleModel");
-    ruleModel.updateRuleModel(_ruleLocFile);
+    ruleModel.readInRuleModel(_ruleLocFile);
     setRuleModelChangeStatus(RULE_MODEL_CHANGED);
   }
 
@@ -490,6 +493,9 @@ public class DataModel {
   /** .rudi files */
   public ObservableList<RudiPath> rudiList;
 
+  /** output aka gen-java location */
+  public Path genJava;
+
   /** RuleLocationFile */
   private Path _ruleLocFile;
   public Path getRuleLocFile() { return _ruleLocFile; }
@@ -530,14 +536,21 @@ public class DataModel {
 
   public void startCompile() throws IOException, InterruptedException {
     log.info("Starting compilation...");
+    File mateTerminal = new File("/usr/bin/mate-terminal");
     Process p;
     String compileScript = getCompileFile().toString();
-    String[] cmd = { "/usr/bin/xterm", "-e", compileScript, "-b"};
-    log.debug("Executing the following command: " + Arrays.toString(cmd));
     if ("Linux".equals(System.getProperty("os.name"))) {
+      String[] cmd;
+      if (mateTerminal.exists()) {
+        cmd = new String[] {"/usr/bin/mate-terminal", "-e", compileScript};
+      } else {
+        cmd = new String[] { "/usr/bin/xterm", "-e", compileScript};
+      }
+      log.debug("Executing the following command: " + Arrays.toString(cmd));
+
       p = Runtime.getRuntime().exec(cmd);
     } else {
-      p = Runtime.getRuntime().exec(getCompileFile().toString() + "-b");
+      p = Runtime.getRuntime().exec(getCompileFile().toString());
     }
   }
 

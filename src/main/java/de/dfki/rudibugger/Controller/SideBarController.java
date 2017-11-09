@@ -5,12 +5,13 @@
  */
 package de.dfki.rudibugger.Controller;
 
+import de.dfki.mlt.rudimant.common.BasicInfo;
+import de.dfki.mlt.rudimant.common.ImportInfo;
+import de.dfki.mlt.rudimant.common.RuleInfo;
 import static de.dfki.rudibugger.Constants.*;
-import de.dfki.rudibugger.RuleStore.Import;
 import de.dfki.rudibugger.DataModel;
 import de.dfki.rudibugger.RudiList.RudiListViewCell;
 import de.dfki.rudibugger.RudiList.RudiPath;
-import de.dfki.rudibugger.RuleStore.Rule;
 import de.dfki.rudibugger.RuleTreeView.BasicTreeItem;
 import de.dfki.rudibugger.RuleTreeView.ImportTreeItem;
 import de.dfki.rudibugger.RuleTreeView.RuleTreeItem;
@@ -130,7 +131,7 @@ public class SideBarController {
     for (RudiPath x : model.rudiList) {
 
       /* mark the main .rudi file */
-      if (model.ruleModel.rootImport.getSource().getFileName().equals(
+      if (model.ruleModel.rootImport.getFilePath().getFileName().equals(
               x.getPath().getFileName())) {
         x._usedProperty().setValue(FILE_IS_MAIN);
         continue;
@@ -159,17 +160,16 @@ public class SideBarController {
   public static ImportTreeItem buildTreeView(DataModel model) {
 
     /* retrieve rootImport from given DataModel */
-    Import rootImport = model.ruleModel.rootImport;
+    ImportInfo rootImport = model.ruleModel.rootImport;
 
     /* build rootItem */
     ImportTreeItem rootItem = new ImportTreeItem(model.ruleModel.rootImport, model);
 
-    /* bind rootItem's properties to the Import */
-    rootImport.importNameProperty()
-            .bindBidirectional(rootItem.getLabel().textProperty());
+//    /* bind rootItem's properties to the Import */
+//   rootItem. rootImport.getLabel() .bindBidirectional(rootItem.getLabel().textProperty());
 
     /* iterate over rootImport's children and add them to the rootItem */
-    for (Object obj : rootImport.childrenProperty()) {
+    for (BasicInfo obj : rootImport.getChildren()) {
       rootItem.getChildren().add(buildTreeViewHelper(obj, model));
     }
 
@@ -177,44 +177,46 @@ public class SideBarController {
     return rootItem;
   }
 
-  private static BasicTreeItem buildTreeViewHelper(Object unknownObj,
+  private static BasicTreeItem buildTreeViewHelper(BasicInfo unknownObj,
           DataModel model) {
 
     /* the next object is an Import */
-    if (unknownObj instanceof Import) {
-      Import newImport = (Import) unknownObj;
+    if (unknownObj instanceof ImportInfo) {
+      ImportInfo newImport = (ImportInfo) unknownObj;
 
       /* build newImportItem */
       ImportTreeItem newImportItem = new ImportTreeItem(newImport, model);
 
-      /* bind newImportItem's properties to the Import */
-      newImport.importNameProperty()
-              .bindBidirectional(newImportItem.getLabel().textProperty());
+//      /* bind newImportItem's properties to the Import */
+//      newImport.importNameProperty()
+//              .bindBidirectional(newImportItem.getLabel().textProperty());
 
       /* iterate over newImport's children and add them to the rootItem */
-      for (Object obj : newImport.childrenProperty()) {
+      for (BasicInfo obj : newImport.getChildren()) {
         newImportItem.getChildren().add(buildTreeViewHelper(obj, model));
       }
       return newImportItem;
     }
 
     /* the next object is a Rule */
-    if (unknownObj instanceof Rule) {
-      Rule newRule = (Rule) unknownObj;
+    if (unknownObj instanceof RuleInfo) {
+      RuleInfo newRule = (RuleInfo) unknownObj;
 
       /* build newRuleItem */
       RuleTreeItem newRuleItem = new RuleTreeItem(newRule, model);
 
       /* bind newRuleItem's properties to the Rule */
-      newRule.ruleNameProperty()
-              .bindBidirectional(newRuleItem.getLabel().textProperty());
-      newRule.ruleStateProperty()
-              .bindBidirectional(newRuleItem.stateProperty());
-      newRule.lineProperty()
-              .bindBidirectional(newRuleItem.lineProperty());
+      newRuleItem.setState(newRule.getState());
+
+//      newRule.ruleNameProperty()
+//              .bindBidirectional(newRuleItem.getLabel().textProperty());
+//      newRule.ruleStateProperty()
+//              .bindBidirectional(newRuleItem.stateProperty());
+//      newRule.lineProperty()
+//              .bindBidirectional(newRuleItem.lineProperty());
 
       /* iterate over newRule's children and add them to the rootItem */
-      for (Object obj : newRule.subRuleProperty()) {
+      for (BasicInfo obj : newRule.getChildren()) {
         newRuleItem.getChildren().add(buildTreeViewHelper(obj, model));
       }
       return newRuleItem;
