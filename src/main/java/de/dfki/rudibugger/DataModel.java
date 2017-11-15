@@ -495,7 +495,7 @@ public class DataModel {
   public ObservableList<RudiPath> rudiList;
 
   /** output aka gen-java location */
-  public Path genJava;
+  public Path _genJava;
 
   /** RuleLocationFile */
   private Path _ruleLocFile;
