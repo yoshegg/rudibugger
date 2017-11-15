@@ -27,6 +27,9 @@ public class RuleModel {
 
   /** The logger of the the RuleModel */
   static Logger log = Logger.getLogger("RuleModel");
+  
+  /** The root path of the project */
+  private Path _rudiPath;
 
   /** This set represents all of the used Imports path */
   public Set<Path> importSet;
@@ -56,9 +59,11 @@ public class RuleModel {
    * This function creates the tree-like structure for the very first time.
    *
    * @param ruleLocYml
+   * @param rudiPath
    */
-  public void readInRuleModel(Path ruleLocYml) {
+  public void readInRuleModel(Path ruleLocYml, Path rudiPath) {
     rootImport = readInRuleLocationFile(ruleLocYml);
+    _rudiPath = rudiPath;
     importSet = extractImportPaths(rootImport);
   }
 
@@ -87,9 +92,10 @@ public class RuleModel {
    * @param ii
    * @return
    */
-  private static Set<Path> extractImportPaths(ImportInfo ii) {
+  private Set<Path> extractImportPaths(ImportInfo ii) {
     HashSet<Path> set = new HashSet<>();
-    set.add(ii.getFilePath());
+    Path filePath = ii.getFilePath();
+    set.add(_rudiPath.resolve(filePath.subpath(1, filePath.getNameCount())));
     extractImportPathsHelper(ii, set);
     return set;
   }
@@ -100,11 +106,12 @@ public class RuleModel {
    * @param ii
    * @param set
    */
-  private static void extractImportPathsHelper(BasicInfo ii, HashSet set) {
+  private void extractImportPathsHelper(BasicInfo ii, HashSet set) {
     if (!ii.getChildren().isEmpty()) {
       for (BasicInfo child : ii.getChildren()) {
         if (child instanceof ImportInfo) {
-          set.add(((ImportInfo) child).getFilePath());
+        Path filePath = ((ImportInfo) child).getFilePath();
+          set.add(_rudiPath.resolve(filePath.subpath(1, filePath.getNameCount())));
           extractImportPathsHelper(child, set);
         }
       }

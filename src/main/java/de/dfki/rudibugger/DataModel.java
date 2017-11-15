@@ -214,11 +214,11 @@ public class DataModel {
 
 
   public void initRules() {
-    _ruleLocFile = _rootFolder.resolve(genJava.resolve(RULE_LOCATION_FILE));
+    _ruleLocFile = _rootFolder.resolve(_genJava.resolve(RULE_LOCATION_FILE));
     if (Files.exists(_ruleLocFile)) {
       log.debug(_ruleLocFile.getFileName().toString() + " has been found.");
       ruleModel = RuleModel.createNewRuleModel();
-      ruleModel.readInRuleModel(_ruleLocFile);
+      ruleModel.readInRuleModel(_ruleLocFile, _rudiFolder.getValue());
       setRuleModelChangeStatus(RULE_MODEL_NEWLY_CREATED);
     } else {
       _ruleLocFile = null;
@@ -262,7 +262,7 @@ public class DataModel {
     }
 
     /* set the gen-java path */
-    genJava = _rootFolder.resolve(Paths.get((String) _configs.get("outputDirectory")));
+    _genJava = _rootFolder.resolve(Paths.get((String) _configs.get("outputDirectory")));
 
     /* set the wrapper class */
     String temp = (String) _configs.get("wrapperClass");
@@ -294,7 +294,7 @@ public class DataModel {
 
   private void updateRules() {
     log.debug("Updating the RuleModel");
-    ruleModel.readInRuleModel(_ruleLocFile);
+    ruleModel.readInRuleModel(_ruleLocFile, _rudiFolder.getValue());
     setRuleModelChangeStatus(RULE_MODEL_CHANGED);
   }
 
