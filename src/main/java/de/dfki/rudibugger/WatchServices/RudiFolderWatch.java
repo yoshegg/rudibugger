@@ -9,11 +9,13 @@ import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.DataModel;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import static java.nio.file.StandardWatchEventKinds.*;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.stream.Stream;
 import javafx.application.Platform;
 import org.apache.log4j.Logger;
 
@@ -80,6 +82,18 @@ public class RudiFolderWatch {
       _watchService = FileSystems.getDefault().newWatchService();
       model.getRudiFolder().register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
               ENTRY_DELETE);
+
+      /* iterate over all subdirectories */
+      Stream<Path> subpaths = Files.walk(model.getRudiFolder());
+      subpaths.forEach(x -> {
+        try {
+          if (Files.isDirectory(x))
+            x.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
+                    ENTRY_DELETE);
+        } catch (IOException ex) {
+          log.error("Could not set watch for subdirectories: " + ex);
+        }
+      });
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
     }
@@ -109,10 +123,10 @@ public class RudiFolderWatch {
         }
 
         WatchEvent<Path> ev = (WatchEvent<Path>) event;
-        Path filename = _model.getRudiFolder().resolve(ev.context());
+        Path folder = (Path)rudiKey.watchable();
+        Path filename = folder.resolve(ev.context());
 
-
-        /* is rudi folder changing? */
+        /* are folder's containing files changing? */
         if ((kind == ENTRY_CREATE || kind == ENTRY_DELETE
                 || kind == ENTRY_MODIFY)
                 && filename.getFileName().toString()
@@ -149,7 +163,21 @@ public class RudiFolderWatch {
             });
 
           }
+          continue;
         }
+
+        /* new folder created? */
+        if ((kind == ENTRY_CREATE || kind == ENTRY_DELETE
+                || kind == ENTRY_MODIFY) && Files.isDirectory(filename)) {
+
+          /* watch another folder */
+          if (kind == ENTRY_CREATE) {
+            filename.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
+                  ENTRY_DELETE);
+            log.debug("Started watching new folder: " + filename);
+          }
+        }
+
       }
 
 
@@ -157,6 +185,9 @@ public class RudiFolderWatch {
       if (rudiKey != null) {
         boolean valid = rudiKey.reset();
         if (!valid) {
+          log.debug("watchKey no longer valid. Probably because a watched folder has been deleted");
+          log.debug("Restarting RudiFolderWatch...");
+          createRudiFolderWatch(_model);
           break;
         }
       }

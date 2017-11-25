@@ -17,9 +17,9 @@ import java.util.Objects;
  */
 public class RudiPath {
 
-  private Path _path;
+  private final Path _path;
 
-  private IntegerProperty _used = new SimpleIntegerProperty(FILE_NOT_USED);
+  private final IntegerProperty _used = new SimpleIntegerProperty(FILE_NOT_USED);
   public IntegerProperty _usedProperty() { return _used; }
 
   public RudiPath(Path path) {
