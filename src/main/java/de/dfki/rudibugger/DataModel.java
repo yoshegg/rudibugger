@@ -263,6 +263,10 @@ public class DataModel {
 
     /* set the gen-java path */
     _genJava = _rootFolder.resolve(Paths.get((String) _configs.get("outputDirectory")));
+    if (! Files.exists(_genJava)) {
+      _genJava.toFile().mkdirs();
+      log.debug("Created " + _genJava);
+    }
 
     /* set the wrapper class */
     String temp = (String) _configs.get("wrapperClass");
