@@ -53,7 +53,7 @@ public class ImportTreeItem extends BasicTreeItem {
 
     /* open File if clicked on label */
     _hb.getChildren().get(1).setOnMouseClicked((MouseEvent e) -> {
-      if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY) {
+      if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY) {
         _model.requestTabOfFile(_file);
       }
     });
