@@ -131,29 +131,29 @@ public class SideBarController {
    * their state.
    */
   private void markFilesInRudiList() {
-//    for (RudiPath x : model.rudiList) {
-//
-//      /* mark the main .rudi file */
-//      if (model.ruleModel.rootImport.getFilePath().getFileName().equals(
-//              x.getPath().getFileName())) {
-//        x._usedProperty().setValue(FILE_IS_MAIN);
-//        continue;
-//      }
-//
-//      /* mark the wrapper file */
-//      if (model.getWrapperClass().getFileName()
-//              .equals(x.getPath().getFileName())) {
-//        x._usedProperty().setValue(FILE_IS_WRAPPER);
-//        continue;
-//      }
-//
-//      /* mark the other files */
-//      if (model.ruleModel.importSet.contains(x.getPath())) {
-//        x._usedProperty().setValue(FILE_USED);
-//      } else {
-//        x._usedProperty().setValue(FILE_NOT_USED);
-//      }
-//    }
+    for (RudiPath x : model.rudiHierarchy.rudiPathSet) {
+
+      /* mark the main .rudi file, must be in root folder */
+      if (model.ruleModel.rootImport.getFilePath().getFileName().equals(
+              x.getPath().getFileName())) {
+        x._usedProperty().setValue(FILE_IS_MAIN);
+        continue;
+      }
+
+      /* mark the wrapper file,  must be in root folder */
+      if (model.getWrapperClass().getFileName()
+              .equals(x.getPath().getFileName())) {
+        x._usedProperty().setValue(FILE_IS_WRAPPER);
+        continue;
+      }
+
+      /* mark the other files */
+      if (model.ruleModel.importSet.contains(x.getPath())) {
+        x._usedProperty().setValue(FILE_USED);
+      } else {
+        x._usedProperty().setValue(FILE_NOT_USED);
+      }
+    }
 
     /* let the cells reload according to their usage state */
     // TODO: https://stackoverflow.com/questions/14682881/binding-image-in-javafx

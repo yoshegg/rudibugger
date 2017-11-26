@@ -9,13 +9,11 @@ import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.RuleStore.RuleModel;
 import de.dfki.rudibugger.WatchServices.RuleLocationWatch;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -204,7 +202,6 @@ public class DataModel {
         rudiHierarchy.addFileToHierarchy(new RudiPath(x.toAbsolutePath()));
     });
   }
-
 
   public void initRules() {
     _ruleLocFile = _rootFolder.resolve(_genJava.resolve(RULE_LOCATION_FILE));

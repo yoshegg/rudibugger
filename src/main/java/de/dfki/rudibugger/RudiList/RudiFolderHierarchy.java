@@ -25,13 +25,15 @@ public class RudiFolderHierarchy {
 
   Path _rudiFolder;
 
-  HashMap<Path, TreeItem> folderMap;
-  HashMap<Path, TreeItem> fileMap;
+  private final HashMap<Path, TreeItem> folderMap;
+  private final HashMap<Path, TreeItem> fileMap;
+  public final HashSet<RudiPath> rudiPathSet;
 
   public RudiFolderHierarchy(Path rudiFolder) {
     _rudiFolder = rudiFolder;
     folderMap = new HashMap<>();
     fileMap = new HashMap<>();
+    rudiPathSet = new HashSet<>();
   }
 
   /** add a file or a folder to the hierarchy */
@@ -50,7 +52,6 @@ public class RudiFolderHierarchy {
       /* link to the parent folder's TreeItem */
       if (! f.equals(_rudiFolder)) {
         Path parentDir = f.subpath(0, f.getNameCount()-1);
-        System.out.println(folderMap);
         folderMap.get(parentDir).getChildren().add(ti);
 
         /* sort the TreeItems, TODO: not efficient */
@@ -63,6 +64,7 @@ public class RudiFolderHierarchy {
 
     /* a file */
     } else {
+      rudiPathSet.add(file);
       Path dir = f.subpath(0, f.getNameCount()-1);
       TreeItem ti = new TreeItem(file);
       folderMap.get(dir).getChildren().add(ti);
@@ -84,6 +86,7 @@ public class RudiFolderHierarchy {
 
     /* a file */
     if (! Files.isDirectory(f)) {
+      rudiPathSet.remove(file);
       fileMap.get(f).getParent().getChildren().remove(fileMap.get(f));
     }
   }
