@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import static de.dfki.rudibugger.Constants.*;
+import java.nio.file.Files;
 import java.util.Objects;
 
 /**
@@ -19,11 +20,16 @@ public class RudiPath {
 
   private final Path _path;
 
-  private final IntegerProperty _used = new SimpleIntegerProperty(FILE_NOT_USED);
+  private final IntegerProperty _used;
   public IntegerProperty _usedProperty() { return _used; }
 
   public RudiPath(Path path) {
     _path = path;
+    if (Files.isDirectory(path)) {
+      _used = new SimpleIntegerProperty(IS_FOLDER);
+    } else {
+      _used = new SimpleIntegerProperty(FILE_NOT_USED);
+    }
   }
 
   public Path getPath() {

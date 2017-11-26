@@ -24,6 +24,7 @@ import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 import static de.dfki.rudibugger.Helper.*;
+import de.dfki.rudibugger.RudiList.RudiFolderHierarchy;
 import de.dfki.rudibugger.RudiList.RudiPath;
 import de.dfki.rudibugger.TabManagement.FileAtPos;
 import de.dfki.rudibugger.TabManagement.RudiTab;
@@ -35,6 +36,7 @@ import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.stream.Stream;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -43,6 +45,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.control.TreeItem;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import org.yaml.snakeyaml.DumperOptions;
@@ -193,22 +196,12 @@ public class DataModel {
     rudiFolderWatch.createRudiFolderWatch(this);
   }
 
-  private void readInRudiFiles() throws IOException {
-    rudiList = FXCollections.observableArrayList();
-
-    /* get a sorted list of this directory's files */
-    DirectoryStream<Path> stream = Files.newDirectoryStream(
-            _rudiFolder.getValue());
-    List<Path> list = new ArrayList<>();
-    stream.forEach(list::add);
-    list.sort(
-      (Path h1, Path h2) -> h1.getFileName().toString().toLowerCase()
-              .compareTo(h2.getFileName().toString().toLowerCase()));
-
-    list.forEach((x) -> {
-      if (x.getFileName().toString().endsWith(RUDI_FILE_EXTENSION)) {
-        rudiList.add(new RudiPath(x));
-      }
+  public void readInRudiFiles() throws IOException {
+    Stream<Path> stream = Files.walk(_rudiFolder.getValue());
+    stream.forEach(x -> {
+      if (x.getFileName().toString().endsWith(RUDI_FILE_EXTENSION)
+              || Files.isDirectory(x))
+        rudiHierarchy.addFileToHierarchy(new RudiPath(x.toAbsolutePath()));
     });
   }
 
@@ -240,6 +233,8 @@ public class DataModel {
       log.error(".rudi folder could not be found.");
       _rudiFolder.setValue(null);
     }
+
+    rudiHierarchy = new RudiFolderHierarchy(_rudiFolder.getValue());
 
     Path compilePath = Paths.get(_rootFolder.toString() + "/"  + COMPILE_FILE);
     if (Files.exists(compilePath)) {
@@ -303,7 +298,7 @@ public class DataModel {
   }
 
   public void removeRudiPath(Path file) {
-    rudiList.remove(new RudiPath(file));
+    rudiHierarchy.removeFromFileHierarchy(new RudiPath(file));
   }
 
   /**
@@ -316,15 +311,7 @@ public class DataModel {
    * @return true if added, false if not added (already there)
    */
   public boolean addRudiPath(Path file) {
-    RudiPath temp = new RudiPath(file);
-    if (! rudiList.contains(temp)) {
-      rudiList.add(new RudiPath(file));
-      rudiList.sort((a, b) -> a.getPath().toString().toLowerCase()
-              .compareTo(b.getPath().toString().toLowerCase()));
-      return true;
-    } else {
-      return false;
-    }
+    return rudiHierarchy.addFileToHierarchy(new RudiPath(file));
   }
 
   /*****************************************************************************
@@ -496,7 +483,8 @@ public class DataModel {
   public ObjectProperty<Path> rudiFolderProperty() { return _rudiFolder; }
 
   /** .rudi files */
-  public ObservableList<RudiPath> rudiList;
+  public TreeItem<RudiPath> rudiList;
+  public RudiFolderHierarchy rudiHierarchy;
 
   /** output aka gen-java location */
   public Path _genJava;

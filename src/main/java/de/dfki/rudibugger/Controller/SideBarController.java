@@ -10,15 +10,16 @@ import de.dfki.mlt.rudimant.common.ImportInfo;
 import de.dfki.mlt.rudimant.common.RuleInfo;
 import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.DataModel;
-import de.dfki.rudibugger.RudiList.RudiListViewCell;
+import de.dfki.rudibugger.RudiList.RudiTreeCell;
 import de.dfki.rudibugger.RudiList.RudiPath;
 import de.dfki.rudibugger.RuleTreeView.BasicTreeItem;
 import de.dfki.rudibugger.RuleTreeView.ImportTreeItem;
 import de.dfki.rudibugger.RuleTreeView.RuleTreeItem;
 import de.dfki.rudibugger.RuleTreeView.RuleTreeViewState;
+import java.nio.file.Files;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ListView;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import org.apache.log4j.Logger;
@@ -54,28 +55,29 @@ public class SideBarController {
     }
     this.model = model;
 
-
-    /* this Listener keeps the listView containing the .rudi files up to date */
+    /* this Listener keeps the rudiTreeView containing the .rudi files up to date */
     model.projectStatusProperty().addListener((o, oldVal, newVal) -> {
       switch ((int) newVal) {
         case PROJECT_OPEN:
-          rudiListView.setItems(model.rudiList);
+          rudiTreeView.setRoot(model.rudiHierarchy._root);
+          rudiTreeView.setShowRoot(false);
           break;
         case PROJECT_CLOSED:
-          rudiListView.setItems(null);
+          rudiTreeView.setRoot(null);
           break;
       }
     });
 
-    /* define how a cell in this ListView looks like */
-    rudiListView.setCellFactory(value -> new RudiListViewCell());
+    /* define how a cell in this rudiTreeView looks like */
+    rudiTreeView.setCellFactory(value -> new RudiTreeCell());
 
     /* open a new tab or select the already opened tab from the selected file */
-    rudiListView.setOnMouseClicked((MouseEvent mouseEvent) -> {
+    rudiTreeView.setOnMouseClicked((MouseEvent mouseEvent) -> {
       if (mouseEvent.getClickCount() == 2) {
-        Object test = rudiListView .getSelectionModel().getSelectedItem();
-        if (test instanceof RudiPath) {
-          model.requestTabOfFile(((RudiPath) test).getPath());
+        TreeItem ti = (TreeItem) rudiTreeView.getSelectionModel().getSelectedItem();
+        RudiPath rp = (RudiPath) ti.getValue();
+        if (! Files.isDirectory(rp.getPath())) {
+          model.requestTabOfFile(rp.getPath());
         }
       }
     });
@@ -129,33 +131,33 @@ public class SideBarController {
    * their state.
    */
   private void markFilesInRudiList() {
-    for (RudiPath x : model.rudiList) {
-
-      /* mark the main .rudi file */
-      if (model.ruleModel.rootImport.getFilePath().getFileName().equals(
-              x.getPath().getFileName())) {
-        x._usedProperty().setValue(FILE_IS_MAIN);
-        continue;
-      }
-
-      /* mark the wrapper file */
-      if (model.getWrapperClass().getFileName()
-              .equals(x.getPath().getFileName())) {
-        x._usedProperty().setValue(FILE_IS_WRAPPER);
-        continue;
-      }
-
-      /* mark the other files */
-      if (model.ruleModel.importSet.contains(x.getPath())) {
-        x._usedProperty().setValue(FILE_USED);
-      } else {
-        x._usedProperty().setValue(FILE_NOT_USED);
-      }
-    }
+//    for (RudiPath x : model.rudiList) {
+//
+//      /* mark the main .rudi file */
+//      if (model.ruleModel.rootImport.getFilePath().getFileName().equals(
+//              x.getPath().getFileName())) {
+//        x._usedProperty().setValue(FILE_IS_MAIN);
+//        continue;
+//      }
+//
+//      /* mark the wrapper file */
+//      if (model.getWrapperClass().getFileName()
+//              .equals(x.getPath().getFileName())) {
+//        x._usedProperty().setValue(FILE_IS_WRAPPER);
+//        continue;
+//      }
+//
+//      /* mark the other files */
+//      if (model.ruleModel.importSet.contains(x.getPath())) {
+//        x._usedProperty().setValue(FILE_USED);
+//      } else {
+//        x._usedProperty().setValue(FILE_NOT_USED);
+//      }
+//    }
 
     /* let the cells reload according to their usage state */
     // TODO: https://stackoverflow.com/questions/14682881/binding-image-in-javafx
-    rudiListView.refresh();
+    rudiTreeView.refresh();
   }
 
   public static ImportTreeItem buildTreeView(DataModel model) {
@@ -241,7 +243,7 @@ public class SideBarController {
 
   /* The ListView showing the content of the rudi folder */
   @FXML
-  private ListView<RudiPath> rudiListView;
+  private TreeView rudiTreeView;
 
 
   /*****************************************************************************

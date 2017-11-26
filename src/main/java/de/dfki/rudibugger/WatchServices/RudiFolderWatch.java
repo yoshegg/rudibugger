@@ -7,6 +7,7 @@ package de.dfki.rudibugger.WatchServices;
 
 import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.DataModel;
+import de.dfki.rudibugger.RudiList.RudiFolderHierarchy;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -174,6 +175,7 @@ public class RudiFolderWatch {
           if (kind == ENTRY_CREATE) {
             filename.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
                   ENTRY_DELETE);
+            _model.addRudiPath(filename);
             log.debug("Started watching new folder: " + filename);
           }
         }
@@ -188,6 +190,7 @@ public class RudiFolderWatch {
           log.debug("watchKey no longer valid. Probably because a watched folder has been deleted");
           log.debug("Restarting RudiFolderWatch...");
           createRudiFolderWatch(_model);
+          _model.rudiHierarchy.removeObsoleteFolders();
           break;
         }
       }

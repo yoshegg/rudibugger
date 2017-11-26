@@ -43,4 +43,5 @@ public class Constants {
   public static final int FILE_NOT_USED = 0;
   public static final int FILE_IS_MAIN = 2;
   public static final int FILE_IS_WRAPPER = 3;
+  public static final int IS_FOLDER = 9;
 }

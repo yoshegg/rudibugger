@@ -5,10 +5,10 @@
  */
 package de.dfki.rudibugger.RudiList;
 
-import javafx.scene.control.ListCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import static de.dfki.rudibugger.Constants.*;
+import javafx.scene.control.TreeCell;
 
 /**
  * This ListCell is used to visualize the different .rudi files according to
@@ -16,7 +16,7 @@ import static de.dfki.rudibugger.Constants.*;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class RudiListViewCell extends ListCell<RudiPath> {
+public class RudiTreeCell extends TreeCell<RudiPath> {
 
   static final String FILE_ICON_PATH
           = "file:src/main/resources/icons/FilesAndFolders/";
@@ -25,6 +25,7 @@ public class RudiListViewCell extends ListCell<RudiPath> {
   static Image disabled = new Image(FILE_ICON_PATH + "disabled.png");
   static Image main = new Image(FILE_ICON_PATH + "main.png");
   static Image wrapper = new Image(FILE_ICON_PATH + "wrapper.png");
+  static Image folder = new Image(FILE_ICON_PATH + "folder.png");
 
   @Override
   protected void updateItem(RudiPath rudiPath, boolean empty) {
@@ -51,6 +52,9 @@ public class RudiListViewCell extends ListCell<RudiPath> {
           break;
         case FILE_NOT_USED:
           setGraphic(new ImageView(disabled));
+          break;
+        case IS_FOLDER:
+          setGraphic(new ImageView(folder));
           break;
         default:
           break;
