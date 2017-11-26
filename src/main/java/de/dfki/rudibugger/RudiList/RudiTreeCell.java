@@ -11,7 +11,7 @@ import static de.dfki.rudibugger.Constants.*;
 import javafx.scene.control.TreeCell;
 
 /**
- * This ListCell is used to visualize the different .rudi files according to
+ * This TreeCell is used to visualize the different .rudi files according to
  * their usage stage in the current project.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de

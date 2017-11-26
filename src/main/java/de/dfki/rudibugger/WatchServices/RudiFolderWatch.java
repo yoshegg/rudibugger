@@ -7,7 +7,6 @@ package de.dfki.rudibugger.WatchServices;
 
 import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.DataModel;
-import de.dfki.rudibugger.RudiList.RudiFolderHierarchy;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;

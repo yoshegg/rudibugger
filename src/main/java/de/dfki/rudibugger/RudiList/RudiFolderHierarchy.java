@@ -16,19 +16,23 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 
 /**
+ * RudiFolderHierarchy manages the underlying model of the rudiTreeView.
+ * When a file or a folder is deleted or added, the hierarchy is immediately
+ * updated so that the rudiTreeView is adapted.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RudiFolderHierarchy {
 
+  /** this item represents the root of the rudi folder */
   public TreeItem _root;
 
-  Path _rudiFolder;
-
+  private final Path _rudiFolder;
   private final HashMap<Path, TreeItem> folderMap;
   private final HashMap<Path, TreeItem> fileMap;
   public final HashSet<RudiPath> rudiPathSet;
 
+  /** create a new hierarchy and initialize its fields */
   public RudiFolderHierarchy(Path rudiFolder) {
     _rudiFolder = rudiFolder;
     folderMap = new HashMap<>();
@@ -54,7 +58,7 @@ public class RudiFolderHierarchy {
         Path parentDir = f.subpath(0, f.getNameCount()-1);
         folderMap.get(parentDir).getChildren().add(ti);
 
-        /* sort the TreeItems, TODO: not efficient */
+        /* sort the TreeItems, TODO: not efficient, but no easier way exists */
         ObservableList<TreeItem> children = folderMap.get(parentDir).getChildren();
         children.sort(
                 (TreeItem h1, TreeItem h2)
@@ -70,7 +74,7 @@ public class RudiFolderHierarchy {
       folderMap.get(dir).getChildren().add(ti);
       fileMap.put(f, ti);
 
-      /* sort the TreeItems, TODO: not efficient */
+      /* sort the TreeItems, TODO: not efficient, but no easier way exists */
       ObservableList<TreeItem> children = folderMap.get(dir).getChildren();
       children.sort(
               (TreeItem h1, TreeItem h2)
@@ -80,7 +84,7 @@ public class RudiFolderHierarchy {
     return true;
   }
 
-  /** this only works for files */
+  /** remove a file from the hierarcyh (this only works for files!) */
   public void removeFromFileHierarchy(RudiPath file) {
     Path f = file.getPath();
 
@@ -91,6 +95,7 @@ public class RudiFolderHierarchy {
     }
   }
 
+  /** check for deleted folders and remove them from the hierarchy */
   public void removeObsoleteFolders() throws IOException {
     Stream<Path> stream = Files.walk(_rudiFolder);
     Set<Path> knownFolders = new HashSet(folderMap.keySet());
