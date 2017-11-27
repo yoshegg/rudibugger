@@ -70,6 +70,10 @@ public class RuleTreeItem extends BasicTreeItem {
     /* listener for stage changes */
     RuleInfo rule = (RuleInfo) _content;
     _state.addListener((o, oldVal, newVal) -> {
+      /* set the state of the underlying RuleInfo object */
+      rule.setState(newVal.intValue());
+
+      /* for logging purposes only */
       String output = "";
       output += "CHANGED " + rule.getLabel() + " FROM "
               + ruleInts.get(rule.getState());
