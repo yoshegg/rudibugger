@@ -5,6 +5,7 @@
  */
 package de.dfki.rudibugger;
 
+import de.dfki.mlt.rudimant.agent.Agent;
 import de.dfki.rudibugger.Controller.*;
 import java.nio.file.Files;
 import javafx.application.Application;
@@ -28,6 +29,8 @@ public class MainApp extends Application {
 
   /** the logger */
   static Logger log = Logger.getLogger("mainLog");
+
+  static Agent localAgent = null;
 
   @Override
   public void start(Stage stage) throws Exception {
@@ -96,7 +99,7 @@ public class MainApp extends Application {
     model.initialize();
     model.initializeGlobalKnowledge();
     model.keepGlobalKnowledgeUpToDate();
-    
+
     menuController.initModel(model);
     statusBarController.initModel(model);
     sideBarController.initModel(model);
@@ -134,6 +137,11 @@ public class MainApp extends Application {
    */
   public static void main(String[] args) {
     launch(args);
+  }
+
+  public static void startDebugger(Agent agent) {
+    localAgent = agent;
+    launch(new String[0]);
   }
 
   public static void exitRudibugger() {
