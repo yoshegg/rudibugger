@@ -205,7 +205,7 @@ public class DataModel {
   }
 
   public void initRules() {
-    _ruleLocFile = _rootFolder.resolve(_genJava.resolve(RULE_LOCATION_FILE));
+    _ruleLocFile = _rootFolder.resolve(_generatedFolder.resolve(RULE_LOCATION_FILE));
     if (Files.exists(_ruleLocFile)) {
       log.debug(_ruleLocFile.getFileName().toString() + " has been found.");
       ruleModel = RuleModel.createNewRuleModel();
@@ -254,11 +254,11 @@ public class DataModel {
               + " could not be found.");
     }
 
-    /* set the gen-java path */
-    _genJava = _rootFolder.resolve(Paths.get((String) _configs.get("outputDirectory")));
-    if (! Files.exists(_genJava)) {
-      _genJava.toFile().mkdirs();
-      log.debug("Created " + _genJava);
+    /* set the generated/ folder path */
+    _generatedFolder = _rootFolder.resolve(Paths.get("src/main/resources/generated"));
+    if (! Files.exists(_generatedFolder)) {
+      _generatedFolder.toFile().mkdirs();
+      log.debug("Created " + _generatedFolder);
     }
 
     /* set the wrapper class */
@@ -485,7 +485,7 @@ public class DataModel {
   public RudiFolderHierarchy rudiHierarchy;
 
   /** output aka gen-java location */
-  public Path _genJava;
+  public Path _generatedFolder;
 
   /** RuleLocationFile */
   private Path _ruleLocFile;

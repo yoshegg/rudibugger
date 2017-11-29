@@ -76,8 +76,8 @@ public class RuleLocationWatch {
 
     try {
       _watchService = FileSystems.getDefault().newWatchService();
-      model._genJava.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE);
-      log.debug("registered " + model._genJava);
+      model._generatedFolder.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE);
+      log.debug("registered " + model._generatedFolder);
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
     }
