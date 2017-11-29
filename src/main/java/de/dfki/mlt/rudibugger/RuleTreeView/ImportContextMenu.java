@@ -5,7 +5,6 @@
  */
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
-import static de.dfki.mlt.rudibugger.Constants.*;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import javafx.event.ActionEvent;
 import javafx.scene.control.CheckMenuItem;
