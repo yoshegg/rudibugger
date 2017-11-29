@@ -4,6 +4,7 @@
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
 package de.dfki.rudibugger.RuleTreeView;
+import static de.dfki.mlt.rudimant.common.Constants.*;
 
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import de.dfki.mlt.rudimant.common.ImportInfo;
@@ -64,7 +65,7 @@ public class RuleTreeItem extends BasicTreeItem {
     }
     ImportInfo realParent = (ImportInfo) parent;
     _file = Paths.get(_rootFolder + "/"
-            + PATH_TO_RUDI_FILES + realParent.getLabel() + RUDI_FILE_EXTENSION);
+            + PATH_TO_RUDI_FILES + realParent.getLabel() + RULE_FILE_EXTENSION);
     defineControls();
 
     /* listener for stage changes */

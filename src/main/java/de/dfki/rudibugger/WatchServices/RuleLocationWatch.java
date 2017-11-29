@@ -4,6 +4,7 @@
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
 package de.dfki.rudibugger.WatchServices;
+import static de.dfki.mlt.rudimant.common.Constants.*;
 
 import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.DataModel;

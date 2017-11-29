@@ -198,7 +198,7 @@ public class DataModel {
   public void readInRudiFiles() throws IOException {
     Stream<Path> stream = Files.walk(_rudiFolder.getValue());
     stream.forEach(x -> {
-      if (x.getFileName().toString().endsWith(RUDI_FILE_EXTENSION)
+      if (x.getFileName().toString().endsWith(RULE_FILE_EXTENSION)
               || Files.isDirectory(x))
         rudiHierarchy.addFileToHierarchy(new RudiPath(x.toAbsolutePath()));
     });
@@ -265,7 +265,7 @@ public class DataModel {
     String temp = (String) _configs.get("wrapperClass");
     String[] split = temp.split("\\.");
     String wrapperName = split[split.length-1];
-    _wrapperClass = _rudiFolder.getValue().resolve(wrapperName + RUDI_FILE_EXTENSION);
+    _wrapperClass = _rudiFolder.getValue().resolve(wrapperName + RULE_FILE_EXTENSION);
 
   }
 
@@ -367,7 +367,7 @@ public class DataModel {
     fileChooser.setInitialDirectory(_rudiFolder.getValue().toFile());
     FileChooser.ExtensionFilter extFilter
             = new FileChooser.ExtensionFilter
-        ("rudi file (*" + RUDI_FILE_EXTENSION + ")", "*" + RUDI_FILE_EXTENSION);
+        ("rudi file (*" + RULE_FILE_EXTENSION + ")", "*" + RULE_FILE_EXTENSION);
     fileChooser.getExtensionFilters().add(extFilter);
     Path file;
     try {
@@ -375,8 +375,8 @@ public class DataModel {
     } catch (NullPointerException e) {
       return;
     }
-      if (! file.getFileName().toString().endsWith(RUDI_FILE_EXTENSION)) {
-      file = Paths.get(file.toString() + RUDI_FILE_EXTENSION);
+      if (! file.getFileName().toString().endsWith(RULE_FILE_EXTENSION)) {
+      file = Paths.get(file.toString() + RULE_FILE_EXTENSION);
     }
 
     if (saveFile(file, content)) {

@@ -4,6 +4,7 @@
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
 package de.dfki.rudibugger.WatchServices;
+import static de.dfki.mlt.rudimant.common.Constants.*;
 
 import static de.dfki.rudibugger.Constants.*;
 import de.dfki.rudibugger.DataModel;
@@ -130,7 +131,7 @@ public class RudiFolderWatch {
         if ((kind == ENTRY_CREATE || kind == ENTRY_DELETE
                 || kind == ENTRY_MODIFY)
                 && filename.getFileName().toString()
-                        .endsWith(RUDI_FILE_EXTENSION)) {
+                        .endsWith(RULE_FILE_EXTENSION)) {
 
           /* rudi file added */
           if (kind == ENTRY_CREATE) {
