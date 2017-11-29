@@ -15,6 +15,8 @@ import de.dfki.mlt.rudibugger.TabManagement.FileAtPos;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
 import de.dfki.mlt.rudibugger.WatchServices.RudiFolderWatch;
 import de.dfki.mlt.rudibugger.WatchServices.RuleLocationWatch;
+import de.dfki.mlt.rudimant.common.DebugClient;
+import de.dfki.mlt.rudimant.common.DebugServer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -157,6 +159,7 @@ public class DataModel {
     initRules();
     setProjectStatus(PROJECT_OPEN);
     log.info("Initializing done.");
+    connectToRudimant(3000, 2000);
   }
 
   /**
@@ -551,4 +554,17 @@ public class DataModel {
     log.info("Not implemented yet.");
   }
 
+
+  /*****************************************************************************
+   * CONNECTION TO RUDIMANT
+   ****************************************************************************/
+
+  public void connectToRudimant(int ownPort, int rudiPort) throws IOException {
+    DebugServer ds = new DebugServer(ownPort);
+    ds.startServer();
+    log.debug("DebugServer has been started on port [" + ownPort + "].");
+    DebugClient dc = new DebugClient(rudiPort);
+    log.debug("DebugClient has been started and looks for client "
+      + "on port [" + rudiPort + "].");
+  }
 }
