@@ -532,9 +532,11 @@ public class DataModel {
     if ("Linux".equals(System.getProperty("os.name"))) {
       String[] cmd;
       if (mateTerminal.exists()) {
-        cmd = new String[] {"/usr/bin/mate-terminal", "-e", compileScript};
+        cmd = new String[] {"/usr/bin/mate-terminal", "-e", "sh -c 'cd "
+          + getRootFolder().toString() + ";" + compileScript + "'"};
       } else {
-        cmd = new String[] { "/usr/bin/xterm", "-e", compileScript};
+        cmd = new String[] { "/usr/bin/xterm", "-e", "sh -c 'cd "
+          + getRootFolder().toString() + ";" + compileScript + "'"};
       }
       log.debug("Executing the following command: " + Arrays.toString(cmd));
 
