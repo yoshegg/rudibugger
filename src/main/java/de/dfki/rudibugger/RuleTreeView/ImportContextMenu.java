@@ -6,6 +6,7 @@
 package de.dfki.rudibugger.RuleTreeView;
 
 import static de.dfki.rudibugger.Constants.*;
+import static de.dfki.mlt.rudimant.common.Constants.*;
 import javafx.event.ActionEvent;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
@@ -50,7 +51,7 @@ public class ImportContextMenu extends ContextMenu {
     openFile.setOnAction((ActionEvent e) -> {
       _item._model.requestTabOfFile(_item.getFile());
     });
-    
+
     SeparatorMenuItem sep = new SeparatorMenuItem();
 
     /* set actions when logging menu items are clicked */

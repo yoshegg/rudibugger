@@ -6,6 +6,7 @@
 package de.dfki.rudibugger;
 
 import static de.dfki.rudibugger.Constants.*;
+import static de.dfki.mlt.rudimant.common.Constants.*;
 import static de.dfki.rudibugger.Helper.*;
 import de.dfki.rudibugger.RudiList.RudiFolderHierarchy;
 import de.dfki.rudibugger.RudiList.RudiPath;
