@@ -11,7 +11,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <mainClass>de.dfki.rudibugger.MainApp</mainClass>
+    <mainClass>de.dfki.mlt.rudibugger.MainApp</mainClass>
   </properties>
 
   <organization>
