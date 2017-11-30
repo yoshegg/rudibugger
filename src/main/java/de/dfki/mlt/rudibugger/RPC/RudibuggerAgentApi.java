@@ -7,7 +7,8 @@ import de.dfki.mlt.rudimant.common.RuleInfo;
  */
 public class RudibuggerAgentApi {
 
-  /** Start logging a specific rule
+  /**
+   * Start logging a specific rule
    *
    * @param ruleId
    * @param result

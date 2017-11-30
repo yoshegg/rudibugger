@@ -25,22 +25,14 @@ public class RudibuggerClient {
   XmlRpcClient client;
 
   /**
-   * call with, e.g., java -cp .:../lib/* de/dfki/lt/hfc/server/HfcClient
-   * 'select distinct ?p where ?s ?p ?o' note the quotes (' ... ') to make the
-   * query a single string alternatively, one might further supply the server
-   * URL as a second argiment, e.g., java -cp .:./lib/*
-   * de/dfki/lt/hfc/server/HfcClient 'select distinct ?p where ?s ?p ?o ?b ?e'
-   * http://localhost:1408
-   *
-   * @throws MalformedURLException
+   * A client that connects to the rudimant on localhost to send information.
    */
   public RudibuggerClient(int port) {
     XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
     try {
       config.setServerURL(new URL(RudibuggerClient.SERVER_URL));
     } catch (MalformedURLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.error("Bad URL: " + e);
     }
     client = new XmlRpcClient();
     client.setConfig(config);
