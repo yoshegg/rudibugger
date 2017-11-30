@@ -10,6 +10,8 @@ import static de.dfki.mlt.rudimant.common.Constants.*;
 import static de.dfki.mlt.rudibugger.Helper.*;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiFolderHierarchy;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
+import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
+import de.dfki.mlt.rudibugger.RPC.RudibuggerServer;
 import de.dfki.mlt.rudibugger.RuleStore.RuleModel;
 import de.dfki.mlt.rudibugger.TabManagement.FileAtPos;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
@@ -157,6 +159,7 @@ public class DataModel {
     initRules();
     setProjectStatus(PROJECT_OPEN);
     log.info("Initializing done.");
+    connectToRudimant(6553, 6554);
   }
 
   /**
@@ -551,4 +554,20 @@ public class DataModel {
     log.info("Not implemented yet.");
   }
 
+
+  /*****************************************************************************
+   * CONNECTION TO RUDIMANT
+   ****************************************************************************/
+
+  public RudibuggerServer rs;
+  public RudibuggerClient rc;
+
+  public void connectToRudimant(int ownPort, int rudiPort) throws IOException {
+    rs = new RudibuggerServer(this);
+    rs.startServer(ownPort);
+    log.debug("DebugServer has been started on port [" + ownPort + "].");
+    rc = new RudibuggerClient(rudiPort);
+    log.debug("DebugClient has been started and looks for client "
+      + "on port [" + rudiPort + "].");
+  }
 }

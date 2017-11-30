@@ -74,6 +74,9 @@ public class RuleTreeItem extends BasicTreeItem {
       /* set the state of the underlying RuleInfo object */
       rule.setState(newVal.intValue());
 
+      /* TODO: rudimant connection is ugly */
+      _model.rc.setLoggingStatus(rule.getId(), rule.getState());
+
       /* for logging purposes only */
       String output = "";
       output += "CHANGED " + rule.getLabel() + " FROM "

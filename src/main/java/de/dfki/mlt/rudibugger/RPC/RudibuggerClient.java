@@ -35,7 +35,7 @@ public class RudibuggerClient {
     }
   }
 
-  public void logRule(int ruleId, int what) {
+  public void setLoggingStatus(int ruleId, int what) {
     try {
       out.write(Integer.toString(ruleId));
       out.write(";");
