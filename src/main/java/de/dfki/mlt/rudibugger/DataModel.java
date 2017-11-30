@@ -159,7 +159,7 @@ public class DataModel {
     initRules();
     setProjectStatus(PROJECT_OPEN);
     log.info("Initializing done.");
-    connectToRudimant(3000, 2000);
+    connectToRudimant(6553, 6554);
   }
 
   /**
