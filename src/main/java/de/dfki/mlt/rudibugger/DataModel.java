@@ -10,6 +10,7 @@ import static de.dfki.mlt.rudimant.common.Constants.*;
 import static de.dfki.mlt.rudibugger.Helper.*;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiFolderHierarchy;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
+import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerServer;
 import de.dfki.mlt.rudibugger.RuleStore.RuleModel;
@@ -560,13 +561,13 @@ public class DataModel {
    ****************************************************************************/
 
   public RudibuggerServer rs;
-  public RudibuggerClient rc;
+  public RudibuggerClient vonda;
 
   public void connectToRudimant(int ownPort, int rudiPort) throws IOException {
-    rs = new RudibuggerServer(this);
+    rs = new RudibuggerServer(new RudibuggerAPI(this));
     rs.startServer(ownPort);
     log.debug("DebugServer has been started on port [" + ownPort + "].");
-    rc = new RudibuggerClient(rudiPort);
+    vonda = new RudibuggerClient(rudiPort);
     log.debug("DebugClient has been started and looks for client "
       + "on port [" + rudiPort + "].");
   }
