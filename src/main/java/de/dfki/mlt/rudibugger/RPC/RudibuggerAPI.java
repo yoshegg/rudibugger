@@ -31,6 +31,10 @@ public class RudibuggerAPI {
     switch (command) {
       case "printLog":
         printLog(parameters);
+        break;
+      default:
+        log.error("Illegal RudibuggerService call: {}",
+                Arrays.toString(args));
     }
   }
 
@@ -42,8 +46,9 @@ public class RudibuggerAPI {
         result[i - 1] = Boolean.parseBoolean(args[i]);
       }
       // _model.printLog(ruleId, result)
-    } catch (Throwable ex) {
-      log.error("Illegal RudibuggerService Call: {}",
+    } catch (NumberFormatException ex) {
+      log.error("Illegal RudibuggerService Call: "
+              + "printLog can't work with parameters {}",
               Arrays.toString(args));
     }
   }

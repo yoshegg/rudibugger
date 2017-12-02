@@ -6,7 +6,6 @@
 package de.dfki.mlt.rudibugger.WatchServices;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 
-import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -17,7 +16,8 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This watch's one and only purpose is to check if the RuleLocation.yml file
@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
  */
 public class RuleLocationWatch {
 
-  static Logger log = Logger.getLogger("ruleLocWatch");
+  static Logger log = LoggerFactory.getLogger("ruleLocWatch");
 
   /** the Thread in which the WatchService is run */
   private volatile Thread watchingTread;
@@ -98,7 +98,7 @@ public class RuleLocationWatch {
         try {
           watchKey = _watchService.take();
         } catch (InterruptedException ex) {
-          log.error(ex);
+          log.error(ex.toString());
           return;
         }
 

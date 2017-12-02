@@ -22,7 +22,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This controller manages the left part of rudibugger window:
@@ -33,7 +34,7 @@ import org.apache.log4j.Logger;
 public class SideBarController {
 
   /** the logger of the SideBarController */
-  static Logger log = Logger.getLogger("rudiLog");
+  static Logger log = LoggerFactory.getLogger("rudiLog");
 
   /** the DataModel */
   private DataModel model;

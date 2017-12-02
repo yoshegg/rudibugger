@@ -48,7 +48,8 @@ import javafx.scene.control.TreeItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -64,7 +65,7 @@ public class DataModel {
    ****************************************************************************/
 
   /** the logger of the DataModel */
-  static Logger log = Logger.getLogger("dataLog");
+  static Logger log = LoggerFactory.getLogger("dataLog");
 
   /** a YAML instance for further use of YAML */
   public Yaml yaml;
@@ -175,7 +176,7 @@ public class DataModel {
     try {
       map = (HashMap<String, Object>) yaml.load(new FileInputStream(yml.toFile()));
     } catch (IOException e) {
-      log.error(e);
+      log.error(e.toString());
       return false;
     }
     HashSet<String> keysToCheckOn = new HashSet() {

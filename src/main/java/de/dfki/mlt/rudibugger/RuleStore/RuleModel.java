@@ -12,7 +12,8 @@ import java.io.FileReader;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -26,8 +27,8 @@ import org.yaml.snakeyaml.Yaml;
 public class RuleModel {
 
   /** The logger of the the RuleModel */
-  static Logger log = Logger.getLogger("RuleModel");
-  
+  static Logger log = LoggerFactory.getLogger("RuleModel");
+
   /** The root path of the project */
   private Path _rudiPath;
 

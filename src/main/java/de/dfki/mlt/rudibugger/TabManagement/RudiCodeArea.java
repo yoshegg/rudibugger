@@ -9,7 +9,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
@@ -23,7 +24,7 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
  */
 public class RudiCodeArea extends CodeArea {
 
-  static Logger log = Logger.getLogger("rudiLog");
+  static Logger log = LoggerFactory.getLogger("rudiCodeArea");
 
   private static final String[] KEYWORDS = new String[]{
     "abstract", "assert", "boolean", "break", "byte",

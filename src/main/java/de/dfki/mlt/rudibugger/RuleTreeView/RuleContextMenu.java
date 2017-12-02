@@ -8,7 +8,6 @@ import static de.dfki.mlt.rudimant.common.Constants.*;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
-import static de.dfki.mlt.rudibugger.Constants.*;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;

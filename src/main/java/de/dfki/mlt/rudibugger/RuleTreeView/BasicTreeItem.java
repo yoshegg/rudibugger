@@ -7,7 +7,6 @@ package de.dfki.mlt.rudibugger.RuleTreeView;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 
 import de.dfki.mlt.rudimant.common.BasicInfo;
-import static de.dfki.mlt.rudibugger.Constants.*;
 import java.util.HashSet;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -20,7 +19,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 public class BasicTreeItem extends TreeItem<HBox> {
 
   /** the logger */
-  static Logger log = Logger.getLogger("rudiLog");
+  static Logger log = LoggerFactory.getLogger("rudiLog");
 
   /** the label of the TreeItem */
   private final Label _label;

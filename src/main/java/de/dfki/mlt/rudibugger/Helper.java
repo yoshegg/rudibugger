@@ -5,7 +5,8 @@
  */
 package de.dfki.mlt.rudibugger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -13,7 +14,7 @@ import org.apache.log4j.Logger;
  */
 public class Helper {
 
-  static Logger log = Logger.getLogger("rudiLog");
+  static Logger log = LoggerFactory.getLogger("rudiLog");
 
   // taken from https://stackoverflow.com/questions/17307761/is-there-a-java-equivalent-to-pythons-easy-string-splicing
 

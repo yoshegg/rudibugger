@@ -21,7 +21,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -30,7 +31,7 @@ import org.apache.log4j.Logger;
 public class MenuController {
 
   /** the logger of the MenuController */
-  static Logger log = Logger.getLogger("GUIlog");
+  static Logger log = LoggerFactory.getLogger("GUIlog");
 
   /** the DataModel */
   private DataModel _model;

@@ -20,9 +20,8 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -31,16 +30,13 @@ import org.apache.log4j.PropertyConfigurator;
 public class MainApp extends Application {
 
   /** the logger */
-  static Logger log = Logger.getLogger("mainLog");
+  static Logger log = LoggerFactory.getLogger("mainLog");
 
   static Agent localAgent = null;
 
   @Override
   public void start(Stage stage) throws Exception {
 
-    /* initialize log4j */
-    BasicConfigurator.configure();
-    PropertyConfigurator.configure("src/main/resources/log4j/log4j.properties");
     log.info("Starting Rudibugger");
 
     /* improve font rendering, caused by JavaFX bug */

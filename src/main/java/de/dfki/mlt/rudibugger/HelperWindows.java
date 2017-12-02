@@ -14,7 +14,8 @@ import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -23,7 +24,7 @@ import org.apache.log4j.Logger;
 public final class HelperWindows {
 
   /** the logger */
-  static Logger log = Logger.getLogger("HelperWin");
+  static Logger log = LoggerFactory.getLogger("HelperWin");
 
   /**
    * private constructor to obstruct instantiating an object of this utility

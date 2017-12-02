@@ -2,16 +2,13 @@ package de.dfki.mlt.rudibugger.RPC;
 
 import de.dfki.mlt.rudimant.common.SimpleServer;
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
+ * The server allows vonda to connect to rudibugger and transmit data.
  */
 public class RudibuggerServer {
 
-  private static Logger logger = LoggerFactory.getLogger(RudibuggerServer.class);
-
-  private SimpleServer server;
+  private final SimpleServer server;
 
   private RudibuggerAPI _api;
 
@@ -23,7 +20,7 @@ public class RudibuggerServer {
   }
 
   public void startServer(int port) {
-    server.startServer(port, "DebuggingService");
+    server.startServer(port, "RudibuggerService");
   }
 
 }

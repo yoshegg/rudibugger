@@ -14,7 +14,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
 /**
@@ -24,7 +25,7 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 public class RudiTab extends Tab {
 
   /** the logger */
-  static Logger log = Logger.getLogger("rudiLog");
+  static Logger log = LoggerFactory.getLogger("rudiLog");
 
   /** the associated file */
   private Path _file;
@@ -74,7 +75,7 @@ public class RudiTab extends Tab {
     try {
       content.getStylesheets().add("/styles/java-keywords.css");
     } catch (NullPointerException e) {
-      log.fatal("The provided css file could not be found.");
+      log.error("The provided css file could not be found.");
     }
 
     /* read in file (if provided) */

@@ -8,7 +8,8 @@ package de.dfki.mlt.rudibugger.Controller;
 import de.dfki.mlt.rudibugger.DataModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -17,7 +18,7 @@ import org.apache.log4j.Logger;
 public class StatusBarController {
 
   /* the logger */
-  static Logger log = Logger.getLogger("rudiLog");
+  static Logger log = LoggerFactory.getLogger("rudiLog");
 
   /* the model */
   private DataModel model;

@@ -15,7 +15,8 @@ import javafx.event.Event;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is responsible for managing tabs:
@@ -28,7 +29,7 @@ import org.apache.log4j.Logger;
 public class TabStore {
 
   /** the logger of the TabStore */
-  static Logger log = Logger.getLogger("TabStore");
+  static Logger log = LoggerFactory.getLogger("TabStore");
 
   /** the underlying HBox */
   private final HBox tabBox;

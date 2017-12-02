@@ -9,7 +9,8 @@ import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.TabManagement.TabStore;
 import javafx.fxml.FXML;
 import javafx.scene.layout.HBox;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -18,7 +19,7 @@ import org.apache.log4j.Logger;
 public class EditorController {
 
   /* the logger */
-  static Logger log = Logger.getLogger("rudiLog");
+  static Logger log = LoggerFactory.getLogger("rudiLog");
 
   /* the model */
   private DataModel _model;
