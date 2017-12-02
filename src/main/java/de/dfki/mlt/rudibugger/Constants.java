@@ -11,10 +11,16 @@ package de.dfki.mlt.rudibugger;
  */
 public class Constants {
 
+  /* the standard ports for rudibugger / rudimant connection */
+  public static final int SERVER_PORT_RUDIBUGGER = 3665;
+  public static final int SERVER_PORT_RUDIMANT = 3664;
+
+  /* the standard values of some essential files and folders */
   public static String PATH_TO_RUDI_FILES = "src/main/rudi/";
   public static String COMPILE_FILE = "compile";
   public static String RUN_FILE = "run.sh";
 
+  /* used to mark and signalize the user's request of a new project */
   public static final int OVERWRITE_CHECK_CANCEL = 0;
   public static final int OVERWRITE_CHECK_CURRENT_WINDOW = 1;
   public static final int OVERWRITE_CHECK_NEW_WINDOW = 2;
@@ -35,4 +41,5 @@ public class Constants {
   public static final int FILE_IS_MAIN = 2;
   public static final int FILE_IS_WRAPPER = 3;
   public static final int IS_FOLDER = 9;
+
 }

@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This watch's one and only purpose is to check the folder containing .rudi
+ * This watch's one and only purpose is to check the folders containing .rudi
  * files for changes. If there are changes, a function to refresh the DataModel
  * is called.
  *
@@ -31,19 +31,13 @@ public class RudiFolderWatch {
 
   static Logger log = LoggerFactory.getLogger("rudiFolWatch");
 
-  /**
-   * the Thread in which the WatchService is run
-   */
+  /** the Thread in which the WatchService is run*/
   private volatile Thread watchingTread;
 
-  /**
-   * the corresponding WatchSercie
-   */
+  /** the corresponding WatchService */
   private WatchService _watchService;
 
-  /**
-   * the DataModel
-   */
+  /** the DataModel */
   private DataModel _model;
 
   /**

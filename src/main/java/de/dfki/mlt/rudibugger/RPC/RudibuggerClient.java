@@ -22,6 +22,10 @@ public class RudibuggerClient {
     client = new SimpleClient(portNumber);
   }
 
+  public void disconnect() throws IOException {
+    client.disconnect();
+  }
+
   public void setLoggingStatus(int ruleId, int what) {
     try {
       client.send(ruleId, what);

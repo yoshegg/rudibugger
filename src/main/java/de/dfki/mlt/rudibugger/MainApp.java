@@ -9,7 +9,6 @@ import de.dfki.mlt.rudibugger.Controller.EditorController;
 import de.dfki.mlt.rudibugger.Controller.MenuController;
 import de.dfki.mlt.rudibugger.Controller.SideBarController;
 import de.dfki.mlt.rudibugger.Controller.StatusBarController;
-import de.dfki.mlt.rudimant.agent.Agent;
 import java.nio.file.Files;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -32,17 +31,21 @@ public class MainApp extends Application {
   /** the logger */
   static Logger log = LoggerFactory.getLogger("mainLog");
 
-  static Agent localAgent = null;
-
   @Override
   public void start(Stage stage) throws Exception {
 
     log.info("Starting Rudibugger");
 
-    /* improve font rendering, caused by JavaFX bug */
+
+    /***************************************************************************
+     * GENERAL FIXES
+     **************************************************************************/
+
+    /* improve font rendering for RichTextFX, caused by JavaFX bug */
     /* https://github.com/FXMisc/RichTextFX/wiki/Known-Issues */
     System.setProperty("prism.lcdtext", "false");
     System.setProperty("prism.text", "t2k");
+
 
     /***************************************************************************
      * INITIALIZE CONTROLLERS AND FXMLs
@@ -138,11 +141,7 @@ public class MainApp extends Application {
     launch(args);
   }
 
-  public static void startDebugger(Agent agent) {
-    localAgent = agent;
-    launch(new String[0]);
-  }
-
+  /** method to correctly exit this JavaFX application */
   public static void exitRudibugger() {
     Platform.exit();
   }

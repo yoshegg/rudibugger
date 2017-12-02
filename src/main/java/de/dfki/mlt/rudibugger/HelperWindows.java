@@ -26,12 +26,8 @@ public final class HelperWindows {
   /** the logger */
   static Logger log = LoggerFactory.getLogger("HelperWin");
 
-  /**
-   * private constructor to obstruct instantiating an object of this utility
-   * class
-   */
-  private HelperWindows() {
-  }
+  /** private constructor: obstruct instantiating this utility class */
+  private HelperWindows() {}
 
   /**
    * This function asks the user what to do if there is already an open project.
@@ -75,7 +71,8 @@ public final class HelperWindows {
   }
 
   /**
-   * This function helps the user to specify a .yml project file.
+   * This function helps the user to specify a .yml project file by opening
+   * a FileChooser window.
    *
    * @param stage
    * @return
@@ -84,7 +81,7 @@ public final class HelperWindows {
     /* Defining the file chooser */
     log.debug("Preparing project chooser...");
     FileChooser chooser = new FileChooser();
-    chooser.setInitialDirectory(new File(System.getProperty("user.home"))); // TODO: get the last opened folder
+    chooser.setInitialDirectory(new File(System.getProperty("user.home")));
     chooser.getExtensionFilters().addAll(new FileChooser
             .ExtensionFilter("YAML files (*.yml)", "*.yml", "*.YML"));
     chooser.setTitle("Open Project...");

@@ -60,6 +60,7 @@ import org.yaml.snakeyaml.Yaml;
  */
 public class DataModel {
 
+
   /*****************************************************************************
    * SOME BASIC FIELDS
    ****************************************************************************/
@@ -126,6 +127,7 @@ public class DataModel {
     _recentProjects.add(0, projPath);
   }
 
+
   /*****************************************************************************
    * THE INITIALIZER METHODS & RESET METHOD
    ****************************************************************************/
@@ -161,7 +163,7 @@ public class DataModel {
     initRules();
     setProjectStatus(PROJECT_OPEN);
     log.info("Initializing done.");
-    connectToRudimant(6553, 6554);
+    connectToRudimant();
   }
 
   /**
@@ -305,8 +307,8 @@ public class DataModel {
   }
 
   /**
-   * This function adds a newly appeared file to the rudiList. Unfortunately it
-   * may be that this file has been modified externally and therefore is
+   * This function adds a newly appeared file to the rudiTreeView. Unfortunately
+   * it may be that this file has been modified externally and therefore is
    * recognized as ENTRY_CREATE first. Because of this true or false are
    * returned so that the logger may log correctly.
    *
@@ -316,6 +318,7 @@ public class DataModel {
   public boolean addRudiPath(Path file) {
     return rudiHierarchy.addFileToHierarchy(new RudiPath(file));
   }
+
 
   /*****************************************************************************
    * FILE MANAGEMENT (OPENING, SAVING etc.)
@@ -564,12 +567,22 @@ public class DataModel {
   public RudibuggerServer rs;
   public RudibuggerClient vonda;
 
-  public void connectToRudimant(int ownPort, int rudiPort) throws IOException {
+  private void connectToRudimant() throws IOException {
+    int rudibuggerPort = ((_configs.get("SERVER_RUDIBUGGER") == null)
+            ? SERVER_PORT_RUDIBUGGER : (int) _configs.get("SERVER_RUDIBUGGER"));
+    int rudimantPort = ((_configs.get("SERVER_RUDIMANT") == null)
+            ? SERVER_PORT_RUDIMANT : (int) _configs.get("SERVER_RUDIMANT"));
+
     rs = new RudibuggerServer(new RudibuggerAPI(this));
-    rs.startServer(ownPort);
-    log.debug("DebugServer has been started on port [" + ownPort + "].");
-    vonda = new RudibuggerClient(rudiPort);
-    log.debug("DebugClient has been started and looks for client "
-      + "on port [" + rudiPort + "].");
+    rs.startServer(rudibuggerPort);
+    log.debug("RudibuggerServer has been started "
+            + "on port [" + rudibuggerPort + "].");
+    vonda = new RudibuggerClient(rudimantPort);
+    log.debug("RudibuggerClient has been started and looks for rudimant "
+            + "(server) on port [" + rudimantPort + "].");
+  }
+
+  private void closeConnectionToRudimant() throws IOException {
+    vonda.disconnect();
   }
 }
