@@ -19,6 +19,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,6 @@ public class MainApp extends Application {
   public void start(Stage stage) throws Exception {
 
     log.info("Starting Rudibugger");
-
 
     /***************************************************************************
      * GENERAL FIXES

@@ -22,6 +22,10 @@ public class RudibuggerClient {
     client = new SimpleClient(portNumber);
   }
 
+  public boolean isConnected() {
+    return client.isConnected();
+  }
+
   public void disconnect() throws IOException {
     client.disconnect();
   }

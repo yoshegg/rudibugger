@@ -23,4 +23,8 @@ public class RudibuggerServer {
     server.startServer(port, "RudibuggerService");
   }
 
+  public void stopServer() {
+    server.stopServer();
+  }
+
 }

@@ -33,8 +33,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Stream;
 import javafx.animation.PauseTransition;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -284,6 +286,7 @@ public class DataModel {
     ruleModel = null;
     ruleLocWatch.shutDownListener();
     rudiFolderWatch.shutDownListener();
+    closeConnectionToRudimant();
     setRuleModelChangeStatus(RULE_MODEL_REMOVED);
     setProjectStatus(PROJECT_CLOSED);
   }
@@ -580,9 +583,38 @@ public class DataModel {
     vonda = new RudibuggerClient(rudimantPort);
     log.debug("RudibuggerClient has been started and looks for rudimant "
             + "(server) on port [" + rudimantPort + "].");
+    if (vonda.isConnected()) {
+      connectedToRudimantProperty().setValue(true);
+    }
   }
 
-  private void closeConnectionToRudimant() throws IOException {
-    vonda.disconnect();
+  private void closeConnectionToRudimant() {
+    try {
+      vonda.disconnect();
+    } catch (IOException e) {
+      log.error(e.toString());
+    }
+    rs.stopServer();
   }
+
+  public void printLog(int ruleId, boolean[] result) {
+    rudiLogOutput.setValue(Integer.toString(ruleId));
+  }
+
+  /******** Properties **********/
+
+  private final BooleanProperty connectedToRudimant
+          = new SimpleBooleanProperty(false);
+  public boolean getConnectedToRudimant() {
+    return connectedToRudimant.getValue();
+  }
+  public BooleanProperty connectedToRudimantProperty() {
+    return connectedToRudimant;
+  }
+
+  private final StringProperty rudiLogOutput = new SimpleStringProperty();
+  public StringProperty rudiLogOutputProperty() { return rudiLogOutput; }
+
+
+
 }

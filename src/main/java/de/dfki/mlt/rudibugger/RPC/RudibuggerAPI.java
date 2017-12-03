@@ -45,7 +45,7 @@ public class RudibuggerAPI {
       for (int i = 1; i < args.length; ++i) {
         result[i - 1] = Boolean.parseBoolean(args[i]);
       }
-      // _model.printLog(ruleId, result)
+      _model.printLog(ruleId, result);
     } catch (NumberFormatException ex) {
       log.error("Illegal RudibuggerService Call: "
               + "printLog can't work with parameters {}",
