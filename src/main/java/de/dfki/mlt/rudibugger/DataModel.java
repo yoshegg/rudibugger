@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Stream;
 import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -581,11 +582,8 @@ public class DataModel {
     log.debug("RudibuggerServer has been started "
             + "on port [" + rudibuggerPort + "].");
     vonda = new RudibuggerClient(rudimantPort);
-    log.debug("RudibuggerClient has been started and looks for rudimant "
+    log.debug("RudibuggerClient has been started and is looking for rudimant "
             + "(server) on port [" + rudimantPort + "].");
-    if (vonda.isConnected()) {
-      connectedToRudimantProperty().setValue(true);
-    }
   }
 
   private void closeConnectionToRudimant() {
@@ -598,7 +596,12 @@ public class DataModel {
   }
 
   public void printLog(int ruleId, boolean[] result) {
-    rudiLogOutput.setValue(Integer.toString(ruleId));
+    Platform.runLater(() -> {
+      if (!getConnectedToRudimant())
+        connectedToRudimantProperty().setValue(true);
+      rudiLogOutput.setValue(Integer.toString(ruleId));
+    });
+
   }
 
   /******** Properties **********/

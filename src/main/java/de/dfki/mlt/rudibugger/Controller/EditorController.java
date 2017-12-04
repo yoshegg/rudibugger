@@ -63,7 +63,7 @@ public class EditorController {
      */
     _model.connectedToRudimantProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal == true) {
-        System.out.println("rudimant is connected");
+        log.info("Rudimant successfully connected to rudibugger.");
 
         ruleLoggingListView = new ListView();
         ruleLoggingListView.setItems(ruleLoggingList);
