@@ -18,11 +18,15 @@ import de.dfki.mlt.rudibugger.TabManagement.FileAtPos;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
 import de.dfki.mlt.rudibugger.WatchServices.RudiFolderWatch;
 import de.dfki.mlt.rudibugger.WatchServices.RuleLocationWatch;
+import de.dfki.mlt.rudimant.agent.ColorLogger;
+import de.dfki.mlt.rudimant.agent.RuleLogger;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -595,11 +599,26 @@ public class DataModel {
     rs.stopServer();
   }
 
+  private RuleLogger rl;
+
   public void printLog(int ruleId, boolean[] result) {
+    if (rl == null) {
+      rl = new RuleLogger();
+      rl.setRootInfo(ruleModel.rootImport);
+      rl.setPrinter(new ColorLogger());
+      rl.resetLogging();
+    }
     Platform.runLater(() -> {
       if (!getConnectedToRudimant())
         connectedToRudimantProperty().setValue(true);
       rudiLogOutput.setValue(Integer.toString(ruleId));
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    PrintStream pri = new PrintStream(out);
+    PrintStream old = System.out;
+    System.setOut(pri);
+    rl.logAllRules();
+    rl.logRule(0, result);
+    System.setOut(old);
     });
 
   }
