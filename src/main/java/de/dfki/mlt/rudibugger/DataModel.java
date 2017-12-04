@@ -10,6 +10,7 @@ import static de.dfki.mlt.rudimant.common.Constants.*;
 import static de.dfki.mlt.rudibugger.Helper.*;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiFolderHierarchy;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
+import de.dfki.mlt.rudibugger.RPC.JavaFXLogger;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerServer;
@@ -605,20 +606,14 @@ public class DataModel {
     if (rl == null) {
       rl = new RuleLogger();
       rl.setRootInfo(ruleModel.rootImport);
-      rl.setPrinter(new ColorLogger());
+      rl.setPrinter(new JavaFXLogger());
       rl.resetLogging();
     }
     Platform.runLater(() -> {
       if (!getConnectedToRudimant())
         connectedToRudimantProperty().setValue(true);
       rudiLogOutput.setValue(Integer.toString(ruleId));
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    PrintStream pri = new PrintStream(out);
-    PrintStream old = System.out;
-    System.setOut(pri);
-    rl.logAllRules();
-    rl.logRule(0, result);
-    System.setOut(old);
+      rl.logRule(0, result);
     });
 
   }
