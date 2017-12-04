@@ -32,7 +32,7 @@ public class RudibuggerClient {
 
   public void setLoggingStatus(int ruleId, int what) {
     try {
-      client.send(ruleId, what);
+      client.send(Integer.toString(ruleId), Integer.toString(what));
     } catch (IOException e) {
       log.error("Could not set logging status of rule " + ruleId + "\n" + e);
     }
