@@ -27,7 +27,7 @@ public class LogData {
     }
   }
 
-  public ArrayList<StringPart> text;
+  public ArrayList<StringPart> text = new ArrayList<>();
 
   public void addStringPart(String content, int colour) {
     text.add(new StringPart(content, colour));
