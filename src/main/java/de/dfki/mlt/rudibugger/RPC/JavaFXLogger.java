@@ -5,21 +5,27 @@
  */
 package de.dfki.mlt.rudibugger.RPC;
 
-import de.dfki.mlt.rudimant.agent.DefaultLogger;
+import de.dfki.mlt.rudimant.common.DefaultLogger;
+import static de.dfki.mlt.rudibugger.RPC.LogData.*;
+import java.util.ArrayList;
 
 /**
  *
- * @author christophe
+ * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class JavaFXLogger extends DefaultLogger {
 
-  private static final String RED="\033[31m";
-  private static final String GREEN="\033[32m";
-  private static final String GRAY="\033[37m";
-  private static final String RES="\033[m";
+  private ArrayList<LogData> data
+    = new ArrayList<LogData>() {{add(new LogData());}};
 
-  private void printInColor(String s, String color) {
-    print(color + s + RES);
+  private void printInColor(String s, int color) {
+    data.get(0).addStringPart(s, color);
+  }
+
+  public LogData popContent() {
+    LogData returnVal = data.remove(0);
+    data.add(new LogData());
+    return returnVal;
   }
 
   @Override
@@ -31,4 +37,5 @@ public class JavaFXLogger extends DefaultLogger {
   protected void printResult(String label, boolean value) {
     printInColor(label + ": ", value ? GREEN : RED);
   }
+
 }

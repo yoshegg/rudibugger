@@ -6,6 +6,8 @@
 package de.dfki.mlt.rudibugger.Controller;
 
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.RPC.LogData;
+import de.dfki.mlt.rudibugger.RPC.LogDataCell;
 import de.dfki.mlt.rudibugger.TabManagement.TabStore;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -66,6 +68,7 @@ public class EditorController {
         log.info("Rudimant successfully connected to rudibugger.");
 
         ruleLoggingListView = new ListView();
+        ruleLoggingListView.setCellFactory(value -> new LogDataCell());
         ruleLoggingListView.setItems(ruleLoggingList);
 
         AnchorPane ap = new AnchorPane();
@@ -108,7 +111,7 @@ public class EditorController {
   private ListView ruleLoggingListView;
 
   /** The underlying ObservableList of the ruleLoggingList */
-  private final ObservableList ruleLoggingList
+  private final ObservableList<LogData> ruleLoggingList
           = FXCollections.observableArrayList();
 
   /** The HBox containing the tabPane(s) */

@@ -11,6 +11,7 @@ import static de.dfki.mlt.rudibugger.Helper.*;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiFolderHierarchy;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
 import de.dfki.mlt.rudibugger.RPC.JavaFXLogger;
+import de.dfki.mlt.rudibugger.RPC.LogData;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerServer;
@@ -19,15 +20,12 @@ import de.dfki.mlt.rudibugger.TabManagement.FileAtPos;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
 import de.dfki.mlt.rudibugger.WatchServices.RudiFolderWatch;
 import de.dfki.mlt.rudibugger.WatchServices.RuleLocationWatch;
-import de.dfki.mlt.rudimant.agent.ColorLogger;
-import de.dfki.mlt.rudimant.agent.RuleLogger;
-import java.io.ByteArrayOutputStream;
+import de.dfki.mlt.rudimant.common.RuleLogger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -601,19 +599,27 @@ public class DataModel {
   }
 
   private RuleLogger rl;
+  private JavaFXLogger jfl;
+
+  private void initializeRuleLogger() {
+    rl = new RuleLogger();
+    rl.setRootInfo(ruleModel.rootImport);
+    jfl = new JavaFXLogger();
+    rl.setPrinter(jfl);
+    rl.resetLogging();
+  }
 
   public void printLog(int ruleId, boolean[] result) {
+    /* Lazy initializing */
     if (rl == null) {
-      rl = new RuleLogger();
-      rl.setRootInfo(ruleModel.rootImport);
-      rl.setPrinter(new JavaFXLogger());
-      rl.resetLogging();
+      initializeRuleLogger();
     }
+
     Platform.runLater(() -> {
       if (!getConnectedToRudimant())
         connectedToRudimantProperty().setValue(true);
-      rudiLogOutput.setValue(Integer.toString(ruleId));
-      rl.logRule(0, result);
+      rl.logRule(ruleId, result);
+      rudiLogOutput.setValue(jfl.popContent());
     });
 
   }
@@ -629,9 +635,10 @@ public class DataModel {
     return connectedToRudimant;
   }
 
-  private final StringProperty rudiLogOutput = new SimpleStringProperty();
-  public StringProperty rudiLogOutputProperty() { return rudiLogOutput; }
-
-
+  private final ObjectProperty<LogData> rudiLogOutput
+    = new SimpleObjectProperty<>();
+  public ObjectProperty<LogData> rudiLogOutputProperty() {
+    return rudiLogOutput;
+  }
 
 }
