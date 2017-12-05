@@ -34,9 +34,7 @@ public class LogDataCell extends ListCell<LogData> {
       setText(null);
       setGraphic(null);
     } else {
-      Text text = new Text("Test");
-      text.setFill(Color.RED);
-      TextFlow textFlow = new TextFlow(text);
+      TextFlow textFlow = new TextFlow();
       for (StringPart x : item.text) {
         Text t = new Text(x.content);
         t.setFill(colourMap.get(x.colour));
