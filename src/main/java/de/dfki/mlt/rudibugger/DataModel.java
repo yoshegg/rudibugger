@@ -606,9 +606,7 @@ public class DataModel {
     rl.setRootInfo(ruleModel.rootImport);
     jfl = new JavaFXLogger();
     rl.setPrinter(jfl);
-//    rl.resetLogging();
-//    rl.logAllRules();
-    rl.logRule(0, STATE_ALWAYS);
+    rl.logAllRules();
   }
 
   public void printLog(int ruleId, boolean[] result) {

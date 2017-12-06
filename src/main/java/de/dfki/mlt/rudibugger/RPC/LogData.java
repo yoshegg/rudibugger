@@ -16,6 +16,7 @@ public class LogData {
   protected static final int RED = 1;
   protected static final int GREEN = 2;
   protected static final int GRAY = 3;
+  protected static final int BLACK = 0;
 
   protected class StringPart {
     public String content;

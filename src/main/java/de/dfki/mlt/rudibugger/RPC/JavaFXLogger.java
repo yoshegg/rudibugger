@@ -30,6 +30,12 @@ public class JavaFXLogger extends DefaultLogger {
   public boolean pendingLoggingData() {
     return ! data.isEmpty();
   }
+  
+  @Override
+  protected void print(String s) {
+    if (s != "\n") 
+      data.get(0).addStringPart(s, BLACK);
+  }
 
   @Override
   protected void printTerm(String term, boolean value, boolean shortCut) {
