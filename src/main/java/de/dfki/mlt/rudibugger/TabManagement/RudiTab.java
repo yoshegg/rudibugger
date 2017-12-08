@@ -73,7 +73,7 @@ public class RudiTab extends Tab {
 
     /* set css */
     try {
-      content.getStylesheets().add("/styles/java-keywords.css");
+      content.getStylesheets().add("/styles/rudi-keywords.css");
     } catch (NullPointerException e) {
       log.error("The provided css file could not be found.");
     }
