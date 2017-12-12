@@ -15,17 +15,26 @@ import java.util.ArrayList;
  */
 public class JavaFXLogger extends DefaultLogger {
 
-  private ArrayList<LogData> data
-    = new ArrayList<LogData>() {{add(new LogData());}};
+  private ArrayList<LogData> data = new ArrayList<LogData>();
 
   private void printInColor(String s, int color) {
+    if (data.isEmpty()) data.add(new LogData());
     data.get(0).addStringPart(s, color);
   }
 
   public LogData popContent() {
     LogData returnVal = data.remove(0);
-    data.add(new LogData());
     return returnVal;
+  }
+  
+  public boolean pendingLoggingData() {
+    return ! data.isEmpty();
+  }
+  
+  @Override
+  protected void print(String s) {
+    if (s != "\n") 
+      data.get(0).addStringPart(s, BLACK);
   }
 
   @Override

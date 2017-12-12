@@ -27,7 +27,7 @@ public class RudibuggerAPI {
 
   public void parseCommand(String[] args) {
     String command = args[0];
-    String[] parameters = Arrays.copyOfRange(args, 1, args.length-1);
+    String[] parameters = Arrays.copyOfRange(args, 1, args.length);
     switch (command) {
       case "printLog":
         printLog(parameters);

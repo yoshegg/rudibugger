@@ -606,7 +606,7 @@ public class DataModel {
     rl.setRootInfo(ruleModel.rootImport);
     jfl = new JavaFXLogger();
     rl.setPrinter(jfl);
-    rl.resetLogging();
+    rl.logAllRules();
   }
 
   public void printLog(int ruleId, boolean[] result) {
@@ -619,7 +619,8 @@ public class DataModel {
       if (!getConnectedToRudimant())
         connectedToRudimantProperty().setValue(true);
       rl.logRule(ruleId, result);
-      rudiLogOutput.setValue(jfl.popContent());
+      if (jfl.pendingLoggingData())
+        rudiLogOutput.setValue(jfl.popContent());
     });
 
   }

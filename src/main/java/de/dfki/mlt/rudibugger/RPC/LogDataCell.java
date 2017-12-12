@@ -24,6 +24,7 @@ public class LogDataCell extends ListCell<LogData> {
       put(RED, Color.RED);
       put(GREEN, Color.GREEN);
       put(GRAY, Color.GRAY);
+      put(BLACK, Color.BLACK);
     }};
 
   @Override
