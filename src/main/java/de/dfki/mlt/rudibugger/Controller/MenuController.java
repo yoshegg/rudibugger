@@ -328,12 +328,4 @@ public class MenuController {
     log.warn("\"Run\" is not implemented yet.");
   }
 
-
-
-  /* for testing purposes: open dipal */
-  @FXML
-  private void openDipal(ActionEvent event)
-          throws FileNotFoundException, IOException, IllegalAccessException {
-    checkForOpenProject(Paths.get("/home/christophe/projects/dialoguemanager/dipalCompile.yml"));
-  }
 }
