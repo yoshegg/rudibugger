@@ -217,7 +217,7 @@ public class MenuController {
   @FXML
   private void newRudiFileAction(ActionEvent event)
           throws FileNotFoundException {
-    _model.requestTabOfFile(null);
+    _model.openFile(null);
   }
 
 

@@ -34,9 +34,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -47,7 +50,9 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
@@ -81,7 +86,7 @@ public class DataModel {
   public Stage stageX;
 
   /** the global configuration directory */
-  public Path globalConfig = Paths.get(System.getProperty("user.home"),
+  public Path globalConfigPath = Paths.get(System.getProperty("user.home"),
           ".config", "rudibugger");
 
 
@@ -89,21 +94,39 @@ public class DataModel {
    * GLOBAL KNOWLEDGE
    ****************************************************************************/
 
+  public ObservableMap<String, String> _globalConfigs;
+  private Path _globalConfigurationFile;
+
   public ObservableList<String> _recentProjects;
   private Path _recentProjectsFile;
 
   /** initialize global knowledge */
   public void initializeGlobalKnowledge() {
 
+    /* get global configuration file */
+    ObservableMap<String, String> globalConfigs;
+    _globalConfigurationFile = globalConfigPath.resolve("rudibuggerConfiguration.yml");
+    try {
+      Map tempMap = (Map<String, String>) yaml.load(
+              new FileInputStream(_globalConfigurationFile.toFile()));
+      globalConfigs = FXCollections.observableMap(tempMap);
+    } catch (FileNotFoundException ex) {
+      log.error("No configuration file has been found. Creating a new one...");
+      globalConfigs = createGlobalConfigFile();
+    }
+    _globalConfigs = globalConfigs;
+
+
     /* get recent projects */
     ObservableList<String> recentProjects;
-    _recentProjectsFile = globalConfig.resolve("recentProjects.yml");
+    _recentProjectsFile = globalConfigPath.resolve("recentProjects.yml");
     try {
       ArrayList tempList = (ArrayList) yaml.load(
               new FileInputStream(_recentProjectsFile.toFile()));
       recentProjects = FXCollections.observableArrayList(tempList);
     } catch (FileNotFoundException e) {
-      log.error("Error while reading in recent projects");
+      log.error("Error while reading in recent projects. "
+              + "Maybe the file does not exist (yet)?");
       recentProjects = FXCollections.observableArrayList();
     } catch (NullPointerException e) {
       log.debug("No recent projects could be found");
@@ -112,15 +135,45 @@ public class DataModel {
     _recentProjects = recentProjects;
   }
 
+  /** create global configuration file */
+  private ObservableMap<String, String> createGlobalConfigFile() {
+    HashMap tempConfig = new HashMap<String, String>() {{
+      put("editor", "rudibugger");
+      put("openFileWith", null);
+      put("openRuleWith", null);
+    }};
+
+    try {
+        FileWriter writer = new FileWriter(_globalConfigurationFile.toFile());
+        yaml.dump(tempConfig, writer);
+      } catch (IOException e) {
+        log.error("Could not create global configuration file.");
+      }
+
+    return FXCollections.observableMap(tempConfig);
+  }
+
   /** keep global knowledge up-to-date */
   public void keepGlobalKnowledgeUpToDate() {
+    /* keep recent projects list updated */
     _recentProjects.addListener((ListChangeListener.Change<? extends String> c) -> {
       yaml.dump(_recentProjects);
       try {
         FileWriter writer = new FileWriter(_recentProjectsFile.toFile());
         yaml.dump(_recentProjects, writer);
       } catch (IOException e) {
-        log.error("could not update recent projects history.");
+        log.error("Could not update recent projects history.");
+      }
+    });
+
+    /* keep global settings updated */
+    _globalConfigs.addListener((MapChangeListener.Change<? extends String, ? extends String> ml) -> {
+      yaml.dump(_recentProjects);
+      try {
+        FileWriter writer = new FileWriter(_globalConfigurationFile.toFile());
+        yaml.dump(_recentProjects, writer);
+      } catch (IOException e) {
+        log.error("Could not update recent projects history.");
       }
     });
   }
@@ -332,12 +385,91 @@ public class DataModel {
    ****************************************************************************/
 
   /**
+   * This function needs to be called when a given file should be opened.
+   * Depending on a specific setting, it will be opened in a rudibugger tab or
+   * in an external application.
+   *
+   * @param file the wanted file
+   */
+  public void openFile(Path file) {
+    switch (_globalConfigs.get("editor")) {
+      case "rudibugger":
+        requestTabOfFile(file);
+        return;
+      case "emacs":
+        try {
+          Runtime.getRuntime().exec("emacs " + file);
+          return;
+        } catch (IOException ex) {
+          log.error("Can't use emacs to open file. ");
+          break;
+        }
+      case "custom":
+        try {
+          Runtime.getRuntime().exec(_globalConfigs.get("openFileWith") + " "
+                  + file);
+          return;
+        } catch (IOException ex) {
+          log.error("Can't use custom editor to open file. ");
+          break;
+        }
+      default:
+        break;
+    }
+    log.info("No valid file editor setting has been found. Using rudibugger.");
+        requestTabOfFile(file);
+  }
+
+  /**
+   * This function needs to be called when a given rule should be opened.
+   * Depending on a specific setting, it will be opened in a rudibugger tab or
+   * in an external application
+   *
+   * @param file the wanted file
+   * @param position the line of the wanted rule
+   */
+  public void openRule(Path file, Integer position) {
+    switch (_globalConfigs.get("editor")) {
+      case "rudibugger":
+        requestTabOfRule(file, position);
+        break;
+      case "emacs":
+        try {
+          Process p = Runtime.getRuntime().exec("emacsclient +" + position.toString() + " "
+                  + file);
+          if (0 != p.exitValue()) {
+            throw new IOException();
+          }
+          return;
+        } catch (IllegalThreadStateException | IOException ex) {
+          log.error("Can't use emacs to open file. Did you start the "
+                  + "server (M-x server-start) in emacs?");
+          break;
+        }
+      case "custom":
+        try {
+          Runtime.getRuntime().exec(_globalConfigs.get("openFileWith") + " "
+                  + file + " " + position.toString());
+          return;
+        } catch (IOException ex) {
+          log.error("Can't use custom editor to open file. ");
+          break;
+        }
+      default:
+        break;
+    }
+    log.info("No valid file editor setting has been found. Using rudibugger.");
+    requestTabOfRule(file, position);
+  }
+
+
+  /**
    * This function needs to be called when a new tab showing a certain file
    * should be opened.
    *
    * @param file the wanted file
    */
-  public void requestTabOfFile(Path file) {
+  private void requestTabOfFile(Path file) {
     requestTabOfRule(file, 1);
   }
 
@@ -348,7 +480,7 @@ public class DataModel {
    * @param file the wanted file
    * @param position the line of the wanted rule
    */
-  public void requestTabOfRule(Path file, Integer position) {
+  private void requestTabOfRule(Path file, Integer position) {
     FileAtPos temp = new FileAtPos(file, position);
     requestedFile.setValue(temp);
   }
@@ -406,7 +538,7 @@ public class DataModel {
       }
 
       /* open a new tab */
-      requestTabOfFile(file);
+      openFile(file);
 
       log.debug("File " + file.getFileName() + " has been saved.");
     }

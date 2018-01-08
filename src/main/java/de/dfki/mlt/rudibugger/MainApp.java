@@ -97,9 +97,9 @@ public class MainApp extends Application {
     DataModel model = new DataModel();
 
     /* create a global config folder if there is none */
-    if (! Files.exists(model.globalConfig)) {
-      model.globalConfig.toFile().mkdirs();
-      Files.createFile(model.globalConfig.resolve("recentProjects.yml"));
+    if (! Files.exists(model.globalConfigPath)) {
+      model.globalConfigPath.toFile().mkdirs();
+      Files.createFile(model.globalConfigPath.resolve("recentProjects.yml"));
       log.info("Created global config folder (first start of rudibugger");
     }
 

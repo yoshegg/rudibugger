@@ -58,7 +58,7 @@ public class RuleContextMenu extends ContextMenu {
     MenuItem openRule = new MenuItem("Open rule (line "
             + _item.getLine() + ")");
     openRule.setOnAction((ActionEvent e) -> {
-      _item._model.requestTabOfRule(_item.getSourceFile(),
+      _item._model.openRule(_item.getSourceFile(),
               _item.getLine());
     });
     SeparatorMenuItem sep = new SeparatorMenuItem();

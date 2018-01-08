@@ -105,7 +105,7 @@ public class RuleTreeItem extends BasicTreeItem {
     /* open Rule if clicked on label */
     _hb.getChildren().get(1).setOnMouseClicked((MouseEvent e) -> {
       if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY) {
-        _model.requestTabOfRule(_file, this.getLine());
+        _model.openRule(_file, this.getLine());
       }
     });
   }

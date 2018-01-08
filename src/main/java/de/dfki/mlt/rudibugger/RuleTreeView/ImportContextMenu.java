@@ -48,7 +48,7 @@ public class ImportContextMenu extends ContextMenu {
     MenuItem openFile = new MenuItem("Open "
             + _item.getFile().getFileName().toString());
     openFile.setOnAction((ActionEvent e) -> {
-      _item._model.requestTabOfFile(_item.getFile());
+      _item._model.openFile(_item.getFile());
     });
 
     SeparatorMenuItem sep = new SeparatorMenuItem();
