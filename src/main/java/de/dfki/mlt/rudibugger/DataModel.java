@@ -6,6 +6,7 @@
 package de.dfki.mlt.rudibugger;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.Controller.SettingsController;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import static de.dfki.mlt.rudibugger.Helper.*;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiFolderHierarchy;
@@ -55,8 +56,12 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.TreeItem;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.slf4j.Logger;
@@ -168,10 +173,10 @@ public class DataModel {
 
     /* keep global settings updated */
     _globalConfigs.addListener((MapChangeListener.Change<? extends String, ? extends String> ml) -> {
-      yaml.dump(_recentProjects);
+      yaml.dump(_globalConfigs);
       try {
         FileWriter writer = new FileWriter(_globalConfigurationFile.toFile());
-        yaml.dump(_recentProjects, writer);
+        yaml.dump(_globalConfigs, writer);
       } catch (IOException e) {
         log.error("Could not update recent projects history.");
       }
@@ -696,6 +701,32 @@ public class DataModel {
 
   public void createNewProject() {
     log.info("Not implemented yet.");
+  }
+
+  public void openSettingsDialog() {
+    try {
+      /* Load the fxml file and create a new stage for the settings dialog */
+      FXMLLoader loader = new FXMLLoader(getClass()
+              .getResource("/fxml/settings.fxml"));
+      AnchorPane page = (AnchorPane) loader.load();
+      Stage settingsStage = new Stage();
+      settingsStage.setTitle("Settings");
+      settingsStage.initModality(Modality.WINDOW_MODAL);
+      settingsStage.initOwner(stageX);
+      Scene scene = new Scene(page);
+      settingsStage.setScene(scene);
+
+      /* Set the controller */
+      SettingsController controller = loader.getController();
+      controller.initModel(this);
+      controller.setDialogStage(settingsStage);
+
+      /* show the dialog */
+      settingsStage.show();
+
+    } catch (IOException e) {
+      log.error(e.toString());
+    }
   }
 
 

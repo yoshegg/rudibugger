@@ -310,6 +310,13 @@ public class MenuController {
   }
 
 
+  /********* Tools *********/
+  @FXML
+  private void openSettingsDialog(ActionEvent event) {
+    _model.openSettingsDialog();
+  }
+
+
 
   /*****************************************************************************
    * Button actions
