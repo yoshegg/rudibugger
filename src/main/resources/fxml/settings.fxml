@@ -4,13 +4,13 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111" fx:controller="de.dfki.mlt.rudibugger.Controller.SettingsController">
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.Controller.SettingsController">
    <children>
       <Accordion prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <panes>
@@ -20,9 +20,12 @@
                      <children>
                         <VBox prefHeight="321.0" prefWidth="598.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <RadioButton fx:id="rudibuggerEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="rudibugger (default)" />
-                              <RadioButton fx:id="emacsEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="emacs" />
-                              <RadioButton fx:id="customEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="Custom editor" />
+                              <RadioButton fx:id="rudibuggerEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="rudibugger (default)">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="editorSetting" />
+                                 </toggleGroup></RadioButton>
+                              <RadioButton fx:id="emacsEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="emacs" toggleGroup="$editorSetting" />
+                              <RadioButton fx:id="customEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="Custom editor" toggleGroup="$editorSetting" />
                               <VBox fx:id="customTextFields" disable="true" prefHeight="200.0" prefWidth="100.0">
                                  <children>
                                     <HBox alignment="CENTER_LEFT" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" spacing="5.0">
@@ -32,7 +35,7 @@
                                                 <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="File editor" />
                                              </children>
                                           </HBox>
-                                          <TextField prefHeight="26.0" prefWidth="469.0" HBox.hgrow="ALWAYS" />
+                                          <TextField fx:id="customFileEditor" prefHeight="26.0" prefWidth="469.0" promptText="enter command using %file" HBox.hgrow="ALWAYS" />
                                        </children>
                                     </HBox>
                                     <HBox alignment="CENTER_LEFT" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" spacing="5.0">
@@ -42,7 +45,7 @@
                                                 <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Rule editor" />
                                              </children>
                                           </HBox>
-                                          <TextField HBox.hgrow="ALWAYS" />
+                                          <TextField fx:id="customRuleEditor" promptText="enter command using %file and %line" HBox.hgrow="ALWAYS" />
                                        </children>
                                     </HBox>
                                  </children>

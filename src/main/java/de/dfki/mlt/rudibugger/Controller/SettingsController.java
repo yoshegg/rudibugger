@@ -7,13 +7,11 @@ package de.dfki.mlt.rudibugger.Controller;
  */
 
 import de.dfki.mlt.rudibugger.DataModel;
-import java.net.URL;
-import java.util.ResourceBundle;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -38,6 +36,7 @@ public class SettingsController {
   public void setDialogStage(Stage dialogStage) {
     this._settingsStage = dialogStage;
   }
+
   /**
    * Initializes the controller class.
    */
@@ -47,28 +46,17 @@ public class SettingsController {
     }
     this._model = model;
 
-    /* define editor selection logic */
-    // TODO: Selection check is ugly
-    ToggleGroup editorGroup = new ToggleGroup();
+    /* define userData */
     rudibuggerEditor.setUserData("rudibugger");
-    rudibuggerEditor.setToggleGroup(editorGroup);
-    if (rudibuggerEditor.getUserData().equals(_model._globalConfigs.get("editor"))) {
-      rudibuggerEditor.setSelected(true);
-    }
     emacsEditor.setUserData("emacs");
-    emacsEditor.setToggleGroup(editorGroup);
-    if (emacsEditor.getUserData().equals(_model._globalConfigs.get("editor"))) {
-      emacsEditor.setSelected(true);
-    }
     customEditor.setUserData("custom");
-    customEditor.setToggleGroup(editorGroup);
-    if (customEditor.getUserData().equals(_model._globalConfigs.get("editor"))) {
-      customEditor.setSelected(true);
-    }
 
+    /* define custom commands (if any) */
+    customFileEditor.setText(_model._globalConfigs.get("openFileWith"));
+    customRuleEditor.setText(_model._globalConfigs.get("openRuleWith"));
 
-    /* set the listener */
-    editorGroup.selectedToggleProperty().addListener((cl, ot, nt) -> {
+    /* set the listeners */
+    editorSetting.selectedToggleProperty().addListener((cl, ot, nt) -> {
       String current = (String) nt.getUserData();
       switch (current) {
         case "rudibugger":
@@ -82,17 +70,32 @@ public class SettingsController {
         case "custom":
           _model._globalConfigs.put("editor", "custom");
           customTextFields.setDisable(false);
-          // TODO
           break;
       }
-
     });
+    customFileEditor.textProperty().addListener((ob, ov, nv) -> {
+      _model._globalConfigs.put("openFileWith", nv);
+    });
+    customRuleEditor.textProperty().addListener((ob, ov, nv) -> {
+      _model._globalConfigs.put("openRuleWith", nv);
+    });
+
+    /* select current editor */
+    for (Toggle x : editorSetting.getToggles()) {
+      if (((RadioButton) x).getUserData()
+              .equals(_model._globalConfigs.get("editor"))) {
+        x.setSelected(true);
+      }
+    }
 
   }
 
   /*****************************************************************************
    * The different GUI elements *
    ****************************************************************************/
+
+  @FXML
+  private ToggleGroup editorSetting;
 
   @FXML
   private RadioButton rudibuggerEditor;
@@ -105,4 +108,10 @@ public class SettingsController {
 
   @FXML
   private VBox customTextFields;
+
+  @FXML
+  private TextField customFileEditor;
+
+  @FXML
+  private TextField customRuleEditor;
 }

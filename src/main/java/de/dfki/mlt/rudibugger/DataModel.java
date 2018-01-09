@@ -144,8 +144,8 @@ public class DataModel {
   private ObservableMap<String, String> createGlobalConfigFile() {
     HashMap tempConfig = new HashMap<String, String>() {{
       put("editor", "rudibugger");
-      put("openFileWith", null);
-      put("openRuleWith", null);
+      put("openFileWith", "");
+      put("openRuleWith", "");
     }};
 
     try {
@@ -411,8 +411,9 @@ public class DataModel {
         }
       case "custom":
         try {
-          Runtime.getRuntime().exec(_globalConfigs.get("openFileWith") + " "
-                  + file);
+          String cmd = _globalConfigs.get("openFileWith")
+                  .replaceAll("%file", file.toString());
+          Runtime.getRuntime().exec(cmd);
           return;
         } catch (IOException ex) {
           log.error("Can't use custom editor to open file. ");
@@ -453,8 +454,10 @@ public class DataModel {
         }
       case "custom":
         try {
-          Runtime.getRuntime().exec(_globalConfigs.get("openFileWith") + " "
-                  + file + " " + position.toString());
+          String cmd = _globalConfigs.get("openRuleWith")
+                  .replaceAll("%file", file.toString())
+                  .replaceAll("%line", position.toString());
+          Runtime.getRuntime().exec(cmd);
           return;
         } catch (IOException ex) {
           log.error("Can't use custom editor to open file. ");
