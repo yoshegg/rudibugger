@@ -6,6 +6,8 @@
 package de.dfki.mlt.rudibugger.RPC;
 
 import java.util.ArrayList;
+import java.util.Date;
+import javafx.beans.property.SimpleObjectProperty;
 
 /**
  *
@@ -18,7 +20,7 @@ public class LogData {
   protected static final int GRAY = 3;
   protected static final int BLACK = 0;
 
-  protected class StringPart {
+  public class StringPart {
     public String content;
     public int colour;
 
@@ -27,12 +29,24 @@ public class LogData {
       this.colour = colour;
     }
   }
+  /** the label of this LogData */
+  public SimpleObjectProperty<StringPart> label
+          = new SimpleObjectProperty<>();
 
-  public ArrayList<StringPart> text = new ArrayList<>();
+  /** the evaluated data of this LogData */
+  public SimpleObjectProperty<ArrayList<StringPart>> evaluated
+          = new SimpleObjectProperty<>(new ArrayList<>());
+
+  /** the timestamp of this LogData */
+  public SimpleObjectProperty<Date> timestamp
+          = new SimpleObjectProperty<>(new Date());
 
   public void addStringPart(String content, int colour) {
-    text.add(new StringPart(content, colour));
+    if (label.getValue() == null) {
+      label.setValue(new StringPart(content, colour));
+    } else {
+      evaluated.getValue().add(new StringPart(content, colour));
+    }
   }
-
 
 }

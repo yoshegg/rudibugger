@@ -6,15 +6,21 @@
 package de.dfki.mlt.rudibugger.Controller;
 
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.RPC.EvaluatedCellFactory;
+import de.dfki.mlt.rudibugger.RPC.LabelCellFactory;
 import de.dfki.mlt.rudibugger.RPC.LogData;
-import de.dfki.mlt.rudibugger.RPC.LogDataCell;
+import de.dfki.mlt.rudibugger.RPC.LogData.StringPart;
+import de.dfki.mlt.rudibugger.RPC.TimestampCellFactory;
 import de.dfki.mlt.rudibugger.TabManagement.TabStore;
+import java.util.ArrayList;
+import java.util.Date;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
@@ -67,17 +73,38 @@ public class EditorController {
       if (newVal == true) {
         log.info("Rudimant successfully connected to rudibugger.");
 
-        ruleLoggingListView = new ListView();
-        ruleLoggingListView.setCellFactory(value -> new LogDataCell());
-        ruleLoggingListView.setItems(ruleLoggingList);
+        /* create new TableView */
+        ruleLoggingTableView = new TableView();
+
+        /* define columns */
+        TableColumn<LogData, StringPart> labelColumn = new TableColumn<>();
+        labelColumn.setText("Label");
+        TableColumn<LogData, ArrayList<StringPart>> evaluatedColumn = new TableColumn<>();
+        evaluatedColumn.setText("Evaluated");
+        TableColumn<LogData, Date> timeColumn = new TableColumn<>();
+        timeColumn.setText("Time");
+        ruleLoggingTableView.getColumns().addAll(labelColumn, evaluatedColumn, timeColumn);
+
+        /* setCellValueFactories */
+        labelColumn.setCellValueFactory(value -> value.getValue().label);
+        evaluatedColumn.setCellValueFactory(value -> value.getValue().evaluated);
+        timeColumn.setCellValueFactory(value -> value.getValue().timestamp);
+
+        /* setCellFactories */
+        labelColumn.setCellFactory(value -> new LabelCellFactory());
+        evaluatedColumn.setCellFactory(value -> new EvaluatedCellFactory());
+        timeColumn.setCellFactory(value -> new TimestampCellFactory());
+
+        /* set items of TableView */
+        ruleLoggingTableView.setItems(ruleLoggingList);
 
         AnchorPane ap = new AnchorPane();
         editorSplitPane.getItems().add(1, ap);
-        AnchorPane.setTopAnchor(ruleLoggingListView, 0.0);
-        AnchorPane.setRightAnchor(ruleLoggingListView, 0.0);
-        AnchorPane.setLeftAnchor(ruleLoggingListView, 0.0);
-        AnchorPane.setBottomAnchor(ruleLoggingListView, 0.0);
-        ap.getChildren().add(ruleLoggingListView);
+        AnchorPane.setTopAnchor(ruleLoggingTableView, 0.0);
+        AnchorPane.setRightAnchor(ruleLoggingTableView, 0.0);
+        AnchorPane.setLeftAnchor(ruleLoggingTableView, 0.0);
+        AnchorPane.setBottomAnchor(ruleLoggingTableView, 0.0);
+        ap.getChildren().add(ruleLoggingTableView);
         editorSplitPane.setDividerPositions(0.5);
 
       } else {
@@ -108,7 +135,7 @@ public class EditorController {
    ****************************************************************************/
 
   /** ListView for ruleLogging */
-  private ListView ruleLoggingListView;
+  private TableView ruleLoggingTableView;
 
   /** The underlying ObservableList of the ruleLoggingList */
   private final ObservableList<LogData> ruleLoggingList
