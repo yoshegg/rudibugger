@@ -61,14 +61,17 @@ public class SettingsController {
       switch (current) {
         case "rudibugger":
           _model._globalConfigs.put("editor", "rudibugger");
+          _model.closeEmacs(true);
           customTextFields.setDisable(true);
           break;
         case "emacs":
           _model._globalConfigs.put("editor", "emacs");
+          _model.startEmacsConnection("emacs");
           customTextFields.setDisable(true);
           break;
         case "custom":
           _model._globalConfigs.put("editor", "custom");
+          _model.closeEmacs(true);
           customTextFields.setDisable(false);
           break;
       }

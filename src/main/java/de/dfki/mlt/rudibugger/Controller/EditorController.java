@@ -66,7 +66,7 @@ public class EditorController {
     _model.selectedTabProperty().bindBidirectional(
             tabStore.currentTabProperty());
 
-    /* this listener adds a ListView to the editorSplitPane if connection to
+    /* this listener adds a TableView to the editorSplitPane if connection to
      * rudimant has been established.
      */
     _model.connectedToRudimantProperty().addListener((arg, oldVal, newVal) -> {
