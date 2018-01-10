@@ -6,6 +6,7 @@
 package de.dfki.mlt.rudibugger.RPC;
 
 import static de.dfki.mlt.rudibugger.RPC.LogData.*;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import java.util.HashMap;
@@ -28,6 +29,8 @@ public class TimestampCellFactory extends TableCell<LogData, Date> {
       put(BLACK, Color.BLACK);
     }};
 
+  public static SimpleDateFormat dt = new SimpleDateFormat("hh:mm:ss");
+
   @Override
     protected void updateItem(Date item, boolean empty) {
       super.updateItem(item, empty);
@@ -37,7 +40,7 @@ public class TimestampCellFactory extends TableCell<LogData, Date> {
         setGraphic(null);
       } else {
         TextFlow textFlow = new TextFlow();
-        Text t = new Text(item.toString());
+        Text t = new Text(dt.format(item));
         textFlow.getChildren().add(t);
         setGraphic(textFlow);
       }

@@ -44,7 +44,8 @@ public class JavaFXLogger extends DefaultLogger {
 
   @Override
   protected void printResult(String label, boolean value) {
-    printInColor(label + ": ", value ? GREEN : RED);
+//    printInColor(label + ": ", value ? GREEN : RED);
+    printInColor(label, value ? GREEN : RED);
   }
 
 }

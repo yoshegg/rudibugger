@@ -729,7 +729,6 @@ public class DataModel {
   public void startEmacsConnection(String emacsPath) {
 
     File emacsLispPath = new File("src/main/resources/emacs/");
-    System.out.println(emacsLispPath);
     _j2e = new J2Emacs("Rudibugger", emacsLispPath, null);
     _j2e.addStartHook("(load \""
         + new File(emacsLispPath, "cplan").getAbsolutePath()

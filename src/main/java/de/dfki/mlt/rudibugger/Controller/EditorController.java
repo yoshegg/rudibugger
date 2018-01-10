@@ -83,7 +83,7 @@ public class EditorController {
         evaluatedColumn.setText("Evaluated");
         TableColumn<LogData, Date> timeColumn = new TableColumn<>();
         timeColumn.setText("Time");
-        ruleLoggingTableView.getColumns().addAll(labelColumn, evaluatedColumn, timeColumn);
+        ruleLoggingTableView.getColumns().addAll(timeColumn, labelColumn, evaluatedColumn);
 
         /* setCellValueFactories */
         labelColumn.setCellValueFactory(value -> value.getValue().label);
@@ -97,6 +97,9 @@ public class EditorController {
 
         /* set items of TableView */
         ruleLoggingTableView.setItems(ruleLoggingList);
+
+        /* set cell height of TableView */
+        ruleLoggingTableView.setFixedCellSize(25);
 
         AnchorPane ap = new AnchorPane();
         editorSplitPane.getItems().add(1, ap);
