@@ -29,7 +29,7 @@ public class TimestampCellFactory extends TableCell<LogData, Date> {
       put(BLACK, Color.BLACK);
     }};
 
-  public static SimpleDateFormat dt = new SimpleDateFormat("hh:mm:ss");
+  public static SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss");
 
   @Override
     protected void updateItem(Date item, boolean empty) {

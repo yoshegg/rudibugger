@@ -77,23 +77,25 @@ public class EditorController {
         ruleLoggingTableView = new TableView();
 
         /* define columns */
-        TableColumn<LogData, StringPart> labelColumn = new TableColumn<>();
-        labelColumn.setText("Label");
-        TableColumn<LogData, ArrayList<StringPart>> evaluatedColumn = new TableColumn<>();
-        evaluatedColumn.setText("Evaluated");
-        TableColumn<LogData, Date> timeColumn = new TableColumn<>();
-        timeColumn.setText("Time");
-        ruleLoggingTableView.getColumns().addAll(timeColumn, labelColumn, evaluatedColumn);
+        _labelColumn = new TableColumn<>();
+        _labelColumn.setText("Label");
+        _labelColumn.setPrefWidth(180.0);
+        _evaluatedColumn = new TableColumn<>();
+        _evaluatedColumn.setText("Evaluated");
+        _timeColumn = new TableColumn<>();
+        _timeColumn.setText("Time");
+        ruleLoggingTableView.getColumns().addAll(
+                _timeColumn, _labelColumn, _evaluatedColumn);
 
         /* setCellValueFactories */
-        labelColumn.setCellValueFactory(value -> value.getValue().label);
-        evaluatedColumn.setCellValueFactory(value -> value.getValue().evaluated);
-        timeColumn.setCellValueFactory(value -> value.getValue().timestamp);
+        _labelColumn.setCellValueFactory(value -> value.getValue().label);
+        _evaluatedColumn.setCellValueFactory(value -> value.getValue().evaluated);
+        _timeColumn.setCellValueFactory(value -> value.getValue().timestamp);
 
         /* setCellFactories */
-        labelColumn.setCellFactory(value -> new LabelCellFactory());
-        evaluatedColumn.setCellFactory(value -> new EvaluatedCellFactory());
-        timeColumn.setCellFactory(value -> new TimestampCellFactory());
+        _labelColumn.setCellFactory(value -> new LabelCellFactory());
+        _evaluatedColumn.setCellFactory(value -> new EvaluatedCellFactory());
+        _timeColumn.setCellFactory(value -> new TimestampCellFactory());
 
         /* set items of TableView */
         ruleLoggingTableView.setItems(ruleLoggingList);
@@ -101,6 +103,21 @@ public class EditorController {
         /* set cell height of TableView */
         ruleLoggingTableView.setFixedCellSize(25);
 
+        /* set column resizing policies */
+        ruleLoggingTableView.widthProperty().addListener((cl, ov, nv) -> {
+          adaptTableViewColumns();
+        });
+        _timeColumn.widthProperty().addListener((cl, ov, nv) -> {
+          adaptTableViewColumns();
+        });
+        _evaluatedColumn.widthProperty().addListener((cl, ov, nv) -> {
+          adaptTableViewColumns();
+        });
+        _labelColumn.widthProperty().addListener((cl, ov, nv) -> {
+          adaptTableViewColumns();
+        });
+
+        /* fit into AnchorPane */
         AnchorPane ap = new AnchorPane();
         editorSplitPane.getItems().add(1, ap);
         AnchorPane.setTopAnchor(ruleLoggingTableView, 0.0);
@@ -124,6 +141,17 @@ public class EditorController {
         });
       }
     });
+  }
+
+
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
+
+  public void adaptTableViewColumns() {
+    Double prefWidth = ruleLoggingTableView.widthProperty().getValue()
+                  - _labelColumn.getWidth() - _timeColumn.getWidth() - 2;
+    _evaluatedColumn.setPrefWidth(prefWidth);
   }
 
   /*****************************************************************************
@@ -151,5 +179,10 @@ public class EditorController {
   /** The underlying SplitPane to which the ruleLogger will be added */
   @FXML
   private SplitPane editorSplitPane;
+
+  /* Columns */
+  private TableColumn<LogData, StringPart> _labelColumn;
+  private TableColumn<LogData, ArrayList<StringPart>> _evaluatedColumn;
+  private TableColumn<LogData, Date> _timeColumn;
 
 }
