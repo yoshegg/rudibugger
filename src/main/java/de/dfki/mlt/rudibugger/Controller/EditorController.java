@@ -6,15 +6,27 @@
 package de.dfki.mlt.rudibugger.Controller;
 
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.RPC.EvaluatedCellFactory;
+import de.dfki.mlt.rudibugger.RPC.LabelCellFactory;
 import de.dfki.mlt.rudibugger.RPC.LogData;
-import de.dfki.mlt.rudibugger.RPC.LogDataCell;
+import de.dfki.mlt.rudibugger.RPC.LogData.DatePart;
+import de.dfki.mlt.rudibugger.RPC.LogData.StringPart;
+import de.dfki.mlt.rudibugger.RPC.TimestampCellFactory;
+import de.dfki.mlt.rudibugger.RuleStore.RuleModel;
+import de.dfki.mlt.rudibugger.RuleStore.RuleModel.RuleContainer;
 import de.dfki.mlt.rudibugger.TabManagement.TabStore;
+import java.util.ArrayList;
+import java.util.Date;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
-import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
@@ -60,25 +72,77 @@ public class EditorController {
     _model.selectedTabProperty().bindBidirectional(
             tabStore.currentTabProperty());
 
-    /* this listener adds a ListView to the editorSplitPane if connection to
+    /* this listener adds a TableView to the editorSplitPane if connection to
      * rudimant has been established.
      */
     _model.connectedToRudimantProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal == true) {
         log.info("Rudimant successfully connected to rudibugger.");
 
-        ruleLoggingListView = new ListView();
-        ruleLoggingListView.setCellFactory(value -> new LogDataCell());
-        ruleLoggingListView.setItems(ruleLoggingList);
+        /* create new TableView */
+        ruleLoggingTableView = new TableView();
 
+        /* define columns */
+        _labelColumn = new TableColumn<>();
+        _labelColumn.setText("Label");
+        _labelColumn.setPrefWidth(180.0);
+        _evaluatedColumn = new TableColumn<>();
+        _evaluatedColumn.setText("Evaluated");
+        _timeColumn = new TableColumn<>();
+        _timeColumn.setText("Time");
+        ruleLoggingTableView.getColumns().addAll(
+                _timeColumn, _labelColumn, _evaluatedColumn);
+
+        /* setCellValueFactories */
+        _labelColumn.setCellValueFactory(value -> value.getValue().label);
+        _evaluatedColumn.setCellValueFactory(value -> value.getValue().evaluated);
+        _timeColumn.setCellValueFactory(value -> value.getValue().timestamp);
+
+        /* setCellFactories */
+        _labelColumn.setCellFactory(value -> new LabelCellFactory());
+        _evaluatedColumn.setCellFactory(value -> new EvaluatedCellFactory());
+        _timeColumn.setCellFactory(value -> new TimestampCellFactory());
+
+        /* set items of TableView */
+        ruleLoggingTableView.setItems(ruleLoggingList);
+
+        /* set cell height of TableView */
+        ruleLoggingTableView.setFixedCellSize(25);
+
+        /* set column resizing policies */
+        ruleLoggingTableView.widthProperty().addListener((cl, ov, nv) -> {
+          adaptTableViewColumns();
+        });
+        _timeColumn.widthProperty().addListener((cl, ov, nv) -> {
+          adaptTableViewColumns();
+        });
+        _evaluatedColumn.widthProperty().addListener((cl, ov, nv) -> {
+          adaptTableViewColumns();
+        });
+        _labelColumn.widthProperty().addListener((cl, ov, nv) -> {
+          adaptTableViewColumns();
+        });
+
+        /* fit into AnchorPane */
         AnchorPane ap = new AnchorPane();
         editorSplitPane.getItems().add(1, ap);
-        AnchorPane.setTopAnchor(ruleLoggingListView, 0.0);
-        AnchorPane.setRightAnchor(ruleLoggingListView, 0.0);
-        AnchorPane.setLeftAnchor(ruleLoggingListView, 0.0);
-        AnchorPane.setBottomAnchor(ruleLoggingListView, 0.0);
-        ap.getChildren().add(ruleLoggingListView);
+        AnchorPane.setTopAnchor(ruleLoggingTableView, 0.0);
+        AnchorPane.setRightAnchor(ruleLoggingTableView, 0.0);
+        AnchorPane.setLeftAnchor(ruleLoggingTableView, 0.0);
+        AnchorPane.setBottomAnchor(ruleLoggingTableView, 0.0);
+        ap.getChildren().add(ruleLoggingTableView);
         editorSplitPane.setDividerPositions(0.5);
+
+
+        /* jump to rule when clicked */
+        ruleLoggingTableView.setOnMousePressed(e -> {
+          if (e.isPrimaryButtonDown() && e.getClickCount() == 2) {
+            int ruleId = ((LogData) ruleLoggingTableView.getSelectionModel()
+                    .getSelectedItem()).getRuleId();
+            RuleContainer con = _model.ruleModel.getRuleContainer(ruleId);
+            _model.openRule(con.getPath(), con.getLine());
+          }
+        });
 
       } else {
         System.out.println("rudimant is disconnected.");
@@ -96,6 +160,17 @@ public class EditorController {
     });
   }
 
+
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
+
+  public void adaptTableViewColumns() {
+    Double prefWidth = ruleLoggingTableView.widthProperty().getValue()
+                  - _labelColumn.getWidth() - _timeColumn.getWidth() - 2;
+    _evaluatedColumn.setPrefWidth(prefWidth);
+  }
+
   /*****************************************************************************
    * The Tab Management
    ****************************************************************************/
@@ -108,7 +183,7 @@ public class EditorController {
    ****************************************************************************/
 
   /** ListView for ruleLogging */
-  private ListView ruleLoggingListView;
+  private TableView ruleLoggingTableView;
 
   /** The underlying ObservableList of the ruleLoggingList */
   private final ObservableList<LogData> ruleLoggingList
@@ -121,5 +196,10 @@ public class EditorController {
   /** The underlying SplitPane to which the ruleLogger will be added */
   @FXML
   private SplitPane editorSplitPane;
+
+  /* Columns */
+  private TableColumn<LogData, StringPart> _labelColumn;
+  private TableColumn<LogData, ArrayList<StringPart>> _evaluatedColumn;
+  private TableColumn<LogData, DatePart> _timeColumn;
 
 }

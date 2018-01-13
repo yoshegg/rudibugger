@@ -35,12 +35,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.stream.Stream;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -68,6 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import de.dfki.lt.j2emacs.J2Emacs;
 
 /**
  * The DataModel represents the business logic of rudibugger.
@@ -363,7 +361,7 @@ public class DataModel {
 
   private void updateRules() {
     log.debug("Updating the RuleModel");
-    ruleModel.readInRuleModel(_ruleLocFile, _rudiFolder.getValue());
+    ruleModel.updateRuleModel(_ruleLocFile, _rudiFolder.getValue());
     setRuleModelChangeStatus(RULE_MODEL_CHANGED);
   }
 
@@ -402,13 +400,8 @@ public class DataModel {
         requestTabOfFile(file);
         return;
       case "emacs":
-        try {
-          Runtime.getRuntime().exec("emacs " + file);
+          _j2e.visitFilePosition(file.toFile(), 1, 0, "");
           return;
-        } catch (IOException ex) {
-          log.error("Can't use emacs to open file. ");
-          break;
-        }
       case "custom":
         try {
           String cmd = _globalConfigs.get("openFileWith")
@@ -438,20 +431,10 @@ public class DataModel {
     switch (_globalConfigs.get("editor")) {
       case "rudibugger":
         requestTabOfRule(file, position);
-        break;
+        return;
       case "emacs":
-        try {
-          Process p = Runtime.getRuntime().exec("emacsclient +" + position.toString() + " "
-                  + file);
-          if (0 != p.exitValue()) {
-            throw new IOException();
-          }
-          return;
-        } catch (IllegalThreadStateException | IOException ex) {
-          log.error("Can't use emacs to open file. Did you start the "
-                  + "server (M-x server-start) in emacs?");
-          break;
-        }
+        _j2e.visitFilePosition(file.toFile(), position, 0, "");
+        return;
       case "custom":
         try {
           String cmd = _globalConfigs.get("openRuleWith")
@@ -732,6 +715,45 @@ public class DataModel {
     }
   }
 
+  /*****************************************************************************
+   * CONNECTION TO EMACS
+   ****************************************************************************/
+
+  /** The buffer name for the file output in case of a connection to Emacs */
+  private String _compilationBufferName = "*" + "rudibugger" + "*";
+
+  /** An Emacs connector */
+  private J2Emacs _j2e = null;
+
+  public void startEmacsConnection(String emacsPath) {
+
+    File emacsLispPath = new File("src/main/resources/emacs/");
+    _j2e = new J2Emacs("Rudibugger", emacsLispPath, null);
+    _j2e.addStartHook("(load \""
+        + new File(emacsLispPath, "cplan").getAbsolutePath()
+        + "\")");
+    _j2e.startEmacs();
+    // make an EmacsBufferAppender in j2e-compilation mode
+//    Appender ea = _j2e.new EmacsBufferAppender(_compilationBufferName, true);
+//    org.apache.log4j.Logger uplogger = org.apache.log4j.Logger.getLogger("UtterancePlanner");
+//    uplogger.removeAllAppenders();
+//    uplogger.setAdditivity(false);
+//    uplogger.addAppender(ea);
+  }
+
+  public boolean isEmacsAlive() {
+    return _j2e != null && _j2e.alive();
+  }
+
+  public void closeEmacs(boolean quitEmacs) {
+    if (_j2e == null) return;
+    if (quitEmacs) {
+      _j2e.exitEmacs();
+    }
+    _j2e.close();
+    _j2e = null;
+  }
+
 
   /*****************************************************************************
    * CONNECTION TO RUDIMANT
@@ -785,8 +807,10 @@ public class DataModel {
       if (!getConnectedToRudimant())
         connectedToRudimantProperty().setValue(true);
       rl.logRule(ruleId, result);
-      if (jfl.pendingLoggingData())
+      if (jfl.pendingLoggingData()) {
+        jfl.addRuleIdToLogData(ruleId);
         rudiLogOutput.setValue(jfl.popContent());
+      }
     });
 
   }

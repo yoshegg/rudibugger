@@ -17,6 +17,7 @@ import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.apache.log4j.PropertyConfigurator;
@@ -80,8 +81,10 @@ public class MainApp extends Application {
     /* initialize sideBar (left part of centeredSplitPane) */
     FXMLLoader sideBarLoader = new FXMLLoader(getClass()
             .getResource("/fxml/sideBar.fxml"));
-    centeredSplitPane.getItems().add(sideBarLoader.load());
+    AnchorPane sideBar = sideBarLoader.load();
+    centeredSplitPane.getItems().add(sideBar);
     SideBarController sideBarController = sideBarLoader.getController();
+    SplitPane.setResizableWithParent(sideBar, Boolean.FALSE);
 
     /* initalize editor (right part of centeredSplitPane) */
     FXMLLoader editorLoader = new FXMLLoader(getClass()

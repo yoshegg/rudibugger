@@ -7,11 +7,12 @@ package de.dfki.mlt.rudibugger.RuleStore;
 
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import de.dfki.mlt.rudimant.common.ImportInfo;
+import de.dfki.mlt.rudimant.common.RuleInfo;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -33,7 +34,11 @@ public class RuleModel {
   private Path _rudiPath;
 
   /** This set represents all of the used Imports path */
-  public Set<Path> importSet;
+  private HashSet<Path> _importSet;
+
+  /** This map maps ruleIds to paths and lines */
+  private HashMap<Integer, RuleContainer> _idMap;
+
 
   /**
    * This field represents the root of the tree-like structure used to represent
@@ -44,7 +49,8 @@ public class RuleModel {
   /** Constructs a new RuleModel */
   private RuleModel() {
     log.debug("An empty RuleModel has been created");
-    importSet = new HashSet();
+    _importSet = new HashSet();
+    _idMap = new HashMap<>();
   }
 
   /**
@@ -65,7 +71,13 @@ public class RuleModel {
   public void readInRuleModel(Path ruleLocYml, Path rudiPath) {
     rootImport = readInRuleLocationFile(ruleLocYml);
     _rudiPath = rudiPath;
-    importSet = extractImportPaths(rootImport);
+    extractImportsAndIds(rootImport);
+  }
+
+  public void updateRuleModel(Path ruleLocYml, Path rudiPath) {
+    _importSet = new HashSet();
+    _idMap = new HashMap<>();
+    readInRuleModel(ruleLocYml, rudiPath);
   }
 
   /**
@@ -88,34 +100,92 @@ public class RuleModel {
   }
 
   /**
-   * This function extract the Imports from the current RuleModel
+   * Container for line and Path of rules
+   */
+  public class RuleContainer {
+
+    public RuleContainer(int line, Path path) {
+      _line = line;
+      _path = path;
+    }
+
+    private final int _line;
+    private final Path _path;
+
+    public int getLine() {return _line;}
+    public Path getPath() {return _path;}
+
+  }
+
+  public HashSet<Path> getImportSet() {
+    return _importSet;
+  }
+
+  public RuleContainer getRuleContainer(int id) {
+    return _idMap.get(id);
+  }
+
+  /**
+   * This function extracts the Imports from the current RuleModel.
    *
    * @param ii
    * @return
    */
-  private Set<Path> extractImportPaths(ImportInfo ii) {
-    HashSet<Path> set = new HashSet<>();
-    Path filePath = ii.getFilePath();
-    set.add(_rudiPath.resolve(filePath.subpath(1, filePath.getNameCount())));
-    extractImportPathsHelper(ii, set);
-    return set;
-  }
+//  private Set<Path> extractImportPaths(ImportInfo ii) {
+//    HashSet<Path> set = new HashSet<>();
+//    Path filePath = ii.getFilePath();
+//    set.add(_rudiPath.resolve(filePath.subpath(1, filePath.getNameCount())));
+//    extractImportPathsHelper(ii, set);
+//    return set;
+//  }
 
   /**
-   * Helper function of extractImportPaths
+   * Helper function of extractImportPaths.
    *
    * @param ii
    * @param set
    */
-  private void extractImportPathsHelper(BasicInfo ii, HashSet set) {
+//  private void extractImportPathsHelper(BasicInfo ii, HashSet set) {
+//    if (!ii.getChildren().isEmpty()) {
+//      for (BasicInfo child : ii.getChildren()) {
+//        if (child instanceof ImportInfo) {
+//          Path filePath = ((ImportInfo) child).getFilePath();
+//          set.add(_rudiPath.resolve(filePath.subpath(1, filePath.getNameCount())));
+//          extractImportPathsHelper(child, set);
+//        }
+//      }
+//    }
+//  }
+
+  public void extractImportsAndIds(ImportInfo ii) {
+    Path filePath = ii.getFilePath();
+    _importSet.add(_rudiPath.resolve(filePath.subpath(1, filePath.getNameCount())));
+    extractImportsAndIdsHelper(ii);
+  }
+
+  public void extractImportsAndIdsHelper(BasicInfo ii) {
     if (!ii.getChildren().isEmpty()) {
       for (BasicInfo child : ii.getChildren()) {
+
         if (child instanceof ImportInfo) {
-        Path filePath = ((ImportInfo) child).getFilePath();
-          set.add(_rudiPath.resolve(filePath.subpath(1, filePath.getNameCount())));
-          extractImportPathsHelper(child, set);
+          Path filePath = ((ImportInfo) child).getFilePath();
+          _importSet.add(_rudiPath.resolve(filePath.subpath(1, filePath.getNameCount())));
         }
+
+        if (child instanceof RuleInfo) {
+          BasicInfo parent = child.getParent();
+          while (!(parent instanceof ImportInfo)) {
+            parent = parent.getParent();
+          }
+          Path parentPathIncomplete = ((ImportInfo) parent).getFilePath();
+          Path parentPath = _rudiPath.resolve(parentPathIncomplete.subpath(1, parentPathIncomplete.getNameCount()));
+          RuleInfo rule = (RuleInfo) child;
+          _idMap.put(rule.getId(), new RuleContainer(rule.getLine(), parentPath));
+        }
+
+        extractImportsAndIdsHelper(child);
       }
     }
   }
+
 }

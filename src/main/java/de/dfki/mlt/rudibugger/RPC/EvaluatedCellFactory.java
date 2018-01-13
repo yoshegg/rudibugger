@@ -5,22 +5,24 @@
  */
 package de.dfki.mlt.rudibugger.RPC;
 
+import static de.dfki.mlt.rudibugger.RPC.LogData.*;
 import de.dfki.mlt.rudibugger.RPC.LogData.StringPart;
+import java.util.ArrayList;
 import java.util.HashMap;
-import javafx.scene.control.ListCell;
+import javafx.scene.control.TableCell;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import static de.dfki.mlt.rudibugger.RPC.LogData.*;
 
 /**
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class LogDataCell extends ListCell<LogData> {
+public class EvaluatedCellFactory
+        extends TableCell<LogData, ArrayList<StringPart>> {
 
   public static HashMap<Integer, Color> colourMap
-    = new HashMap<Integer, Color>() {{
+          = new HashMap<Integer, Color>() {{
       put(RED, Color.RED);
       put(GREEN, Color.GREEN);
       put(GRAY, Color.GRAY);
@@ -28,7 +30,7 @@ public class LogDataCell extends ListCell<LogData> {
     }};
 
   @Override
-  protected void updateItem(LogData item, boolean empty) {
+  protected void updateItem(ArrayList<LogData.StringPart> item, boolean empty) {
     super.updateItem(item, empty);
 
     if (empty || item == null) {
@@ -36,12 +38,12 @@ public class LogDataCell extends ListCell<LogData> {
       setGraphic(null);
     } else {
       TextFlow textFlow = new TextFlow();
-      for (StringPart x : item.text) {
+      for (LogData.StringPart x : item) {
         Text t = new Text(x.content);
         t.setFill(colourMap.get(x.colour));
         textFlow.getChildren().add(t);
       }
       setGraphic(textFlow);
-      }
     }
   }
+}
