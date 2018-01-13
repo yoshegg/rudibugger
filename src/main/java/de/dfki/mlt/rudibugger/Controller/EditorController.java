@@ -9,6 +9,7 @@ import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.RPC.EvaluatedCellFactory;
 import de.dfki.mlt.rudibugger.RPC.LabelCellFactory;
 import de.dfki.mlt.rudibugger.RPC.LogData;
+import de.dfki.mlt.rudibugger.RPC.LogData.DatePart;
 import de.dfki.mlt.rudibugger.RPC.LogData.StringPart;
 import de.dfki.mlt.rudibugger.RPC.TimestampCellFactory;
 import de.dfki.mlt.rudibugger.RuleStore.RuleModel;
@@ -199,6 +200,6 @@ public class EditorController {
   /* Columns */
   private TableColumn<LogData, StringPart> _labelColumn;
   private TableColumn<LogData, ArrayList<StringPart>> _evaluatedColumn;
-  private TableColumn<LogData, Date> _timeColumn;
+  private TableColumn<LogData, DatePart> _timeColumn;
 
 }

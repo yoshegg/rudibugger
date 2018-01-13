@@ -20,6 +20,9 @@ public class LogData {
   protected static final int GRAY = 3;
   protected static final int BLACK = 0;
 
+  private static Date currentDate = new Date();
+  private static int timeCounter = 1;
+
   public class StringPart {
     public String content;
     public int colour;
@@ -29,6 +32,28 @@ public class LogData {
       this.colour = colour;
     }
   }
+
+  public class DatePart {
+    public Date date;
+    public int counter;
+
+    private DatePart(Date date, int counter) {
+      this.date = date;
+      this.counter = counter;
+    }
+  }
+
+  public LogData() {
+    Date date = new Date();
+    if (currentDate.equals(date)) {
+      timeCounter++;
+    } else {
+      currentDate = date;
+      timeCounter = 1;
+    }
+      timestamp = new SimpleObjectProperty<>(new DatePart(date, timeCounter));
+  }
+
   /** the label of this LogData */
   public SimpleObjectProperty<StringPart> label
           = new SimpleObjectProperty<>();
@@ -38,8 +63,7 @@ public class LogData {
           = new SimpleObjectProperty<>(new ArrayList<>());
 
   /** the timestamp of this LogData */
-  public SimpleObjectProperty<Date> timestamp
-          = new SimpleObjectProperty<>(new Date());
+  public SimpleObjectProperty<DatePart> timestamp;
 
   /** the ruleId of this LogData */
   private int _ruleId;
