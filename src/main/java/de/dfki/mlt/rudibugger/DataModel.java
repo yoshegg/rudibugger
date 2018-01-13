@@ -66,7 +66,6 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import de.dfki.lt.j2emacs.J2Emacs;
-import org.apache.log4j.Appender;
 
 /**
  * The DataModel represents the business logic of rudibugger.
@@ -362,7 +361,7 @@ public class DataModel {
 
   private void updateRules() {
     log.debug("Updating the RuleModel");
-    ruleModel.readInRuleModel(_ruleLocFile, _rudiFolder.getValue());
+    ruleModel.updateRuleModel(_ruleLocFile, _rudiFolder.getValue());
     setRuleModelChangeStatus(RULE_MODEL_CHANGED);
   }
 
@@ -432,7 +431,7 @@ public class DataModel {
     switch (_globalConfigs.get("editor")) {
       case "rudibugger":
         requestTabOfRule(file, position);
-        break;
+        return;
       case "emacs":
         _j2e.visitFilePosition(file.toFile(), position, 0, "");
         return;
@@ -808,8 +807,10 @@ public class DataModel {
       if (!getConnectedToRudimant())
         connectedToRudimantProperty().setValue(true);
       rl.logRule(ruleId, result);
-      if (jfl.pendingLoggingData())
+      if (jfl.pendingLoggingData()) {
+        jfl.addRuleIdToLogData(ruleId);
         rudiLogOutput.setValue(jfl.popContent());
+      }
     });
 
   }

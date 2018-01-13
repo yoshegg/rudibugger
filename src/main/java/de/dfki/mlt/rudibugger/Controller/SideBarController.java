@@ -149,7 +149,7 @@ public class SideBarController {
       }
 
       /* mark the other files */
-      if (model.ruleModel.importSet.contains(x.getPath())) {
+      if (model.ruleModel.getImportSet().contains(x.getPath())) {
         x._usedProperty().setValue(FILE_USED);
       } else {
         x._usedProperty().setValue(FILE_NOT_USED);

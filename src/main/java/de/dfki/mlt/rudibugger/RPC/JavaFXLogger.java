@@ -27,6 +27,10 @@ public class JavaFXLogger extends DefaultLogger {
     return returnVal;
   }
 
+  public void addRuleIdToLogData(int ruleId) {
+    data.get(0).addRuleId(ruleId);
+  }
+
   public boolean pendingLoggingData() {
     return ! data.isEmpty();
   }
@@ -44,7 +48,6 @@ public class JavaFXLogger extends DefaultLogger {
 
   @Override
   protected void printResult(String label, boolean value) {
-//    printInColor(label + ": ", value ? GREEN : RED);
     printInColor(label, value ? GREEN : RED);
   }
 

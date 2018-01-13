@@ -11,16 +11,21 @@ import de.dfki.mlt.rudibugger.RPC.LabelCellFactory;
 import de.dfki.mlt.rudibugger.RPC.LogData;
 import de.dfki.mlt.rudibugger.RPC.LogData.StringPart;
 import de.dfki.mlt.rudibugger.RPC.TimestampCellFactory;
+import de.dfki.mlt.rudibugger.RuleStore.RuleModel;
+import de.dfki.mlt.rudibugger.RuleStore.RuleModel.RuleContainer;
 import de.dfki.mlt.rudibugger.TabManagement.TabStore;
 import java.util.ArrayList;
 import java.util.Date;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
@@ -126,6 +131,17 @@ public class EditorController {
         AnchorPane.setBottomAnchor(ruleLoggingTableView, 0.0);
         ap.getChildren().add(ruleLoggingTableView);
         editorSplitPane.setDividerPositions(0.5);
+
+
+        /* jump to rule when clicked */
+        ruleLoggingTableView.setOnMousePressed(e -> {
+          if (e.isPrimaryButtonDown() && e.getClickCount() == 2) {
+            int ruleId = ((LogData) ruleLoggingTableView.getSelectionModel()
+                    .getSelectedItem()).getRuleId();
+            RuleContainer con = _model.ruleModel.getRuleContainer(ruleId);
+            _model.openRule(con.getPath(), con.getLine());
+          }
+        });
 
       } else {
         System.out.println("rudimant is disconnected.");

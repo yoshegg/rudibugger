@@ -41,12 +41,23 @@ public class LogData {
   public SimpleObjectProperty<Date> timestamp
           = new SimpleObjectProperty<>(new Date());
 
+  /** the ruleId of this LogData */
+  private int _ruleId;
+
   public void addStringPart(String content, int colour) {
     if (label.getValue() == null) {
       label.setValue(new StringPart(content, colour));
     } else {
       evaluated.getValue().add(new StringPart(content, colour));
     }
+  }
+
+  public void addRuleId(int ruleId) {
+    _ruleId = ruleId;
+  }
+
+  public int getRuleId() {
+    return _ruleId;
   }
 
 }
