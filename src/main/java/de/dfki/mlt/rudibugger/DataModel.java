@@ -97,7 +97,7 @@ public class DataModel {
    * GLOBAL KNOWLEDGE
    ****************************************************************************/
 
-  public ObservableMap<String, String> _globalConfigs;
+  public ObservableMap<String, Object> _globalConfigs;
   private Path _globalConfigurationFile;
 
   public ObservableList<String> _recentProjects;
@@ -107,7 +107,7 @@ public class DataModel {
   public void initializeGlobalKnowledge() {
 
     /* get global configuration file */
-    ObservableMap<String, String> globalConfigs;
+    ObservableMap<String, Object> globalConfigs;
     _globalConfigurationFile = globalConfigPath.resolve("rudibuggerConfiguration.yml");
     try {
       Map tempMap = (Map<String, String>) yaml.load(
@@ -139,11 +139,12 @@ public class DataModel {
   }
 
   /** create global configuration file */
-  private ObservableMap<String, String> createGlobalConfigFile() {
-    HashMap tempConfig = new HashMap<String, String>() {{
+  private ObservableMap<String, Object> createGlobalConfigFile() {
+    HashMap tempConfig = new HashMap<String, Object>() {{
       put("editor", "rudibugger");
       put("openFileWith", "");
       put("openRuleWith", "");
+      put("timeStampIndex", true);
     }};
 
     try {
@@ -170,7 +171,7 @@ public class DataModel {
     });
 
     /* keep global settings updated */
-    _globalConfigs.addListener((MapChangeListener.Change<? extends String, ? extends String> ml) -> {
+    _globalConfigs.addListener((MapChangeListener.Change<? extends String, ? extends Object> ml) -> {
       yaml.dump(_globalConfigs);
       try {
         FileWriter writer = new FileWriter(_globalConfigurationFile.toFile());
@@ -395,7 +396,7 @@ public class DataModel {
    * @param file the wanted file
    */
   public void openFile(Path file) {
-    switch (_globalConfigs.get("editor")) {
+    switch ((String) _globalConfigs.get("editor")) {
       case "rudibugger":
         requestTabOfFile(file);
         return;
@@ -404,7 +405,7 @@ public class DataModel {
           return;
       case "custom":
         try {
-          String cmd = _globalConfigs.get("openFileWith")
+          String cmd = ((String) _globalConfigs.get("openFileWith"))
                   .replaceAll("%file", file.toString());
           Runtime.getRuntime().exec(cmd);
           return;
@@ -428,7 +429,7 @@ public class DataModel {
    * @param position the line of the wanted rule
    */
   public void openRule(Path file, Integer position) {
-    switch (_globalConfigs.get("editor")) {
+    switch ((String) _globalConfigs.get("editor")) {
       case "rudibugger":
         requestTabOfRule(file, position);
         return;
@@ -437,7 +438,7 @@ public class DataModel {
         return;
       case "custom":
         try {
-          String cmd = _globalConfigs.get("openRuleWith")
+          String cmd = ((String) _globalConfigs.get("openRuleWith"))
                   .replaceAll("%file", file.toString())
                   .replaceAll("%line", position.toString());
           Runtime.getRuntime().exec(cmd);

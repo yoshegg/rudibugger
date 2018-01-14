@@ -12,6 +12,7 @@ import de.dfki.mlt.rudibugger.RPC.LogData;
 import de.dfki.mlt.rudibugger.RPC.LogData.DatePart;
 import de.dfki.mlt.rudibugger.RPC.LogData.StringPart;
 import de.dfki.mlt.rudibugger.RPC.TimestampCellFactory;
+import static de.dfki.mlt.rudibugger.RPC.TimestampCellFactory.dt;
 import de.dfki.mlt.rudibugger.RuleStore.RuleModel;
 import de.dfki.mlt.rudibugger.RuleStore.RuleModel.RuleContainer;
 import de.dfki.mlt.rudibugger.TabManagement.TabStore;
@@ -19,9 +20,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -101,7 +105,19 @@ public class EditorController {
         /* setCellFactories */
         _labelColumn.setCellFactory(value -> new LabelCellFactory());
         _evaluatedColumn.setCellFactory(value -> new EvaluatedCellFactory());
-        _timeColumn.setCellFactory(value -> new TimestampCellFactory());
+        _timeColumn.setCellFactory(value -> new TimestampCellFactory(
+                (boolean) _model._globalConfigs.get("timeStampIndex"))
+        );
+
+        /* set comparators */
+        _timeColumn.setComparator((x, y) -> (
+                dt.format(x.date) + Integer.toString(x.counter))
+                .compareToIgnoreCase(
+                dt.format(y.date) + Integer.toString(y.counter))
+        );
+        _labelColumn.setComparator((x, y) -> (
+                x.content.compareTo(y.content))
+        );
 
         /* set items of TableView */
         ruleLoggingTableView.setItems(ruleLoggingList);
@@ -154,10 +170,19 @@ public class EditorController {
     _model.rudiLogOutputProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal != null) {
         Platform.runLater(() -> {
-          ruleLoggingList.add(newVal);
+          ruleLoggingList.add(0, newVal);
+          ruleLoggingTableView.sort();
         });
       }
     });
+
+    /* this listener updates the timeStampIndex setting in the tableView */
+    _model._globalConfigs.addListener((MapChangeListener.Change<? extends String, ? extends Object> ml) -> {
+      if (ml.getKey() == "timeStampIndex") {
+        updateTimeStampIndexSetting();
+      }
+    });
+
   }
 
 
@@ -166,10 +191,26 @@ public class EditorController {
    ****************************************************************************/
 
   public void adaptTableViewColumns() {
+    Double correctionValue = 18.0;
     Double prefWidth = ruleLoggingTableView.widthProperty().getValue()
-                  - _labelColumn.getWidth() - _timeColumn.getWidth() - 2;
+            - _labelColumn.getWidth() - _timeColumn.getWidth()
+            - correctionValue;
     _evaluatedColumn.setPrefWidth(prefWidth);
   }
+
+  public void updateTimeStampIndexSetting() {
+    boolean timeStampIndexSetting =
+            (boolean) _model._globalConfigs.get("timeStampIndex");
+    _timeColumn.setCellFactory(value ->
+            new TimestampCellFactory(timeStampIndexSetting)
+        );
+    if (timeStampIndexSetting) {
+      _timeColumn.setPrefWidth(126.24658203125);
+    } else {
+      _timeColumn.setPrefWidth(105.3310546875);
+    }
+  }
+
 
   /*****************************************************************************
    * The Tab Management
