@@ -730,16 +730,9 @@ public class DataModel {
 
     File emacsLispPath = new File("src/main/resources/emacs/");
     _j2e = new J2Emacs("Rudibugger", emacsLispPath, null);
-    _j2e.addStartHook("(load \""
-        + new File(emacsLispPath, "cplan").getAbsolutePath()
-        + "\")");
+    _j2e.addStartHook(
+        "(setq auto-mode-alist (append (list '(\"\\\\.rudi\" . java-mode))))");
     _j2e.startEmacs();
-    // make an EmacsBufferAppender in j2e-compilation mode
-//    Appender ea = _j2e.new EmacsBufferAppender(_compilationBufferName, true);
-//    org.apache.log4j.Logger uplogger = org.apache.log4j.Logger.getLogger("UtterancePlanner");
-//    uplogger.removeAllAppenders();
-//    uplogger.setAdditivity(false);
-//    uplogger.addAppender(ea);
   }
 
   public boolean isEmacsAlive() {
