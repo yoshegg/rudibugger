@@ -401,8 +401,11 @@ public class DataModel {
         requestTabOfFile(file);
         return;
       case "emacs":
-          _j2e.visitFilePosition(file.toFile(), 1, 0, "");
-          return;
+        if (! isEmacsAlive()) {
+          startEmacsConnection("emacs");
+        }
+        _j2e.visitFilePosition(file.toFile(), 1, 0, "");
+        return;
       case "custom":
         try {
           String cmd = ((String) _globalConfigs.get("openFileWith"))
@@ -434,6 +437,9 @@ public class DataModel {
         requestTabOfRule(file, position);
         return;
       case "emacs":
+        if (! isEmacsAlive()) {
+          startEmacsConnection("emacs");
+        }
         _j2e.visitFilePosition(file.toFile(), position, 0, "");
         return;
       case "custom":
@@ -719,9 +725,6 @@ public class DataModel {
   /*****************************************************************************
    * CONNECTION TO EMACS
    ****************************************************************************/
-
-  /** The buffer name for the file output in case of a connection to Emacs */
-  private String _compilationBufferName = "*" + "rudibugger" + "*";
 
   /** An Emacs connector */
   private J2Emacs _j2e = null;

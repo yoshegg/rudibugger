@@ -67,7 +67,7 @@ public class SettingsController {
           break;
         case "emacs":
           _model._globalConfigs.put("editor", "emacs");
-          _model.startEmacsConnection("emacs");
+//          _model.startEmacsConnection("emacs");
           customTextFields.setDisable(true);
           break;
         case "custom":
