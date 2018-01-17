@@ -5,12 +5,12 @@
  */
 package de.dfki.mlt.rudibugger;
 
+import de.dfki.lt.j2emacs.J2Emacs;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
-import static de.dfki.mlt.rudimant.common.Constants.*;
-import static de.dfki.mlt.rudibugger.Helper.*;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiFolderHierarchy;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
+import static de.dfki.mlt.rudibugger.Helper.*;
 import de.dfki.mlt.rudibugger.RPC.JavaFXLogger;
 import de.dfki.mlt.rudibugger.RPC.LogData;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
@@ -21,6 +21,7 @@ import de.dfki.mlt.rudibugger.TabManagement.FileAtPos;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
 import de.dfki.mlt.rudibugger.WatchServices.RudiFolderWatch;
 import de.dfki.mlt.rudibugger.WatchServices.RuleLocationWatch;
+import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.RuleLogger;
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,7 +66,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
-import de.dfki.lt.j2emacs.J2Emacs;
 
 /**
  * The DataModel represents the business logic of rudibugger.
