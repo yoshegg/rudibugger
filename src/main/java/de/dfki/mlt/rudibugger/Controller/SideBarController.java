@@ -125,6 +125,20 @@ public class SideBarController {
           break;
       }
     });
+
+    /* this Listener builds or modifies the RuleTreeView, if the RuleModel
+    was changed.*/
+    model.ruleLoggingStateRequestProperty().addListener((o, ov, nv) -> {
+      switch ((int) nv) {
+        case RULE_SELECTION_SAVE_REQUEST:
+          log.debug("Requested to save ruleLoggingState.");
+          break;
+        case RULE_SELECTION_LOAD_REQUEST:
+          break;
+        case RULE_SELECTION_NO_REQUEST:
+          break;
+      }
+    });
   }
 
   /**

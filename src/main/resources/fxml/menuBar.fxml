@@ -52,7 +52,7 @@
                         <MenuItem disable="true" mnemonicParsing="false" text="Empty" />
                      </items>
                   </Menu>
-                  <MenuItem fx:id="saveLoggingStateItem" disable="true" mnemonicParsing="false" onAction="#saveLoggingStateAction" text="Save logging state..." />
+                  <MenuItem fx:id="saveLoggingStateItem" mnemonicParsing="false" onAction="#saveLoggingStateAction" text="Save logging state..." />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="saveItem" disable="true" mnemonicParsing="false" onAction="#saveAction" text="Save">
                      <accelerator>

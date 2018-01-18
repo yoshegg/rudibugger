@@ -722,6 +722,36 @@ public class DataModel {
     }
   }
 
+
+  /*****************************************************************************
+   * RULE SELECTION MODEL
+   ****************************************************************************/
+
+  /** used to signalize the saving or loading of a ruleLoggingState */
+  private final SimpleIntegerProperty _ruleLoggingStateRequestProperty
+          = new SimpleIntegerProperty(RULE_SELECTION_NO_REQUEST);
+  public void setRuleLoggingStateRequest(int val) {
+    _ruleLoggingStateRequestProperty.set(val);
+  }
+  public IntegerProperty ruleLoggingStateRequestProperty() {
+    return _ruleLoggingStateRequestProperty;
+  }
+
+  public void saveRuleLoggingState() {
+    setRuleLoggingStateRequest(RULE_SELECTION_SAVE_REQUEST);
+  }
+
+  public void loadRuleLoggingState(Path x) {
+    setRuleLoggingStateRequest(RULE_SELECTION_LOAD_REQUEST);
+  }
+
+  private ArrayList<Path> _ruleLoggingStates;
+  public ArrayList<Path> getRuleLoggingStates() { return _ruleLoggingStates; }
+
+  private void readInRuleLoggingStates
+
+
+
   /*****************************************************************************
    * CONNECTION TO EMACS
    ****************************************************************************/

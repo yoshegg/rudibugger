@@ -133,6 +133,17 @@ public class MenuController {
     });
   }
 
+  private void buildLoadRuleSelectionStateMenu() {
+    loadLoggingStateMenu.getItems().clear();
+    _model.getRuleLoggingStates().forEach((x) -> {
+      MenuItem mi = new MenuItem(x.toString());
+      mi.setOnAction((event) -> {
+        _model.loadRuleLoggingState(x);
+      });
+      loadLoggingStateMenu.getItems().add(mi);
+    });
+  }
+
   /**
    * This function is used to check for open projects
    *
@@ -262,7 +273,7 @@ public class MenuController {
   /** Action "Save logging state" */
   @FXML
   private void saveLoggingStateAction(ActionEvent event) {
-
+    _model.saveRuleLoggingState();
   }
 
 

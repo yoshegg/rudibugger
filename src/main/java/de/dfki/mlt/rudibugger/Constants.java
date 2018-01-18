@@ -42,4 +42,9 @@ public class Constants {
   public static final int FILE_IS_WRAPPER = 3;
   public static final int IS_FOLDER = 9;
 
+  /* used to signalize the saving or loading of a ruleSelectionState */
+  public static final int RULE_SELECTION_SAVE_REQUEST = 1;
+  public static final int RULE_SELECTION_LOAD_REQUEST = 2;
+  public static final int RULE_SELECTION_NO_REQUEST = 0;
+
 }
