@@ -16,6 +16,8 @@ import de.dfki.mlt.rudibugger.RuleTreeView.BasicTreeItem;
 import de.dfki.mlt.rudibugger.RuleTreeView.ImportTreeItem;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeItem;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.nio.file.Files;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,6 +26,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * This controller manages the left part of rudibugger window:
@@ -126,7 +129,7 @@ public class SideBarController {
       }
     });
 
-    /* Listen to request for saving */
+    /* Listen to request for saving ruleLoggingState */
     model.ruleLoggingStateSaveRequestProperty().addListener((o, ov, nv) -> {
       if (nv) {
         log.debug("Requested to save ruleLoggingState.");
@@ -134,6 +137,20 @@ public class SideBarController {
         model.saveRuleLoggingState(ruleTreeViewState);
         model.resetRuleLoggingStateSaveRequestProperty();
       }
+    });
+
+    /* Listen to request for loading ruleLoggingState */
+    _model.ruleLoggingStateLoadRequestProperty().addListener((o, ov, nv) -> {
+      RuleTreeViewState rtvs;
+      try {
+        Yaml yaml = new Yaml();
+        rtvs = (RuleTreeViewState) yaml.load(new FileReader(nv.toFile()));
+      } catch (FileNotFoundException e) {
+        log.error("Could not read in configuration file");
+        return;
+      }
+      ruleTreeViewState = rtvs;
+      ruleTreeViewState.setTreeState(ruleTreeView);
     });
   }
 

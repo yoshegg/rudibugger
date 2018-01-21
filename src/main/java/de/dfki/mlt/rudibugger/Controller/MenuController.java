@@ -74,10 +74,14 @@ public class MenuController {
         log.debug("Project open: enable GUI-elements.");
         closeProjectItem.setDisable(false);
         newRudiFileItem.setDisable(false);
+        loadLoggingStateMenu.setDisable(false);
+        saveLoggingStateItem.setDisable(false);
       } else if ((int) newVal == PROJECT_CLOSED) {
         log.debug("Project closed: disable GUI-elements.");
         closeProjectItem.setDisable(true);
         newRudiFileItem.setDisable(true);
+        loadLoggingStateMenu.setDisable(true);
+        saveLoggingStateItem.setDisable(true);
       }
     });
 
@@ -135,7 +139,7 @@ public class MenuController {
 
   private void buildLoadRuleSelectionStateMenu() {
     loadLoggingStateMenu.getItems().clear();
-    _model.getRuleLoggingStates().forEach((x) -> {
+    _model.getRecentRuleLoggingStates().forEach((x) -> {
       MenuItem mi = new MenuItem(x.toString());
       mi.setOnAction((event) -> {
         _model.loadRuleLoggingState(x);
@@ -264,6 +268,12 @@ public class MenuController {
   /** Menu "Load logging state" */
   @FXML
   private Menu loadLoggingStateMenu;
+
+  /** Action "Open configuration file..." */
+  @FXML
+  private void openRuleLoggingStateConfigurationFile(ActionEvent event) {
+    _model.openRuleLoggingStateFileChooser();
+  }
 
 
   /** MenuItem "Save logging state..." */

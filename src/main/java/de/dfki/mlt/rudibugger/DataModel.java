@@ -338,6 +338,10 @@ public class DataModel {
     String wrapperName = split[split.length-1];
     _wrapperClass = _rudiFolder.getValue().resolve(wrapperName + RULE_FILE_EXTENSION);
 
+    /* set the ruleLoggingStates folder */
+    _ruleLoggingStatesFolder = globalConfigPath
+      .resolve("loggingConfigurations").resolve(_projectName.get());
+
   }
 
   public void closeProject() {
@@ -728,6 +732,15 @@ public class DataModel {
    * RULE LOGGING STATE MODEL
    ****************************************************************************/
 
+  /** project's specific configuration file */
+  private Path _ruleLoggingStatesFolder;
+
+  /** project's folder for ruleLoggingState configurations */
+
+  /** list of recent ruleLoggingStates */
+  private ArrayList<Path> _recentRuleLoggingStates;
+
+
 
   /* SAVE SELECTION */
 
@@ -759,7 +772,7 @@ public class DataModel {
    * @param rtvs
    */
   public void saveRuleLoggingState(RuleTreeViewState rtvs) {
-    Path savePath = globalConfigPath.resolve(_projectName.get());
+    Path savePath = _ruleLoggingStatesFolder;
     if (! Files.exists(savePath)) savePath.toFile().mkdirs();
 
     FileChooser fileChooser = new FileChooser();
@@ -801,7 +814,7 @@ public class DataModel {
    *
    * @return
    */
-  public ObjectProperty ruleLoggingStateLoadRequestProperty() {
+  public ObjectProperty<Path> ruleLoggingStateLoadRequestProperty() {
     return _ruleLoggingStateLoadRequestProperty;
   }
 
@@ -814,17 +827,23 @@ public class DataModel {
     _ruleLoggingStateLoadRequestProperty.setValue(x);
   }
 
+  public void openRuleLoggingStateFileChooser() {
+    loadRuleLoggingState(HelperWindows.openRuleLoggingStateFile(
+      stageX, _ruleLoggingStatesFolder));
+  }
+
   /* RULE LOGGING STATE */
 
-  private SimpleObjectProperty<RuleTreeViewState> _ruleLoggingStateProperty
+  private final SimpleObjectProperty<RuleTreeViewState> _ruleLoggingStateProperty
     = new SimpleObjectProperty<>();
 
   public ObjectProperty ruleLoggingStateProperty() {
     return _ruleLoggingStateProperty;
   }
 
-  private ArrayList<Path> _ruleLoggingStates;
-  public ArrayList<Path> getRuleLoggingStates() { return _ruleLoggingStates; }
+  public ArrayList<Path> getRecentRuleLoggingStates() {
+    return _recentRuleLoggingStates;
+  }
 
   private void readInRuleLoggingStates() {};
 

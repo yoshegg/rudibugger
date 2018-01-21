@@ -100,4 +100,27 @@ public final class HelperWindows {
     return chosenYmlFile.toPath();
   }
 
+  public static Path openRuleLoggingStateFile(Stage stage,
+    Path ruleLogSavePath) {
+    /* Defining the file chooser */
+    log.debug("Perparing ruleLoggingState file chooser...");
+    FileChooser chooser = new FileChooser();
+    chooser.setInitialDirectory(ruleLogSavePath.toFile());
+    chooser.getExtensionFilters().addAll(
+      new FileChooser.ExtensionFilter("YAML files (*.yml)", "*.yml", "*.YML"));
+    chooser.setTitle("Open ruleLoggingState file...");
+
+    /* open the FileChooser */
+    File chosenRuleLoggingStateFile = chooser.showOpenDialog(stage);
+    log.debug("ruleLoggingState file chooser has been openeder.");
+
+    /* abort selection if window has been closed */
+    if (chosenRuleLoggingStateFile == null) {
+      log.debug("Aborted selection of ruleLoggingState file.");
+      return null;
+    }
+
+    /* return chosen file as Path object */
+    return chosenRuleLoggingStateFile.toPath();
+  }
 }

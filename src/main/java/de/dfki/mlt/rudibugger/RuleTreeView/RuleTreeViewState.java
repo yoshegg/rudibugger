@@ -5,9 +5,7 @@
  */
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Set;
 import javafx.scene.control.TreeView;
 
 /**
@@ -29,104 +27,110 @@ import javafx.scene.control.TreeView;
  */
 public class RuleTreeViewState {
 
+  public RuleTreeViewState() {}
+
   private RuleStateItem root;
 
   public RuleStateItem getRoot() { return root; }
-  public void setRoot(RuleStateItem x) { root = x; }
+  public void setRoot(RuleStateItem x) { this.root = x; }
 
   /**
    * The state of the RuleStateItem
    */
-  private class Properties {
-
-    private Boolean isExpanded;
-    private Integer loggingState;
-    private Boolean isImport = false;
-
-    public Properties(Boolean expStat, int logStat) {
-      isExpanded = expStat;
-      loggingState = logStat;
-    }
-
-    public Boolean getIsExpanded() { return isExpanded; }
-    public void setIsExpanded(Boolean isExpanded) {
-      this.isExpanded = isExpanded;
-    }
-
-    public Integer getLoggingState() { return loggingState; }
-    public void setLoggingState(Integer loggingState) {
-      this.loggingState = loggingState;
-    }
-
-    public Boolean getIsImport() { return isImport; }
-    public void setIsImport(Boolean isImport) { this.isImport = isImport; }
-  }
+//  public class Properties {
+//
+//    public Properties() {}
+//
+//    private Boolean isExpanded;
+//    private Integer loggingState;
+//    private Boolean isImport = false;
+//
+//    public Properties(Boolean expStat, int logStat) {
+//      isExpanded = expStat;
+//      loggingState = logStat;
+//    }
+//
+//    public Boolean getIsExpanded() { return isExpanded; }
+//    public void setIsExpanded(Boolean isExpanded) {
+//      this.isExpanded = isExpanded;
+//    }
+//
+//    public Integer getLoggingState() { return loggingState; }
+//    public void setLoggingState(Integer loggingState) {
+//      this.loggingState = loggingState;
+//    }
+//
+//    public Boolean getIsImport() { return isImport; }
+//    public void setIsImport(Boolean isImport) { this.isImport = isImport; }
+//  }
 
   /**
    * A node in the tree structure
    */
-  private class RuleStateItem {
-
-    /** The label of this RuleStateItem */
-    private String label;
-
-    public void setLabel(String x) { label = x; }
-    public String getLabel() { return label; }
-
-    /** A container containing the states of this RuleStateItem */
-    private Properties props;
-
-    public void setProps(Properties p) { props = p; }
-    public Properties getProps() { return props; }
-
-    /** The children of this RuleStateItem */
-    private HashMap<String, RuleStateItem> children = new HashMap<>();
-
-    public void setChildren(HashMap<String, RuleStateItem> m) { children = m; }
-    public HashMap<String, RuleStateItem> getChildren() { return children; }
-
-    /** Constructor of the RuleStateItem */
-    public RuleStateItem(String lab, Boolean expStat, int logStat) {
-      label = lab;
-      props = new Properties(expStat, logStat);
-    }
-
-    /** update the RuleStateItem */
-    public void updateRuleStateItem(Boolean expState, int logStat) {
-      props.setIsExpanded(expState);
-      props.setLoggingState((Integer) logStat);
-    }
-
-    /** add children to the RuleStateItem */
-    protected void addChildren(HashMap<String, RuleStateItem> e) {
-      if (!e.isEmpty()) {
-        e.forEach((key, val) ->
-          children.put(key, val));
-      }
-    }
-
-    public void isImport(Boolean x) { props.setIsImport(x); }
-
-    public Collection<RuleStateItem> getChildrenValues() {
-      return children.values();
-    }
-
-    public Set<String> getChildrenNames() {
-      return children.keySet();
-    }
-
-    public RuleStateItem getChild(String key) {
-      return children.get(key);
-    }
-
-    @Override
-    public String toString() {
-      return label + " (" + ((props.getIsImport()) ? "IMPORT, " : "")
-        + "expanded: " + props.getIsExpanded() + ", logState: "
-        + props.getLoggingState() + ")";
-    }
-
-  }
+//  public class RuleStateItem {
+//
+//    public RuleStateItem() {}
+//
+//    /** The label of this RuleStateItem */
+//    private String label;
+//
+//    public void setLabel(String x) { label = x; }
+//    public String getLabel() { return label; }
+//
+//    /** A container containing the states of this RuleStateItem */
+//    private Properties props;
+//
+//    public void setProps(Properties p) { props = p; }
+//    public Properties getProps() { return props; }
+//
+//    /** The children of this RuleStateItem */
+//    private HashMap<String, RuleStateItem> children = new HashMap<>();
+//
+//    public void setChildren(HashMap<String, RuleStateItem> m) { children = m; }
+//    public HashMap<String, RuleStateItem> getChildren() { return children; }
+//
+//    /** Constructor of the RuleStateItem */
+//    public RuleStateItem(String lab, Boolean expStat, int logStat) {
+//      label = lab;
+//      props = new Properties(expStat, logStat);
+//    }
+//
+//    /** update the RuleStateItem */
+//    public void updateRuleStateItem(Boolean expState, int logStat) {
+//      props.setIsExpanded(expState);
+//      props.setLoggingState((Integer) logStat);
+//    }
+//
+//    /** add children to the RuleStateItem */
+//    protected void addChildren(HashMap<String, RuleStateItem> e) {
+//      if (!e.isEmpty()) {
+//        e.forEach((key, val) ->
+//          children.put(key, val));
+//      }
+//    }
+//
+//    public void isImport(Boolean x) { props.setIsImport(x); }
+//
+//    public Collection<RuleStateItem> getChildrenValues() {
+//      return children.values();
+//    }
+//
+//    public Set<String> getChildrenNames() {
+//      return children.keySet();
+//    }
+//
+//    public RuleStateItem getChild(String key) {
+//      return children.get(key);
+//    }
+//
+//    @Override
+//    public String toString() {
+//      return label + " (" + ((props.getIsImport()) ? "IMPORT, " : "")
+//        + "expanded: " + props.getIsExpanded() + ", logState: "
+//        + props.getLoggingState() + ")";
+//    }
+//
+//  }
 
   /**
    * This function fills the RuleTreeViewState.
@@ -141,7 +145,7 @@ public class RuleTreeViewState {
 
     /* the root has not been created yet or the name does not match */
     if (this.root == null
-      || !this.root.label.equals(root.getLabel().getText())) {
+      || !this.root.getLabel().equals(root.getLabel().getText())) {
       this.root = new RuleStateItem(root.getLabel().getText(),
         root.isExpanded(), root.stateProperty().getValue());
       this.root.isImport(true);
@@ -207,10 +211,10 @@ public class RuleTreeViewState {
     BasicTreeItem root = (BasicTreeItem) tw.getRoot();
 
     /* has this item already appeared once? */
-    if (root.getLabel().getText().equals(this.root.label)) {
+    if (root.getLabel().getText().equals(this.root.getLabel())) {
 
       /* set the expansion state */
-      root.setExpanded(this.root.props.getIsExpanded());
+      root.setExpanded(this.root.getProps().getIsExpanded());
 
       /* iterate over the children */
       for (Object x : root.getChildren()) {
@@ -229,12 +233,12 @@ public class RuleTreeViewState {
     if (item.getChildrenNames().contains(lab)) {
 
       /* set the expansion state */
-      obj.setExpanded(item.getChild(lab).props.getIsExpanded());
+      obj.setExpanded(item.getChild(lab).getProps().getIsExpanded());
 
       /* if this is a rule, also set the log state */
       if (obj instanceof RuleTreeItem) {
         RuleTreeItem rule = (RuleTreeItem) obj;
-        rule.setState(item.getChild(lab).props.getLoggingState());
+        rule.setState(item.getChild(lab).getProps().getLoggingState());
       }
 
       /* iterate over the children */
