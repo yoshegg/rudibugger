@@ -273,7 +273,7 @@ public class MenuController {
   /** Action "Save logging state" */
   @FXML
   private void saveLoggingStateAction(ActionEvent event) {
-    _model.saveRuleLoggingState();
+    _model.requestSaveRuleLoggingState();
   }
 
 

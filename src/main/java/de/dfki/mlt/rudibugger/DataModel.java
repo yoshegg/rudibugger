@@ -17,6 +17,7 @@ import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerServer;
 import de.dfki.mlt.rudibugger.RuleStore.RuleModel;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.TabManagement.FileAtPos;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
 import de.dfki.mlt.rudibugger.WatchServices.RudiFolderWatch;
@@ -521,7 +522,7 @@ public class DataModel {
       return;
     }
       if (! file.getFileName().toString().endsWith(RULE_FILE_EXTENSION)) {
-      file = Paths.get(file.toString() + RULE_FILE_EXTENSION);
+        file = Paths.get(file.toString() + RULE_FILE_EXTENSION);
     }
 
     if (saveFile(file, content)) {
@@ -724,31 +725,108 @@ public class DataModel {
 
 
   /*****************************************************************************
-   * RULE SELECTION MODEL
+   * RULE LOGGING STATE MODEL
    ****************************************************************************/
 
-  /** used to signalize the saving or loading of a ruleLoggingState */
-  private final SimpleIntegerProperty _ruleLoggingStateRequestProperty
-          = new SimpleIntegerProperty(RULE_SELECTION_NO_REQUEST);
-  public void setRuleLoggingStateRequest(int val) {
-    _ruleLoggingStateRequestProperty.set(val);
-  }
-  public IntegerProperty ruleLoggingStateRequestProperty() {
-    return _ruleLoggingStateRequestProperty;
+
+  /* SAVE SELECTION */
+
+  /** Used to signalize the save request of a ruleLoggingState */
+  private final SimpleBooleanProperty _ruleLoggingStateSaveRequestProperty
+    = new SimpleBooleanProperty(false);
+
+  /**
+   * Used in a Controller to listen to property.
+   *
+   * @return
+   */
+  public BooleanProperty ruleLoggingStateSaveRequestProperty() {
+    return _ruleLoggingStateSaveRequestProperty;
   }
 
-  public void saveRuleLoggingState() {
-    setRuleLoggingStateRequest(RULE_SELECTION_SAVE_REQUEST);
+  public void resetRuleLoggingStateSaveRequestProperty() {
+    _ruleLoggingStateSaveRequestProperty.setValue(Boolean.FALSE);
   }
 
+  /** Request to save the current ruleLoggingState selection */
+  public void requestSaveRuleLoggingState() {
+    _ruleLoggingStateSaveRequestProperty.setValue(Boolean.TRUE);
+  }
+
+  /**
+   * Save the current ruleLoggingState selection
+   *
+   * @param rtvs
+   */
+  public void saveRuleLoggingState(RuleTreeViewState rtvs) {
+    Path savePath = globalConfigPath.resolve(_projectName.get());
+    if (! Files.exists(savePath)) savePath.toFile().mkdirs();
+
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setInitialDirectory(savePath.toFile());
+    FileChooser.ExtensionFilter extFilter
+            = new FileChooser.ExtensionFilter
+        ("YAML file (*" + "yml" + ")", "*" + "yml");
+    fileChooser.getExtensionFilters().add(extFilter);
+    Path file;
+    try {
+      file = (fileChooser.showSaveDialog(stageX)).toPath();
+    } catch (NullPointerException e) {
+      return;
+    }
+
+    if (!file.getFileName().toString().endsWith(".yml")) {
+      file = Paths.get(file.toString() + ".yml");
+    }
+
+    try {
+      FileWriter writer = new FileWriter(savePath.resolve(file).toFile());
+      yaml.dump(rtvs, writer);
+    } catch (IOException e) {
+      log.error(e.getMessage());
+    }
+    log.debug("Saved file " + file.toString());
+
+  }
+
+
+  /* LOAD SELECTION */
+
+  /** used to signalize the load request of a ruleLoggingState */
+  private final SimpleObjectProperty<Path> _ruleLoggingStateLoadRequestProperty
+    = new SimpleObjectProperty<>();
+
+  /**
+   * Used in a Controller to listen to property.
+   *
+   * @return
+   */
+  public ObjectProperty ruleLoggingStateLoadRequestProperty() {
+    return _ruleLoggingStateLoadRequestProperty;
+  }
+
+  /**
+   * load a given file as ruleSelectionState
+   *
+   * @param x
+   */
   public void loadRuleLoggingState(Path x) {
-    setRuleLoggingStateRequest(RULE_SELECTION_LOAD_REQUEST);
+    _ruleLoggingStateLoadRequestProperty.setValue(x);
+  }
+
+  /* RULE LOGGING STATE */
+
+  private SimpleObjectProperty<RuleTreeViewState> _ruleLoggingStateProperty
+    = new SimpleObjectProperty<>();
+
+  public ObjectProperty ruleLoggingStateProperty() {
+    return _ruleLoggingStateProperty;
   }
 
   private ArrayList<Path> _ruleLoggingStates;
   public ArrayList<Path> getRuleLoggingStates() { return _ruleLoggingStates; }
 
-  private void readInRuleLoggingStates
+  private void readInRuleLoggingStates() {};
 
 
 

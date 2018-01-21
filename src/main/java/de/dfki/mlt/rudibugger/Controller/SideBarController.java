@@ -37,7 +37,7 @@ public class SideBarController {
   static Logger log = LoggerFactory.getLogger("rudiLog");
 
   /** the DataModel */
-  private DataModel model;
+  private DataModel _model;
 
   /**
    * the RuleTreeViewState, needed to save and load the expansion and rule
@@ -51,10 +51,10 @@ public class SideBarController {
    * @param model
    */
   public void initModel(DataModel model) {
-    if (this.model != null) {
+    if (this._model != null) {
       throw new IllegalStateException("Model can only be initialized once");
     }
-    this.model = model;
+    this._model = model;
 
     /* this Listener keeps the rudiTreeView containing the .rudi files up to date */
     model.projectStatusProperty().addListener((o, oldVal, newVal) -> {
@@ -126,17 +126,13 @@ public class SideBarController {
       }
     });
 
-    /* this Listener builds or modifies the RuleTreeView, if the RuleModel
-    was changed.*/
-    model.ruleLoggingStateRequestProperty().addListener((o, ov, nv) -> {
-      switch ((int) nv) {
-        case RULE_SELECTION_SAVE_REQUEST:
-          log.debug("Requested to save ruleLoggingState.");
-          break;
-        case RULE_SELECTION_LOAD_REQUEST:
-          break;
-        case RULE_SELECTION_NO_REQUEST:
-          break;
+    /* Listen to request for saving */
+    model.ruleLoggingStateSaveRequestProperty().addListener((o, ov, nv) -> {
+      if (nv) {
+        log.debug("Requested to save ruleLoggingState.");
+        ruleTreeViewState.retrieveTreeState(ruleTreeView);
+        model.saveRuleLoggingState(ruleTreeViewState);
+        model.resetRuleLoggingStateSaveRequestProperty();
       }
     });
   }
@@ -146,24 +142,24 @@ public class SideBarController {
    * their state.
    */
   private void markFilesInRudiList() {
-    for (RudiPath x : model.rudiHierarchy.rudiPathSet) {
+    for (RudiPath x : _model.rudiHierarchy.rudiPathSet) {
 
       /* mark the main .rudi file, must be in root folder */
-      if (model.ruleModel.rootImport.getFilePath().getFileName().equals(
+      if (_model.ruleModel.rootImport.getFilePath().getFileName().equals(
               x.getPath().getFileName())) {
         x._usedProperty().setValue(FILE_IS_MAIN);
         continue;
       }
 
       /* mark the wrapper file,  must be in root folder */
-      if (model.getWrapperClass().getFileName()
+      if (_model.getWrapperClass().getFileName()
               .equals(x.getPath().getFileName())) {
         x._usedProperty().setValue(FILE_IS_WRAPPER);
         continue;
       }
 
       /* mark the other files */
-      if (model.ruleModel.getImportSet().contains(x.getPath())) {
+      if (_model.ruleModel.getImportSet().contains(x.getPath())) {
         x._usedProperty().setValue(FILE_USED);
       } else {
         x._usedProperty().setValue(FILE_NOT_USED);

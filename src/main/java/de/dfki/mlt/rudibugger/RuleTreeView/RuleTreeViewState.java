@@ -22,11 +22,17 @@ import javafx.scene.control.TreeView;
  * TODO: Find a convenient way to store the scroll position and selected item to
  * be able to restore it afterwards.
  *
+ * This class is bloated because of the public getters and setters needed for
+ * YAML.
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RuleTreeViewState {
 
-  private RuleStateItem _root;
+  private RuleStateItem root;
+
+  public RuleStateItem getRoot() { return root; }
+  public void setRoot(RuleStateItem x) { root = x; }
 
   /**
    * The state of the RuleStateItem
@@ -41,6 +47,19 @@ public class RuleTreeViewState {
       isExpanded = expStat;
       loggingState = logStat;
     }
+
+    public Boolean getIsExpanded() { return isExpanded; }
+    public void setIsExpanded(Boolean isExpanded) {
+      this.isExpanded = isExpanded;
+    }
+
+    public Integer getLoggingState() { return loggingState; }
+    public void setLoggingState(Integer loggingState) {
+      this.loggingState = loggingState;
+    }
+
+    public Boolean getIsImport() { return isImport; }
+    public void setIsImport(Boolean isImport) { this.isImport = isImport; }
   }
 
   /**
@@ -49,13 +68,22 @@ public class RuleTreeViewState {
   private class RuleStateItem {
 
     /** The label of this RuleStateItem */
-    private final String label;
+    private String label;
+
+    public void setLabel(String x) { label = x; }
+    public String getLabel() { return label; }
 
     /** A container containing the states of this RuleStateItem */
-    private final Properties props;
+    private Properties props;
+
+    public void setProps(Properties p) { props = p; }
+    public Properties getProps() { return props; }
 
     /** The children of this RuleStateItem */
-    private final HashMap<String, RuleStateItem> children = new HashMap<>();
+    private HashMap<String, RuleStateItem> children = new HashMap<>();
+
+    public void setChildren(HashMap<String, RuleStateItem> m) { children = m; }
+    public HashMap<String, RuleStateItem> getChildren() { return children; }
 
     /** Constructor of the RuleStateItem */
     public RuleStateItem(String lab, Boolean expStat, int logStat) {
@@ -65,8 +93,8 @@ public class RuleTreeViewState {
 
     /** update the RuleStateItem */
     public void updateRuleStateItem(Boolean expState, int logStat) {
-      props.isExpanded = expState;
-      props.loggingState = logStat;
+      props.setIsExpanded(expState);
+      props.setLoggingState((Integer) logStat);
     }
 
     /** add children to the RuleStateItem */
@@ -77,11 +105,9 @@ public class RuleTreeViewState {
       }
     }
 
-    public void isImport(Boolean x) {
-      props.isImport = x;
-    }
+    public void isImport(Boolean x) { props.setIsImport(x); }
 
-    public Collection<RuleStateItem> getChildren() {
+    public Collection<RuleStateItem> getChildrenValues() {
       return children.values();
     }
 
@@ -95,8 +121,9 @@ public class RuleTreeViewState {
 
     @Override
     public String toString() {
-      return label + " (" + ((props.isImport) ? "IMPORT, " : "") + "expanded: "
-              + props.isExpanded + ", logState: " + props.loggingState + ")";
+      return label + " (" + ((props.getIsImport()) ? "IMPORT, " : "")
+        + "expanded: " + props.getIsExpanded() + ", logState: "
+        + props.getLoggingState() + ")";
     }
 
   }
@@ -113,16 +140,19 @@ public class RuleTreeViewState {
     BasicTreeItem root = (BasicTreeItem) tw.getRoot();
 
     /* the root has not been created yet or the name does not match */
-    if (_root == null || ! _root.label.equals(root.getLabel().getText())) {
-      _root = new RuleStateItem(root.getLabel().getText(),
-            root.isExpanded(), root.stateProperty().getValue());
-      _root.isImport(true);
+    if (this.root == null
+      || !this.root.label.equals(root.getLabel().getText())) {
+      this.root = new RuleStateItem(root.getLabel().getText(),
+        root.isExpanded(), root.stateProperty().getValue());
+      this.root.isImport(true);
     } else {
-      _root.updateRuleStateItem(root.isExpanded(), root.stateProperty().getValue());
+      this.root.updateRuleStateItem(
+        root.isExpanded(), root.stateProperty().getValue()
+      );
     }
 
     /* create the children and add them */
-    _root.addChildren(retrieveTreeStateHelper(root, _root));
+    this.root.addChildren(retrieveTreeStateHelper(root, this.root));
 
 
     /* return the RuleTreeViewState */
@@ -131,7 +161,7 @@ public class RuleTreeViewState {
   }
 
   private HashMap<String, RuleStateItem>
-          retrieveTreeStateHelper(BasicTreeItem tempItem, RuleStateItem ruleItem) {
+    retrieveTreeStateHelper(BasicTreeItem tempItem, RuleStateItem ruleItem) {
 
     /* the returned RuleTreeViewStateItems */
     HashMap<String, RuleStateItem> map = new HashMap<>();
@@ -144,7 +174,9 @@ public class RuleTreeViewState {
       RuleStateItem ruleStateItem;
       if (ruleItem.getChildrenNames().contains(item.getLabel().getText())) {
         ruleStateItem = ruleItem.getChild(item.getLabel().getText());
-        ruleStateItem.updateRuleStateItem(item.isExpanded(), item.stateProperty().getValue());
+        ruleStateItem.updateRuleStateItem(
+          item.isExpanded(), item.stateProperty().getValue()
+        );
       } else {
         ruleStateItem = new RuleStateItem(item.getLabel().getText(),
                 item.isExpanded(), item.stateProperty().getValue());
@@ -175,15 +207,15 @@ public class RuleTreeViewState {
     BasicTreeItem root = (BasicTreeItem) tw.getRoot();
 
     /* has this item already appeared once? */
-    if (root.getLabel().getText().equals(_root.label)) {
+    if (root.getLabel().getText().equals(this.root.label)) {
 
       /* set the expansion state */
-      root.setExpanded(_root.props.isExpanded);
+      root.setExpanded(this.root.props.getIsExpanded());
 
       /* iterate over the children */
       for (Object x : root.getChildren()) {
         BasicTreeItem y = (BasicTreeItem) x;
-        setTreeStateHelper(y, _root);
+        setTreeStateHelper(y, this.root);
       }
     }
 
@@ -197,12 +229,12 @@ public class RuleTreeViewState {
     if (item.getChildrenNames().contains(lab)) {
 
       /* set the expansion state */
-      obj.setExpanded(item.getChild(lab).props.isExpanded);
+      obj.setExpanded(item.getChild(lab).props.getIsExpanded());
 
       /* if this is a rule, also set the log state */
       if (obj instanceof RuleTreeItem) {
         RuleTreeItem rule = (RuleTreeItem) obj;
-        rule.setState(item.getChild(lab).props.loggingState);
+        rule.setState(item.getChild(lab).props.getLoggingState());
       }
 
       /* iterate over the children */
@@ -220,22 +252,22 @@ public class RuleTreeViewState {
    */
   @Override
   public String toString() {
-    if (_root == null) {
+    if (root == null) {
       return "RuleTreeViewState is empty";
     }
 
     String returnVal = "";
-    returnVal += _root.toString() + "\n";
+    returnVal += root.toString() + "\n";
 
     String prefix = "  ";
-    returnVal += toStringHelper(_root, prefix);
+    returnVal += toStringHelper(root, prefix);
 
     return returnVal;
   }
 
   private String toStringHelper(RuleStateItem e, String prefix) {
     String returnVal = "";
-    for (RuleStateItem x : e.getChildren()) {
+    for (RuleStateItem x : e.getChildrenValues()) {
       returnVal += prefix + x.toString() + "\n";
       prefix += "  ";
       returnVal += toStringHelper(x, prefix);
