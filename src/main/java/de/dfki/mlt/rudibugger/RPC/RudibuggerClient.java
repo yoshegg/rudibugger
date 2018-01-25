@@ -18,8 +18,8 @@ public class RudibuggerClient {
   /** A client that connects to the server on localhost at the given port to
    *  send log information to the debugger.
    */
-  public RudibuggerClient(int portNumber) {
-    client = new SimpleClient(portNumber);
+  public RudibuggerClient(String host, int portNumber) {
+    client = new SimpleClient(host, portNumber);
   }
 
   public boolean isConnected() {

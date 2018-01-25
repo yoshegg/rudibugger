@@ -896,7 +896,7 @@ public class DataModel {
     rs.startServer(rudibuggerPort);
     log.debug("RudibuggerServer has been started "
             + "on port [" + rudibuggerPort + "].");
-    vonda = new RudibuggerClient(rudimantPort);
+    vonda = new RudibuggerClient("localhost", rudimantPort);
     log.debug("RudibuggerClient has been started and is looking for rudimant "
             + "(server) on port [" + rudimantPort + "].");
   }
@@ -917,7 +917,7 @@ public class DataModel {
     rl = new RuleLogger();
     rl.setRootInfo(ruleModel.rootImport);
     jfl = new JavaFXLogger();
-    rl.setPrinter(jfl);
+    rl.registerPrinter(jfl);
     rl.logAllRules();
   }
 
