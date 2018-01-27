@@ -7,7 +7,7 @@ package de.dfki.mlt.rudibugger.RuleTreeView;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -25,11 +25,11 @@ public class RuleStateItem {
    * A container containing the states of this RuleStateItem
    */
   private Properties props;
-  
+
   /**
    * The children of this RuleStateItem
    */
-  private LinkedHashMap<String, RuleStateItem> children = new LinkedHashMap<>();
+  private Map<String, RuleStateItem> children = new HashMap<>();
 
 
   public RuleStateItem() {}
@@ -51,11 +51,11 @@ public class RuleStateItem {
     return props;
   }
 
-  public void setChildren(LinkedHashMap<String, RuleStateItem> m) {
+  public void setChildren(HashMap<String, RuleStateItem> m) {
     this.children = m;
   }
 
-  public LinkedHashMap<String, RuleStateItem> getChildren() {
+  public Map<String, RuleStateItem> getChildren() {
     return children;
   }
 
