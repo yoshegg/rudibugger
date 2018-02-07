@@ -24,6 +24,8 @@ import de.dfki.mlt.rudibugger.WatchServices.RudiFolderWatch;
 import de.dfki.mlt.rudibugger.WatchServices.RuleLocationWatch;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.RuleLogger;
+import de.dfki.mlt.rudimant.common.SimpleClient;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -883,31 +885,32 @@ public class DataModel {
    * CONNECTION TO RUDIMANT
    ****************************************************************************/
 
-  public RudibuggerServer rs;
-  public RudibuggerClient vonda;
+  //public RudibuggerServer rs;
+  public RudibuggerClient rudibuggerClient;
 
   private void connectToRudimant() throws IOException {
-    int rudibuggerPort = ((_configs.get("SERVER_RUDIBUGGER") == null)
-            ? SERVER_PORT_RUDIBUGGER : (int) _configs.get("SERVER_RUDIBUGGER"));
+    //int rudibuggerPort = ((_configs.get("SERVER_RUDIBUGGER") == null)
+    //        ? SERVER_PORT_RUDIBUGGER : (int) _configs.get("SERVER_RUDIBUGGER"));
     int rudimantPort = ((_configs.get("SERVER_RUDIMANT") == null)
             ? SERVER_PORT_RUDIMANT : (int) _configs.get("SERVER_RUDIMANT"));
 
-    rs = new RudibuggerServer(new RudibuggerAPI(this));
-    rs.startServer(rudibuggerPort);
-    log.debug("RudibuggerServer has been started "
-            + "on port [" + rudibuggerPort + "].");
-    vonda = new RudibuggerClient("localhost", rudimantPort);
-    log.debug("RudibuggerClient has been started and is looking for rudimant "
-            + "(server) on port [" + rudimantPort + "].");
+    rudibuggerClient = new RudibuggerClient("localhost", rudimantPort,
+        new RudibuggerAPI(this));
+
+    log.debug("RudibuggerClient has been started "
+            + "on port [" + rudimantPort + "].");
+    //vonda = new RudibuggerClient("localhost", rudimantPort);
+    //log.debug("RudibuggerClient has been started and is looking for rudimant "
+    //       + "(server) on port [" + rudimantPort + "].");
   }
 
   private void closeConnectionToRudimant() {
     try {
-      vonda.disconnect();
+      rudibuggerClient.disconnect();
     } catch (IOException e) {
       log.error(e.toString());
     }
-    rs.stopServer();
+    //rs.disconnect();
   }
 
   private RuleLogger rl;

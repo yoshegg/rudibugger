@@ -1,5 +1,6 @@
 package de.dfki.mlt.rudibugger.RPC;
 
+import de.dfki.mlt.rudimant.common.SimpleClient;
 import de.dfki.mlt.rudimant.common.SimpleServer;
 import java.io.IOException;
 
@@ -8,23 +9,24 @@ import java.io.IOException;
  */
 public class RudibuggerServer {
 
-  private final SimpleServer server;
+  //private final SimpleClient client;
 
   private RudibuggerAPI _api;
 
-  public RudibuggerServer(RudibuggerAPI api) throws IOException {
+  /*
+  public RudibuggerServer(RudibuggerAPI api, int port) throws IOException {
     _api = api;
-    server = new SimpleServer((String[] args) -> {
+    client = new SimpleClient("localhost", port, (args) -> {
       _api.parseCommand(args);
-    });
+    }, "RudibuggerService");
   }
 
   public void startServer(int port) {
-    server.startServer(port, "RudibuggerService");
+    client.startServer(port, "RudibuggerService");
   }
 
   public void stopServer() {
-    server.stopServer();
-  }
+    client.stopServer();
+  }*/
 
 }

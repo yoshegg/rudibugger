@@ -75,7 +75,7 @@ public class RuleTreeItem extends BasicTreeItem {
       rule.setState(newVal.intValue());
 
       /* send to rudimant / agent */
-      _model.vonda.setLoggingStatus(rule.getId(), rule.getState());
+      _model.rudibuggerClient.setLoggingStatus(rule.getId(), rule.getState());
 
       /* for logging purposes only */
       String output = "";
