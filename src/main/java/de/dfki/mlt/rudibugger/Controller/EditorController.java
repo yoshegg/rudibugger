@@ -69,6 +69,10 @@ public class EditorController {
     _model.selectedTabProperty().bindBidirectional(
             tabStore.currentTabProperty());
 
+    /* this listener represents all the currently open tabs */
+    _model.openTabsProperty().bindBidirectional(
+            tabStore.openTabsProperty());
+
     /* this listener adds a TableView to the editorSplitPane if connection to
      * rudimant has been established.
      */
