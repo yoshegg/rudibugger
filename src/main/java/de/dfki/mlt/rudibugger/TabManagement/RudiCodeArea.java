@@ -9,13 +9,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javafx.geometry.Bounds;
+import javafx.scene.control.IndexRange;
 import static javafx.scene.input.KeyCode.*;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.fxmisc.richtext.model.StyledDocument;
 import static org.fxmisc.wellbehaved.event.EventPattern.*;
 import static org.fxmisc.wellbehaved.event.InputMap.*;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -71,6 +75,36 @@ public class RudiCodeArea extends CodeArea {
     super();
   }
 
+  private void shiftRightManagement() {
+    int initialCaretPosition = this.getCaretPosition();
+
+    IndexRange selection = this.getSelection();
+
+    this.moveTo(selection.getStart());
+    int startCol = this.getCurrentParagraph();
+    this.moveTo(startCol, 0);
+    int startPos = this.getCaretPosition();
+    int endPos = selection.getEnd();
+    this.moveTo(endPos);
+    int endCol = this.getCurrentParagraph();
+
+    String toBeProcessedText = this.getText(startPos, endPos);
+
+    String x = "  " + toBeProcessedText.replaceAll("\n", "\n  ");
+    IndexRange tempSelection = new IndexRange(startPos, endPos);
+    this.replaceText(tempSelection, x);
+
+    if (selection.getStart() < initialCaretPosition) {
+      int adaptToShift = 2 * (endCol - startCol);
+      this.selectRange(selection.getStart() + 2,
+        initialCaretPosition + adaptToShift + 2);
+    } else {
+      int adaptToShift = 2 * (endCol - startCol);
+      this.selectRange(endPos + 2 + adaptToShift, initialCaretPosition + 2);
+    }
+
+  }
+
   public void initializeCodeArea() {
     this.setParagraphGraphicFactory(LineNumberFactory.get(this));
     this.richChanges()
@@ -84,7 +118,8 @@ public class RudiCodeArea extends CodeArea {
       this.setStyleSpans(0, computeHighlighting(this.getText()));
     }
     Nodes.addInputMap(this, sequence(
-            consume(keyPressed(TAB), e -> this.insertText(this.getCaretPosition(), "  "))
+//            consume(keyPressed(TAB), e -> this.insertText(this.getCaretPosition(), "  "))
+            consume(keyPressed(TAB), e -> shiftRightManagement())
     ));
   }
 
