@@ -125,38 +125,6 @@ public class RuleModel {
     return _idMap.get(id);
   }
 
-  /**
-   * This function extracts the Imports from the current RuleModel.
-   *
-   * @param ii
-   * @return
-   */
-//  private Set<Path> extractImportPaths(ImportInfo ii) {
-//    HashSet<Path> set = new HashSet<>();
-//    Path filePath = ii.getFilePath();
-//    set.add(_rudiPath.resolve(filePath.subpath(1, filePath.getNameCount())));
-//    extractImportPathsHelper(ii, set);
-//    return set;
-//  }
-
-  /**
-   * Helper function of extractImportPaths.
-   *
-   * @param ii
-   * @param set
-   */
-//  private void extractImportPathsHelper(BasicInfo ii, HashSet set) {
-//    if (!ii.getChildren().isEmpty()) {
-//      for (BasicInfo child : ii.getChildren()) {
-//        if (child instanceof ImportInfo) {
-//          Path filePath = ((ImportInfo) child).getFilePath();
-//          set.add(_rudiPath.resolve(filePath.subpath(1, filePath.getNameCount())));
-//          extractImportPathsHelper(child, set);
-//        }
-//      }
-//    }
-//  }
-
   public void extractImportsAndIds(ImportInfo ii) {
     Path filePath = ii.getFilePath();
     _importSet.add(_rudiPath.resolve(filePath.subpath(1, filePath.getNameCount())));

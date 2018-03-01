@@ -13,7 +13,9 @@ import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiTreeCell;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
 import de.dfki.mlt.rudibugger.RuleTreeView.BasicTreeItem;
+import de.dfki.mlt.rudibugger.RuleTreeView.ImportTreeCell;
 import de.dfki.mlt.rudibugger.RuleTreeView.ImportTreeItem;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeCell;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeItem;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
 import java.io.FileNotFoundException;
@@ -24,6 +26,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
+import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -84,6 +87,13 @@ public class SideBarController {
           model.openFile(rp.getPath());
         }
       }
+    });
+
+    /* define how a cell in the ruleTreeView looks like */
+    ruleTreeView.setCellFactory((Object value) -> {
+      if (value instanceof ImportInfo)
+        return new ImportTreeCell();
+      else return new RuleTreeCell();
     });
 
 
