@@ -118,7 +118,6 @@ public class RudiCodeArea extends CodeArea {
       this.setStyleSpans(0, computeHighlighting(this.getText()));
     }
     Nodes.addInputMap(this, sequence(
-//            consume(keyPressed(TAB), e -> this.insertText(this.getCaretPosition(), "  "))
             consume(keyPressed(TAB), e -> shiftRightManagement())
     ));
   }
