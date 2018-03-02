@@ -92,25 +92,33 @@ public class MenuController {
       if (newVal == null) {
         saveItem.setDisable(true);
         saveAsItem.setDisable(true);
+        saveAllItem.setDisable(true);
 
       /* one known tab is selected and can be saved */
       } else if (((RudiTab) newVal).isKnown()) {
 
-        /* wait until the tab content has been modified */
-        newVal.hasBeenModifiedProperty().addListener((o2, oldVal2, newVal2) -> {
-          if (newVal2) {
-            saveItem.setDisable(false);
-          } else {
-            saveItem.setDisable(true);
-          }
-        });
+        if (newVal.hasBeenModifiedProperty().getValue()) {
+          saveItem.setDisable(false);
+        } else {
+          /* wait until the tab content has been modified */
+          newVal.hasBeenModifiedProperty().addListener((o2, oldVal2, newVal2) -> {
+            if (newVal2) {
+              saveItem.setDisable(false);
+            } else {
+              saveItem.setDisable(true);
+            }
+          });
+        }
 
         saveAsItem.setDisable(false);
+        saveAllItem.setDisable(false);
+
 
       /* a newly created file can only be saved as */
       } else if (! ((RudiTab) newVal).isKnown()) {
         saveItem.setDisable(true);
         saveAsItem.setDisable(false);
+        saveAllItem.setDisable(false);
       }
     });
 
@@ -316,7 +324,7 @@ public class MenuController {
   /** Action "Save all" */
   @FXML
   private void saveAllAction(ActionEvent event) {
-
+    _model.updateAllFiles();
   }
 
 

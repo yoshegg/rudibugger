@@ -35,9 +35,14 @@ public class TabStore {
   private final HBox tabBox;
 
   /** all open tabs linked to their path, to verify that none is opened twice */
-  private final HashMap<Path, RudiTab> openTabs;
+  private final ObjectProperty<HashMap<Path, RudiTab>> openTabs
+          = new SimpleObjectProperty<>(new HashMap<>());
+  public ObjectProperty<HashMap<Path, RudiTab>> openTabsProperty() {
+    return openTabs;
+  }
 
   /** the tabPanes, so that it will be possible to have multiple tabPanes */
+  // TODO: implement
   private final ObservableList<TabPane> tabPanes
           = FXCollections.observableArrayList();
 
@@ -52,7 +57,7 @@ public class TabStore {
 
   public TabStore(HBox ap) {
     tabBox = ap;
-    openTabs = new HashMap<>();
+//    openTabs = new HashMap<>();
   }
 
   /** This makes sure to add the new tab to the right tabPane */
@@ -75,8 +80,8 @@ public class TabStore {
   }
 
   public void openTab(FileAtPos request) {
-    if (openTabs.keySet().contains(request.getFile())) {
-      RudiTab requestedTab = openTabs.get(request.getFile());
+    if (openTabs.getValue().keySet().contains(request.getFile())) {
+      RudiTab requestedTab = openTabs.getValue().get(request.getFile());
 
       requestedTab._codeArea.showParagraphPretty(request.getPosition()-1);
       requestedTab._codeArea.moveTo(request.getPosition()-1, 0);
@@ -100,12 +105,12 @@ public class TabStore {
       newTab._codeArea.moveTo(request.getPosition()-1, 0);
       newTab.getTabPane().getSelectionModel().select(newTab);
 
-      openTabs.put(request.getFile(), newTab);
+      openTabs.getValue().put(request.getFile(), newTab);
       log.debug("Created requested tab.");
     }
   }
 
   public void closeTab(RudiTab tab) {
-    openTabs.remove(tab.getFile());
+    openTabs.getValue().remove(tab.getFile());
   }
 }

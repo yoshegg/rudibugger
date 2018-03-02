@@ -5,16 +5,22 @@
  */
 package de.dfki.mlt.rudibugger.TabManagement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static javafx.scene.input.KeyCode.*;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
+import static org.fxmisc.wellbehaved.event.EventPattern.*;
+import static org.fxmisc.wellbehaved.event.InputMap.*;
+import org.fxmisc.wellbehaved.event.Nodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -77,6 +83,9 @@ public class RudiCodeArea extends CodeArea {
     if (!"".equals(this.getText())) { // own fix to prevent IllegalStateException
       this.setStyleSpans(0, computeHighlighting(this.getText()));
     }
+    Nodes.addInputMap(this, sequence(
+            consume(keyPressed(TAB), e -> this.insertText(this.getCaretPosition(), "  "))
+    ));
   }
 
   private static StyleSpans<Collection<String>> computeHighlighting(String text) {

@@ -148,6 +148,7 @@ public class DataModel {
       put("openFileWith", "");
       put("openRuleWith", "");
       put("timeStampIndex", true);
+      put("saveOnCompile", 2);
     }};
 
     try {
@@ -508,6 +509,26 @@ public class DataModel {
   }
 
   /**
+   * This function is called when all files should be <b>quick-saved</b>
+   * (overwrite the old version of the file).
+   */
+  public void updateAllFiles() {
+
+    for (RudiTab tab : openTabsProperty().getValue().values()) {
+      Path file = tab.getFile();
+      String content = tab.getRudiCode();
+      if (tab.hasBeenModifiedProperty().getValue()) {
+        if (saveFile(file, content)) {
+          tab.setText(file.getFileName().toString());
+          tab.waitForModif();
+          log.debug("File " + file.getFileName() + " has been saved.");
+          notifySaved(file.getFileName().toString());
+        }
+      }
+    }
+  }
+
+  /**
    * This function is called when the content of a tab should be saved as a new
    * file.
    */
@@ -567,6 +588,12 @@ public class DataModel {
   }
 
   /******** Properties **********/
+
+  private final ObjectProperty<HashMap<Path, RudiTab>> openTabs
+          = new SimpleObjectProperty<>();
+  public ObjectProperty<HashMap<Path, RudiTab>> openTabsProperty() {
+    return openTabs;
+  }
 
   private final ObjectProperty<RudiTab> selectedTab
           = new SimpleObjectProperty<>();
@@ -678,6 +705,22 @@ public class DataModel {
    ****************************************************************************/
 
   public void startCompile() throws IOException, InterruptedException {
+    this.updateAllFiles();
+    // TODO: Ask if every open file should be saved
+//    switch ((int) _globalConfigs.get("saveOnCompile")) {
+//      case 2:
+//        log.debug("Asking to save");
+//        // show dialog
+//        break;
+//      case 1:
+//        // save on compile
+//        break;
+//      case 0:
+//        // don't save on compile
+//        break;
+//    }
+
+
     log.info("Starting compilation...");
     File mateTerminal = new File("/usr/bin/mate-terminal");
     Process p;
