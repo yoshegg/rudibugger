@@ -17,6 +17,6 @@
   -fx-selection-bar: #ffdead;
 }
 
-/*.root {
-  -fx-font-size: 28px;
-}*/
+.root {
+  -fx-font-size: 18px;
+}
