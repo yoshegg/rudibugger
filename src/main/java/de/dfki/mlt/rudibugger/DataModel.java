@@ -727,13 +727,16 @@ public class DataModel {
     String compileScript = getCompileFile().toString();
     if ("Linux".equals(System.getProperty("os.name"))) {
       String[] cmd;
+      String termString = "/usr/bin/xterm";
       if (mateTerminal.exists()) {
-        cmd = new String[] {"/usr/bin/mate-terminal", "-e", "sh -c 'cd "
-          + getRootFolder().toString() + ";" + compileScript + "'"};
-      } else {
-        cmd = new String[] { "/usr/bin/xterm", "-e", "sh -c 'cd "
-          + getRootFolder().toString() + ";" + compileScript + "'"};
+        termString = "/usr/bin/mate-terminal";
       }
+      cmd = new String[] { termString, "-e", "bash -c '"
+          + "cd " + getRootFolder().toString() + ";"
+          + compileScript + ";"
+          + "read -n1 -r -p \"Press any key to continue...\" key;'"
+      };
+
       log.debug("Executing the following command: " + Arrays.toString(cmd));
 
       p = Runtime.getRuntime().exec(cmd);
