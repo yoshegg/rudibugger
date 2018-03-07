@@ -6,6 +6,7 @@
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
 import static de.dfki.mlt.rudimant.common.Constants.*;
+import java.util.HashMap;
 import javafx.event.ActionEvent;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
@@ -19,26 +20,35 @@ import javafx.scene.control.SeparatorMenuItem;
  */
 public class ImportContextMenu extends ContextMenu {
 
+  /** Map of icons */
+  static HashMap<Integer, CheckMenuItem> CHECK_MENU_ITEMS
+    = new HashMap<Integer, CheckMenuItem>() {{
+    put(STATE_ALWAYS, CMI_ALWAYS);
+    put(STATE_IF_TRUE, CMI_IF_TRUE);
+    put(STATE_IF_FALSE, CMI_IF_FALSE);
+    put(STATE_NEVER, CMI_NEVER);
+  }};
+
   /* the text of the different MenuItems */
-  private final CheckMenuItem CMI_ALWAYS
+  private static final CheckMenuItem CMI_ALWAYS
           = new CheckMenuItem("Aways log all child rules");
-  private final CheckMenuItem CMI_IF_TRUE
+  private static final CheckMenuItem CMI_IF_TRUE
           = new CheckMenuItem("Log all child rules if true");
-  private final CheckMenuItem CMI_IF_FALSE
+  private static final CheckMenuItem CMI_IF_FALSE
           = new CheckMenuItem("Log all child rules if false");
-  private final CheckMenuItem CMI_NEVER
+  private static final CheckMenuItem CMI_NEVER
           = new CheckMenuItem("Never log all child rules");
 
   /* the clicked ImportMenuItem */
-  private final ImportTreeItem _item;
+  private final ImportInfoExtended _item;
 
   /* the constructor */
-  public ImportContextMenu(ImportTreeItem item) {
+  public ImportContextMenu(ImportInfoExtended ii) {
     super();
-    _item = item;
+    _item = ii;
 
     initializeMenuItems();
-    retrieveState(_item.stateProperty().get());
+    retrieveState(_item.getState());
   }
 
   /* set logging MenuItems' ActionEvents */
@@ -46,25 +56,25 @@ public class ImportContextMenu extends ContextMenu {
 
     /* set open MenuItem */
     MenuItem openFile = new MenuItem("Open "
-            + _item.getFile().getFileName().toString());
+            + _item.getFilePath().getFileName().toString());
     openFile.setOnAction((ActionEvent e) -> {
-      _item._model.openFile(_item.getFile());
+      _item._model.openFile(_item.getFilePath());
     });
 
     SeparatorMenuItem sep = new SeparatorMenuItem();
 
     /* set actions when logging menu items are clicked */
     CMI_ALWAYS.setOnAction((ActionEvent e) -> {
-      _item.setState(STATE_ALWAYS);
+      _item.setStateProperty(STATE_ALWAYS);
     });
     CMI_IF_TRUE.setOnAction((ActionEvent e) -> {
-      _item.setState(STATE_IF_TRUE);
+      _item.setStateProperty(STATE_IF_TRUE);
     });
     CMI_IF_FALSE.setOnAction((ActionEvent e) -> {
-      _item.setState(STATE_IF_FALSE);
+      _item.setStateProperty(STATE_IF_FALSE);
     });
     CMI_NEVER.setOnAction((ActionEvent e) -> {
-      _item.setState(STATE_NEVER);
+      _item.setStateProperty(STATE_NEVER);
     });
     this.getItems().addAll(openFile, sep, CMI_ALWAYS, CMI_IF_TRUE,
             CMI_IF_FALSE, CMI_NEVER);
@@ -72,20 +82,7 @@ public class ImportContextMenu extends ContextMenu {
 
   /* get the state from the TreeItem */
   private void retrieveState(Integer state) {
-    switch (state) {
-      case STATE_ALWAYS:
-        CMI_ALWAYS.setSelected(true);
-        break;
-      case STATE_IF_TRUE:
-        CMI_IF_TRUE.setSelected(true);
-        break;
-      case STATE_IF_FALSE:
-        CMI_IF_FALSE.setSelected(true);
-        break;
-      case STATE_NEVER:
-        CMI_NEVER.setSelected(true);
-        break;
-    }
+    CHECK_MENU_ITEMS.get(state).setSelected(true);
   }
 
 }

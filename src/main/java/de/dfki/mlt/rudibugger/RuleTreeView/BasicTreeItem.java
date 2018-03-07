@@ -30,21 +30,21 @@ public class BasicTreeItem extends TreeItem<HBox> {
 
   /** the logger */
   static Logger log = LoggerFactory.getLogger("rudiLog");
+//
+//  /** the label of the TreeItem */
+//  private final Label _label;
 
-  /** the label of the TreeItem */
-  private final Label _label;
+//  /** the icon to indicate the _state */
+//  private final ImageView stateIndicator;
 
-  /** the icon to indicate the _state */
-  private final ImageView stateIndicator;
+//  /* the line this object was declared */
+//  private final int _line;
 
-  /* the line this object was declared */
-  private final int _line;
+//  /* the state describes how the rule(s) should be logged */
+//  protected final IntegerProperty _state;
 
-  /* the state describes how the rule(s) should be logged */
-  protected final IntegerProperty _state;
-
-  /** the shown content of this TreeItem */
-  public HBox _hb;
+//  /** the shown content of this TreeItem */
+//  public HBox _hb;
 
   /** underlying content */
   protected final BasicInfo _content;
@@ -59,7 +59,7 @@ public class BasicTreeItem extends TreeItem<HBox> {
     _label = new Label(_content.getLabel());
     _line = _content.getLine();
     stateIndicator = new ImageView();
-    _state = new SimpleIntegerProperty();
+//    _state = new SimpleIntegerProperty();
     this.setState(STATE_NEVER);
 
     /* disable doubleclick expand/collapse when clicking on the icon */
@@ -76,12 +76,12 @@ public class BasicTreeItem extends TreeItem<HBox> {
       }
     });
 
-    /* fill HBox */
-    _hb = new HBox();
-    _hb.getChildren().add(stateIndicator);
-    _hb.getChildren().add(_label);
-    _hb.setAlignment(Pos.CENTER_LEFT);
-    this.setValue(_hb);
+//    /* fill HBox */
+//    _hb = new HBox();
+//    _hb.getChildren().add(stateIndicator);
+//    _hb.getChildren().add(_label);
+//    _hb.setAlignment(Pos.CENTER_LEFT);
+//    this.setValue(_hb);
 
 
   }
@@ -130,20 +130,20 @@ public class BasicTreeItem extends TreeItem<HBox> {
     stateIndicator.setImage(getIcon(state));
   }
 
-  /* returns the private field _state */
-  public IntegerProperty stateProperty() {
-    return _state;
-  }
-
-  /** returns the private field _line */
-  public int getLine() {
-    return _line;
-  }
-
-  /** returns the private field _label */
-  public Label getLabel() {
-    return _label;
-  }
+//  /* returns the private field _state */
+//  public IntegerProperty stateProperty() {
+//    return _state;
+//  }
+//
+//  /** returns the private field _line */
+//  public int getLine() {
+//    return _line;
+//  }
+//
+//  /** returns the private field _label */
+//  public Label getLabel() {
+//    return _label;
+//  }
 
   /** returns all Children of a selected TreeItem */
   protected HashSet<BasicTreeItem> getAllChildren() {
