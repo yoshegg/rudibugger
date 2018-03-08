@@ -64,12 +64,15 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
       setGraphic(null);
       pseudoClassStateChanged(erroneousImportClass, false);
 
-      /* define double click on empty cell */
-        this.setOnMouseClicked(e -> {
-          if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY) {
-            e.consume();
-          }
-        });
+      /* define click on empty cell */
+      this.setOnMouseClicked(e -> {
+          e.consume();
+
+      });
+      /* define context menu request on empty cell */
+      this.setOnContextMenuRequested(e -> {
+          e.consume();
+      });
 
     } else {
 
@@ -94,13 +97,17 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         setText(null);
         setGraphic(hbox);
 
-        /* define a click on the graphic / checkbox */
-        stateIndicator.setOnMouseClicked(e -> { ri.cycleThroughStates(); });
-
         /* define the context menu */
         this.setOnContextMenuRequested(e -> {
           RuleContextMenu contextMenu = new RuleContextMenu(ri);
           contextMenu.show(this, e.getScreenX(), e.getScreenY());
+        });
+
+        /* define a click on the graphic / checkbox */
+        stateIndicator.setOnMouseClicked(e -> {
+          if (e.getButton() == MouseButton.PRIMARY)
+            ri.cycleThroughStates();
+          if (e.getClickCount() == 2 ) e.consume();
         });
 
         /* define double click on cell: open rule (file at specific line) */
