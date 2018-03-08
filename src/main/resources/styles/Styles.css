@@ -17,6 +17,10 @@
   -fx-selection-bar: #ffdead;
 }
 
-.root {
+/*.root {
   -fx-font-size: 18px;
+}*/
+
+.tree-cell:erroneousImport {
+  -fx-background-color: red;
 }

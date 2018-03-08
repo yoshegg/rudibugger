@@ -13,7 +13,7 @@ import de.dfki.mlt.rudibugger.RPC.LogData.DatePart;
 import de.dfki.mlt.rudibugger.RPC.LogData.StringPart;
 import de.dfki.mlt.rudibugger.RPC.TimestampCellFactory;
 import static de.dfki.mlt.rudibugger.RPC.TimestampCellFactory.dt;
-import de.dfki.mlt.rudibugger.RuleStore.RuleModel.RuleContainer;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleModel.RuleContainer;
 import de.dfki.mlt.rudibugger.TabManagement.TabStore;
 import java.util.ArrayList;
 import javafx.application.Platform;

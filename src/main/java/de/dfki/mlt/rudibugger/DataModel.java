@@ -16,7 +16,7 @@ import de.dfki.mlt.rudibugger.RPC.LogData;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerServer;
-import de.dfki.mlt.rudibugger.RuleStore.RuleModel;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleModel;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.TabManagement.FileAtPos;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
@@ -282,7 +282,7 @@ public class DataModel {
     _ruleLocFile = _rootFolder.resolve(_generatedFolder.resolve(RULE_LOCATION_FILE));
     if (Files.exists(_ruleLocFile)) {
       log.debug(_ruleLocFile.getFileName().toString() + " has been found.");
-      ruleModel = RuleModel.createNewRuleModel();
+      ruleModel = RuleModel.createNewRuleModel(this);
       ruleModel.readInRuleModel(_ruleLocFile, _rudiFolder.getValue());
       setRuleModelChangeStatus(RULE_MODEL_NEWLY_CREATED);
     } else {

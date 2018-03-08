@@ -6,83 +6,85 @@
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
 import static de.dfki.mlt.rudimant.common.Constants.*;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import javafx.event.ActionEvent;
-import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.ToggleGroup;
 
 
 /**
+ * This is the context menu appearing when making a right click on an import in
+ * the ruleTreeView.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class ImportContextMenu extends ContextMenu {
 
-  /** Map of icons */
-  static HashMap<Integer, CheckMenuItem> CHECK_MENU_ITEMS
-    = new HashMap<Integer, CheckMenuItem>() {{
-    put(STATE_ALWAYS, CMI_ALWAYS);
-    put(STATE_IF_TRUE, CMI_IF_TRUE);
-    put(STATE_IF_FALSE, CMI_IF_FALSE);
-    put(STATE_NEVER, CMI_NEVER);
-  }};
+  /**
+   * Contains all the <code>RadioMenuItem</code>s of the
+   * <code>ImportContextMenu</code>.
+   */
+  private static final LinkedHashMap<Integer, RadioMenuItem> RADIO_MENU_ITEMS
+          = new LinkedHashMap<Integer, RadioMenuItem>() {{
+      put(STATE_ALWAYS, new RadioMenuItem("Always log all child rules"));
+      put(STATE_IF_TRUE, new RadioMenuItem("Log all child rules if true"));
+      put(STATE_IF_FALSE, new RadioMenuItem("Log all child rules if false"));
+      put(STATE_NEVER, new RadioMenuItem("Never log any child rules"));
+    }};
 
-  /* the text of the different MenuItems */
-  private static final CheckMenuItem CMI_ALWAYS
-          = new CheckMenuItem("Aways log all child rules");
-  private static final CheckMenuItem CMI_IF_TRUE
-          = new CheckMenuItem("Log all child rules if true");
-  private static final CheckMenuItem CMI_IF_FALSE
-          = new CheckMenuItem("Log all child rules if false");
-  private static final CheckMenuItem CMI_NEVER
-          = new CheckMenuItem("Never log all child rules");
+  /**
+   * Used to have a fictional member in the <code>ToggleGroup</code> so that
+   * this one is selected when that ruleLogging state of the import is not
+   * unique.
+   */
+  private static final RadioMenuItem PSEUDO_BUTTON = new RadioMenuItem();
 
-  /* the clicked ImportMenuItem */
+  /** The clicked Import */
   private final ImportInfoExtended _item;
 
-  /* the constructor */
+  /**
+   * An <code>ImportContextMenu</code> should appear when a context menu was
+   * requested by clicking on an import.
+   */
   public ImportContextMenu(ImportInfoExtended ii) {
     super();
     _item = ii;
-
     initializeMenuItems();
-    retrieveState(_item.getState());
+
+    /* mark the current state */
+    if (_item.getState() != STATE_PARTLY)
+      RADIO_MENU_ITEMS.get(_item.getState()).setSelected(true);
+    else
+      PSEUDO_BUTTON.setSelected(true);
   }
 
-  /* set logging MenuItems' ActionEvents */
+  /** Initializes MenuItems */
   private void initializeMenuItems() {
 
-    /* set open MenuItem */
+    /* set open MenuItem and separator */
     MenuItem openFile = new MenuItem("Open "
-            + _item.getFilePath().getFileName().toString());
+            + _item.getAbsolutePath().getFileName().toString());
     openFile.setOnAction((ActionEvent e) -> {
-      _item._model.openFile(_item.getFilePath());
+      _item._model.openFile(_item.getAbsolutePath());
     });
-
     SeparatorMenuItem sep = new SeparatorMenuItem();
+    this.getItems().addAll(openFile, sep);
 
-    /* set actions when logging menu items are clicked */
-    CMI_ALWAYS.setOnAction((ActionEvent e) -> {
-      _item.setStateProperty(STATE_ALWAYS);
-    });
-    CMI_IF_TRUE.setOnAction((ActionEvent e) -> {
-      _item.setStateProperty(STATE_IF_TRUE);
-    });
-    CMI_IF_FALSE.setOnAction((ActionEvent e) -> {
-      _item.setStateProperty(STATE_IF_FALSE);
-    });
-    CMI_NEVER.setOnAction((ActionEvent e) -> {
-      _item.setStateProperty(STATE_NEVER);
-    });
-    this.getItems().addAll(openFile, sep, CMI_ALWAYS, CMI_IF_TRUE,
-            CMI_IF_FALSE, CMI_NEVER);
+    /* set RadioMenuButtons */
+    ToggleGroup toggleGroup = new ToggleGroup();
+    for (Integer s : RADIO_MENU_ITEMS.keySet()) {
+      RADIO_MENU_ITEMS.get(s).setOnAction(e -> {
+        _item.setAllChildrenStates(s);
+      });
+      this.getItems().add(RADIO_MENU_ITEMS.get(s));
+      RADIO_MENU_ITEMS.get(s).setToggleGroup(toggleGroup);
+    }
+
+    /* add pseudo button */
+    PSEUDO_BUTTON.setToggleGroup(toggleGroup);
+
   }
-
-  /* get the state from the TreeItem */
-  private void retrieveState(Integer state) {
-    CHECK_MENU_ITEMS.get(state).setSelected(true);
-  }
-
 }

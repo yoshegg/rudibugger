@@ -112,7 +112,7 @@ public final class HelperWindows {
 
     /* open the FileChooser */
     File chosenRuleLoggingStateFile = chooser.showOpenDialog(stage);
-    log.debug("ruleLoggingState file chooser has been openeder.");
+    log.debug("ruleLoggingState file chooser has been opened.");
 
     /* abort selection if window has been closed */
     if (chosenRuleLoggingStateFile == null) {
