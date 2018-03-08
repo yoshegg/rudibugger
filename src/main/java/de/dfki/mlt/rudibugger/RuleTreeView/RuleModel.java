@@ -89,14 +89,14 @@ public class RuleModel {
         ii.getChildren().add(upgradeInfos(child, ii, model));
       }
       if (parent != null)
-        ((ImportInfoExtended) ii.getParent()).addImportListener(ii);
+        ((ImportInfoExtended) ii.getParent()).addListener(ii);
       return ii;
     } else {
       RuleInfoExtended ri = new RuleInfoExtended((RuleInfo) current, model, parent);
       for (BasicInfo child : current.getChildren()) {
         ri.getChildren().add(upgradeInfos(child, ri, model));
       }
-      ri.getParentImport().addRuleListener(ri);
+      ri.getParentImport().addListener(ri);
       return ri;
     }
   }

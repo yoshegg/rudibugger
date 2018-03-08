@@ -127,30 +127,34 @@ public class ImportInfoExtended extends ImportInfo {
 
   }
 
+  /**
+   * The ruleLoggingStates of all the children of this
+   * <code>ImportInfoExtended</code> (e.g. other imports or rules).
+   */
   private final HashSet<IntegerProperty> childStates = new HashSet<>();
-  private final HashSet<IntegerProperty> childImports = new HashSet<>();
 
-  public void addRuleListener(RuleInfoExtended ri) {
-    childStates.add(ri.stateProperty());
-    ri.stateProperty().addListener((cl, ov, nv) -> {
+  /**
+   * Defines a listener to listen to changes of a given BasicInfo. This
+   * BasicInfo will first be added to the children of this
+   * <code>ImportInfoExtended</code> and then a listener will be created to
+   * observe its ruleLoggingState.
+   *
+   * @param   bi
+   *          A <code>ImportInfoExtended</code> or
+   *          <code>RuleInfoExtended</code>.
+   *
+   */
+  public void addListener(BasicInfo bi) {
+    IntegerProperty state;
+    if (bi instanceof RuleInfoExtended)
+      state = ((RuleInfoExtended) bi).stateProperty();
+    else
+      state = ((ImportInfoExtended) bi).stateProperty();
+
+    childStates.add(state);
+    state.addListener((cl, ov, nv) -> {
       Integer t = -1;
       for (IntegerProperty x : childStates) {
-        if ((t == -1) | (x.getValue().equals(t))) {
-          t = x.getValue();
-        } else {
-          this.setStateProperty(STATE_PARTLY);
-          return;
-        }
-      }
-      this.setStateProperty(t);
-    });
-  }
-
-  public void addImportListener(ImportInfoExtended ii) {
-    childImports.add(ii.stateProperty());
-    ii.stateProperty().addListener((cl, ov, nv) -> {
-      Integer t = -1;
-      for (IntegerProperty x : childImports) {
         if ((t == -1) | (x.getValue().equals(t))) {
           t = x.getValue();
         } else {
