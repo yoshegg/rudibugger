@@ -6,13 +6,17 @@
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
 import static de.dfki.mlt.rudimant.common.Constants.*;
+import de.dfki.mlt.rudimant.common.ErrorInfo;
 import java.util.LinkedHashMap;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
 
 
 /**
@@ -65,13 +69,31 @@ public class ImportContextMenu extends ContextMenu {
   private void initializeMenuItems() {
 
     /* set open MenuItem and separator */
-    MenuItem openFile = new MenuItem("Open "
-            + _item.getAbsolutePath().getFileName().toString());
+    CustomMenuItem openFile = new CustomMenuItem(new Label("Open "
+            + _item.getAbsolutePath().getFileName().toString()));
     openFile.setOnAction((ActionEvent e) -> {
       _item._model.openFile(_item.getAbsolutePath());
     });
     SeparatorMenuItem sep = new SeparatorMenuItem();
     this.getItems().addAll(openFile, sep);
+
+    /* set possibility to open error (if any) */
+    if (! _item.getErrors().isEmpty()) {
+      for (ErrorInfo e : _item.getErrors()) {
+        String msg = "Go to error " + (_item.getErrors().indexOf(e) + 1) + " (line "
+                + e.getLocation().getLineNumber() + ")";
+        Label label = new Label(msg);
+        CustomMenuItem errorItem = new CustomMenuItem(label);
+        Tooltip t = new Tooltip(e.getMessage());
+        Tooltip.install(label, t);
+        errorItem.setOnAction(f -> {
+          _item._model.openRule(_item.getAbsolutePath(),
+                                e.getLocation().getLineNumber());
+        });
+        this.getItems().add(errorItem);
+      }
+      this.getItems().add(sep);
+    }
 
     /* set RadioMenuButtons */
     ToggleGroup toggleGroup = new ToggleGroup();

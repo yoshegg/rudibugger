@@ -9,6 +9,8 @@ import static de.dfki.mlt.rudimant.common.Constants.*;
 import java.util.LinkedHashMap;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
@@ -71,8 +73,8 @@ public class RuleContextMenu extends ContextMenu {
   private void initializeMenuItems() {
 
     /* set open MenuItem */
-    MenuItem openRule = new MenuItem("Open rule (line "
-            + _item.getLine() + ")");
+    CustomMenuItem openRule = new CustomMenuItem(new Label("Open rule (line "
+            + _item.getLine() + ")"));
     openRule.setOnAction((ActionEvent e) -> {
       _item._model.openRule(_item.getSourceFile(),
               _item.getLine());
