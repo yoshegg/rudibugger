@@ -138,7 +138,8 @@ public class MainApp extends Application {
     log.info("Rudibugger has been started");
 
     /* opening last openend project (if any) */
-    if (model._globalConfigs.get("lastOpenedProject") != "") {
+    if (! model._globalConfigs.get("lastOpenedProject").equals("")) {
+      log.info("Opening previous project...");
       model.initProject(Paths.get(
               (String) model._globalConfigs.get("lastOpenedProject")));
     }

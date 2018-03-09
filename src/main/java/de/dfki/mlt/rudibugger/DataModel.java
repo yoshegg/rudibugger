@@ -366,6 +366,7 @@ public class DataModel {
     _runFile.setValue(null);
     _rudiFolder.setValue(null);
     ruleModel = null;
+    _configs.clear();
     ruleLocWatch.shutDownListener();
     rudiFolderWatch.shutDownListener();
     closeConnectionToRudimant();
@@ -976,8 +977,10 @@ public class DataModel {
       rudibuggerClient.disconnect();
     } catch (IOException e) {
       log.error(e.toString());
+    } catch (NullPointerException e) {
+      log.info("Could not close connection to vonda, "
+              + "it was probably never established.");
     }
-    //rs.disconnect();
   }
 
   private RuleLogger rl;

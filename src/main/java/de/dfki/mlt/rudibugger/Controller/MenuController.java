@@ -84,14 +84,14 @@ public class MenuController {
         newRudiFileItem.setDisable(false);
         loadLoggingStateMenu.setDisable(false);
         saveLoggingStateItem.setDisable(false);
-        replaceCompileButton(false);
+        replaceCompileButton();
       } else if ((int) newVal == PROJECT_CLOSED) {
         log.debug("Project closed: disable GUI-elements.");
         closeProjectItem.setDisable(true);
         newRudiFileItem.setDisable(true);
         loadLoggingStateMenu.setDisable(true);
         saveLoggingStateItem.setDisable(true);
-        replaceCompileButton(true);
+        replaceCompileButton();
       }
     });
 
@@ -211,7 +211,7 @@ public class MenuController {
     }
   }
 
-  public void replaceCompileButton(boolean reset) {
+  public void replaceCompileButton() {
     if (_model.getConfiguration().isEmpty()
         | ! _model.getConfiguration().containsKey("customCompileCommands")) {
       if (toolBar.getItems().contains(customCompileButton)) {
