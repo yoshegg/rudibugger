@@ -84,7 +84,7 @@ public class RudiFolderHierarchy {
     return true;
   }
 
-  /** remove a file from the hierarcyh (this only works for files!) */
+  /** remove a file from the hierarchy (this only works for files!) */
   public void removeFromFileHierarchy(RudiPath file) {
     Path f = file.getPath();
 

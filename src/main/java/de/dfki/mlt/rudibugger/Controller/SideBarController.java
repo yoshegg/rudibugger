@@ -12,10 +12,12 @@ import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiTreeCell;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
-import de.dfki.mlt.rudibugger.RuleTreeView.BasicTreeItem;
-import de.dfki.mlt.rudibugger.RuleTreeView.ImportTreeItem;
-import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeItem;
+import de.dfki.mlt.rudibugger.RuleTreeView.BasicInfoTreeCell;
+import de.dfki.mlt.rudibugger.RuleTreeView.ImportInfoExtended;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleInfoExtended;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.nio.file.Files;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,6 +26,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * This controller manages the left part of rudibugger window:
@@ -37,7 +40,7 @@ public class SideBarController {
   static Logger log = LoggerFactory.getLogger("rudiLog");
 
   /** the DataModel */
-  private DataModel model;
+  private DataModel _model;
 
   /**
    * the RuleTreeViewState, needed to save and load the expansion and rule
@@ -51,10 +54,10 @@ public class SideBarController {
    * @param model
    */
   public void initModel(DataModel model) {
-    if (this.model != null) {
+    if (this._model != null) {
       throw new IllegalStateException("Model can only be initialized once");
     }
-    this.model = model;
+    this._model = model;
 
     /* this Listener keeps the rudiTreeView containing the .rudi files up to date */
     model.projectStatusProperty().addListener((o, oldVal, newVal) -> {
@@ -82,6 +85,9 @@ public class SideBarController {
         }
       }
     });
+
+    /* define how a cell in the ruleTreeView looks like */
+    ruleTreeView.setCellFactory(value -> new BasicInfoTreeCell());
 
 
     /* this Listener builds or modifies the RuleTreeView, if the RuleModel
@@ -125,6 +131,34 @@ public class SideBarController {
           break;
       }
     });
+
+    /* Listen to request for saving ruleLoggingState */
+    model.ruleLoggingStateSaveRequestProperty().addListener((o, ov, nv) -> {
+      if (nv) {
+        log.debug("Requested to save ruleLoggingState.");
+        ruleTreeViewState.retrieveTreeState(ruleTreeView);
+        model.saveRuleLoggingState(ruleTreeViewState);
+        model.resetRuleLoggingStateSaveRequestProperty();
+      }
+    });
+
+    /* Listen to request for loading ruleLoggingState */
+    _model.ruleLoggingStateLoadRequestProperty().addListener((o, ov, nv) -> {
+      if (nv == null) return;
+      RuleTreeViewState rtvs;
+      try {
+        Yaml yaml = new Yaml();
+        rtvs = (RuleTreeViewState) yaml.load(new FileReader(nv.toFile()));
+      } catch (FileNotFoundException e) {
+        log.error("Could not read in configuration file");
+        return;
+      }
+      ruleTreeViewState = rtvs;
+      ruleTreeViewState.setTreeState(ruleTreeView);
+
+      /* reset this listener */
+      _model.ruleLoggingStateLoadRequestProperty().set(null);
+    });
   }
 
   /**
@@ -132,24 +166,24 @@ public class SideBarController {
    * their state.
    */
   private void markFilesInRudiList() {
-    for (RudiPath x : model.rudiHierarchy.rudiPathSet) {
+    for (RudiPath x : _model.rudiHierarchy.rudiPathSet) {
 
       /* mark the main .rudi file, must be in root folder */
-      if (model.ruleModel.rootImport.getFilePath().getFileName().equals(
+      if (_model.ruleModel.rootImport.getAbsolutePath().getFileName().equals(
               x.getPath().getFileName())) {
         x._usedProperty().setValue(FILE_IS_MAIN);
         continue;
       }
 
       /* mark the wrapper file,  must be in root folder */
-      if (model.getWrapperClass().getFileName()
+      if (_model.getWrapperClass().getFileName()
               .equals(x.getPath().getFileName())) {
         x._usedProperty().setValue(FILE_IS_WRAPPER);
         continue;
       }
 
       /* mark the other files */
-      if (model.ruleModel.getImportSet().contains(x.getPath())) {
+      if (_model.ruleModel.getImportSet().contains(x.getPath())) {
         x._usedProperty().setValue(FILE_USED);
       } else {
         x._usedProperty().setValue(FILE_NOT_USED);
@@ -161,53 +195,52 @@ public class SideBarController {
     rudiTreeView.refresh();
   }
 
-  public static ImportTreeItem buildTreeView(DataModel model) {
+  public static TreeItem buildTreeView(DataModel model) {
 
-    /* retrieve rootImport from given DataModel */
-    ImportInfo rootImport = model.ruleModel.rootImport;
+    ImportInfoExtended root = model.ruleModel.rootImport;
 
     /* build rootItem */
-    ImportTreeItem rootItem = new ImportTreeItem(model.ruleModel.rootImport, model);
+    TreeItem<ImportInfoExtended> rootItem = new TreeItem(root);
 
     /* iterate over rootImport's children and add them to the rootItem */
-    for (BasicInfo obj : rootImport.getChildren()) {
-      rootItem.getChildren().add(buildTreeViewHelper(obj, model));
+    for (BasicInfo obj : root.getChildren()) {
+      rootItem.getChildren().add(buildTreeViewHelper(obj, model, root));
     }
 
     /* return the rootItem */
     return rootItem;
   }
 
-  private static BasicTreeItem buildTreeViewHelper(BasicInfo unknownObj,
-          DataModel model) {
+  private static TreeItem buildTreeViewHelper(BasicInfo unknownObj,
+          DataModel model, BasicInfo parent) {
 
     /* the next object is an Import */
     if (unknownObj instanceof ImportInfo) {
-      ImportInfo newImport = (ImportInfo) unknownObj;
+      ImportInfoExtended newImport = (ImportInfoExtended) unknownObj;
 
       /* build newImportItem */
-      ImportTreeItem newImportItem = new ImportTreeItem(newImport, model);
+      TreeItem<ImportInfoExtended> newImportItem = new TreeItem(newImport);
 
       /* iterate over newImport's children and add them to the rootItem */
       for (BasicInfo obj : newImport.getChildren()) {
-        newImportItem.getChildren().add(buildTreeViewHelper(obj, model));
+        newImportItem.getChildren().add(buildTreeViewHelper(obj, model, newImport));
       }
       return newImportItem;
     }
 
     /* the next object is a Rule */
     if (unknownObj instanceof RuleInfo) {
-      RuleInfo newRule = (RuleInfo) unknownObj;
+      RuleInfoExtended newRule = (RuleInfoExtended) unknownObj;
 
       /* build newRuleItem */
-      RuleTreeItem newRuleItem = new RuleTreeItem(newRule, model);
+      TreeItem<RuleInfoExtended> newRuleItem = new TreeItem(newRule);
 
-      /* bind newRuleItem's properties to the Rule */
-      newRuleItem.setState(newRule.getState());
+//      /* bind newRuleItem's properties to the Rule */
+//      newRuleItem.setState(newRule.getState());
 
       /* iterate over newRule's children and add them to the rootItem */
       for (BasicInfo obj : newRule.getChildren()) {
-        newRuleItem.getChildren().add(buildTreeViewHelper(obj, model));
+        newRuleItem.getChildren().add(buildTreeViewHelper(obj, model, newRule));
       }
       return newRuleItem;
     }
@@ -219,17 +252,17 @@ public class SideBarController {
     }
   }
 
-  private static void expandTreeItem(BasicTreeItem item) {
+  private static void expandTreeItem(TreeItem item) {
     item.setExpanded(true);
     item.getChildren().forEach((child) -> {
-      expandTreeItem((BasicTreeItem) child);
+      expandTreeItem((TreeItem) child);
     });
   }
 
-  private static void collapseTreeItem(BasicTreeItem item) {
+  private static void collapseTreeItem(TreeItem item) {
     item.setExpanded(false);
     item.getChildren().forEach((child) -> {
-      collapseTreeItem((BasicTreeItem) child);
+      collapseTreeItem((TreeItem) child);
     });
   }
 
@@ -255,7 +288,7 @@ public class SideBarController {
   @FXML
   private void expandAll(ActionEvent event) {
     if (ruleTreeView.getRoot() != null) {
-      expandTreeItem((BasicTreeItem) ruleTreeView.getRoot());
+      expandTreeItem((TreeItem) ruleTreeView.getRoot());
     }
   }
 
@@ -263,7 +296,7 @@ public class SideBarController {
   @FXML
   private void collapseAll(ActionEvent event) {
     if (ruleTreeView.getRoot() != null) {
-      collapseTreeItem((BasicTreeItem) ruleTreeView.getRoot());
+      collapseTreeItem((TreeItem) ruleTreeView.getRoot());
       ruleTreeView.getRoot().setExpanded(true);
     }
   }

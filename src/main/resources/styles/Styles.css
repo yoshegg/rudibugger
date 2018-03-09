@@ -18,5 +18,9 @@
 }
 
 /*.root {
-  -fx-font-size: 28px;
+  -fx-font-size: 18px;
 }*/
+
+.tree-cell:erroneousImport {
+  -fx-background-color: red;
+}

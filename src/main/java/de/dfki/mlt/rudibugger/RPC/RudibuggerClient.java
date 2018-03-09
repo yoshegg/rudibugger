@@ -1,10 +1,12 @@
 package de.dfki.mlt.rudibugger.RPC;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
-import de.dfki.mlt.rudimant.common.SimpleClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.dfki.mlt.rudimant.common.SimpleClient;
 /**
  * an XML-RPC Client to connect to the debugger in Java
  */
@@ -18,8 +20,10 @@ public class RudibuggerClient {
   /** A client that connects to the server on localhost at the given port to
    *  send log information to the debugger.
    */
-  public RudibuggerClient(int portNumber) {
-    client = new SimpleClient(portNumber);
+  public RudibuggerClient(String host, int portNumber,
+      Consumer<String[]> consumer) {
+    client = new SimpleClient(host, portNumber, consumer, "Debugger");
+    client.initClient();
   }
 
   public boolean isConnected() {

@@ -10,6 +10,7 @@ import de.dfki.mlt.rudibugger.Controller.MenuController;
 import de.dfki.mlt.rudibugger.Controller.SideBarController;
 import de.dfki.mlt.rudibugger.Controller.StatusBarController;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -38,8 +39,8 @@ public class MainApp extends Application {
   public void start(Stage stage) throws Exception {
 
     /* initialize log4j / sfl4j */
-    BasicConfigurator.configure();
-    PropertyConfigurator.configure("src/main/resources/log4j.properties");
+    //BasicConfigurator.configure();
+    //PropertyConfigurator.configure("src/main/resources/log4j.properties");
 
     log.info("Starting Rudibugger");
 
@@ -126,7 +127,7 @@ public class MainApp extends Application {
     /* define GUI */
     Scene scene = new Scene(root);
     scene.getStylesheets().add("/styles/Styles.css");
-    stage.setTitle("Rudibugger (beta)");
+    stage.setTitle("Rudibugger");
     stage.setScene(scene);
     Image icon = new Image("file:src/main/resources/"
             + "icons/baggerschaufel_titlebar_32x32.png");
@@ -135,6 +136,13 @@ public class MainApp extends Application {
     /* show Rudibugger */
     stage.show();
     log.info("Rudibugger has been started");
+
+    /* opening last openend project (if any) */
+    if (model._globalConfigs.get("lastOpenedProject") != "") {
+      model.initProject(Paths.get(
+              (String) model._globalConfigs.get("lastOpenedProject")));
+    }
+
   }
 
   /**

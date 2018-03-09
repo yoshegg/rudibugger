@@ -8,6 +8,7 @@ package de.dfki.mlt.rudibugger.Controller;
 
 import de.dfki.mlt.rudibugger.DataModel;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
@@ -52,8 +53,8 @@ public class SettingsController {
     customEditor.setUserData("custom");
 
     /* define custom commands (if any) */
-    customFileEditor.setText(_model._globalConfigs.get("openFileWith"));
-    customRuleEditor.setText(_model._globalConfigs.get("openRuleWith"));
+    customFileEditor.setText((String) _model._globalConfigs.get("openFileWith"));
+    customRuleEditor.setText((String) _model._globalConfigs.get("openRuleWith"));
 
     /* set the listeners */
     editorSetting.selectedToggleProperty().addListener((cl, ot, nt) -> {
@@ -66,7 +67,6 @@ public class SettingsController {
           break;
         case "emacs":
           _model._globalConfigs.put("editor", "emacs");
-          _model.startEmacsConnection("emacs");
           customTextFields.setDisable(true);
           break;
         case "custom":
@@ -83,13 +83,25 @@ public class SettingsController {
       _model._globalConfigs.put("openRuleWith", nv);
     });
 
-    /* select current editor */
+    /* preselect current editor */
     for (Toggle x : editorSetting.getToggles()) {
       if (((RadioButton) x).getUserData()
               .equals(_model._globalConfigs.get("editor"))) {
         x.setSelected(true);
       }
     }
+
+    /* TIMESTAMP CHECKBOX SETTINGS */
+
+    /* preselect timeStampIndexCheckBox */
+    timeStampIndexCheckBox.setSelected(
+            (boolean) _model._globalConfigs.get("timeStampIndex")
+    );
+
+    /* listener */
+    timeStampIndexCheckBox.selectedProperty().addListener((cl, ov, nv) -> {
+      _model._globalConfigs.put("timeStampIndex", nv);
+    });
 
   }
 
@@ -117,4 +129,7 @@ public class SettingsController {
 
   @FXML
   private TextField customRuleEditor;
+
+  @FXML
+  private CheckBox timeStampIndexCheckBox;
 }

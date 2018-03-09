@@ -5,16 +5,19 @@
  */
 package de.dfki.mlt.rudibugger.RPC;
 
-import de.dfki.mlt.rudibugger.DataModel;
 import java.util.Arrays;
+import java.util.function.Consumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.dfki.mlt.rudibugger.DataModel;
 
 /**
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class RudibuggerAPI {
+public class RudibuggerAPI implements Consumer<String[]> {
 
   /** the logger */
   static Logger log = LoggerFactory.getLogger("rudibuggerAPI");
@@ -37,6 +40,8 @@ public class RudibuggerAPI {
                 Arrays.toString(args));
     }
   }
+
+  public void accept(String[] args) { parseCommand(args); }
 
   public void printLog(String[] args) {
     try {

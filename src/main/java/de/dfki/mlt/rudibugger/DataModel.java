@@ -5,23 +5,27 @@
  */
 package de.dfki.mlt.rudibugger;
 
+import de.dfki.lt.j2emacs.J2Emacs;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
-import static de.dfki.mlt.rudimant.common.Constants.*;
-import static de.dfki.mlt.rudibugger.Helper.*;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiFolderHierarchy;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
+import static de.dfki.mlt.rudibugger.Helper.*;
 import de.dfki.mlt.rudibugger.RPC.JavaFXLogger;
 import de.dfki.mlt.rudibugger.RPC.LogData;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerServer;
-import de.dfki.mlt.rudibugger.RuleStore.RuleModel;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleModel;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.TabManagement.FileAtPos;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
 import de.dfki.mlt.rudibugger.WatchServices.RudiFolderWatch;
 import de.dfki.mlt.rudibugger.WatchServices.RuleLocationWatch;
+import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.RuleLogger;
+import de.dfki.mlt.rudimant.common.SimpleClient;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -65,7 +69,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
-import de.dfki.lt.j2emacs.J2Emacs;
 
 /**
  * The DataModel represents the business logic of rudibugger.
@@ -97,7 +100,7 @@ public class DataModel {
    * GLOBAL KNOWLEDGE
    ****************************************************************************/
 
-  public ObservableMap<String, String> _globalConfigs;
+  public ObservableMap<String, Object> _globalConfigs;
   private Path _globalConfigurationFile;
 
   public ObservableList<String> _recentProjects;
@@ -107,7 +110,7 @@ public class DataModel {
   public void initializeGlobalKnowledge() {
 
     /* get global configuration file */
-    ObservableMap<String, String> globalConfigs;
+    ObservableMap<String, Object> globalConfigs;
     _globalConfigurationFile = globalConfigPath.resolve("rudibuggerConfiguration.yml");
     try {
       Map tempMap = (Map<String, String>) yaml.load(
@@ -118,7 +121,7 @@ public class DataModel {
       globalConfigs = createGlobalConfigFile();
     }
     _globalConfigs = globalConfigs;
-
+    checkGlobalConfigFileForCompleteness();
 
     /* get recent projects */
     ObservableList<String> recentProjects;
@@ -138,13 +141,26 @@ public class DataModel {
     _recentProjects = recentProjects;
   }
 
-  /** create global configuration file */
-  private ObservableMap<String, String> createGlobalConfigFile() {
-    HashMap tempConfig = new HashMap<String, String>() {{
+  private static final HashMap<String, Object> DEFAULT_GLOBAL_CONFIGURATION =
+          new HashMap<String, Object>() {{
       put("editor", "rudibugger");
       put("openFileWith", "");
       put("openRuleWith", "");
+      put("timeStampIndex", true);
+      put("saveOnCompile", 2);
+      put("lastOpenedProject", "");
     }};
+
+  private void checkGlobalConfigFileForCompleteness() {
+    for (String s : DEFAULT_GLOBAL_CONFIGURATION.keySet()) {
+      if (! _globalConfigs.containsKey(s))
+        _globalConfigs.put(s, DEFAULT_GLOBAL_CONFIGURATION.get(s));
+    }
+  }
+
+  /** create global configuration file */
+  private ObservableMap<String, Object> createGlobalConfigFile() {
+    HashMap tempConfig = DEFAULT_GLOBAL_CONFIGURATION;
 
     try {
         FileWriter writer = new FileWriter(_globalConfigurationFile.toFile());
@@ -170,7 +186,7 @@ public class DataModel {
     });
 
     /* keep global settings updated */
-    _globalConfigs.addListener((MapChangeListener.Change<? extends String, ? extends String> ml) -> {
+    _globalConfigs.addListener((MapChangeListener.Change<? extends String, ? extends Object> ml) -> {
       yaml.dump(_globalConfigs);
       try {
         FileWriter writer = new FileWriter(_globalConfigurationFile.toFile());
@@ -224,6 +240,8 @@ public class DataModel {
     readInRudiFiles();
     initRules();
     setProjectStatus(PROJECT_OPEN);
+    _globalConfigs.put("lastOpenedProject",
+                       selectedProjectYml.toAbsolutePath().toString());
     log.info("Initializing done.");
     connectToRudimant();
   }
@@ -277,7 +295,7 @@ public class DataModel {
     _ruleLocFile = _rootFolder.resolve(_generatedFolder.resolve(RULE_LOCATION_FILE));
     if (Files.exists(_ruleLocFile)) {
       log.debug(_ruleLocFile.getFileName().toString() + " has been found.");
-      ruleModel = RuleModel.createNewRuleModel();
+      ruleModel = RuleModel.createNewRuleModel(this);
       ruleModel.readInRuleModel(_ruleLocFile, _rudiFolder.getValue());
       setRuleModelChangeStatus(RULE_MODEL_NEWLY_CREATED);
     } else {
@@ -336,6 +354,10 @@ public class DataModel {
     String wrapperName = split[split.length-1];
     _wrapperClass = _rudiFolder.getValue().resolve(wrapperName + RULE_FILE_EXTENSION);
 
+    /* set the ruleLoggingStates folder */
+    _ruleLoggingStatesFolder = globalConfigPath
+      .resolve("loggingConfigurations").resolve(_projectName.get());
+
   }
 
   public void closeProject() {
@@ -349,6 +371,7 @@ public class DataModel {
     closeConnectionToRudimant();
     setRuleModelChangeStatus(RULE_MODEL_REMOVED);
     setProjectStatus(PROJECT_CLOSED);
+    _globalConfigs.put("lastOpenedProject", "");
   }
 
   /*****************************************************************************
@@ -395,16 +418,19 @@ public class DataModel {
    * @param file the wanted file
    */
   public void openFile(Path file) {
-    switch (_globalConfigs.get("editor")) {
+    switch ((String) _globalConfigs.get("editor")) {
       case "rudibugger":
         requestTabOfFile(file);
         return;
       case "emacs":
-          _j2e.visitFilePosition(file.toFile(), 1, 0, "");
-          return;
+        if (! isEmacsAlive()) {
+          startEmacsConnection("emacs");
+        }
+        _j2e.visitFilePosition(file.toFile(), 1, 0, "");
+        return;
       case "custom":
         try {
-          String cmd = _globalConfigs.get("openFileWith")
+          String cmd = ((String) _globalConfigs.get("openFileWith"))
                   .replaceAll("%file", file.toString());
           Runtime.getRuntime().exec(cmd);
           return;
@@ -428,16 +454,19 @@ public class DataModel {
    * @param position the line of the wanted rule
    */
   public void openRule(Path file, Integer position) {
-    switch (_globalConfigs.get("editor")) {
+    switch ((String) _globalConfigs.get("editor")) {
       case "rudibugger":
         requestTabOfRule(file, position);
         return;
       case "emacs":
+        if (! isEmacsAlive()) {
+          startEmacsConnection("emacs");
+        }
         _j2e.visitFilePosition(file.toFile(), position, 0, "");
         return;
       case "custom":
         try {
-          String cmd = _globalConfigs.get("openRuleWith")
+          String cmd = ((String) _globalConfigs.get("openRuleWith"))
                   .replaceAll("%file", file.toString())
                   .replaceAll("%line", position.toString());
           Runtime.getRuntime().exec(cmd);
@@ -494,6 +523,26 @@ public class DataModel {
   }
 
   /**
+   * This function is called when all files should be <b>quick-saved</b>
+   * (overwrite the old version of the file).
+   */
+  public void updateAllFiles() {
+
+    for (RudiTab tab : openTabsProperty().getValue().values()) {
+      Path file = tab.getFile();
+      String content = tab.getRudiCode();
+      if (tab.hasBeenModifiedProperty().getValue()) {
+        if (saveFile(file, content)) {
+          tab.setText(file.getFileName().toString());
+          tab.waitForModif();
+          log.debug("File " + file.getFileName() + " has been saved.");
+          notifySaved(file.getFileName().toString());
+        }
+      }
+    }
+  }
+
+  /**
    * This function is called when the content of a tab should be saved as a new
    * file.
    */
@@ -514,7 +563,7 @@ public class DataModel {
       return;
     }
       if (! file.getFileName().toString().endsWith(RULE_FILE_EXTENSION)) {
-      file = Paths.get(file.toString() + RULE_FILE_EXTENSION);
+        file = Paths.get(file.toString() + RULE_FILE_EXTENSION);
     }
 
     if (saveFile(file, content)) {
@@ -553,6 +602,12 @@ public class DataModel {
   }
 
   /******** Properties **********/
+
+  private final ObjectProperty<HashMap<Path, RudiTab>> openTabs
+          = new SimpleObjectProperty<>();
+  public ObjectProperty<HashMap<Path, RudiTab>> openTabsProperty() {
+    return openTabs;
+  }
 
   private final ObjectProperty<RudiTab> selectedTab
           = new SimpleObjectProperty<>();
@@ -664,19 +719,38 @@ public class DataModel {
    ****************************************************************************/
 
   public void startCompile() throws IOException, InterruptedException {
+    this.updateAllFiles();
+    // TODO: Ask if every open file should be saved
+//    switch ((int) _globalConfigs.get("saveOnCompile")) {
+//      case 2:
+//        log.debug("Asking to save");
+//        // show dialog
+//        break;
+//      case 1:
+//        // save on compile
+//        break;
+//      case 0:
+//        // don't save on compile
+//        break;
+//    }
+
+
     log.info("Starting compilation...");
     File mateTerminal = new File("/usr/bin/mate-terminal");
     Process p;
     String compileScript = getCompileFile().toString();
     if ("Linux".equals(System.getProperty("os.name"))) {
       String[] cmd;
+      String termString = "/usr/bin/xterm";
       if (mateTerminal.exists()) {
-        cmd = new String[] {"/usr/bin/mate-terminal", "-e", "sh -c 'cd "
-          + getRootFolder().toString() + ";" + compileScript + "'"};
-      } else {
-        cmd = new String[] { "/usr/bin/xterm", "-e", "sh -c 'cd "
-          + getRootFolder().toString() + ";" + compileScript + "'"};
+        termString = "/usr/bin/mate-terminal";
       }
+      cmd = new String[] { termString, "-e", "bash -c '"
+          + "cd " + getRootFolder().toString() + ";"
+          + compileScript + ";"
+          + "read -n1 -r -p \"Press any key to continue...\" key;'"
+      };
+
       log.debug("Executing the following command: " + Arrays.toString(cmd));
 
       p = Runtime.getRuntime().exec(cmd);
@@ -715,12 +789,131 @@ public class DataModel {
     }
   }
 
+
+  /*****************************************************************************
+   * RULE LOGGING STATE MODEL
+   ****************************************************************************/
+
+  /** project's specific configuration file */
+  private Path _ruleLoggingStatesFolder;
+
+  /** project's folder for ruleLoggingState configurations */
+
+  /** list of recent ruleLoggingStates */
+  private ArrayList<Path> _recentRuleLoggingStates;
+
+
+
+  /* SAVE SELECTION */
+
+  /** Used to signalize the save request of a ruleLoggingState */
+  private final SimpleBooleanProperty _ruleLoggingStateSaveRequestProperty
+    = new SimpleBooleanProperty(false);
+
+  /**
+   * Used in a Controller to listen to property.
+   *
+   * @return
+   */
+  public BooleanProperty ruleLoggingStateSaveRequestProperty() {
+    return _ruleLoggingStateSaveRequestProperty;
+  }
+
+  public void resetRuleLoggingStateSaveRequestProperty() {
+    _ruleLoggingStateSaveRequestProperty.setValue(Boolean.FALSE);
+  }
+
+  /** Request to save the current ruleLoggingState selection */
+  public void requestSaveRuleLoggingState() {
+    _ruleLoggingStateSaveRequestProperty.setValue(Boolean.TRUE);
+  }
+
+  /**
+   * Save the current ruleLoggingState selection
+   *
+   * @param rtvs
+   */
+  public void saveRuleLoggingState(RuleTreeViewState rtvs) {
+    Path savePath = _ruleLoggingStatesFolder;
+    if (! Files.exists(savePath)) savePath.toFile().mkdirs();
+
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setInitialDirectory(savePath.toFile());
+    FileChooser.ExtensionFilter extFilter
+            = new FileChooser.ExtensionFilter
+        ("YAML file (*" + "yml" + ")", "*" + "yml");
+    fileChooser.getExtensionFilters().add(extFilter);
+    Path file;
+    try {
+      file = (fileChooser.showSaveDialog(stageX)).toPath();
+    } catch (NullPointerException e) {
+      return;
+    }
+
+    if (!file.getFileName().toString().endsWith(".yml")) {
+      file = Paths.get(file.toString() + ".yml");
+    }
+
+    try {
+      FileWriter writer = new FileWriter(savePath.resolve(file).toFile());
+      yaml.dump(rtvs, writer);
+    } catch (IOException e) {
+      log.error(e.getMessage());
+    }
+    log.debug("Saved file " + file.toString());
+
+  }
+
+
+  /* LOAD SELECTION */
+
+  /** used to signalize the load request of a ruleLoggingState */
+  private final SimpleObjectProperty<Path> _ruleLoggingStateLoadRequestProperty
+    = new SimpleObjectProperty<>();
+
+  /**
+   * Used in a Controller to listen to property.
+   *
+   * @return
+   */
+  public ObjectProperty<Path> ruleLoggingStateLoadRequestProperty() {
+    return _ruleLoggingStateLoadRequestProperty;
+  }
+
+  /**
+   * load a given file as ruleSelectionState
+   *
+   * @param x
+   */
+  public void loadRuleLoggingState(Path x) {
+    _ruleLoggingStateLoadRequestProperty.setValue(x);
+  }
+
+  public void openRuleLoggingStateFileChooser() {
+    loadRuleLoggingState(HelperWindows.openRuleLoggingStateFile(
+      stageX, _ruleLoggingStatesFolder));
+  }
+
+  /* RULE LOGGING STATE */
+
+  private final SimpleObjectProperty<RuleTreeViewState> _ruleLoggingStateProperty
+    = new SimpleObjectProperty<>();
+
+  public ObjectProperty ruleLoggingStateProperty() {
+    return _ruleLoggingStateProperty;
+  }
+
+  public ArrayList<Path> getRecentRuleLoggingStates() {
+    return _recentRuleLoggingStates;
+  }
+
+  private void readInRuleLoggingStates() {};
+
+
+
   /*****************************************************************************
    * CONNECTION TO EMACS
    ****************************************************************************/
-
-  /** The buffer name for the file output in case of a connection to Emacs */
-  private String _compilationBufferName = "*" + "rudibugger" + "*";
 
   /** An Emacs connector */
   private J2Emacs _j2e = null;
@@ -729,16 +922,9 @@ public class DataModel {
 
     File emacsLispPath = new File("src/main/resources/emacs/");
     _j2e = new J2Emacs("Rudibugger", emacsLispPath, null);
-    _j2e.addStartHook("(load \""
-        + new File(emacsLispPath, "cplan").getAbsolutePath()
-        + "\")");
+    _j2e.addStartHook(
+        "(setq auto-mode-alist (append (list '(\"\\\\.rudi\" . java-mode))))");
     _j2e.startEmacs();
-    // make an EmacsBufferAppender in j2e-compilation mode
-//    Appender ea = _j2e.new EmacsBufferAppender(_compilationBufferName, true);
-//    org.apache.log4j.Logger uplogger = org.apache.log4j.Logger.getLogger("UtterancePlanner");
-//    uplogger.removeAllAppenders();
-//    uplogger.setAdditivity(false);
-//    uplogger.addAppender(ea);
   }
 
   public boolean isEmacsAlive() {
@@ -759,31 +945,32 @@ public class DataModel {
    * CONNECTION TO RUDIMANT
    ****************************************************************************/
 
-  public RudibuggerServer rs;
-  public RudibuggerClient vonda;
+  //public RudibuggerServer rs;
+  public RudibuggerClient rudibuggerClient;
 
   private void connectToRudimant() throws IOException {
-    int rudibuggerPort = ((_configs.get("SERVER_RUDIBUGGER") == null)
-            ? SERVER_PORT_RUDIBUGGER : (int) _configs.get("SERVER_RUDIBUGGER"));
+    //int rudibuggerPort = ((_configs.get("SERVER_RUDIBUGGER") == null)
+    //        ? SERVER_PORT_RUDIBUGGER : (int) _configs.get("SERVER_RUDIBUGGER"));
     int rudimantPort = ((_configs.get("SERVER_RUDIMANT") == null)
             ? SERVER_PORT_RUDIMANT : (int) _configs.get("SERVER_RUDIMANT"));
 
-    rs = new RudibuggerServer(new RudibuggerAPI(this));
-    rs.startServer(rudibuggerPort);
-    log.debug("RudibuggerServer has been started "
-            + "on port [" + rudibuggerPort + "].");
-    vonda = new RudibuggerClient(rudimantPort);
-    log.debug("RudibuggerClient has been started and is looking for rudimant "
-            + "(server) on port [" + rudimantPort + "].");
+    rudibuggerClient = new RudibuggerClient("localhost", rudimantPort,
+        new RudibuggerAPI(this));
+
+    log.debug("RudibuggerClient has been started "
+            + "on port [" + rudimantPort + "].");
+    //vonda = new RudibuggerClient("localhost", rudimantPort);
+    //log.debug("RudibuggerClient has been started and is looking for rudimant "
+    //       + "(server) on port [" + rudimantPort + "].");
   }
 
   private void closeConnectionToRudimant() {
     try {
-      vonda.disconnect();
+      rudibuggerClient.disconnect();
     } catch (IOException e) {
       log.error(e.toString());
     }
-    rs.stopServer();
+    //rs.disconnect();
   }
 
   private RuleLogger rl;
@@ -793,7 +980,7 @@ public class DataModel {
     rl = new RuleLogger();
     rl.setRootInfo(ruleModel.rootImport);
     jfl = new JavaFXLogger();
-    rl.setPrinter(jfl);
+    rl.registerPrinter(jfl);
     rl.logAllRules();
   }
 

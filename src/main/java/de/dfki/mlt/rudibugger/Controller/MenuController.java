@@ -1,4 +1,4 @@
-/*
+ /*
  * Rudibugger is a debugger for .rudi code
  * written in the context of a bachelor's thesis
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
@@ -74,10 +74,14 @@ public class MenuController {
         log.debug("Project open: enable GUI-elements.");
         closeProjectItem.setDisable(false);
         newRudiFileItem.setDisable(false);
+        loadLoggingStateMenu.setDisable(false);
+        saveLoggingStateItem.setDisable(false);
       } else if ((int) newVal == PROJECT_CLOSED) {
         log.debug("Project closed: disable GUI-elements.");
         closeProjectItem.setDisable(true);
         newRudiFileItem.setDisable(true);
+        loadLoggingStateMenu.setDisable(true);
+        saveLoggingStateItem.setDisable(true);
       }
     });
 
@@ -88,25 +92,33 @@ public class MenuController {
       if (newVal == null) {
         saveItem.setDisable(true);
         saveAsItem.setDisable(true);
+        saveAllItem.setDisable(true);
 
       /* one known tab is selected and can be saved */
       } else if (((RudiTab) newVal).isKnown()) {
 
-        /* wait until the tab content has been modified */
-        newVal.hasBeenModifiedProperty().addListener((o2, oldVal2, newVal2) -> {
-          if (newVal2) {
-            saveItem.setDisable(false);
-          } else {
-            saveItem.setDisable(true);
-          }
-        });
+        if (newVal.hasBeenModifiedProperty().getValue()) {
+          saveItem.setDisable(false);
+        } else {
+          /* wait until the tab content has been modified */
+          newVal.hasBeenModifiedProperty().addListener((o2, oldVal2, newVal2) -> {
+            if (newVal2) {
+              saveItem.setDisable(false);
+            } else {
+              saveItem.setDisable(true);
+            }
+          });
+        }
 
         saveAsItem.setDisable(false);
+        saveAllItem.setDisable(false);
+
 
       /* a newly created file can only be saved as */
       } else if (! ((RudiTab) newVal).isKnown()) {
         saveItem.setDisable(true);
         saveAsItem.setDisable(false);
+        saveAllItem.setDisable(false);
       }
     });
 
@@ -130,6 +142,17 @@ public class MenuController {
         checkForOpenProject(Paths.get(x));
       });
       openRecentProjectMenu.getItems().add(mi);
+    });
+  }
+
+  private void buildLoadRuleSelectionStateMenu() {
+    loadLoggingStateMenu.getItems().clear();
+    _model.getRecentRuleLoggingStates().forEach((x) -> {
+      MenuItem mi = new MenuItem(x.toString());
+      mi.setOnAction((event) -> {
+        _model.loadRuleLoggingState(x);
+      });
+      loadLoggingStateMenu.getItems().add(mi);
     });
   }
 
@@ -254,6 +277,12 @@ public class MenuController {
   @FXML
   private Menu loadLoggingStateMenu;
 
+  /** Action "Open configuration file..." */
+  @FXML
+  private void openRuleLoggingStateConfigurationFile(ActionEvent event) {
+    _model.openRuleLoggingStateFileChooser();
+  }
+
 
   /** MenuItem "Save logging state..." */
   @FXML
@@ -262,7 +291,7 @@ public class MenuController {
   /** Action "Save logging state" */
   @FXML
   private void saveLoggingStateAction(ActionEvent event) {
-
+    _model.requestSaveRuleLoggingState();
   }
 
 
@@ -295,7 +324,7 @@ public class MenuController {
   /** Action "Save all" */
   @FXML
   private void saveAllAction(ActionEvent event) {
-
+    _model.updateAllFiles();
   }
 
 
