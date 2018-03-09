@@ -10,6 +10,7 @@ import de.dfki.mlt.rudibugger.Controller.MenuController;
 import de.dfki.mlt.rudibugger.Controller.SideBarController;
 import de.dfki.mlt.rudibugger.Controller.StatusBarController;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -135,6 +136,13 @@ public class MainApp extends Application {
     /* show Rudibugger */
     stage.show();
     log.info("Rudibugger has been started");
+
+    /* opening last openend project (if any) */
+    if (model._globalConfigs.get("lastOpenedProject") != "") {
+      model.initProject(Paths.get(
+              (String) model._globalConfigs.get("lastOpenedProject")));
+    }
+
   }
 
   /**

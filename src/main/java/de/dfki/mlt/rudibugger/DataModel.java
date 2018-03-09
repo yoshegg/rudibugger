@@ -121,7 +121,7 @@ public class DataModel {
       globalConfigs = createGlobalConfigFile();
     }
     _globalConfigs = globalConfigs;
-
+    checkGlobalConfigFileForCompleteness();
 
     /* get recent projects */
     ObservableList<String> recentProjects;
@@ -141,15 +141,26 @@ public class DataModel {
     _recentProjects = recentProjects;
   }
 
-  /** create global configuration file */
-  private ObservableMap<String, Object> createGlobalConfigFile() {
-    HashMap tempConfig = new HashMap<String, Object>() {{
+  private static final HashMap<String, Object> DEFAULT_GLOBAL_CONFIGURATION =
+          new HashMap<String, Object>() {{
       put("editor", "rudibugger");
       put("openFileWith", "");
       put("openRuleWith", "");
       put("timeStampIndex", true);
       put("saveOnCompile", 2);
+      put("lastOpenedProject", "");
     }};
+
+  private void checkGlobalConfigFileForCompleteness() {
+    for (String s : DEFAULT_GLOBAL_CONFIGURATION.keySet()) {
+      if (! _globalConfigs.containsKey(s))
+        _globalConfigs.put(s, DEFAULT_GLOBAL_CONFIGURATION.get(s));
+    }
+  }
+
+  /** create global configuration file */
+  private ObservableMap<String, Object> createGlobalConfigFile() {
+    HashMap tempConfig = DEFAULT_GLOBAL_CONFIGURATION;
 
     try {
         FileWriter writer = new FileWriter(_globalConfigurationFile.toFile());
@@ -229,6 +240,8 @@ public class DataModel {
     readInRudiFiles();
     initRules();
     setProjectStatus(PROJECT_OPEN);
+    _globalConfigs.put("lastOpenedProject",
+                       selectedProjectYml.toAbsolutePath().toString());
     log.info("Initializing done.");
     connectToRudimant();
   }
@@ -358,6 +371,7 @@ public class DataModel {
     closeConnectionToRudimant();
     setRuleModelChangeStatus(RULE_MODEL_REMOVED);
     setProjectStatus(PROJECT_CLOSED);
+    _globalConfigs.put("lastOpenedProject", "");
   }
 
   /*****************************************************************************
