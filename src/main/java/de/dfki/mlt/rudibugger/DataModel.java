@@ -655,6 +655,8 @@ public class DataModel {
   /** Configuration as defined in the project's .yml */
   private Map<String, Object> _configs;
 
+  public Map<String, Object> getConfiguration() { return _configs; }
+
   /** the RuleModel represents all the data concerning rules */
   public RuleModel ruleModel;
 
@@ -718,7 +720,16 @@ public class DataModel {
    * METHODS
    ****************************************************************************/
 
-  public void startCompile() throws IOException, InterruptedException {
+  public void startDefaultCompile() throws IOException, InterruptedException {
+    String compileScript = getCompileFile().toString();
+    String cmd = "bash -c '"
+          + "cd " + getRootFolder().toString() + ";"
+          + compileScript + ";"
+          + "read -n1 -r -p \"Press any key to continue...\" key;'";
+    startCompile(cmd);
+  }
+
+  public void startCompile(String command) throws IOException, InterruptedException {
     this.updateAllFiles();
     // TODO: Ask if every open file should be saved
 //    switch ((int) _globalConfigs.get("saveOnCompile")) {
@@ -738,18 +749,14 @@ public class DataModel {
     log.info("Starting compilation...");
     File mateTerminal = new File("/usr/bin/mate-terminal");
     Process p;
-    String compileScript = getCompileFile().toString();
+
     if ("Linux".equals(System.getProperty("os.name"))) {
       String[] cmd;
       String termString = "/usr/bin/xterm";
       if (mateTerminal.exists()) {
         termString = "/usr/bin/mate-terminal";
       }
-      cmd = new String[] { termString, "-e", "bash -c '"
-          + "cd " + getRootFolder().toString() + ";"
-          + compileScript + ";"
-          + "read -n1 -r -p \"Press any key to continue...\" key;'"
-      };
+      cmd = new String[] { termString, "-e", command};
 
       log.debug("Executing the following command: " + Arrays.toString(cmd));
 

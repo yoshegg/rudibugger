@@ -15,12 +15,20 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.logging.Level;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SplitMenuButton;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,12 +84,14 @@ public class MenuController {
         newRudiFileItem.setDisable(false);
         loadLoggingStateMenu.setDisable(false);
         saveLoggingStateItem.setDisable(false);
+        replaceCompileButton(false);
       } else if ((int) newVal == PROJECT_CLOSED) {
         log.debug("Project closed: disable GUI-elements.");
         closeProjectItem.setDisable(true);
         newRudiFileItem.setDisable(true);
         loadLoggingStateMenu.setDisable(true);
         saveLoggingStateItem.setDisable(true);
+        replaceCompileButton(true);
       }
     });
 
@@ -177,6 +187,7 @@ public class MenuController {
           } catch (IOException e) {
             log.error("Could not read in " + ymlFile.getFileName());
           }
+
           break;
         case OVERWRITE_CHECK_NEW_WINDOW:
         //TODO: not implemented yet.
@@ -200,6 +211,50 @@ public class MenuController {
     }
   }
 
+  public void replaceCompileButton(boolean reset) {
+    if (_model.getConfiguration().isEmpty()
+        | ! _model.getConfiguration().containsKey("customCompileCommands")) {
+      if (toolBar.getItems().contains(customCompileButton)) {
+        toolBar.getItems().remove(customCompileButton);
+        toolBar.getItems().add(0, compileButton);
+      }
+    } else if (_model.getConfiguration().containsKey("customCompileCommands")) {
+      toolBar.getItems().remove(compileButton);
+      customCompileButton = new SplitMenuButton();
+      customCompileButton.setText("Compile");
+      customCompileButton.setOnAction(e -> {
+        try {
+          _model.startDefaultCompile();
+        } catch (IOException | InterruptedException ex) {
+          log.error(ex.toString());
+        }
+
+      });
+
+      /* iterate over alternative compile commands */
+      for (String k : ((LinkedHashMap<String, String>) _model.getConfiguration()
+              .get("customCompileCommands")).keySet()) {
+        Label l = new Label(k);
+        CustomMenuItem cmi = new CustomMenuItem(l);
+        String cmd = ((LinkedHashMap<String, String>)
+                _model.getConfiguration().get("customCompileCommands")).get(k);
+        Tooltip t = new Tooltip(cmd);
+        Tooltip.install(l, t);
+        cmi.setOnAction(f -> {
+          try {
+            _model.startCompile(cmd);
+          } catch (IOException | InterruptedException ex) {
+            log.error(ex.toString());
+          }
+        });
+        customCompileButton.getItems().add(cmi);
+
+      }
+      toolBar.getItems().add(0, customCompileButton);
+    }
+
+  }
+
 
   /*****************************************************************************
    * The different GUI elements
@@ -208,6 +263,9 @@ public class MenuController {
   /* the compile button */
   @FXML
   private Button compileButton;
+
+  /** Custom compile button */
+  private SplitMenuButton customCompileButton;
 
   /* the run button */
   @FXML
@@ -348,14 +406,18 @@ public class MenuController {
 
 
   /*****************************************************************************
-   * Button actions
+   * Button actions & toolBar
   *****************************************************************************/
+
+  /** Contains buttons */
+  @FXML
+  private ToolBar toolBar;
 
   /* Clicking the compile button */
   @FXML
   private void startCompile(ActionEvent event) throws IOException,
           InterruptedException {
-    _model.startCompile();
+    _model.startDefaultCompile();
   }
 
   /* Clicking the run button */

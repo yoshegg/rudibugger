@@ -11,7 +11,7 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="36.0" prefWidth="494.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.Controller.MenuController">
+<VBox prefHeight="36.0" prefWidth="494.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.Controller.MenuController">
    <children>
       <MenuBar>
          <menus>
@@ -137,7 +137,7 @@
             </Menu>
          </menus>
       </MenuBar>
-      <ToolBar prefHeight="40.0" prefWidth="200.0">
+      <ToolBar fx:id="toolBar" prefHeight="40.0" prefWidth="200.0">
          <items>
             <Button fx:id="compileButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#startCompile" text="Compile" />
             <Button fx:id="runButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#startRun" text="Run" />
