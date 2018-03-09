@@ -6,13 +6,12 @@
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
 import static de.dfki.mlt.rudimant.common.Constants.*;
-import de.dfki.mlt.rudimant.common.ErrorInfo;
+import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
 import java.util.LinkedHashMap;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleGroup;
@@ -77,9 +76,9 @@ public class ImportContextMenu extends ContextMenu {
     SeparatorMenuItem sep = new SeparatorMenuItem();
     this.getItems().addAll(openFile, sep);
 
-    /* set possibility to open error (if any) */
-    if (! _item.getErrors().isEmpty()) {
-      for (ErrorInfo e : _item.getErrors()) {
+    /* set possibility to open errors or warnings (if any) */
+    if (! _item.getErrors().isEmpty() || ! _item.getWarnings().isEmpty()) {
+      for (ErrorWarningInfo e : _item.getErrors()) {
         String msg = "Go to error " + (_item.getErrors().indexOf(e) + 1) + " (line "
                 + e.getLocation().getLineNumber() + ")";
         Label label = new Label(msg);
@@ -91,6 +90,19 @@ public class ImportContextMenu extends ContextMenu {
                                 e.getLocation().getLineNumber());
         });
         this.getItems().add(errorItem);
+      }
+      for (ErrorWarningInfo e : _item.getWarnings()) {
+        String msg = "Go to warning " + (_item.getWarnings().indexOf(e) + 1) + " (line "
+                + e.getLocation().getLineNumber() + ")";
+        Label label = new Label(msg);
+        CustomMenuItem warningItem = new CustomMenuItem(label);
+        Tooltip t = new Tooltip(e.getMessage());
+        Tooltip.install(label, t);
+        warningItem.setOnAction(f -> {
+          _item._model.openRule(_item.getAbsolutePath(),
+                                e.getLocation().getLineNumber());
+        });
+        this.getItems().add(warningItem);
       }
       this.getItems().add(sep);
     }

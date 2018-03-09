@@ -51,8 +51,10 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
   }};
 
   /** Used to visually distinguish erroneous imports with CSS */
-  private final PseudoClass erroneousImportClass
-          = PseudoClass.getPseudoClass("erroneousImport");
+  private final PseudoClass errorsInImportClass
+          = PseudoClass.getPseudoClass("errorsInImport");
+  private final PseudoClass warningsInImportClass
+          = PseudoClass.getPseudoClass("warningsInImport");
 
   @Override
   protected void updateItem(BasicInfo bi, boolean empty) {
@@ -62,7 +64,8 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
 
       setText(null);
       setGraphic(null);
-      pseudoClassStateChanged(erroneousImportClass, false);
+      pseudoClassStateChanged(errorsInImportClass, false);
+      pseudoClassStateChanged(warningsInImportClass, false);
 
       /* define click on empty cell */
       this.setOnMouseClicked(e -> {
@@ -82,7 +85,8 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
       if (bi instanceof RuleInfoExtended) {
         RuleInfoExtended ri = (RuleInfoExtended) bi;
         stateIndicator = new ImageView(ICONS_RULES.get(ri.getState()));
-        pseudoClassStateChanged(erroneousImportClass, false);
+        pseudoClassStateChanged(errorsInImportClass, false);
+        pseudoClassStateChanged(warningsInImportClass, false);
 
         /* define a listener to reflect the rule logging state */
         ri.stateProperty().addListener((o, oldVal, newVal) -> {
@@ -123,8 +127,9 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         ImportInfoExtended ii = (ImportInfoExtended) bi;
         stateIndicator = new ImageView(ICONS_IMPORTS.get(ii.getState()));
 
-        /* visually indicate errors happened during compile */
-        pseudoClassStateChanged(erroneousImportClass, !ii.getErrors().isEmpty());
+        /* visually indicate errors and warnings happened during compile */
+        pseudoClassStateChanged(errorsInImportClass, !ii.getErrors().isEmpty());
+        pseudoClassStateChanged(warningsInImportClass, !ii.getWarnings().isEmpty());
 
         /* define a listener to reflect the rule logging state */
         ii.stateProperty().addListener((o, oldVal, newVal) -> {
