@@ -750,14 +750,17 @@ public class DataModel {
     log.info("Starting compilation...");
     File mateTerminal = new File("/usr/bin/mate-terminal");
     Process p;
+    String windowTitle = "Compiling " + _projectName.get();
+    String titleOpt = "-T";
 
     if ("Linux".equals(System.getProperty("os.name"))) {
       String[] cmd;
       String termString = "/usr/bin/xterm";
       if (mateTerminal.exists()) {
         termString = "/usr/bin/mate-terminal";
+        titleOpt = "-t";
       }
-      cmd = new String[] { termString, "-e", command};
+      cmd = new String[] { termString, titleOpt, windowTitle, "-e", command};
 
       log.debug("Executing the following command: " + Arrays.toString(cmd));
 
