@@ -23,7 +23,7 @@ public class RudibuggerClient {
   public RudibuggerClient(String host, int portNumber,
       Consumer<String[]> consumer) {
     client = new SimpleClient(host, portNumber, consumer, "Debugger");
-    client.initClient();
+    client.init();
   }
 
   public boolean isConnected() {
@@ -35,11 +35,7 @@ public class RudibuggerClient {
   }
 
   public void setLoggingStatus(int ruleId, int what) {
-    try {
-      client.send(Integer.toString(ruleId), Integer.toString(what));
-    } catch (IOException e) {
-      log.error("Could not set logging status of rule " + ruleId + "\n" + e);
-    }
+    client.send(Integer.toString(ruleId), Integer.toString(what));
   }
 
 }
