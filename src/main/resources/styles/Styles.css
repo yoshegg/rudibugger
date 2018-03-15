@@ -28,3 +28,7 @@
 .tree-cell:warningsInImport {
   -fx-background-color: salmon;
 }
+
+.tree-cell:modifiedFile {
+  -fx-background-color: salmon;
+}

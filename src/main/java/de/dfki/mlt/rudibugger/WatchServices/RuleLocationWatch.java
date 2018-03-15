@@ -171,6 +171,7 @@ public class RuleLocationWatch {
               } else {
                 _model.updateProject();
               }
+              _model.setFilesUpToDate();
             });
             ruleLocationFileChanged = false;
             break;

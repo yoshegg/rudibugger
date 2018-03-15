@@ -406,6 +406,24 @@ public class DataModel {
     return rudiHierarchy.addFileToHierarchy(new RudiPath(file));
   }
 
+  public void setFileHasBeenModified(Path file) {
+    rudiHierarchy.rudiPathMap.get(file)._modifiedProperty().setValue(true);
+    _modifiedFiles.setValue(true);
+  }
+
+  public void setFilesUpToDate() {
+    rudiHierarchy.resetModifiedProperties();
+    _modifiedFiles.setValue(false);
+  }
+
+  private final BooleanProperty _modifiedFiles
+          = new SimpleBooleanProperty(false);
+  public BooleanProperty _modifiedFilesProperty() {
+    return _modifiedFiles;
+  }
+
+
+
 
   /*****************************************************************************
    * FILE MANAGEMENT (OPENING, SAVING etc.)

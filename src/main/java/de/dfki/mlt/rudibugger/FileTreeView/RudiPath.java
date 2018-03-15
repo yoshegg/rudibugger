@@ -11,6 +11,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import java.nio.file.Files;
 import java.util.Objects;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 
 /**
  *
@@ -23,6 +25,9 @@ public class RudiPath {
   private final IntegerProperty _used;
   public IntegerProperty _usedProperty() { return _used; }
 
+  private final BooleanProperty _modified;
+  public BooleanProperty _modifiedProperty() { return _modified; }
+
   public RudiPath(Path path) {
     _path = path;
     if (Files.isDirectory(path)) {
@@ -30,6 +35,7 @@ public class RudiPath {
     } else {
       _used = new SimpleIntegerProperty(FILE_NOT_USED);
     }
+    _modified = new SimpleBooleanProperty(false);
   }
 
   public Path getPath() {

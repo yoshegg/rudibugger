@@ -135,6 +135,7 @@ public class RudiFolderWatch {
               public void run() {
                 if (_model.addRudiPath(filename))
                   log.info("rudi file added: " + filename);
+                _model.setFileHasBeenModified(filename);
               }
             });
 
@@ -142,8 +143,14 @@ public class RudiFolderWatch {
 
           /* rudi file modified */
           if (kind == ENTRY_MODIFY) {
-            // TODO: make better
-            //log.info("rudi file has been modified : " + filename);
+            Platform.runLater(new Runnable() {
+              @Override
+              public void run() {
+//              TODO: make better
+                log.info("rudi file has been modified : " + filename);
+                _model.setFileHasBeenModified(filename);
+              }
+            });
           }
 
           /* rudi file deleted */

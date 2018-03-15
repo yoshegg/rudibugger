@@ -8,6 +8,10 @@ package de.dfki.mlt.rudibugger.FileTreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import static de.dfki.mlt.rudibugger.Constants.*;
+import java.util.Objects;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 
 /**
@@ -27,6 +31,11 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
   static Image wrapper = new Image(FILE_ICON_PATH + "wrapper.png");
   static Image folder = new Image(FILE_ICON_PATH + "folder.png");
 
+
+  /** Used to visually distinguish modified files with CSS */
+  private final PseudoClass modifiedFileClass
+          = PseudoClass.getPseudoClass("modifiedFile");
+
   @Override
   protected void updateItem(RudiPath rudiPath, boolean empty) {
     super.updateItem(rudiPath, empty);
@@ -36,7 +45,24 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
       setText(null);
       setGraphic(null);
 
+//      pseudoClassStateChanged(modifiedFileClass, false);
+
+
     } else {
+
+      // TODO: not working, JavaFX bug?
+//      ChangeListener<Boolean> cl = new ChangeListener<Boolean>() {
+//        @Override
+//        public void changed(ObservableValue<? extends Boolean> obs, Boolean ov, Boolean nv) {
+//          pseudoClassStateChanged(modifiedFileClass, nv);
+//          rudiPath._modifiedProperty().removeListener(this);
+//        }
+//      };
+//
+//      pseudoClassStateChanged(modifiedFileClass,
+//              rudiPath._modifiedProperty().getValue());
+//
+//      rudiPath._modifiedProperty().addListener(cl);
 
       setText(rudiPath.toString());
 

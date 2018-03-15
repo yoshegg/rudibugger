@@ -31,6 +31,7 @@ public class RudiFolderHierarchy {
   private final HashMap<Path, TreeItem> folderMap;
   private final HashMap<Path, TreeItem> fileMap;
   public final HashSet<RudiPath> rudiPathSet;
+  public final HashMap<Path, RudiPath> rudiPathMap;
 
   /** create a new hierarchy and initialize its fields */
   public RudiFolderHierarchy(Path rudiFolder) {
@@ -38,11 +39,20 @@ public class RudiFolderHierarchy {
     folderMap = new HashMap<>();
     fileMap = new HashMap<>();
     rudiPathSet = new HashSet<>();
+    rudiPathMap = new HashMap<>();
+  }
+
+  public void resetModifiedProperties() {
+    for (Path p : rudiPathMap.keySet()) {
+      rudiPathMap.get(p)._modifiedProperty().setValue(false);
+    }
   }
 
   /** add a file or a folder to the hierarchy */
   public boolean addFileToHierarchy(RudiPath file) {
     Path f = file.getPath();
+
+    rudiPathMap.put(f, file);
 
     /* a folder */
     if (Files.isDirectory(f)) {
@@ -87,6 +97,8 @@ public class RudiFolderHierarchy {
   /** remove a file from the hierarchy (this only works for files!) */
   public void removeFromFileHierarchy(RudiPath file) {
     Path f = file.getPath();
+
+    rudiPathMap.remove(f);
 
     /* a file */
     if (! Files.isDirectory(f)) {
