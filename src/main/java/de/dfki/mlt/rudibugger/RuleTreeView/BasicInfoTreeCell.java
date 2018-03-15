@@ -72,7 +72,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
       this.setOnMouseClicked(e -> {
           e.consume();
       });
-      
+
       /* define context menu request on empty cell */
       this.setOnContextMenuRequested(e -> {
           e.consume();

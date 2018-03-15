@@ -8,9 +8,8 @@ package de.dfki.mlt.rudibugger.FileTreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import static de.dfki.mlt.rudibugger.Constants.*;
+import java.util.HashMap;
 import java.util.Objects;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 
@@ -22,15 +21,18 @@ import javafx.scene.control.TreeCell;
  */
 public class RudiTreeCell extends TreeCell<RudiPath> {
 
-  static final String FILE_ICON_PATH
+  /** Icon path of files. */
+  static final String ICON_PATH_FILES
           = "file:src/main/resources/icons/FilesAndFolders/";
 
-  static Image enabled = new Image(FILE_ICON_PATH + "enabled.png");
-  static Image disabled = new Image(FILE_ICON_PATH + "disabled.png");
-  static Image main = new Image(FILE_ICON_PATH + "main.png");
-  static Image wrapper = new Image(FILE_ICON_PATH + "wrapper.png");
-  static Image folder = new Image(FILE_ICON_PATH + "folder.png");
-
+  /** Map of file icons. */
+  static final HashMap<Integer, Image> ICONS_RULES = new HashMap<Integer, Image>() {{
+    put(FILE_IS_MAIN,    new Image(ICON_PATH_FILES + "main.png"));
+    put(FILE_IS_WRAPPER, new Image(ICON_PATH_FILES + "wrapper.png"));
+    put(FILE_USED,       new Image(ICON_PATH_FILES + "enabled.png"));
+    put(FILE_NOT_USED,   new Image(ICON_PATH_FILES + "disabled.png"));
+    put(IS_FOLDER,       new Image(ICON_PATH_FILES + "folder.png"));
+  }};
 
   /** Used to visually distinguish modified files with CSS */
   private final PseudoClass modifiedFileClass
@@ -45,46 +47,28 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
       setText(null);
       setGraphic(null);
 
-//      pseudoClassStateChanged(modifiedFileClass, false);
-
+      pseudoClassStateChanged(modifiedFileClass, false);
 
     } else {
 
-      // TODO: not working, JavaFX bug?
-//      ChangeListener<Boolean> cl = new ChangeListener<Boolean>() {
-//        @Override
-//        public void changed(ObservableValue<? extends Boolean> obs, Boolean ov, Boolean nv) {
-//          pseudoClassStateChanged(modifiedFileClass, nv);
-//          rudiPath._modifiedProperty().removeListener(this);
-//        }
-//      };
-//
-//      pseudoClassStateChanged(modifiedFileClass,
-//              rudiPath._modifiedProperty().getValue());
-//
-//      rudiPath._modifiedProperty().addListener(cl);
+      /* Visually indicate out of sync files */
+      pseudoClassStateChanged(modifiedFileClass,
+              rudiPath._modifiedProperty().getValue());
+//      TODO: Not working, JavaFX bug or simply not possible?
+//      rudiPath._modifiedProperty().addListener((o, ov, nv) -> {
+//        pseudoClassStateChanged(modifiedFileClass,
+//                rudiPath._modifiedProperty().getValue());
+//      });
 
       setText(rudiPath.toString());
 
-      switch (rudiPath._usedProperty().getValue()) {
-        case FILE_IS_MAIN:
-          setGraphic(new ImageView(main));
-          break;
-        case FILE_IS_WRAPPER:
-          setGraphic(new ImageView(wrapper));
-          break;
-        case FILE_USED:
-          setGraphic(new ImageView(enabled));
-          break;
-        case FILE_NOT_USED:
-          setGraphic(new ImageView(disabled));
-          break;
-        case IS_FOLDER:
-          setGraphic(new ImageView(folder));
-          break;
-        default:
-          break;
-        }
+      /* Define icon and listener for icon */
+      setGraphic(new ImageView(ICONS_RULES.get(
+              rudiPath._usedProperty().getValue())));
+      rudiPath._usedProperty().addListener((o, oldVal, newVal) -> {
+        if (oldVal != newVal)
+          setGraphic(new ImageView(ICONS_RULES.get(newVal.intValue())));
+      });
 
     }
   }

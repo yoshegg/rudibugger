@@ -159,6 +159,12 @@ public class SideBarController {
       /* reset this listener */
       _model.ruleLoggingStateLoadRequestProperty().set(null);
     });
+
+    /* Listen to out of sync changes */
+    // TODO: Should not be needed, but seems to be a bug in JavaFX
+//    model._modifiedFilesProperty().addListener((o, ov, nv) -> {
+//      rudiTreeView.refresh();
+//    });
   }
 
   /**
@@ -192,7 +198,8 @@ public class SideBarController {
 
     /* let the cells reload according to their usage state */
     // TODO: https://stackoverflow.com/questions/14682881/binding-image-in-javafx
-    rudiTreeView.refresh();
+    // Should not be needed anymore
+    //    rudiTreeView.refresh();
   }
 
   public static TreeItem buildTreeView(DataModel model) {
