@@ -9,6 +9,7 @@ import de.dfki.mlt.rudimant.common.BasicInfo;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import java.util.HashMap;
 import javafx.css.PseudoClass;
+import javafx.geometry.Pos;
 import javafx.scene.control.TreeCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -70,8 +71,8 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
       /* define click on empty cell */
       this.setOnMouseClicked(e -> {
           e.consume();
-
       });
+      
       /* define context menu request on empty cell */
       this.setOnContextMenuRequested(e -> {
           e.consume();
@@ -98,6 +99,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         HBox hbox = new HBox();
         hbox.getChildren().addAll(stateIndicator, new Text(bi.getLabel()));
         hbox.setSpacing(5.0);
+        hbox.setAlignment(Pos.CENTER_LEFT);
         setText(null);
         setGraphic(hbox);
 
