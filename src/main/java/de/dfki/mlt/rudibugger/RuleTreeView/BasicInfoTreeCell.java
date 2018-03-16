@@ -8,6 +8,7 @@ package de.dfki.mlt.rudibugger.RuleTreeView;
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import java.util.HashMap;
+import javafx.beans.value.ChangeListener;
 import javafx.css.PseudoClass;
 import javafx.geometry.Pos;
 import javafx.scene.control.TreeCell;
@@ -51,14 +52,39 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
     put(STATE_PARTLY,   new Image(ICON_PATH_RULES + "Partly.png"));
   }};
 
-  /** Used to visually distinguish erroneous imports with CSS */
+  /** Used to visually distinguish erroneous imports with CSS. */
   private final PseudoClass errorsInImportClass
           = PseudoClass.getPseudoClass("errorsInImport");
+
+  /** Used to visually distinguish imports with warning with CSS. */
   private final PseudoClass warningsInImportClass
           = PseudoClass.getPseudoClass("warningsInImport");
 
+  /** Used to listen to rule state changes. */
+  private final ChangeListener<Number> ruleStateListener = ((o, ov, nv)
+    -> this.stateIndicator.setImage(ICONS_RULES.get(nv.intValue())));
+
+  /** Used to listen to import state changes. */
+  private final ChangeListener<Number> importStateListener = ((o, ov, nv)
+    -> this.stateIndicator.setImage(ICONS_IMPORTS.get(nv.intValue())));
+
+  /** Icon of the TreeItem, indication rule logging state. */
+  private ImageView stateIndicator;
+
   @Override
   protected void updateItem(BasicInfo bi, boolean empty) {
+
+    /* Remove old listener of the cell */
+    BasicInfo oldItem = getItem();
+    if (oldItem != null) {
+      if (oldItem instanceof RuleInfoExtended)
+        ((RuleInfoExtended) oldItem).stateProperty()
+          .removeListener(ruleStateListener);
+      else
+        ((ImportInfoExtended) oldItem).stateProperty()
+          .removeListener(importStateListener);
+    }
+
     super.updateItem(bi, empty);
 
     if (empty || bi == null) {
@@ -80,8 +106,6 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
 
     } else {
 
-      ImageView stateIndicator;
-
       /* RULE */
       if (bi instanceof RuleInfoExtended) {
         RuleInfoExtended ri = (RuleInfoExtended) bi;
@@ -90,10 +114,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         pseudoClassStateChanged(warningsInImportClass, false);
 
         /* define a listener to reflect the rule logging state */
-        ri.stateProperty().addListener((o, oldVal, newVal) -> {
-          if (oldVal != newVal)
-            stateIndicator.setImage(ICONS_RULES.get(newVal.intValue()));
-        });
+        ri.stateProperty().addListener(ruleStateListener);
 
         /* define the shown content of the cell */
         HBox hbox = new HBox();
@@ -134,10 +155,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         pseudoClassStateChanged(warningsInImportClass, !ii.getWarnings().isEmpty());
 
         /* define a listener to reflect the rule logging state */
-        ii.stateProperty().addListener((o, oldVal, newVal) -> {
-          if (oldVal != newVal)
-            stateIndicator.setImage(ICONS_IMPORTS.get(newVal.intValue()));
-        });
+        ii.stateProperty().addListener(importStateListener);
 
         /* define the shown content of the cell */
         setText(bi.getLabel());
