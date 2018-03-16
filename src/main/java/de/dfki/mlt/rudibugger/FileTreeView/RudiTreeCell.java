@@ -9,9 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import java.util.HashMap;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
 
@@ -28,7 +26,7 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
           = "file:src/main/resources/icons/FilesAndFolders/";
 
   /** Map of file icons. */
-  static final HashMap<Integer, Image> ICONS_RULES = new HashMap<Integer, Image>() {{
+  static final HashMap<Integer, Image> ICONS_FILES = new HashMap<Integer, Image>() {{
     put(FILE_IS_MAIN,    new Image(ICON_PATH_FILES + "main.png"));
     put(FILE_IS_WRAPPER, new Image(ICON_PATH_FILES + "wrapper.png"));
     put(FILE_USED,       new Image(ICON_PATH_FILES + "enabled.png"));
@@ -46,7 +44,7 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
 
   /** Used to listen to usage state changes. */
   private final ChangeListener<Number> usageStateListener = ((o, ov, nv)
-    -> this.setGraphic(new ImageView(ICONS_RULES.get(nv.intValue()))));
+    -> this.setGraphic(new ImageView(ICONS_FILES.get(nv.intValue()))));
 
   @Override
   protected void updateItem(RudiPath rudiPath, boolean empty) {
@@ -78,7 +76,7 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
       setText(rudiPath.toString());
 
       /* Define icon and listener for icon. */
-      setGraphic(new ImageView(ICONS_RULES.get(
+      setGraphic(new ImageView(ICONS_FILES.get(
               rudiPath._usedProperty().getValue())));
       rudiPath._usedProperty().addListener(usageStateListener);
 
