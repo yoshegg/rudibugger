@@ -741,15 +741,19 @@ public class DataModel {
 
   public void startDefaultCompile() throws IOException, InterruptedException {
     String compileScript = getCompileFile().toString();
-    String cmd = "bash -c '"
-          + "cd " + getRootFolder().toString() + ";"
-          + compileScript + ";"
-          + "read -n1 -r -p \"Press any key to continue...\" key;'";
-    startCompile(cmd);
+    startCompile(compileScript);
   }
 
-  public void startCompile(String command) throws IOException, InterruptedException {
+  public void startCompile(String inputCmd) throws IOException, InterruptedException {
     this.updateAllFiles();
+
+    String command = "bash -c '"
+          + "cd " + getRootFolder().toString() + ";"
+          + inputCmd + ";"
+          + "read -n1 -r -p \"Press any key to continue...\" key;'";
+
+
+
     // TODO: Ask if every open file should be saved
 //    switch ((int) _globalConfigs.get("saveOnCompile")) {
 //      case 2:
