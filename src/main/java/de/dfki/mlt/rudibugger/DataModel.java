@@ -243,7 +243,7 @@ public class DataModel {
     _globalConfigs.put("lastOpenedProject",
                        selectedProjectYml.toAbsolutePath().toString());
     log.info("Initializing done.");
-    connectToRudimant();
+    connectToVonda();
   }
 
   /**
@@ -369,7 +369,7 @@ public class DataModel {
     _configs.clear();
     ruleLocWatch.shutDownListener();
     rudiFolderWatch.shutDownListener();
-    closeConnectionToRudimant();
+    closeConnectionToVonda();
     setRuleModelChangeStatus(RULE_MODEL_REMOVED);
     setProjectStatus(PROJECT_CLOSED);
     _globalConfigs.put("lastOpenedProject", "");
@@ -408,20 +408,25 @@ public class DataModel {
 
   public void setFileHasBeenModified(Path file) {
     rudiHierarchy.rudiPathMap.get(file)._modifiedProperty().setValue(true);
-    _modifiedFiles.setValue(true);
+    _modifiedFiles.setValue(FILES_OUT_OF_SYNC);
   }
 
   public void setFilesUpToDate() {
     rudiHierarchy.resetModifiedProperties();
-    _modifiedFiles.setValue(false);
+    _modifiedFiles.setValue(FILES_SYNCED);
   }
 
-  private final BooleanProperty _modifiedFiles
-          = new SimpleBooleanProperty(false);
-  public BooleanProperty _modifiedFilesProperty() {
+  private final IntegerProperty _modifiedFiles
+          = new SimpleIntegerProperty(FILES_SYNC_UNDEFINED);
+  public IntegerProperty _modifiedFilesProperty() {
     return _modifiedFiles;
   }
 
+  private final IntegerProperty _compilationState
+    = new SimpleIntegerProperty();
+  public IntegerProperty _compilationStateProperty() {
+    return _compilationState;
+  }
 
 
 
@@ -981,23 +986,21 @@ public class DataModel {
   //public RudibuggerServer rs;
   public RudibuggerClient rudibuggerClient;
 
-  private void connectToRudimant() throws IOException {
-    //int rudibuggerPort = ((_configs.get("SERVER_RUDIBUGGER") == null)
-    //        ? SERVER_PORT_RUDIBUGGER : (int) _configs.get("SERVER_RUDIBUGGER"));
-    int rudimantPort = ((_configs.get("SERVER_RUDIMANT") == null)
-            ? SERVER_PORT_RUDIMANT : (int) _configs.get("SERVER_RUDIMANT"));
+  private void connectToVonda() throws IOException {
+    int vondaPort = ((_configs.get("SERVER_RUDIMANT") == null)
+            ? SERVER_PORT_VONDA : (int) _configs.get("SERVER_RUDIMANT"));
 
-    rudibuggerClient = new RudibuggerClient("localhost", rudimantPort,
+    rudibuggerClient = new RudibuggerClient("localhost", vondaPort,
         new RudibuggerAPI(this));
 
     log.debug("RudibuggerClient has been started "
-            + "on port [" + rudimantPort + "].");
+            + "on port [" + vondaPort + "].");
     //vonda = new RudibuggerClient("localhost", rudimantPort);
     //log.debug("RudibuggerClient has been started and is looking for rudimant "
     //       + "(server) on port [" + rudimantPort + "].");
   }
 
-  private void closeConnectionToRudimant() {
+  private void closeConnectionToVonda() {
     try {
       rudibuggerClient.disconnect();
     } catch (IOException e) {

@@ -5,15 +5,22 @@
  */
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
+import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudimant.common.BasicInfo;
+import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
 import de.dfki.mlt.rudimant.common.ImportInfo;
 import de.dfki.mlt.rudimant.common.RuleInfo;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -57,13 +64,28 @@ public class RuleModel {
     _model = model;
   }
 
+  public LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> errorInfos
+    = new LinkedHashMap<>();
+  public LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> warnInfos
+    = new LinkedHashMap<>();
+
   /**
    * Creates a new RuleModel
    *
+   * @param model
    * @return created RuleModel
    */
   public static RuleModel createNewRuleModel(DataModel model) {
     return new RuleModel(model);
+  }
+
+  private void extractWarnErrors(ImportInfoExtended ii) {
+    for (ErrorWarningInfo ewi : ii.getWarnings()) {
+      warnInfos.put(ewi, ii);
+    }
+    for (ErrorWarningInfo ewi : ii.getErrors()) {
+      errorInfos.put(ewi, ii);
+    }
   }
 
   /**
@@ -74,10 +96,19 @@ public class RuleModel {
    */
   public void readInRuleModel(Path ruleLocYml, Path rudiPath) {
     _rudiPath = rudiPath;
+    errorInfos.clear();
+    warnInfos.clear();
     BasicInfo temp = upgradeInfos(readInRuleLocationFile(ruleLocYml), null, _model);
     if (! (temp instanceof ImportInfoExtended)) {
-      log.error("upgrading infos of RuleModel failed");
+      log.error("Upgrading infos of RuleModel failed");
     }
+    if (! errorInfos.isEmpty())
+      _model._compilationStateProperty().setValue(COMPILATION_WITH_ERRORS);
+    else if (! warnInfos.isEmpty() && errorInfos.isEmpty())
+      _model._compilationStateProperty().setValue(COMPILATION_WITH_WARNINGS);
+    else
+      _model._compilationStateProperty().setValue(COMPILATION_PERFECT);
+
     rootImport = (ImportInfoExtended) temp;
     extractImportsAndIds(rootImport);
   }
@@ -85,6 +116,7 @@ public class RuleModel {
   private BasicInfo upgradeInfos(BasicInfo current, BasicInfo parent, DataModel model) {
     if (current instanceof ImportInfo) {
       ImportInfoExtended ii = new ImportInfoExtended((ImportInfo) current, model, parent);
+      extractWarnErrors(ii);
       for (BasicInfo child : current.getChildren()) {
         ii.getChildren().add(upgradeInfos(child, ii, model));
       }
