@@ -51,6 +51,8 @@ public class ImportContextMenu extends ContextMenu {
   /**
    * An <code>ImportContextMenu</code> should appear when a context menu was
    * requested by clicking on an import.
+   * 
+   * @param ii
    */
   public ImportContextMenu(ImportInfoExtended ii) {
     super();
@@ -79,8 +81,8 @@ public class ImportContextMenu extends ContextMenu {
     /* set possibility to open errors or warnings (if any) */
     if (! _item.getErrors().isEmpty() || ! _item.getWarnings().isEmpty()) {
       for (ErrorWarningInfo e : _item.getErrors()) {
-        String msg = "Go to error " + (_item.getErrors().indexOf(e) + 1) + " (line "
-                + e.getLocation().getLineNumber() + ")";
+        String msg = "Go to error " + (_item.getErrors().indexOf(e) + 1)
+                   + " (line " + e.getLocation().getLineNumber() + ")";
         Label label = new Label(msg);
         CustomMenuItem errorItem = new CustomMenuItem(label);
         Tooltip t = new Tooltip(e.getMessage());
@@ -92,8 +94,8 @@ public class ImportContextMenu extends ContextMenu {
         this.getItems().add(errorItem);
       }
       for (ErrorWarningInfo e : _item.getWarnings()) {
-        String msg = "Go to warning " + (_item.getWarnings().indexOf(e) + 1) + " (line "
-                + e.getLocation().getLineNumber() + ")";
+        String msg = "Go to warning " + (_item.getWarnings().indexOf(e) + 1)
+                   + " (line " + e.getLocation().getLineNumber() + ")";
         Label label = new Label(msg);
         CustomMenuItem warningItem = new CustomMenuItem(label);
         Tooltip t = new Tooltip(e.getMessage());
