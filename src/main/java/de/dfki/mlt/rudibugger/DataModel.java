@@ -8,6 +8,7 @@ package de.dfki.mlt.rudibugger;
 import de.dfki.lt.j2emacs.J2Emacs;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
+import de.dfki.mlt.rudibugger.DataModelAdditions.EmacsConnection;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiFolderHierarchy;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
 import static de.dfki.mlt.rudibugger.Helper.*;
@@ -76,6 +77,17 @@ import org.yaml.snakeyaml.Yaml;
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class DataModel {
+
+  public DataModel() {
+//    emacs = new Emacs();
+  }
+
+  /*****************************************************************************
+   * ADDITIONS (ADDITIONAL MODULES OF DATAMODEL)
+   ****************************************************************************/
+
+  /** Provides additional functionality to interact with Emacs. */
+  public EmacsConnection emacs = new EmacsConnection();
 
 
   /*****************************************************************************
@@ -447,10 +459,10 @@ public class DataModel {
         requestTabOfFile(file);
         return;
       case "emacs":
-        if (! isEmacsAlive()) {
-          startEmacsConnection("emacs");
+        if (! emacs.isAlive()) {
+          emacs.startConnection("emacs");
         }
-        _j2e.visitFilePosition(file.toFile(), 1, 0, "");
+        emacs.getConnector().visitFilePosition(file.toFile(), 1, 0, "");
         return;
       case "custom":
         try {
@@ -483,10 +495,10 @@ public class DataModel {
         requestTabOfRule(file, position);
         return;
       case "emacs":
-        if (! isEmacsAlive()) {
-          startEmacsConnection("emacs");
+        if (! emacs.isAlive()) {
+          emacs.startConnection("emacs");
         }
-        _j2e.visitFilePosition(file.toFile(), position, 0, "");
+        emacs.getConnector().visitFilePosition(file.toFile(), position, 0, "");
         return;
       case "custom":
         try {
@@ -946,38 +958,6 @@ public class DataModel {
   }
 
   private void readInRuleLoggingStates() {};
-
-
-
-  /*****************************************************************************
-   * CONNECTION TO EMACS
-   ****************************************************************************/
-
-  /** An Emacs connector */
-  private J2Emacs _j2e = null;
-
-  public void startEmacsConnection(String emacsPath) {
-
-    File emacsLispPath = new File("src/main/resources/emacs/");
-    _j2e = new J2Emacs("Rudibugger", emacsLispPath, null);
-    _j2e.addStartHook(
-        "(setq auto-mode-alist (append (list '(\"\\\\.rudi\" . java-mode))))");
-    _j2e.startEmacs();
-  }
-
-  public boolean isEmacsAlive() {
-    return _j2e != null && _j2e.alive();
-  }
-
-  public void closeEmacs(boolean quitEmacs) {
-    if (_j2e == null) return;
-    if (quitEmacs) {
-      _j2e.exitEmacs();
-    }
-    _j2e.close();
-    _j2e = null;
-  }
-
 
   /*****************************************************************************
    * CONNECTION TO RUDIMANT
