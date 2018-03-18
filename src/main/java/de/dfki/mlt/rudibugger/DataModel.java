@@ -5,19 +5,15 @@
  */
 package de.dfki.mlt.rudibugger;
 
-import de.dfki.lt.j2emacs.J2Emacs;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
 import de.dfki.mlt.rudibugger.DataModelAdditions.EmacsConnection;
+import de.dfki.mlt.rudibugger.DataModelAdditions.RudiLoadManager;
+import de.dfki.mlt.rudibugger.DataModelAdditions.RudiSaveManager;
 import de.dfki.mlt.rudibugger.DataModelAdditions.VondaConnection;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiFolderHierarchy;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
 import static de.dfki.mlt.rudibugger.Helper.*;
-import de.dfki.mlt.rudibugger.RPC.JavaFXLogger;
-import de.dfki.mlt.rudibugger.RPC.LogData;
-import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
-import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
-import de.dfki.mlt.rudibugger.RPC.RudibuggerServer;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleModel;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.TabManagement.FileAtPos;
@@ -25,9 +21,6 @@ import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
 import de.dfki.mlt.rudibugger.WatchServices.RudiFolderWatch;
 import de.dfki.mlt.rudibugger.WatchServices.RuleLocationWatch;
 import static de.dfki.mlt.rudimant.common.Constants.*;
-import de.dfki.mlt.rudimant.common.RuleLogger;
-import de.dfki.mlt.rudimant.common.SimpleClient;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -42,8 +35,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Stream;
-import javafx.animation.PauseTransition;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -57,8 +48,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.TreeItem;
@@ -66,7 +55,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
@@ -92,6 +80,12 @@ public class DataModel {
 
   /** Provides additional functionality to interact with VOnDA. */
   public VondaConnection vonda = new VondaConnection(this);
+
+  /** Provides additional functionality to save .rudi files . */
+  public RudiSaveManager rudiSave = new RudiSaveManager(this);
+
+  /** Provides additional functionality to load .rudi files and rules. */
+  public RudiLoadManager rudiLoad = new RudiLoadManager(this);
 
 
   /*****************************************************************************
@@ -295,6 +289,10 @@ public class DataModel {
     return _configs;
   }
 
+  public Map<String, Object> getGlobalConfiguration() {
+    return _globalConfigs;
+  }
+
   private void initProjectWatches() {
     ruleLocWatch = new RuleLocationWatch();
     ruleLocWatch.createRuleLocationWatch(this);
@@ -449,204 +447,6 @@ public class DataModel {
   }
 
 
-
-  /*****************************************************************************
-   * FILE MANAGEMENT (OPENING, SAVING etc.)
-   ****************************************************************************/
-
-  /**
-   * This function needs to be called when a given file should be opened.
-   * Depending on a specific setting, it will be opened in a rudibugger tab or
-   * in an external application.
-   *
-   * @param file the wanted file
-   */
-  public void openFile(Path file) {
-    switch ((String) _globalConfigs.get("editor")) {
-      case "rudibugger":
-        requestTabOfFile(file);
-        return;
-      case "emacs":
-        if (! emacs.isAlive()) {
-          emacs.startConnection("emacs");
-        }
-        emacs.getConnector().visitFilePosition(file.toFile(), 1, 0, "");
-        return;
-      case "custom":
-        try {
-          String cmd = ((String) _globalConfigs.get("openFileWith"))
-                  .replaceAll("%file", file.toString());
-          Runtime.getRuntime().exec(cmd);
-          return;
-        } catch (IOException ex) {
-          log.error("Can't use custom editor to open file. ");
-          break;
-        }
-      default:
-        break;
-    }
-    log.info("No valid file editor setting has been found. Using rudibugger.");
-        requestTabOfFile(file);
-  }
-
-  /**
-   * This function needs to be called when a given rule should be opened.
-   * Depending on a specific setting, it will be opened in a rudibugger tab or
-   * in an external application
-   *
-   * @param file the wanted file
-   * @param position the line of the wanted rule
-   */
-  public void openRule(Path file, Integer position) {
-    switch ((String) _globalConfigs.get("editor")) {
-      case "rudibugger":
-        requestTabOfRule(file, position);
-        return;
-      case "emacs":
-        if (! emacs.isAlive()) {
-          emacs.startConnection("emacs");
-        }
-        emacs.getConnector().visitFilePosition(file.toFile(), position, 0, "");
-        return;
-      case "custom":
-        try {
-          String cmd = ((String) _globalConfigs.get("openRuleWith"))
-                  .replaceAll("%file", file.toString())
-                  .replaceAll("%line", position.toString());
-          Runtime.getRuntime().exec(cmd);
-          return;
-        } catch (IOException ex) {
-          log.error("Can't use custom editor to open file. ");
-          break;
-        }
-      default:
-        break;
-    }
-    log.info("No valid file editor setting has been found. Using rudibugger.");
-    requestTabOfRule(file, position);
-  }
-
-
-  /**
-   * This function needs to be called when a new tab showing a certain file
-   * should be opened.
-   *
-   * @param file the wanted file
-   */
-  private void requestTabOfFile(Path file) {
-    requestTabOfRule(file, 1);
-  }
-
-  /**
-   * This function needs to be called when a new tab showing a certain rule from
-   * a specific file should be opened.
-   *
-   * @param file the wanted file
-   * @param position the line of the wanted rule
-   */
-  private void requestTabOfRule(Path file, Integer position) {
-    FileAtPos temp = new FileAtPos(file, position);
-    requestedFile.setValue(temp);
-  }
-
-  /**
-   * This function is called when a file should be <b>quick-saved</b> (overwrite
-   * the old version of the file).
-   */
-  public void updateFile() {
-    RudiTab tab = selectedTab.getValue();
-    Path file = tab.getFile();
-    String content = tab.getRudiCode();
-
-    if (saveFile(file, content)) {
-      tab.setText(file.getFileName().toString());
-      tab.waitForModif();
-      log.debug("File " + file.getFileName() + " has been saved.");
-      notifySaved(file.getFileName().toString());
-    }
-  }
-
-  /**
-   * This function is called when all files should be <b>quick-saved</b>
-   * (overwrite the old version of the file).
-   */
-  public void updateAllFiles() {
-
-    for (RudiTab tab : openTabsProperty().getValue().values()) {
-      Path file = tab.getFile();
-      String content = tab.getRudiCode();
-      if (tab.hasBeenModifiedProperty().getValue()) {
-        if (saveFile(file, content)) {
-          tab.setText(file.getFileName().toString());
-          tab.waitForModif();
-          log.debug("File " + file.getFileName() + " has been saved.");
-          notifySaved(file.getFileName().toString());
-        }
-      }
-    }
-  }
-
-  /**
-   * This function is called when the content of a tab should be saved as a new
-   * file.
-   */
-  public void saveFileAs() {
-    RudiTab tab = selectedTab.getValue();
-    String content = tab.getRudiCode();
-
-    FileChooser fileChooser = new FileChooser();
-    fileChooser.setInitialDirectory(_rudiFolder.getValue().toFile());
-    FileChooser.ExtensionFilter extFilter
-            = new FileChooser.ExtensionFilter
-        ("rudi file (*" + RULE_FILE_EXTENSION + ")", "*" + RULE_FILE_EXTENSION);
-    fileChooser.getExtensionFilters().add(extFilter);
-    Path file;
-    try {
-      file = (fileChooser.showSaveDialog(stageX)).toPath();
-    } catch (NullPointerException e) {
-      return;
-    }
-      if (! file.getFileName().toString().endsWith(RULE_FILE_EXTENSION)) {
-        file = Paths.get(file.toString() + RULE_FILE_EXTENSION);
-    }
-
-    if (saveFile(file, content)) {
-
-      /* close old tab */
-      EventHandler<Event> handler = tab.getOnClosed();
-      if (null != handler) {
-        handler.handle(null);
-      } else {
-        requestedCloseTabProperty().setValue(tab);
-        tab.getTabPane().getTabs().remove(tab);
-      }
-
-      /* open a new tab */
-      openFile(file);
-
-      log.debug("File " + file.getFileName() + " has been saved.");
-    }
-  }
-
-  /**
-   * This hidden function is called by every save request.
-   *
-   * @param file the path of the to-be-saved file
-   * @param content the content of the to-be-saved file
-   * @return
-   */
-  private boolean saveFile(Path file, String content) {
-    try {
-      Files.write(file, content.getBytes());
-      return true;
-    } catch (IOException e) {
-      log.error("could not save " + file);
-      return false;
-    }
-  }
-
-  /******** Properties **********/
-
   private final ObjectProperty<HashMap<Path, RudiTab>> openTabs
           = new SimpleObjectProperty<>();
   public ObjectProperty<HashMap<Path, RudiTab>> openTabsProperty() {
@@ -675,22 +475,8 @@ public class DataModel {
 
   /** statusBar */
   private final StringProperty statusBar = new SimpleStringProperty();
-  private void setStatusBar(String value) { statusBarProperty().set(value); }
-  public String getStatusBar() { return statusBarProperty().get(); }
   public StringProperty statusBarProperty() { return statusBar; }
 
-  /**
-   * This function changes the statusBar temporarily to indicate that a file has
-   * been saved.
-   *
-   * @param file the file that has been saved
-   */
-  private void notifySaved(String file) {
-    setStatusBar("Saved " + file + ".");
-    PauseTransition pause = new PauseTransition(Duration.seconds(3));
-    pause.setOnFinished(e -> setStatusBar(null));
-    pause.play();
-  }
 
   /*****************************************************************************
    * UNDERLYING FIELDS / PROPERTIES OF THE CURRENT PROJECT AKA DATAMODEL
@@ -770,7 +556,7 @@ public class DataModel {
   }
 
   public void startCompile(String inputCmd) throws IOException, InterruptedException {
-    this.updateAllFiles();
+    rudiSave.quickSaveAllFiles();
 
     String command = "bash -c '"
           + "cd " + getRootFolder().toString() + ";"

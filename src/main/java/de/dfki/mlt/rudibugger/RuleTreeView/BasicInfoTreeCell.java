@@ -140,7 +140,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         /* define double click on cell: open rule (file at specific line) */
         this.setOnMouseClicked(e -> {
           if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY) {
-            ri._model.openRule(ri.getSourceFile(), ri.getLine());
+            ri._model.rudiLoad.openRule(ri.getSourceFile(), ri.getLine());
           }
         });
       }
@@ -170,7 +170,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         /* define double click on cell */
         this.setOnMouseClicked(e -> {
           if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY) {
-            ii._model.openFile(ii.getAbsolutePath());
+            ii._model.rudiLoad.openFile(ii.getAbsolutePath());
           }
         });
       }

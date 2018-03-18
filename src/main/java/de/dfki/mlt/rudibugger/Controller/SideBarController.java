@@ -81,7 +81,7 @@ public class SideBarController {
         TreeItem ti = (TreeItem) rudiTreeView.getSelectionModel().getSelectedItem();
         RudiPath rp = (RudiPath) ti.getValue();
         if (! Files.isDirectory(rp.getPath())) {
-          model.openFile(rp.getPath());
+          model.rudiLoad.openFile(rp.getPath());
         }
       }
     });

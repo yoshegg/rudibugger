@@ -51,7 +51,7 @@ public class ImportContextMenu extends ContextMenu {
   /**
    * An <code>ImportContextMenu</code> should appear when a context menu was
    * requested by clicking on an import.
-   * 
+   *
    * @param ii
    */
   public ImportContextMenu(ImportInfoExtended ii) {
@@ -73,7 +73,7 @@ public class ImportContextMenu extends ContextMenu {
     CustomMenuItem openFile = new CustomMenuItem(new Label("Open "
             + _item.getAbsolutePath().getFileName().toString()));
     openFile.setOnAction((ActionEvent e) -> {
-      _item._model.openFile(_item.getAbsolutePath());
+      _item._model.rudiLoad.openFile(_item.getAbsolutePath());
     });
     SeparatorMenuItem sep = new SeparatorMenuItem();
     this.getItems().addAll(openFile, sep);
@@ -88,7 +88,7 @@ public class ImportContextMenu extends ContextMenu {
         Tooltip t = new Tooltip(e.getMessage());
         Tooltip.install(label, t);
         errorItem.setOnAction(f -> {
-          _item._model.openRule(_item.getAbsolutePath(),
+          _item._model.rudiLoad.openRule(_item.getAbsolutePath(),
                                 e.getLocation().getLineNumber());
         });
         this.getItems().add(errorItem);
@@ -101,7 +101,7 @@ public class ImportContextMenu extends ContextMenu {
         Tooltip t = new Tooltip(e.getMessage());
         Tooltip.install(label, t);
         warningItem.setOnAction(f -> {
-          _item._model.openRule(_item.getAbsolutePath(),
+          _item._model.rudiLoad.openRule(_item.getAbsolutePath(),
                                 e.getLocation().getLineNumber());
         });
         this.getItems().add(warningItem);

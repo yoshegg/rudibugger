@@ -76,7 +76,7 @@ public class RuleContextMenu extends ContextMenu {
     CustomMenuItem openRule = new CustomMenuItem(new Label("Open rule (line "
             + _item.getLine() + ")"));
     openRule.setOnAction((ActionEvent e) -> {
-      _item._model.openRule(_item.getSourceFile(),
+      _item._model.rudiLoad.openRule(_item.getSourceFile(),
               _item.getLine());
     });
     SeparatorMenuItem sep = new SeparatorMenuItem();

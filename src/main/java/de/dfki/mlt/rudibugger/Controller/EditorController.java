@@ -153,7 +153,7 @@ public class EditorController {
             int ruleId = ((LogData) ruleLoggingTableView.getSelectionModel()
                     .getSelectedItem()).getRuleId();
             RuleContainer con = _model.ruleModel.getRuleContainer(ruleId);
-            _model.openRule(con.getPath(), con.getLine());
+            _model.rudiLoad.openRule(con.getPath(), con.getLine());
           }
         });
 

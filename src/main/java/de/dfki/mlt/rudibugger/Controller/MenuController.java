@@ -298,7 +298,7 @@ public class MenuController {
   @FXML
   private void newRudiFileAction(ActionEvent event)
           throws FileNotFoundException {
-    _model.openFile(null);
+    _model.rudiLoad.openFile(null);
   }
 
 
@@ -360,7 +360,7 @@ public class MenuController {
   /** Action "Save" */
   @FXML
   private void saveAction(ActionEvent event) {
-    _model.updateFile();
+    _model.rudiSave.quickSaveFile();
   }
 
 
@@ -371,7 +371,7 @@ public class MenuController {
   /** Action "Save as..." */
   @FXML
   private void saveAsAction(ActionEvent event) {
-    _model.saveFileAs();
+    _model.rudiSave.saveFileAs();
   }
 
 
@@ -382,7 +382,7 @@ public class MenuController {
   /** Action "Save all" */
   @FXML
   private void saveAllAction(ActionEvent event) {
-    _model.updateAllFiles();
+    _model.rudiSave.quickSaveAllFiles();
   }
 
 

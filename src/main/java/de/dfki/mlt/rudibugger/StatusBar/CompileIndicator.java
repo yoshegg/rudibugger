@@ -149,7 +149,7 @@ public class CompileIndicator {
           Tooltip t = new Tooltip(e.getMessage());
           Tooltip.install(label, t);
           errorItem.setOnAction(f -> {
-            model.openRule(item.getAbsolutePath(),
+            model.rudiLoad.openRule(item.getAbsolutePath(),
                             e.getLocation().getLineNumber());
           });
           cm.getItems().add(errorItem);
