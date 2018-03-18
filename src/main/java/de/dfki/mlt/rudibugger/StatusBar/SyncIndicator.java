@@ -6,7 +6,6 @@
 package de.dfki.mlt.rudibugger.StatusBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Controller.StatusBarController;
 import java.util.HashMap;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.value.ChangeListener;
@@ -54,11 +53,12 @@ public class SyncIndicator {
                               + "unknown. (Probably never compiled.)");
     }};
 
-  /** Creates a new instance of <code>SyncIndicator</code>, creates a tooltip
+  /**
+   * Creates a new instance of <code>SyncIndicator</code>, creates a tooltip
    * instance and links everything to the <code>StatusBarController</code>.
    *
-   * @param indicator
-   * @param controller
+   * @param indicator  Icon to be manipulated
+   * @param controller Parent controller
    */
   public SyncIndicator(ImageView indicator, StatusBarController controller) {
     _indicator = indicator;
@@ -88,7 +88,7 @@ public class SyncIndicator {
   /**
    * Links a given property to the listener of <code>SyncIndicator</code>.
    *
-   * @param property
+   * @param property  Property to be linked to
    */
   public void linkListenerToProperty(IntegerProperty property) {
     property.addListener(listener);

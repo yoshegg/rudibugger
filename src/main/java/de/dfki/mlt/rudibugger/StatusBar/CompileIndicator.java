@@ -6,7 +6,6 @@
 package de.dfki.mlt.rudibugger.StatusBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Controller.StatusBarController;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.RuleTreeView.ImportInfoExtended;
 import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
@@ -105,6 +104,10 @@ public class CompileIndicator {
     property.addListener(listener);
   }
 
+  /**
+   * This <code>EventHandler</code> contains a <code>ContextMenu</code> to be
+   * opened when requested.
+   */
   private final EventHandler<? super ContextMenuEvent> contextMenu = (value -> {
     ContextMenu cm = new ContextMenu();
 
@@ -153,11 +156,11 @@ public class CompileIndicator {
         }
   }
 
-
-  public void setContextMenu() {
+  /**
+   * Defines the <code>ContextMenu</code> of this compileIndicator.
+   */
+  public void defineContextMenu() {
     _indicator.setOnContextMenuRequested(contextMenu);
   }
-
-
 
 }

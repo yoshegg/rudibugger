@@ -3,43 +3,39 @@
  * written in the context of a bachelor's thesis
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
-package de.dfki.mlt.rudibugger.Controller;
+package de.dfki.mlt.rudibugger.StatusBar;
 
-import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.RuleTreeView.ImportInfoExtended;
-import de.dfki.mlt.rudibugger.StatusBar.CompileIndicator;
-import de.dfki.mlt.rudibugger.StatusBar.SyncIndicator;
-import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
-import java.util.HashMap;
 import javafx.fxml.FXML;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javafx.scene.image.Image;
-import javafx.scene.input.ContextMenuEvent;
 
 /**
+ * This <code>StatusBarController</code> class' purpose is to link the
+ * <code>DataModel</code> with the statusbar of rudibugger.
+ *
+ * Its purpose is to
+ *
+ *  - reflect changes to the .rudi files to an icon,
+ *  - reflect the outcome of a compilation attempt to an icon,
+ *  - show status messages on the statusBar.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class StatusBarController {
 
-  /** The logger. */
+  /** Logger. */
   static Logger log = LoggerFactory.getLogger("rudiLog");
 
-  /** The model. */
+  /** Current <code>DataModel</code> of rudibugger. */
   private DataModel _model;
 
   /**
-   * Links model to controller and initializes listeners
+   * Links model to controller and initializes listeners.
    *
-   * @param model
+   * @param model current <code>DataModel</code>
    */
   public void initModel(DataModel model) {
     if (this._model != null) {
@@ -47,6 +43,7 @@ public class StatusBarController {
     }
     _model = model;
 
+    /* Link the model's statusBar text property with the controller */
     statusBar.textProperty().bindBidirectional(model.statusBarProperty());
 
     /* Initialize the sync state indicator in the lower left. */
@@ -57,17 +54,22 @@ public class StatusBarController {
     CompileIndicator compileIndicator
       = new CompileIndicator(_compileIndicator, this);
     compileIndicator.linkListenerToProperty(_model._compilationStateProperty());
-    compileIndicator.setContextMenu();
-
+    compileIndicator.defineContextMenu();
   }
 
-  public void setStatusBar(String text) {
+  /**
+   * @param text text to display on the statusBar
+   */
+  protected void setStatusBar(String text) {
     statusBar.setText(text);
   }
 
-  public DataModel getModel() { return _model; }
+  /**
+   * @return current <code>DataModel</code>
+   */
+  protected DataModel getModel() { return _model; }
 
-  /** StatusBar's label at the bottom. */
+  /** StatusBar's label. */
   @FXML
   private Label statusBar;
 
@@ -75,7 +77,7 @@ public class StatusBarController {
   @FXML
   private ImageView _syncIndicator;
 
-  /** Icon for outcome of last compilation. */
+  /** Icon for outcome of last compilation attempt. */
   @FXML
   private ImageView _compileIndicator;
 

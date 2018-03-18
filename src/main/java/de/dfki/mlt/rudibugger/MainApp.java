@@ -8,7 +8,7 @@ package de.dfki.mlt.rudibugger;
 import de.dfki.mlt.rudibugger.Controller.EditorController;
 import de.dfki.mlt.rudibugger.Controller.MenuController;
 import de.dfki.mlt.rudibugger.Controller.SideBarController;
-import de.dfki.mlt.rudibugger.Controller.StatusBarController;
+import de.dfki.mlt.rudibugger.StatusBar.StatusBarController;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import javafx.application.Application;
