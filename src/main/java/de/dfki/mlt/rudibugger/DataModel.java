@@ -9,6 +9,7 @@ import de.dfki.lt.j2emacs.J2Emacs;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
 import de.dfki.mlt.rudibugger.DataModelAdditions.EmacsConnection;
+import de.dfki.mlt.rudibugger.DataModelAdditions.VondaConnection;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiFolderHierarchy;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
 import static de.dfki.mlt.rudibugger.Helper.*;
@@ -88,6 +89,9 @@ public class DataModel {
 
   /** Provides additional functionality to interact with Emacs. */
   public EmacsConnection emacs = new EmacsConnection();
+
+  /** Provides additional functionality to interact with VOnDA. */
+  public VondaConnection vonda = new VondaConnection(this);
 
 
   /*****************************************************************************
@@ -255,7 +259,7 @@ public class DataModel {
     _globalConfigs.put("lastOpenedProject",
                        selectedProjectYml.toAbsolutePath().toString());
     log.info("Initializing done.");
-    connectToVonda();
+    vonda.connect();
   }
 
   /**
@@ -285,6 +289,10 @@ public class DataModel {
     _configs = map;
     return map.keySet().containsAll(keysToCheckOn);
 
+  }
+
+  public Map<String, Object> getProjectConfiguration() {
+    return _configs;
   }
 
   private void initProjectWatches() {
@@ -381,7 +389,7 @@ public class DataModel {
     _configs.clear();
     ruleLocWatch.shutDownListener();
     rudiFolderWatch.shutDownListener();
-    closeConnectionToVonda();
+    vonda.closeConnection();
     setRuleModelChangeStatus(RULE_MODEL_REMOVED);
     setProjectStatus(PROJECT_CLOSED);
     _globalConfigs.put("lastOpenedProject", "");
@@ -769,23 +777,6 @@ public class DataModel {
           + inputCmd + ";"
           + "read -n1 -r -p \"Press any key to continue...\" key;'";
 
-
-
-    // TODO: Ask if every open file should be saved
-//    switch ((int) _globalConfigs.get("saveOnCompile")) {
-//      case 2:
-//        log.debug("Asking to save");
-//        // show dialog
-//        break;
-//      case 1:
-//        // save on compile
-//        break;
-//      case 0:
-//        // don't save on compile
-//        break;
-//    }
-
-
     log.info("Starting compilation...");
     File mateTerminal = new File("/usr/bin/mate-terminal");
     Process p;
@@ -955,86 +946,6 @@ public class DataModel {
 
   public ArrayList<Path> getRecentRuleLoggingStates() {
     return _recentRuleLoggingStates;
-  }
-
-  private void readInRuleLoggingStates() {};
-
-  /*****************************************************************************
-   * CONNECTION TO RUDIMANT
-   ****************************************************************************/
-
-  //public RudibuggerServer rs;
-  public RudibuggerClient rudibuggerClient;
-
-  private void connectToVonda() throws IOException {
-    int vondaPort = ((_configs.get("SERVER_RUDIMANT") == null)
-            ? SERVER_PORT_VONDA : (int) _configs.get("SERVER_RUDIMANT"));
-
-    rudibuggerClient = new RudibuggerClient("localhost", vondaPort,
-        new RudibuggerAPI(this));
-
-    log.debug("RudibuggerClient has been started "
-            + "on port [" + vondaPort + "].");
-    //vonda = new RudibuggerClient("localhost", rudimantPort);
-    //log.debug("RudibuggerClient has been started and is looking for rudimant "
-    //       + "(server) on port [" + rudimantPort + "].");
-  }
-
-  private void closeConnectionToVonda() {
-    try {
-      rudibuggerClient.disconnect();
-    } catch (IOException e) {
-      log.error(e.toString());
-    } catch (NullPointerException e) {
-      log.info("Could not close connection to vonda, "
-              + "it was probably never established.");
-    }
-  }
-
-  private RuleLogger rl;
-  private JavaFXLogger jfl;
-
-  private void initializeRuleLogger() {
-    rl = new RuleLogger();
-    rl.setRootInfo(ruleModel.rootImport);
-    jfl = new JavaFXLogger();
-    rl.registerPrinter(jfl);
-    rl.logAllRules();
-  }
-
-  public void printLog(int ruleId, boolean[] result) {
-    /* Lazy initializing */
-    if (rl == null) {
-      initializeRuleLogger();
-    }
-
-    Platform.runLater(() -> {
-      if (!getConnectedToRudimant())
-        connectedToRudimantProperty().setValue(true);
-      rl.logRule(ruleId, result);
-      if (jfl.pendingLoggingData()) {
-        jfl.addRuleIdToLogData(ruleId);
-        rudiLogOutput.setValue(jfl.popContent());
-      }
-    });
-
-  }
-
-  /******** Properties **********/
-
-  private final BooleanProperty connectedToRudimant
-          = new SimpleBooleanProperty(false);
-  public boolean getConnectedToRudimant() {
-    return connectedToRudimant.getValue();
-  }
-  public BooleanProperty connectedToRudimantProperty() {
-    return connectedToRudimant;
-  }
-
-  private final ObjectProperty<LogData> rudiLogOutput
-    = new SimpleObjectProperty<>();
-  public ObjectProperty<LogData> rudiLogOutputProperty() {
-    return rudiLogOutput;
   }
 
 }

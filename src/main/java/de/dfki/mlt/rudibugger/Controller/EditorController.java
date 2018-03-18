@@ -76,7 +76,7 @@ public class EditorController {
     /* this listener adds a TableView to the editorSplitPane if connection to
      * rudimant has been established.
      */
-    _model.connectedToRudimantProperty().addListener((arg, oldVal, newVal) -> {
+    _model.vonda.connectedProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal == true) {
         log.info("Rudimant successfully connected to rudibugger.");
 
@@ -164,7 +164,7 @@ public class EditorController {
     });
 
     /* this listener adds new output the the ruleLoggineList */
-    _model.rudiLogOutputProperty().addListener((arg, oldVal, newVal) -> {
+    _model.vonda.logOutputProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal != null) {
         Platform.runLater(() -> {
           ruleLoggingList.add(0, newVal);

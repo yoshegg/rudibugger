@@ -102,7 +102,7 @@ public class RuleInfoExtended extends RuleInfo {
     /* TODO: This should probably be somewhere else. RuleModel maybe? */
     int id = original.getId();
     _state.addListener((o, ov, nv) -> {
-      _model.rudibuggerClient.setLoggingStatus(id, (int) nv);
+      _model.vonda.client.setLoggingStatus(id, (int) nv);
 
       /* TODO: dito, internal logging purposes */
       String output = "";
