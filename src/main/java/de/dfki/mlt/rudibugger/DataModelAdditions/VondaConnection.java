@@ -5,13 +5,14 @@
  */
 package de.dfki.mlt.rudibugger.DataModelAdditions;
 
-import static de.dfki.mlt.rudibugger.Constants.SERVER_PORT_VONDA;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.RPC.JavaFXLogger;
 import de.dfki.mlt.rudibugger.RPC.LogData;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
 import de.dfki.mlt.rudimant.common.RuleLogger;
+import de.dfki.mlt.rudimant.common.SimpleServer;
+
 import java.io.IOException;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -52,7 +53,7 @@ public class VondaConnection {
   public void connect() throws IOException {
     int vondaPort = ((_model.getProjectConfiguration()
       .get("SERVER_RUDIMANT") == null)
-            ? SERVER_PORT_VONDA : (int) _model.getProjectConfiguration()
+            ? SimpleServer.DEFAULT_PORT : (int) _model.getProjectConfiguration()
               .get("SERVER_RUDIMANT"));
 
     client = new RudibuggerClient("localhost", vondaPort,
