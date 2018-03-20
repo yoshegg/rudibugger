@@ -40,7 +40,6 @@ public class RuleInfoExtended extends RuleInfo {
    * @return An Integer {@linkplain de.dfki.mlt.rudimant.common
    *         constant}.
    */
-  @Override
   public int getState() { return _state.get(); }
 
   /**
@@ -50,7 +49,6 @@ public class RuleInfoExtended extends RuleInfo {
    *           An Integer {@linkplain de.dfki.mlt.rudimant.common
    *           constant}.
    */
-  @Override
   public void setState(int i) { _state.setValue(i); }
 
   /**
@@ -88,7 +86,9 @@ public class RuleInfoExtended extends RuleInfo {
     _parent = parent;
     _state = new SimpleIntegerProperty(STATE_NEVER);
     _model = model;
-
+    _id = original.getId();
+    _expr = original.getExpression();
+    _baseTerms = original.getBaseterms();
 
     /* retrieve parent import and start listener*/
     if (_parent != null) {
