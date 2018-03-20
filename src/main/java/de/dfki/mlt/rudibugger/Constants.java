@@ -13,9 +13,6 @@ package de.dfki.mlt.rudibugger;
  */
 public class Constants {
 
-  /* Default port for vonda connection */
-  public static final int SERVER_PORT_VONDA = 3664;
-
   /* Default values of some essential files and folders. */
   public static String PATH_TO_RUDI_FILES = "src/main/rudi/";
   public static String COMPILE_FILE = "compile";

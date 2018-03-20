@@ -23,7 +23,7 @@ public class RudibuggerClient {
   public RudibuggerClient(String host, int portNumber,
       Consumer<String[]> consumer) {
     client = new SimpleClient(host, portNumber, consumer, "Debugger");
-    client.init();
+    client.startClient();
   }
 
   public boolean isConnected() {
