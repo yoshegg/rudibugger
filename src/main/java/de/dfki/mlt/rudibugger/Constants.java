@@ -5,6 +5,9 @@
  */
 package de.dfki.mlt.rudibugger;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * For convenience this class contains constants that can be used anywhere in
  * rudibugger.
@@ -17,6 +20,14 @@ public class Constants {
   public static String PATH_TO_RUDI_FILES = "src/main/rudi/";
   public static String COMPILE_FILE = "compile";
   public static String RUN_FILE = "run.sh";
+  public static Path GLOBAL_CONFIG_FILE
+    = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
+      "rudibuggerConfiguration.yml");
+  public static Path RECENT_PROJECTS_FILE
+    = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
+      "recentProjects.yml");
+  public static Path GLOBAL_CONFIG_PATH
+    = Paths.get(System.getProperty("user.home"), ".config", "rudibugger");
 
   /* Mark and signalize the user's request of a new project. */
   public static final int OVERWRITE_CHECK_CANCEL = 0;

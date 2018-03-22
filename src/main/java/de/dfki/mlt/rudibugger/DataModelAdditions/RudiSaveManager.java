@@ -55,8 +55,7 @@ public class RudiSaveManager {
       notifySaved(file.getFileName().toString());
     }
   }
-
-
+  
   /**
    * Saves a given String into a given file.
    *

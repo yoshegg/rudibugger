@@ -7,23 +7,15 @@ package de.dfki.mlt.rudibugger;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
-import de.dfki.mlt.rudibugger.DataModelAdditions.EmacsConnection;
-import de.dfki.mlt.rudibugger.DataModelAdditions.RudiLoadManager;
-import de.dfki.mlt.rudibugger.DataModelAdditions.RudiSaveManager;
-import de.dfki.mlt.rudibugger.DataModelAdditions.VondaConnection;
-import de.dfki.mlt.rudibugger.FileTreeView.RudiFolderHierarchy;
-import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
+import de.dfki.mlt.rudibugger.DataModelAdditions.*;
+import de.dfki.mlt.rudibugger.FileTreeView.*;
 import static de.dfki.mlt.rudibugger.Helper.*;
-import de.dfki.mlt.rudibugger.RuleTreeView.RuleModel;
-import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
-import de.dfki.mlt.rudibugger.TabManagement.FileAtPos;
-import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
-import de.dfki.mlt.rudibugger.WatchServices.RudiFolderWatch;
-import de.dfki.mlt.rudibugger.WatchServices.RuleLocationWatch;
+import de.dfki.mlt.rudibugger.RuleTreeView.*;
+import de.dfki.mlt.rudibugger.TabManagement.*;
+import de.dfki.mlt.rudibugger.WatchServices.*;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,19 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Stream;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
+import javafx.beans.property.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.TreeItem;
@@ -67,9 +47,27 @@ import org.yaml.snakeyaml.Yaml;
  */
 public class DataModel {
 
-  public DataModel() {
-//    emacs = new Emacs();
-  }
+  public DataModel() {}
+
+
+  /*****************************************************************************
+   * SOME BASIC FIELDS
+   ****************************************************************************/
+
+  /** The logger. */
+  static Logger log = LoggerFactory.getLogger("dataLog");
+
+  /** YAML options. */
+  private final DumperOptions _options = new DumperOptions() {{
+    setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+  }};
+
+  /** A YAML instance for further use of YAML. */
+  public Yaml yaml = new Yaml(_options);
+
+  /** The main stage, necessary when opening additional windows e.g. prompts. */
+  public Stage stageX;
+
 
   /*****************************************************************************
    * ADDITIONS (ADDITIONAL MODULES OF DATAMODEL)
@@ -87,133 +85,11 @@ public class DataModel {
   /** Provides additional functionality to load .rudi files and rules. */
   public RudiLoadManager rudiLoad = new RudiLoadManager(this);
 
+  /** Provides additional functionality about project specific information. */
+  public ProjectConfiguration project = new ProjectConfiguration(this);
 
-  /*****************************************************************************
-   * SOME BASIC FIELDS
-   ****************************************************************************/
-
-  /** the logger of the DataModel */
-  static Logger log = LoggerFactory.getLogger("dataLog");
-
-  /** a YAML instance for further use of YAML */
-  public Yaml yaml;
-
-  /** the main stage, necessary when opening additional windows e.g. prompts */
-  public Stage stageX;
-
-  /** the global configuration directory */
-  public Path globalConfigPath = Paths.get(System.getProperty("user.home"),
-          ".config", "rudibugger");
-
-
-  /*****************************************************************************
-   * GLOBAL KNOWLEDGE
-   ****************************************************************************/
-
-  public ObservableMap<String, Object> _globalConfigs;
-  private Path _globalConfigurationFile;
-
-  public ObservableList<String> _recentProjects;
-  private Path _recentProjectsFile;
-
-  /** initialize global knowledge */
-  public void initializeGlobalKnowledge() {
-
-    /* get global configuration file */
-    ObservableMap<String, Object> globalConfigs;
-    _globalConfigurationFile = globalConfigPath.resolve("rudibuggerConfiguration.yml");
-    try {
-      Map tempMap = (Map<String, String>) yaml.load(
-              new FileInputStream(_globalConfigurationFile.toFile()));
-      globalConfigs = FXCollections.observableMap(tempMap);
-    } catch (FileNotFoundException ex) {
-      log.error("No configuration file has been found. Creating a new one...");
-      globalConfigs = createGlobalConfigFile();
-    }
-    _globalConfigs = globalConfigs;
-    checkGlobalConfigFileForCompleteness();
-
-    /* get recent projects */
-    ObservableList<String> recentProjects;
-    _recentProjectsFile = globalConfigPath.resolve("recentProjects.yml");
-    try {
-      ArrayList tempList = (ArrayList) yaml.load(
-              new FileInputStream(_recentProjectsFile.toFile()));
-      recentProjects = FXCollections.observableArrayList(tempList);
-    } catch (FileNotFoundException e) {
-      log.error("Error while reading in recent projects. "
-              + "Maybe the file does not exist (yet)?");
-      recentProjects = FXCollections.observableArrayList();
-    } catch (NullPointerException e) {
-      log.debug("No recent projects could be found");
-      recentProjects = FXCollections.observableArrayList();
-    }
-    _recentProjects = recentProjects;
-  }
-
-  private static final HashMap<String, Object> DEFAULT_GLOBAL_CONFIGURATION =
-          new HashMap<String, Object>() {{
-      put("editor", "rudibugger");
-      put("openFileWith", "");
-      put("openRuleWith", "");
-      put("timeStampIndex", true);
-      put("saveOnCompile", 2);
-      put("lastOpenedProject", "");
-    }};
-
-  private void checkGlobalConfigFileForCompleteness() {
-    for (String s : DEFAULT_GLOBAL_CONFIGURATION.keySet()) {
-      if (! _globalConfigs.containsKey(s))
-        _globalConfigs.put(s, DEFAULT_GLOBAL_CONFIGURATION.get(s));
-    }
-  }
-
-  /** create global configuration file */
-  private ObservableMap<String, Object> createGlobalConfigFile() {
-    HashMap tempConfig = DEFAULT_GLOBAL_CONFIGURATION;
-
-    try {
-        FileWriter writer = new FileWriter(_globalConfigurationFile.toFile());
-        yaml.dump(tempConfig, writer);
-      } catch (IOException e) {
-        log.error("Could not create global configuration file.");
-      }
-
-    return FXCollections.observableMap(tempConfig);
-  }
-
-  /** keep global knowledge up-to-date */
-  public void keepGlobalKnowledgeUpToDate() {
-    /* keep recent projects list updated */
-    _recentProjects.addListener((ListChangeListener.Change<? extends String> c) -> {
-      yaml.dump(_recentProjects);
-      try {
-        FileWriter writer = new FileWriter(_recentProjectsFile.toFile());
-        yaml.dump(_recentProjects, writer);
-      } catch (IOException e) {
-        log.error("Could not update recent projects history.");
-      }
-    });
-
-    /* keep global settings updated */
-    _globalConfigs.addListener((MapChangeListener.Change<? extends String, ? extends Object> ml) -> {
-      yaml.dump(_globalConfigs);
-      try {
-        FileWriter writer = new FileWriter(_globalConfigurationFile.toFile());
-        yaml.dump(_globalConfigs, writer);
-      } catch (IOException e) {
-        log.error("Could not update recent projects history.");
-      }
-    });
-  }
-
-  private void addToRecentProjects(Path project) {
-    String projPath = project.toString();
-    if (_recentProjects.contains(projPath)) {
-      _recentProjects.remove(projPath);
-    }
-    _recentProjects.add(0, projPath);
-  }
+  /** Provides additional functionality concerning global configuration. */
+  public GlobalConfiguration globalConf = new GlobalConfiguration((this));
 
 
   /*****************************************************************************
@@ -222,9 +98,7 @@ public class DataModel {
 
   /** initialize the DataModel */
   public void initialize() {
-    DumperOptions options = new DumperOptions();
-    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-    yaml = new Yaml(options);
+
     _compileFile = new SimpleObjectProperty<>(null);
     _runFile = new SimpleObjectProperty<>(null);
     _rudiFolder = new SimpleObjectProperty<>(null);
@@ -244,13 +118,13 @@ public class DataModel {
     }
     log.info("Initializing new project [" + selectedProjectYml.getFileName()
             .toString() + "]");
-    addToRecentProjects(selectedProjectYml);
+    globalConf.addToRecentProjects(selectedProjectYml);
     initProjectFields(selectedProjectYml);
     initProjectWatches();
     readInRudiFiles();
     initRules();
     setProjectStatus(PROJECT_OPEN);
-    _globalConfigs.put("lastOpenedProject",
+    globalConf.setSetting("lastOpenedProject",
                        selectedProjectYml.toAbsolutePath().toString());
     log.info("Initializing done.");
     vonda.connect();
@@ -287,10 +161,6 @@ public class DataModel {
 
   public Map<String, Object> getProjectConfiguration() {
     return _configs;
-  }
-
-  public Map<String, Object> getGlobalConfiguration() {
-    return _globalConfigs;
   }
 
   private void initProjectWatches() {
@@ -373,7 +243,7 @@ public class DataModel {
     _wrapperClass = _rudiFolder.getValue().resolve(wrapperName + RULE_FILE_EXTENSION);
 
     /* set the ruleLoggingStates folder */
-    _ruleLoggingStatesFolder = globalConfigPath
+    _ruleLoggingStatesFolder = GLOBAL_CONFIG_FILE
       .resolve("loggingConfigurations").resolve(_projectName.get());
 
   }
@@ -390,7 +260,7 @@ public class DataModel {
     vonda.closeConnection();
     setRuleModelChangeStatus(RULE_MODEL_REMOVED);
     setProjectStatus(PROJECT_CLOSED);
-    _globalConfigs.put("lastOpenedProject", "");
+    globalConf.setSetting("lastOpenedProject", "");
   }
 
   /*****************************************************************************

@@ -60,7 +60,7 @@ public class RudiLoadManager {
    * @param file the wanted file
    */
   public void openFile(Path file) {
-    switch ((String) _model.getGlobalConfiguration().get("editor")) {
+    switch (_model.globalConf.getEditor()) {
       case "rudibugger":
         requestTabOfFile(file);
         return;
@@ -72,7 +72,7 @@ public class RudiLoadManager {
         return;
       case "custom":
         try {
-          String cmd = ((String) _model.getGlobalConfiguration().get("openFileWith"))
+          String cmd = (_model.globalConf.getOpenFileWith())
                   .replaceAll("%file", file.toString());
           Runtime.getRuntime().exec(cmd);
           return;
@@ -95,7 +95,7 @@ public class RudiLoadManager {
    * @param position the line of the wanted rule
    */
   public void openRule(Path file, Integer position) {
-    switch ((String) _model.getGlobalConfiguration().get("editor")) {
+    switch (_model.globalConf.getEditor()) {
       case "rudibugger":
         requestTabOfRule(file, position);
         return;
@@ -107,7 +107,7 @@ public class RudiLoadManager {
         return;
       case "custom":
         try {
-          String cmd = ((String) _model.getGlobalConfiguration().get("openRuleWith"))
+          String cmd = (_model.globalConf.getOpenRuleWith())
                   .replaceAll("%file", file.toString())
                   .replaceAll("%line", position.toString());
           Runtime.getRuntime().exec(cmd);

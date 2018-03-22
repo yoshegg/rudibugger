@@ -15,9 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.logging.Level;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -133,12 +131,12 @@ public class MenuController {
     });
 
     /* initalize the recent projets submenu... */
-    if (! _model._recentProjects.isEmpty()) {
+    if (! _model.globalConf.recentProjects.isEmpty()) {
       buildRecentProjectsMenu();
     }
 
     /* ... then keep track of changes */
-    _model._recentProjects.addListener(
+    _model.globalConf.recentProjects.addListener(
             (ListChangeListener.Change<? extends String> c) -> {
       buildRecentProjectsMenu();
     });
@@ -146,7 +144,7 @@ public class MenuController {
 
   private void buildRecentProjectsMenu() {
     openRecentProjectMenu.getItems().clear();
-    _model._recentProjects.forEach((x) -> {
+    _model.globalConf.recentProjects.forEach((x) -> {
       MenuItem mi = new MenuItem(x);
       mi.setOnAction((event) -> {
         checkForOpenProject(Paths.get(x));

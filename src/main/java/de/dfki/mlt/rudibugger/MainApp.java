@@ -5,12 +5,12 @@
  */
 package de.dfki.mlt.rudibugger;
 
+import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.EditorController;
 import de.dfki.mlt.rudibugger.Controller.MenuController;
 import de.dfki.mlt.rudibugger.Controller.SideBarController;
 import de.dfki.mlt.rudibugger.StatusBar.StatusBarController;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -21,8 +21,6 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,15 +99,16 @@ public class MainApp extends Application {
     DataModel model = new DataModel();
 
     /* create a global config folder if there is none */
-    if (! Files.exists(model.globalConfigPath)) {
-      model.globalConfigPath.toFile().mkdirs();
-      Files.createFile(model.globalConfigPath.resolve("recentProjects.yml"));
+    // TODO: Move
+    if (! Files.exists(GLOBAL_CONFIG_PATH)) {
+      GLOBAL_CONFIG_PATH.toFile().mkdirs();
+//      Files.createFile(model.GLOBAL_CONFIG_FILE.resolve("recentProjects.yml"));
       log.info("Created global config folder (first start of rudibugger");
     }
 
     model.initialize();
-    model.initializeGlobalKnowledge();
-    model.keepGlobalKnowledgeUpToDate();
+//    model.initializeGlobalKnowledge();
+//    model.keepGlobalKnowledgeUpToDate();
 
     menuController.initModel(model);
     statusBarController.initModel(model);
@@ -138,10 +137,9 @@ public class MainApp extends Application {
     log.info("Rudibugger has been started");
 
     /* opening last openend project (if any) */
-    if (! model._globalConfigs.get("lastOpenedProject").equals("")) {
+    if (model.globalConf.getLastOpenedProject() != null) {
       log.info("Opening previous project...");
-      model.initProject(Paths.get(
-              (String) model._globalConfigs.get("lastOpenedProject")));
+      model.initProject(model.globalConf.getLastOpenedProject());
     }
 
   }

@@ -103,7 +103,7 @@ public class EditorController {
         _labelColumn.setCellFactory(value -> new LabelCellFactory());
         _evaluatedColumn.setCellFactory(value -> new EvaluatedCellFactory());
         _timeColumn.setCellFactory(value -> new TimestampCellFactory(
-                (boolean) _model._globalConfigs.get("timeStampIndex"))
+                 _model.globalConf.timeStampIndexProperty().get())
         );
 
         /* set comparators */
@@ -174,10 +174,8 @@ public class EditorController {
     });
 
     /* this listener updates the timeStampIndex setting in the tableView */
-    _model._globalConfigs.addListener((MapChangeListener.Change<? extends String, ? extends Object> ml) -> {
-      if (ml.getKey() == "timeStampIndex") {
+    _model.globalConf.timeStampIndexProperty().addListener(cl -> {
         updateTimeStampIndexSetting();
-      }
     });
 
   }
@@ -196,9 +194,9 @@ public class EditorController {
   }
 
   public void updateTimeStampIndexSetting() {
-    boolean timeStampIndexSetting =
-            (boolean) _model._globalConfigs.get("timeStampIndex");
-    _timeColumn.setCellFactory(value ->
+    boolean timeStampIndexSetting
+      = _model.globalConf.timeStampIndexProperty().get();
+      _timeColumn.setCellFactory(value ->
             new TimestampCellFactory(timeStampIndexSetting)
         );
     if (timeStampIndexSetting) {
