@@ -222,7 +222,7 @@ public class MenuController {
       customCompileButton.setText("Compile");
       customCompileButton.setOnAction(e -> {
         try {
-          _model.startDefaultCompile();
+          _model.compiler.startDefaultCompile();
         } catch (IOException | InterruptedException ex) {
           log.error(ex.toString());
         }
@@ -240,7 +240,7 @@ public class MenuController {
         Tooltip.install(l, t);
         cmi.setOnAction(f -> {
           try {
-            _model.startCompile(cmd);
+            _model.compiler.startCompile(cmd);
           } catch (IOException | InterruptedException ex) {
             log.error(ex.toString());
           }
@@ -415,7 +415,7 @@ public class MenuController {
   @FXML
   private void startCompile(ActionEvent event) throws IOException,
           InterruptedException {
-    _model.startDefaultCompile();
+    _model.compiler.startDefaultCompile();
   }
 
   /* Clicking the run button */

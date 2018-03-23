@@ -79,7 +79,7 @@ public class DataModel {
   /** Provides additional functionality to interact with VOnDA. */
   public VondaConnection vonda = new VondaConnection(this);
 
-  /** Provides additional functionality to save .rudi files . */
+  /** Provides additional functionality to save .rudi files. */
   public RudiSaveManager rudiSave = new RudiSaveManager(this);
 
   /** Provides additional functionality to load .rudi files and rules. */
@@ -89,7 +89,10 @@ public class DataModel {
   public ProjectConfiguration project = new ProjectConfiguration(this);
 
   /** Provides additional functionality concerning global configuration. */
-  public GlobalConfiguration globalConf = new GlobalConfiguration((this));
+  public GlobalConfiguration globalConf = new GlobalConfiguration(this);
+
+  /** Provides additional functionality to start VOnDAs compiler. */
+  public VondaCompilation compiler = new VondaCompilation(this);
 
 
   /*****************************************************************************
@@ -419,42 +422,6 @@ public class DataModel {
   /*****************************************************************************
    * METHODS
    ****************************************************************************/
-
-  public void startDefaultCompile() throws IOException, InterruptedException {
-    String compileScript = getCompileFile().toString();
-    startCompile(compileScript);
-  }
-
-  public void startCompile(String inputCmd) throws IOException, InterruptedException {
-    rudiSave.quickSaveAllFiles();
-
-    String command = "bash -c '"
-          + "cd " + getRootFolder().toString() + ";"
-          + inputCmd + ";"
-          + "read -n1 -r -p \"Press any key to continue...\" key;'";
-
-    log.info("Starting compilation...");
-    File mateTerminal = new File("/usr/bin/mate-terminal");
-    Process p;
-    String windowTitle = "Compiling " + _projectName.get();
-    String titleOpt = "-T";
-
-    if ("Linux".equals(System.getProperty("os.name"))) {
-      String[] cmd;
-      String termString = "/usr/bin/xterm";
-      if (mateTerminal.exists()) {
-        termString = "/usr/bin/mate-terminal";
-        titleOpt = "-t";
-      }
-      cmd = new String[] { termString, titleOpt, windowTitle, "-e", command};
-
-      log.debug("Executing the following command: " + Arrays.toString(cmd));
-
-      p = Runtime.getRuntime().exec(cmd);
-    } else {
-      p = Runtime.getRuntime().exec(getCompileFile().toString());
-    }
-  }
 
   public void createNewProject() {
     log.info("Not implemented yet.");
