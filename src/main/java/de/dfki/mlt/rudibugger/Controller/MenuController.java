@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CustomMenuItem;
@@ -26,6 +27,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +83,7 @@ public class MenuController {
         newRudiFileItem.setDisable(false);
         loadLoggingStateMenu.setDisable(false);
         saveLoggingStateItem.setDisable(false);
+        manageVondaConnectionButton();
         replaceCompileButton();
       } else if ((int) newVal == PROJECT_CLOSED) {
         log.debug("Project closed: disable GUI-elements.");
@@ -88,8 +91,13 @@ public class MenuController {
         newRudiFileItem.setDisable(true);
         loadLoggingStateMenu.setDisable(true);
         saveLoggingStateItem.setDisable(true);
+        manageVondaConnectionButton();
         replaceCompileButton();
       }
+    });
+
+    _model.vonda.connectedProperty().addListener((o, ov, nv) -> {
+      manageVondaConnectionButton();
     });
 
     /* this listener enables saving depending on the selected tab */
@@ -150,6 +158,43 @@ public class MenuController {
       });
       openRecentProjectMenu.getItems().add(mi);
     });
+  }
+
+  private void manageVondaConnectionButton() {
+
+    Button button = vondaConnectionButton;
+
+    if (_model.projectStatusProperty().get() == PROJECT_CLOSED) {
+      button.setText("No project");
+      button.setOnMouseEntered(e -> button.setText(null));
+      button.setOnMouseExited(e -> button.setText(null));
+      button.setDisable(true);
+      requestedConnection = false;
+
+    } else if (_model.vonda.connectedProperty().get()) {
+      requestedConnection = false;
+      button.setText("Connected");
+      System.out.println(_model.vonda.client.isConnected());
+      button.setOnMouseEntered(e -> button.setText("Disconnect"));
+      button.setOnMouseExited(e -> button.setText("Connected"));
+      button.setDisable(false);
+      button.set
+
+    } else if (! _model.vonda.connectedProperty().get()) {
+      if (requestedConnection) {
+        button.setText("Connecting");
+        button.setOnMouseEntered(e -> button.setText("Disconnect"));
+        button.setOnMouseExited(e -> button.setText("Connecting"));
+        button.setDisable(false);
+      } else {
+        button.setText("Disconnected");
+        button.setOnMouseEntered(e -> button.setText("Connect"));
+        button.setOnMouseExited(e -> button.setText("Disconnected"));
+        button.setDisable(false);
+      }
+    } else {
+      log.debug("Unexpected behaviour.");
+    }
   }
 
   private void buildLoadRuleSelectionStateMenu() {
@@ -259,6 +304,10 @@ public class MenuController {
   /* the run button */
   @FXML
   private Button runButton;
+
+  /** Con-/Disconnect button. */
+  @FXML
+  private Button vondaConnectionButton;
 
 
   /*****************************************************************************
@@ -415,4 +464,18 @@ public class MenuController {
     log.warn("\"Run\" is not implemented yet.");
   }
 
+  /* Establishes a connection to the VOnDA server or disconnects from it. */
+  @FXML
+ private void changeVondaConnectionState(ActionEvent event) {
+    if (_model.vonda.connectedProperty().get() | requestedConnection) {
+      _model.vonda.closeConnection();
+    requestedConnection = false;
+    } else {
+      _model.vonda.connect();
+      requestedConnection = true;
+    }
+    manageVondaConnectionButton();
+  }
+
+ private boolean requestedConnection = false;
 }

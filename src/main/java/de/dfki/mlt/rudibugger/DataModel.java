@@ -120,7 +120,7 @@ public class DataModel {
     log.info("Initializing done.");
 
     /* Link to VOnDA's server. */
-    vonda.connect();
+//    vonda.connect();
   }
 
   /**
@@ -147,9 +147,6 @@ public class DataModel {
   /*****************************************************************************
    * OLD
    ****************************************************************************/
-
-
-
 
   private void initProjectWatches() {
     ruleLocWatch = new RuleLocationWatch();
