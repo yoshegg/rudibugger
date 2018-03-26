@@ -89,7 +89,7 @@ public class EditorController {
         _labelColumn.setPrefWidth(180.0);
         _evaluatedColumn = new TableColumn<>();
         _evaluatedColumn.setText("Evaluated");
-        _timeColumn = new TableColumn<>();
+//        _timeColumn = new TableColumn<>();
         _timeColumn.setText("Time");
         ruleLoggingTableView.getColumns().addAll(
                 _timeColumn, _labelColumn, _evaluatedColumn);
@@ -236,6 +236,6 @@ public class EditorController {
   /* Columns */
   private TableColumn<LogData, StringPart> _labelColumn;
   private TableColumn<LogData, ArrayList<StringPart>> _evaluatedColumn;
-  private TableColumn<LogData, DatePart> _timeColumn;
+  private TableColumn<LogData, DatePart> _timeColumn = new TableColumn<>();
 
 }

@@ -17,7 +17,9 @@ import java.nio.file.Paths;
 public class Constants {
 
   /* Default values of some essential files and folders. */
-  public static String PATH_TO_RUDI_FILES = "src/main/rudi/";
+  public static Path PATH_TO_RUDI_FOLDER = Paths.get("src/main/rudi/");
+  public static Path PATH_TO_GENERATED_FOLDER
+    = Paths.get("src/main/resources/generated");
   public static String COMPILE_FILE = "compile";
   public static String RUN_FILE = "run.sh";
   public static Path GLOBAL_CONFIG_FILE

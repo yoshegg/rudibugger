@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class VondaCompilation {
 
   /** The logger. */
-  static Logger log = LoggerFactory.getLogger("vondaConnect");
+  static Logger log = LoggerFactory.getLogger("vondaCompile");
 
   /** The <code>DataModel</code> */
   private final DataModel _model;
@@ -40,7 +40,7 @@ public class VondaCompilation {
    * @throws InterruptedException
    */
   public void startDefaultCompile() throws IOException, InterruptedException {
-    String compileScript = _model.getCompileFile().toString();
+    String compileScript = _model.project.getCompileFile().toString();
     startCompile(compileScript);
   }
 
@@ -55,14 +55,14 @@ public class VondaCompilation {
     _model.rudiSave.quickSaveAllFiles();
 
     String command = "bash -c '"
-          + "cd " + _model.getRootFolder().toString() + ";"
+          + "cd " + _model.project.getRootFolder().toString() + ";"
           + inputCmd + ";"
           + "read -n1 -r -p \"Press any key to continue...\" key;'";
 
     log.info("Starting compilation...");
     File mateTerminal = new File("/usr/bin/mate-terminal");
     Process p;
-    String windowTitle = "Compiling " + _model.getProjectName();
+    String windowTitle = "Compiling " + _model.project.getProjectName();
     String titleOpt = "-T";
 
     if ("Linux".equals(System.getProperty("os.name"))) {
@@ -78,7 +78,7 @@ public class VondaCompilation {
 
       p = Runtime.getRuntime().exec(cmd);
     } else {
-      p = Runtime.getRuntime().exec(_model.getCompileFile().toString());
+      p = Runtime.getRuntime().exec(_model.project.getCompileFile().toString());
     }
   }
 }

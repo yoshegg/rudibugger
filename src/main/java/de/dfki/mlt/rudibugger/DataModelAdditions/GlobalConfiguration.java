@@ -84,20 +84,13 @@ public class GlobalConfiguration {
       Map tempMap = (Map<String, Object>) _model.yaml.load(
         new FileInputStream(GLOBAL_CONFIG_FILE.toFile()));
       _globalConfigs = FXCollections.observableMap(tempMap);
-      if (! checkConfigForCompleteness())
-        saveGlobalConfiguration();
+      checkConfigForCompleteness();
     } catch (FileNotFoundException ex) {
       log.error("No configuration file has been found. Creating a new one...");
       _globalConfigs
         = FXCollections.observableMap(DEFAULT_GLOBAL_CONFIGURATION);
       saveGlobalConfiguration();
     }
-
-    /* Convert timeStampIndex from Boolean to BooleanProperty. */
-    BooleanProperty temp = new SimpleBooleanProperty(
-      (Boolean) _globalConfigs.get("timeStampIndex")
-    );
-    _globalConfigs.put("timeStampIndex", temp);
 
     timeStampIndex.bindBidirectional(
       (BooleanProperty) _globalConfigs.get("timeStampIndex")
@@ -116,11 +109,9 @@ public class GlobalConfiguration {
 
   /**
    * Checks if the current configuration map is up to date and updates it if
-   * needed.
-   *
-   * @return  True, if the file was complete, else false.
+   * needed. If it was updated, it will also be safed.
    */
-  private Boolean checkConfigForCompleteness() {
+  private void checkConfigForCompleteness() {
     boolean save = false;
     for (String s : DEFAULT_GLOBAL_CONFIGURATION.keySet()) {
       if (! _globalConfigs.containsKey(s)) {
@@ -128,7 +119,7 @@ public class GlobalConfiguration {
         _globalConfigs.put(s, DEFAULT_GLOBAL_CONFIGURATION.get(s));
       }
     }
-    return save;
+    if (save) saveGlobalConfiguration();
   }
 
   /**
@@ -142,7 +133,13 @@ public class GlobalConfiguration {
       log.error("Refuse to set unkown setting: " + key);
       return;
     }
-    _globalConfigs.put(key, value);
+    // TODO: Not so nice
+    if (key.equals("timeStampIndex")) {
+      ((BooleanProperty) _globalConfigs.get(key)).set((boolean) value);
+      saveGlobalConfiguration();
+    } else {
+      _globalConfigs.put(key, value);
+    }
   }
 
   /** Contains the default values for the global configuration file. */
@@ -217,7 +214,7 @@ public class GlobalConfiguration {
 
   /**
    * @return The property indicating whether or not an index should be shown in
-   * the log in case of simultaneous logs.
+   * the log in case of simultaneous logs
    */
   public BooleanProperty timeStampIndexProperty() {
     return timeStampIndex;
@@ -235,7 +232,11 @@ public class GlobalConfiguration {
 
   /** @return The project that will be reopened when reopening rudibugger. */
   public Path getLastOpenedProject() {
-    return Paths.get((String) _globalConfigs.get("lastOpenedProject"));
+    String s = (String) _globalConfigs.get("lastOpenedProject");
+    if (!"".equals(s))
+      return Paths.get(s);
+    else
+      return null;
   }
 
   /** @return How unsaved files should be treated before compiling. */

@@ -14,17 +14,13 @@ import de.dfki.mlt.rudibugger.RuleTreeView.*;
 import de.dfki.mlt.rudibugger.TabManagement.*;
 import de.dfki.mlt.rudibugger.WatchServices.*;
 import static de.dfki.mlt.rudimant.common.Constants.*;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Stream;
 import javafx.beans.property.*;
@@ -55,7 +51,7 @@ public class DataModel {
    ****************************************************************************/
 
   /** The logger. */
-  static Logger log = LoggerFactory.getLogger("dataLog");
+  static Logger log = LoggerFactory.getLogger("DataModel");
 
   /** YAML options. */
   private final DumperOptions _options = new DumperOptions() {{
@@ -86,7 +82,7 @@ public class DataModel {
   public RudiLoadManager rudiLoad = new RudiLoadManager(this);
 
   /** Provides additional functionality about project specific information. */
-  public ProjectConfiguration project = new ProjectConfiguration(this);
+  public ProjectManager project = new ProjectManager(this);
 
   /** Provides additional functionality concerning global configuration. */
   public GlobalConfiguration globalConf = new GlobalConfiguration(this);
@@ -96,75 +92,64 @@ public class DataModel {
 
 
   /*****************************************************************************
-   * THE INITIALIZER METHODS & RESET METHOD
+   * THE PROJECT INITIALIZER AND CLOSE METHODS
    ****************************************************************************/
 
-  /** initialize the DataModel */
-  public void initialize() {
-
-    _compileFile = new SimpleObjectProperty<>(null);
-    _runFile = new SimpleObjectProperty<>(null);
-    _rudiFolder = new SimpleObjectProperty<>(null);
-  }
-
   /**
-   * This method initializes a given project.
    *
-   * @param selectedProjectYml the selected .yml file from the file
-   * selection dialogue
-   * @throws java.io.IOException
+   * @param selectedProjectYml
    */
-  public void initProject(Path selectedProjectYml) throws IOException {
-    if (! getConfiguration(selectedProjectYml)) {
-      log.error("Given file can not be used to create a project.");
-      return;
-    }
-    log.info("Initializing new project [" + selectedProjectYml.getFileName()
-            .toString() + "]");
-    globalConf.addToRecentProjects(selectedProjectYml);
-    initProjectFields(selectedProjectYml);
+  public void init(Path selectedProjectYml) {
+
+    project.initConfiguration(selectedProjectYml);
+
+
+
+    initProjectFields();
     initProjectWatches();
     readInRudiFiles();
-    initRules();
+
+    if (Files.exists(project.getRuleLocationFile()))
+      initRules();
+
     setProjectStatus(PROJECT_OPEN);
+
+    globalConf.addToRecentProjects(selectedProjectYml);
     globalConf.setSetting("lastOpenedProject",
                        selectedProjectYml.toAbsolutePath().toString());
     log.info("Initializing done.");
+
+    /* Link to VOnDA's server. */
     vonda.connect();
   }
 
   /**
-   * This just checks a few things to verify that the given .yml represents a
-   * project.
+   * Closes a project by nullifying the fields.
    *
-   * @param yml
-   * @return true, if all keys could be found, else false
+   * @param stealthy
    */
-  private boolean getConfiguration(Path yml) {
-    HashMap<String, Object> map;
-    try {
-      map = (HashMap<String, Object>) yaml.load(new FileInputStream(yml.toFile()));
-    } catch (IOException e) {
-      log.error(e.toString());
-      return false;
-    }
-    HashSet<String> keysToCheckOn = new HashSet() {
-      {
-        add("outputDirectory");
-        add("wrapperClass");
-        add("ontologyFile");
-        add("rootPackage");
-      }
-    };
-    /* store configuration */
-    _configs = map;
-    return map.keySet().containsAll(keysToCheckOn);
+   public void close(boolean stealthy) {
+    log.info("Closing [" + project.getProjectName() + "]...");
 
+    project.resetConfiguration(false);
+
+    ruleModel = null;
+    ruleLocWatch.shutDownListener();
+    rudiFolderWatch.shutDownListener();
+    vonda.closeConnection();
+    setRuleModelChangeStatus(RULE_MODEL_REMOVED);
+    setProjectStatus(PROJECT_CLOSED);
+    globalConf.setSetting("lastOpenedProject", "");
   }
 
-  public Map<String, Object> getProjectConfiguration() {
-    return _configs;
-  }
+
+
+  /*****************************************************************************
+   * OLD
+   ****************************************************************************/
+
+
+
 
   private void initProjectWatches() {
     ruleLocWatch = new RuleLocationWatch();
@@ -173,8 +158,14 @@ public class DataModel {
     rudiFolderWatch.createRudiFolderWatch(this);
   }
 
-  public void readInRudiFiles() throws IOException {
-    Stream<Path> stream = Files.walk(_rudiFolder.getValue());
+  public void readInRudiFiles() {
+    Stream<Path> stream;
+    try {
+      stream = Files.walk(project.getRudiFolder());
+    } catch (IOException e) {
+      log.error(e.toString());
+      return;
+    }
     stream.forEach(x -> {
       if (x.getFileName().toString().endsWith(RULE_FILE_EXTENSION)
               || Files.isDirectory(x))
@@ -183,87 +174,21 @@ public class DataModel {
   }
 
   public void initRules() {
-    _ruleLocFile = _rootFolder.resolve(_generatedFolder.resolve(RULE_LOCATION_FILE));
-    if (Files.exists(_ruleLocFile)) {
-      log.debug(_ruleLocFile.getFileName().toString() + " has been found.");
       ruleModel = RuleModel.createNewRuleModel(this);
-      ruleModel.readInRuleModel(_ruleLocFile, _rudiFolder.getValue());
+      ruleModel.readInRuleModel(project.getRuleLocationFile(),
+                                project.getRudiFolder());
       setRuleModelChangeStatus(RULE_MODEL_NEWLY_CREATED);
-    } else {
-      _ruleLocFile = null;
-      log.warn(_projectName.getValue() + "'s " + RULE_LOCATION_FILE
-              + " could not be found.");
-    }
   }
 
-  private void initProjectFields(Path selectedProjectYml) {
-    _projectName = new SimpleStringProperty(slice_end(selectedProjectYml
-            .getFileName().toString(), -4));
-    _rootFolder = selectedProjectYml.getParent();
+  private void initProjectFields() {
 
-    Path rudiFolder = (Paths.get(_rootFolder + "/" + PATH_TO_RUDI_FILES));
-    if (Files.exists(rudiFolder)) {
-      log.debug(".rudi folder has been found.");
-      _rudiFolder.setValue(rudiFolder);
-    } else {
-      log.error(".rudi folder could not be found.");
-      _rudiFolder.setValue(null);
-    }
-
-    rudiHierarchy = new RudiFolderHierarchy(_rudiFolder.getValue());
-
-    Path compilePath = Paths.get(_rootFolder.toString() + "/"  + COMPILE_FILE);
-    if (Files.exists(compilePath)) {
-      _compileFile.setValue(compilePath);
-      log.debug(_compileFile.getValue().getFileName().toString()
-              + " has been found.");
-    } else {
-      log.info(_projectName.getValue() + "'s " + COMPILE_FILE
-              + " could not be found.");
-    }
-
-    Path runPath = Paths.get(_rootFolder.toString() + "/"  + RUN_FILE);
-    if (Files.exists(runPath)) {
-      _runFile.setValue(runPath);
-      log.debug(_runFile.getValue().getFileName().toString()
-              + " has been found.");
-    } else {
-      log.info(_projectName.getValue() + "'s " + RUN_FILE
-              + " could not be found.");
-    }
-
-    /* set the generated/ folder path */
-    _generatedFolder = _rootFolder.resolve(Paths.get("src/main/resources/generated"));
-    if (! Files.exists(_generatedFolder)) {
-      _generatedFolder.toFile().mkdirs();
-      log.debug("Created " + _generatedFolder);
-    }
-
-    /* set the wrapper class */
-    String temp = (String) _configs.get("wrapperClass");
-    String[] split = temp.split("\\.");
-    String wrapperName = split[split.length-1];
-    _wrapperClass = _rudiFolder.getValue().resolve(wrapperName + RULE_FILE_EXTENSION);
+    rudiHierarchy = new RudiFolderHierarchy(project.getRudiFolder());
 
     /* set the ruleLoggingStates folder */
-    _ruleLoggingStatesFolder = GLOBAL_CONFIG_FILE
-      .resolve("loggingConfigurations").resolve(_projectName.get());
+    _ruleLoggingStatesFolder = GLOBAL_CONFIG_PATH
+      .resolve("loggingConfigurations")
+      .resolve(project.projectNameProperty().get());
 
-  }
-
-  public void closeProject() {
-    log.info("Closing [" + _projectName.getValue() + "]...");
-    _compileFile.setValue(null);
-    _runFile.setValue(null);
-    _rudiFolder.setValue(null);
-    ruleModel = null;
-    _configs.clear();
-    ruleLocWatch.shutDownListener();
-    rudiFolderWatch.shutDownListener();
-    vonda.closeConnection();
-    setRuleModelChangeStatus(RULE_MODEL_REMOVED);
-    setProjectStatus(PROJECT_CLOSED);
-    globalConf.setSetting("lastOpenedProject", "");
   }
 
   /*****************************************************************************
@@ -276,7 +201,8 @@ public class DataModel {
 
   private void updateRules() {
     log.debug("Updating the RuleModel");
-    ruleModel.updateRuleModel(_ruleLocFile, _rudiFolder.getValue());
+    ruleModel.updateRuleModel(project.getRuleLocationFile(),
+                              project.getRudiFolder());
     setRuleModelChangeStatus(RULE_MODEL_CHANGED);
   }
 
@@ -355,11 +281,6 @@ public class DataModel {
    * UNDERLYING FIELDS / PROPERTIES OF THE CURRENT PROJECT AKA DATAMODEL
    ****************************************************************************/
 
-  /** Configuration as defined in the project's .yml */
-  private Map<String, Object> _configs;
-
-  public Map<String, Object> getConfiguration() { return _configs; }
-
   /** the RuleModel represents all the data concerning rules */
   public RuleModel ruleModel;
 
@@ -369,44 +290,9 @@ public class DataModel {
   public void setRuleModelChangeStatus(int val) { ruleModelChanged.set(val); }
   public IntegerProperty ruleModelChangeProperty() { return ruleModelChanged; }
 
-  /** RootFolder (where the project sleeps) */
-  private Path _rootFolder;
-  public Path getRootFolder() { return _rootFolder; }
-
-  /** RudiFolder (where .rudi files sleep) */
-  private ObjectProperty<Path> _rudiFolder;
-  public Path getRudiFolder() { return _rudiFolder.getValue(); }
-  public ObjectProperty<Path> rudiFolderProperty() { return _rudiFolder; }
-
   /** .rudi files */
   public TreeItem<RudiPath> rudiList;
   public RudiFolderHierarchy rudiHierarchy;
-
-  /** output aka gen-java location */
-  public Path _generatedFolder;
-
-  /** RuleLocationFile */
-  private Path _ruleLocFile;
-  public Path getRuleLocFile() { return _ruleLocFile; }
-
-  /** The project's name */
-  private StringProperty _projectName;
-  public String getProjectName() { return _projectName.getValue(); }
-  public StringProperty projectNameProperty() { return _projectName; }
-
-  /** CompileFile */
-  private ObjectProperty<Path> _compileFile;
-  public Path getCompileFile() { return _compileFile.getValue(); }
-  public ObjectProperty<Path> compileFileProperty() { return _compileFile; }
-
-  /** RunFile */
-  private ObjectProperty<Path> _runFile;
-  public Path getRunFile() { return _runFile.getValue(); }
-  public ObjectProperty<Path> runFileProperty() { return _runFile; }
-
-  /** WrapperClass */
-  private Path _wrapperClass;
-  public Path getWrapperClass() { return _wrapperClass; }
 
   /** Project status */
   private final IntegerProperty _projectStatus

@@ -55,7 +55,7 @@ public class RudiSaveManager {
       notifySaved(file.getFileName().toString());
     }
   }
-  
+
   /**
    * Saves a given String into a given file.
    *
@@ -99,7 +99,7 @@ public class RudiSaveManager {
     String content = tab.getRudiCode();
 
     FileChooser fileChooser = new FileChooser();
-    fileChooser.setInitialDirectory(_model.getRudiFolder().toFile());
+    fileChooser.setInitialDirectory(_model.project.getRudiFolder().toFile());
     FileChooser.ExtensionFilter extFilter
             = new FileChooser.ExtensionFilter
         ("rudi file (*" + RULE_FILE_EXTENSION + ")", "*" + RULE_FILE_EXTENSION);

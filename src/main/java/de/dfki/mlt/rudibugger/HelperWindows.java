@@ -32,17 +32,17 @@ public final class HelperWindows {
   /**
    * This function asks the user what to do if there is already an open project.
    *
-   * @param proj
+   * @param model
    * @return Integer stating to replace current project, open new window or do
    * nothing
    */
-  public static int overwriteProjectCheck(DataModel proj) {
+  public static int overwriteProjectCheck(DataModel model) {
     log.debug("Asking what should happen because of the open project.");
 
     /* defining an Alert Window */
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
     alert.setTitle("Open Project...");
-    alert.setHeaderText(proj.getProjectName() + " is already open.");
+    alert.setHeaderText(model.project.getProjectName() + " is already open.");
     alert.setContentText("Do you want to close the current project and \n"
                        + "open the new one in this window or do you \n"
                        + "want to open a new window instead?");

@@ -15,7 +15,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedHashMap;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -53,7 +52,7 @@ public class MenuController {
     _model = model;
 
     /* this listener checks for a compile file */
-    _model.compileFileProperty().addListener((o, oldVal, newVal) -> {
+    _model.project.compileFileProperty().addListener((o, oldVal, newVal) -> {
       if (newVal != null) {
         log.debug("As a compile file has been found, "
                 + "the button was enabled.");
@@ -64,7 +63,7 @@ public class MenuController {
     });
 
     /* this listener checks for a run file */
-    _model.runFileProperty().addListener((o, oldVal, newVal) -> {
+    _model.project.runFileProperty().addListener((o, oldVal, newVal) -> {
       if (newVal != null) {
         log.debug("As a run file has been found, "
                 + "the button was enabled.");
@@ -178,13 +177,10 @@ public class MenuController {
         case OVERWRITE_CHECK_CURRENT_WINDOW:
           if (ymlFile == null)
             ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
-          if (ymlFile == null) { return; }
-          _model.closeProject();
-          try {
-            _model.initProject(ymlFile);
-          } catch (IOException e) {
-            log.error("Could not read in " + ymlFile.getFileName());
-          }
+          if (ymlFile == null) return;
+
+          _model.close(true);
+          _model.init(ymlFile);
 
           break;
         case OVERWRITE_CHECK_NEW_WINDOW:
@@ -201,22 +197,19 @@ public class MenuController {
       if (ymlFile == null) {
         return;
       }
-      try {
-        _model.initProject(ymlFile);
-      } catch (IOException e) {
-        log.error("Could not read in " + ymlFile.getFileName());
-      }
+      _model.init(ymlFile);
+
     }
   }
 
   public void replaceCompileButton() {
-    if (_model.getConfiguration().isEmpty()
-        | ! _model.getConfiguration().containsKey("customCompileCommands")) {
+    if (_model.project.getCompileFile() == null
+        | ! _model.project.getCustomCompileCommands().isEmpty()) {
       if (toolBar.getItems().contains(customCompileButton)) {
         toolBar.getItems().remove(customCompileButton);
         toolBar.getItems().add(0, compileButton);
       }
-    } else if (_model.getConfiguration().containsKey("customCompileCommands")) {
+    } else if ( ! _model.project.getCustomCompileCommands().isEmpty()) {
       toolBar.getItems().remove(compileButton);
       customCompileButton = new SplitMenuButton();
       customCompileButton.setText("Compile");
@@ -230,12 +223,10 @@ public class MenuController {
       });
 
       /* iterate over alternative compile commands */
-      for (String k : ((LinkedHashMap<String, String>) _model.getConfiguration()
-              .get("customCompileCommands")).keySet()) {
+      for (String k : _model.project.getCustomCompileCommands().keySet()) {
         Label l = new Label(k);
         CustomMenuItem cmi = new CustomMenuItem(l);
-        String cmd = ((LinkedHashMap<String, String>)
-                _model.getConfiguration().get("customCompileCommands")).get(k);
+        String cmd = _model.project.getCustomCompileCommands().get(k);
         Tooltip t = new Tooltip(cmd);
         Tooltip.install(l, t);
         cmi.setOnAction(f -> {
@@ -325,7 +316,7 @@ public class MenuController {
   @FXML
   private void closeProjectAction(ActionEvent event)
           throws FileNotFoundException {
-    _model.closeProject();
+    _model.close(false);
   }
 
 

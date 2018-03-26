@@ -182,7 +182,7 @@ public class SideBarController {
       }
 
       /* mark the wrapper file,  must be in root folder */
-      if (_model.getWrapperClass().getFileName()
+      if (_model.project.getWrapperClass().getFileName()
               .equals(x.getPath().getFileName())) {
         x._usedProperty().setValue(FILE_IS_WRAPPER);
         continue;

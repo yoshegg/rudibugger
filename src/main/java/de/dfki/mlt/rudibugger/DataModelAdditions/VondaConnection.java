@@ -11,8 +11,6 @@ import de.dfki.mlt.rudibugger.RPC.LogData;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
 import de.dfki.mlt.rudimant.common.RuleLogger;
-import de.dfki.mlt.rudimant.common.SimpleServer;
-
 import java.io.IOException;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -48,13 +46,11 @@ public class VondaConnection {
   /**
    * Establishes connection to VOnDA.
    *
-   * @throws IOException
+   * (N.B.: The old key for a custom port was <code>SERVER_RUDIMANT</code>, now
+   * it is <code>vondaPort</code>.)
    */
-  public void connect() throws IOException {
-    int vondaPort = ((_model.getProjectConfiguration()
-      .get("SERVER_RUDIMANT") == null)
-            ? SimpleServer.DEFAULT_PORT : (int) _model.getProjectConfiguration()
-              .get("SERVER_RUDIMANT"));
+  public void connect() {
+    int vondaPort = _model.project.getVondaPort();
 
     client = new RudibuggerClient("localhost", vondaPort,
         new RudibuggerAPI(_model));
@@ -75,23 +71,17 @@ public class VondaConnection {
     }
   }
 
-  /** Represents to connection status between VOnDA and rudibugger. */
+  /** Represents the connection status between VOnDA and rudibugger. */
   private final BooleanProperty connected = new SimpleBooleanProperty(false);
 
-  /**
-   * @return  The connection status property
-   */
+  /** @return  The connection status property */
   public BooleanProperty connectedProperty() { return connected; }
 
-  /**
-   * Represents the most recent logged data.
-   */
+  /** Represents the most recent logged data. */
   private final ObjectProperty<LogData> logOutput
     = new SimpleObjectProperty<>();
 
-  /**
-   * @return  The most recent logged data
-   */
+  /** @return  The most recent logged data */
   public ObjectProperty<LogData> logOutputProperty() {
     return logOutput;
   }

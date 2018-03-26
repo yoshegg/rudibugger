@@ -106,10 +106,6 @@ public class MainApp extends Application {
       log.info("Created global config folder (first start of rudibugger");
     }
 
-    model.initialize();
-//    model.initializeGlobalKnowledge();
-//    model.keepGlobalKnowledgeUpToDate();
-
     menuController.initModel(model);
     statusBarController.initModel(model);
     sideBarController.initModel(model);
@@ -139,7 +135,7 @@ public class MainApp extends Application {
     /* opening last openend project (if any) */
     if (model.globalConf.getLastOpenedProject() != null) {
       log.info("Opening previous project...");
-      model.initProject(model.globalConf.getLastOpenedProject());
+      model.init(model.globalConf.getLastOpenedProject());
     }
 
   }

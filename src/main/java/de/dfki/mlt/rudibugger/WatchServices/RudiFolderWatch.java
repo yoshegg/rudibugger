@@ -75,11 +75,11 @@ public class RudiFolderWatch {
 
     try {
       _watchService = FileSystems.getDefault().newWatchService();
-      model.getRudiFolder().register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
+      model.project.getRudiFolder().register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
               ENTRY_DELETE);
 
       /* iterate over all subdirectories */
-      Stream<Path> subpaths = Files.walk(model.getRudiFolder());
+      Stream<Path> subpaths = Files.walk(model.project.getRudiFolder());
       subpaths.forEach(x -> {
         try {
           if (Files.isDirectory(x))

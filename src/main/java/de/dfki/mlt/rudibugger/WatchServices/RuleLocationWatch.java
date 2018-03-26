@@ -76,8 +76,8 @@ public class RuleLocationWatch {
 
     try {
       _watchService = FileSystems.getDefault().newWatchService();
-      model._generatedFolder.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE);
-      log.debug("registered " + model._generatedFolder);
+      model.project.getGeneratedDirectory().register(_watchService, ENTRY_MODIFY, ENTRY_CREATE);
+      log.debug("registered " + model.project.getGeneratedDirectory());
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
     }
@@ -166,7 +166,7 @@ public class RuleLocationWatch {
           if (watchKey == null) {
             Platform.runLater(() -> {
               log.debug("[" + changingFile + "] has changed.");
-              if (_model.getRuleLocFile() == null) {
+              if (_model.project.getRuleLocationFile() == null) {
                 _model.initRules();
               } else {
                 _model.updateProject();
