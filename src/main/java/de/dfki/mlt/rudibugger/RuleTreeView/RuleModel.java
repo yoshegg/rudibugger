@@ -205,8 +205,7 @@ public class RuleModel {
           while (!(parent instanceof ImportInfoExtended)) {
             parent = parent.getParent();
           }
-          Path parentPathIncomplete = ((ImportInfoExtended) parent).getAbsolutePath();
-          Path parentPath = _rudiPath.resolve(parentPathIncomplete.subpath(1, parentPathIncomplete.getNameCount()));
+          Path parentPath = ((ImportInfoExtended) parent).getAbsolutePath();
           RuleInfoExtended rule = (RuleInfoExtended) child;
           _idMap.put(rule.getId(), new RuleContainer(rule.getLine(), parentPath));
         }
