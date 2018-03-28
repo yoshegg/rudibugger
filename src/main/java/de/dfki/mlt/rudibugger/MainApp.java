@@ -1,16 +1,30 @@
 /*
- * Rudibugger is a debugger for .rudi code
- * written in the context of a bachelor's thesis
- * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+ * The Creative Commons CC-BY-NC 4.0 License
+ *
+ * http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+ * Creative Commons (CC) by DFKI GmbH
+ *  - Bernd Kiefer <kiefer@dfki.de>
+ *  - Anna Welker <anna.welker@dfki.de>
+ *  - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+
 package de.dfki.mlt.rudibugger;
 
+import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.EditorController;
 import de.dfki.mlt.rudibugger.Controller.MenuController;
 import de.dfki.mlt.rudibugger.Controller.SideBarController;
-import de.dfki.mlt.rudibugger.Controller.StatusBarController;
+import de.dfki.mlt.rudibugger.StatusBar.StatusBarController;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -21,8 +35,6 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,15 +113,12 @@ public class MainApp extends Application {
     DataModel model = new DataModel();
 
     /* create a global config folder if there is none */
-    if (! Files.exists(model.globalConfigPath)) {
-      model.globalConfigPath.toFile().mkdirs();
-      Files.createFile(model.globalConfigPath.resolve("recentProjects.yml"));
+    // TODO: Move
+    if (! Files.exists(GLOBAL_CONFIG_PATH)) {
+      GLOBAL_CONFIG_PATH.toFile().mkdirs();
+//      Files.createFile(model.GLOBAL_CONFIG_FILE.resolve("recentProjects.yml"));
       log.info("Created global config folder (first start of rudibugger");
     }
-
-    model.initialize();
-    model.initializeGlobalKnowledge();
-    model.keepGlobalKnowledgeUpToDate();
 
     menuController.initModel(model);
     statusBarController.initModel(model);
@@ -138,9 +147,9 @@ public class MainApp extends Application {
     log.info("Rudibugger has been started");
 
     /* opening last openend project (if any) */
-    if (model._globalConfigs.get("lastOpenedProject") != "") {
-      model.initProject(Paths.get(
-              (String) model._globalConfigs.get("lastOpenedProject")));
+    if (model.globalConf.getLastOpenedProject() != null) {
+      log.info("Opening previous project...");
+      model.init(model.globalConf.getLastOpenedProject());
     }
 
   }

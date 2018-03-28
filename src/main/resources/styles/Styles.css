@@ -21,6 +21,14 @@
   -fx-font-size: 18px;
 }*/
 
-.tree-cell:erroneousImport {
+.tree-cell:errorsInImport {
   -fx-background-color: red;
+}
+
+.tree-cell:warningsInImport {
+  -fx-background-color: salmon;
+}
+
+.tree-cell:modifiedFile {
+  -fx-background-color: salmon;
 }

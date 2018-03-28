@@ -1,9 +1,24 @@
 <#if licenseFirst??>
-${licenseFirst}
+/*
 </#if>
-${licensePrefix}Rudibugger is a debugger for .rudi code
-${licensePrefix}written in the context of a bachelor's thesis
-${licensePrefix}by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+${licensePrefix}The Creative Commons CC-BY-NC 4.0 License
+ *
+${licensePrefix}http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+${licensePrefix}Creative Commons (CC) by DFKI GmbH
+${licensePrefix} - Bernd Kiefer <kiefer@dfki.de>
+${licensePrefix} - Anna Welker <anna.welker@dfki.de>
+${licensePrefix} - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+${licensePrefix}THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+${licensePrefix}IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+${licensePrefix}FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+${licensePrefix}AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+${licensePrefix}LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+${licensePrefix}FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+${licensePrefix}IN THE SOFTWARE.
 <#if licenseLast??>
 ${licenseLast}
 </#if>
+
+

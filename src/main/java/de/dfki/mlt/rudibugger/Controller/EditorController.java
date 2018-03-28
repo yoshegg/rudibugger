@@ -1,8 +1,22 @@
 /*
- * Rudibugger is a debugger for .rudi code
- * written in the context of a bachelor's thesis
- * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+ * The Creative Commons CC-BY-NC 4.0 License
+ *
+ * http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+ * Creative Commons (CC) by DFKI GmbH
+ *  - Bernd Kiefer <kiefer@dfki.de>
+ *  - Anna Welker <anna.welker@dfki.de>
+ *  - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+
 package de.dfki.mlt.rudibugger.Controller;
 
 import de.dfki.mlt.rudibugger.DataModel;
@@ -76,7 +90,7 @@ public class EditorController {
     /* this listener adds a TableView to the editorSplitPane if connection to
      * rudimant has been established.
      */
-    _model.connectedToRudimantProperty().addListener((arg, oldVal, newVal) -> {
+    _model.vonda.connectedProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal == true) {
         log.info("Rudimant successfully connected to rudibugger.");
 
@@ -89,7 +103,7 @@ public class EditorController {
         _labelColumn.setPrefWidth(180.0);
         _evaluatedColumn = new TableColumn<>();
         _evaluatedColumn.setText("Evaluated");
-        _timeColumn = new TableColumn<>();
+//        _timeColumn = new TableColumn<>();
         _timeColumn.setText("Time");
         ruleLoggingTableView.getColumns().addAll(
                 _timeColumn, _labelColumn, _evaluatedColumn);
@@ -103,7 +117,7 @@ public class EditorController {
         _labelColumn.setCellFactory(value -> new LabelCellFactory());
         _evaluatedColumn.setCellFactory(value -> new EvaluatedCellFactory());
         _timeColumn.setCellFactory(value -> new TimestampCellFactory(
-                (boolean) _model._globalConfigs.get("timeStampIndex"))
+                 _model.globalConf.timeStampIndexProperty().get())
         );
 
         /* set comparators */
@@ -153,7 +167,7 @@ public class EditorController {
             int ruleId = ((LogData) ruleLoggingTableView.getSelectionModel()
                     .getSelectedItem()).getRuleId();
             RuleContainer con = _model.ruleModel.getRuleContainer(ruleId);
-            _model.openRule(con.getPath(), con.getLine());
+            _model.rudiLoad.openRule(con.getPath(), con.getLine());
           }
         });
 
@@ -164,7 +178,7 @@ public class EditorController {
     });
 
     /* this listener adds new output the the ruleLoggineList */
-    _model.rudiLogOutputProperty().addListener((arg, oldVal, newVal) -> {
+    _model.vonda.logOutputProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal != null) {
         Platform.runLater(() -> {
           ruleLoggingList.add(0, newVal);
@@ -174,10 +188,8 @@ public class EditorController {
     });
 
     /* this listener updates the timeStampIndex setting in the tableView */
-    _model._globalConfigs.addListener((MapChangeListener.Change<? extends String, ? extends Object> ml) -> {
-      if (ml.getKey() == "timeStampIndex") {
+    _model.globalConf.timeStampIndexProperty().addListener(cl -> {
         updateTimeStampIndexSetting();
-      }
     });
 
   }
@@ -196,9 +208,9 @@ public class EditorController {
   }
 
   public void updateTimeStampIndexSetting() {
-    boolean timeStampIndexSetting =
-            (boolean) _model._globalConfigs.get("timeStampIndex");
-    _timeColumn.setCellFactory(value ->
+    boolean timeStampIndexSetting
+      = _model.globalConf.timeStampIndexProperty().get();
+      _timeColumn.setCellFactory(value ->
             new TimestampCellFactory(timeStampIndexSetting)
         );
     if (timeStampIndexSetting) {
@@ -238,6 +250,6 @@ public class EditorController {
   /* Columns */
   private TableColumn<LogData, StringPart> _labelColumn;
   private TableColumn<LogData, ArrayList<StringPart>> _evaluatedColumn;
-  private TableColumn<LogData, DatePart> _timeColumn;
+  private TableColumn<LogData, DatePart> _timeColumn = new TableColumn<>();
 
 }

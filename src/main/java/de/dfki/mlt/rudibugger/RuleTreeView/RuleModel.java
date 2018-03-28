@@ -1,19 +1,40 @@
 /*
- * Rudibugger is a debugger for .rudi code
- * written in the context of a bachelor's thesis
- * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+ * The Creative Commons CC-BY-NC 4.0 License
+ *
+ * http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+ * Creative Commons (CC) by DFKI GmbH
+ *  - Bernd Kiefer <kiefer@dfki.de>
+ *  - Anna Welker <anna.welker@dfki.de>
+ *  - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
+import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudimant.common.BasicInfo;
+import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
 import de.dfki.mlt.rudimant.common.ImportInfo;
 import de.dfki.mlt.rudimant.common.RuleInfo;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -57,13 +78,28 @@ public class RuleModel {
     _model = model;
   }
 
+  public LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> errorInfos
+    = new LinkedHashMap<>();
+  public LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> warnInfos
+    = new LinkedHashMap<>();
+
   /**
    * Creates a new RuleModel
    *
+   * @param model
    * @return created RuleModel
    */
   public static RuleModel createNewRuleModel(DataModel model) {
     return new RuleModel(model);
+  }
+
+  private void extractWarnErrors(ImportInfoExtended ii) {
+    for (ErrorWarningInfo ewi : ii.getWarnings()) {
+      warnInfos.put(ewi, ii);
+    }
+    for (ErrorWarningInfo ewi : ii.getErrors()) {
+      errorInfos.put(ewi, ii);
+    }
   }
 
   /**
@@ -74,10 +110,19 @@ public class RuleModel {
    */
   public void readInRuleModel(Path ruleLocYml, Path rudiPath) {
     _rudiPath = rudiPath;
+    errorInfos.clear();
+    warnInfos.clear();
     BasicInfo temp = upgradeInfos(readInRuleLocationFile(ruleLocYml), null, _model);
     if (! (temp instanceof ImportInfoExtended)) {
-      log.error("upgrading infos of RuleModel failed");
+      log.error("Upgrading infos of RuleModel failed");
     }
+    if (! errorInfos.isEmpty())
+      _model._compilationStateProperty().setValue(COMPILATION_WITH_ERRORS);
+    else if (! warnInfos.isEmpty() && errorInfos.isEmpty())
+      _model._compilationStateProperty().setValue(COMPILATION_WITH_WARNINGS);
+    else
+      _model._compilationStateProperty().setValue(COMPILATION_PERFECT);
+
     rootImport = (ImportInfoExtended) temp;
     extractImportsAndIds(rootImport);
   }
@@ -85,6 +130,7 @@ public class RuleModel {
   private BasicInfo upgradeInfos(BasicInfo current, BasicInfo parent, DataModel model) {
     if (current instanceof ImportInfo) {
       ImportInfoExtended ii = new ImportInfoExtended((ImportInfo) current, model, parent);
+      extractWarnErrors(ii);
       for (BasicInfo child : current.getChildren()) {
         ii.getChildren().add(upgradeInfos(child, ii, model));
       }
@@ -173,8 +219,7 @@ public class RuleModel {
           while (!(parent instanceof ImportInfoExtended)) {
             parent = parent.getParent();
           }
-          Path parentPathIncomplete = ((ImportInfoExtended) parent).getAbsolutePath();
-          Path parentPath = _rudiPath.resolve(parentPathIncomplete.subpath(1, parentPathIncomplete.getNameCount()));
+          Path parentPath = ((ImportInfoExtended) parent).getAbsolutePath();
           RuleInfoExtended rule = (RuleInfoExtended) child;
           _idMap.put(rule.getId(), new RuleContainer(rule.getLine(), parentPath));
         }

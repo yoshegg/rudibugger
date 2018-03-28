@@ -1,8 +1,22 @@
 /*
- * Rudibugger is a debugger for .rudi code
- * written in the context of a bachelor's thesis
- * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+ * The Creative Commons CC-BY-NC 4.0 License
+ *
+ * http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+ * Creative Commons (CC) by DFKI GmbH
+ *  - Bernd Kiefer <kiefer@dfki.de>
+ *  - Anna Welker <anna.welker@dfki.de>
+ *  - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+
 package de.dfki.mlt.rudibugger;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
@@ -32,17 +46,17 @@ public final class HelperWindows {
   /**
    * This function asks the user what to do if there is already an open project.
    *
-   * @param proj
+   * @param model
    * @return Integer stating to replace current project, open new window or do
    * nothing
    */
-  public static int overwriteProjectCheck(DataModel proj) {
+  public static int overwriteProjectCheck(DataModel model) {
     log.debug("Asking what should happen because of the open project.");
 
     /* defining an Alert Window */
     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
     alert.setTitle("Open Project...");
-    alert.setHeaderText(proj.getProjectName() + " is already open.");
+    alert.setHeaderText(model.project.getProjectName() + " is already open.");
     alert.setContentText("Do you want to close the current project and \n"
                        + "open the new one in this window or do you \n"
                        + "want to open a new window instead?");

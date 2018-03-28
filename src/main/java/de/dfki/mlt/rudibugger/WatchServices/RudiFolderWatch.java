@@ -1,8 +1,22 @@
 /*
- * Rudibugger is a debugger for .rudi code
- * written in the context of a bachelor's thesis
- * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+ * The Creative Commons CC-BY-NC 4.0 License
+ *
+ * http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+ * Creative Commons (CC) by DFKI GmbH
+ *  - Bernd Kiefer <kiefer@dfki.de>
+ *  - Anna Welker <anna.welker@dfki.de>
+ *  - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+
 package de.dfki.mlt.rudibugger.WatchServices;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 
@@ -75,11 +89,11 @@ public class RudiFolderWatch {
 
     try {
       _watchService = FileSystems.getDefault().newWatchService();
-      model.getRudiFolder().register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
+      model.project.getRudiFolder().register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
               ENTRY_DELETE);
 
       /* iterate over all subdirectories */
-      Stream<Path> subpaths = Files.walk(model.getRudiFolder());
+      Stream<Path> subpaths = Files.walk(model.project.getRudiFolder());
       subpaths.forEach(x -> {
         try {
           if (Files.isDirectory(x))
@@ -135,6 +149,7 @@ public class RudiFolderWatch {
               public void run() {
                 if (_model.addRudiPath(filename))
                   log.info("rudi file added: " + filename);
+                _model.setFileHasBeenModified(filename);
               }
             });
 
@@ -142,8 +157,14 @@ public class RudiFolderWatch {
 
           /* rudi file modified */
           if (kind == ENTRY_MODIFY) {
-            // TODO: make better
-            //log.info("rudi file has been modified : " + filename);
+            Platform.runLater(new Runnable() {
+              @Override
+              public void run() {
+//              TODO: make better
+                log.info("rudi file has been modified : " + filename);
+                _model.setFileHasBeenModified(filename);
+              }
+            });
           }
 
           /* rudi file deleted */

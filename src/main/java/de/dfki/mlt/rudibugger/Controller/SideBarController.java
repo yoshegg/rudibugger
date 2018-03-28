@@ -1,8 +1,22 @@
 /*
- * Rudibugger is a debugger for .rudi code
- * written in the context of a bachelor's thesis
- * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+ * The Creative Commons CC-BY-NC 4.0 License
+ *
+ * http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+ * Creative Commons (CC) by DFKI GmbH
+ *  - Bernd Kiefer <kiefer@dfki.de>
+ *  - Anna Welker <anna.welker@dfki.de>
+ *  - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+
 package de.dfki.mlt.rudibugger.Controller;
 
 import de.dfki.mlt.rudimant.common.BasicInfo;
@@ -81,7 +95,7 @@ public class SideBarController {
         TreeItem ti = (TreeItem) rudiTreeView.getSelectionModel().getSelectedItem();
         RudiPath rp = (RudiPath) ti.getValue();
         if (! Files.isDirectory(rp.getPath())) {
-          model.openFile(rp.getPath());
+          model.rudiLoad.openFile(rp.getPath());
         }
       }
     });
@@ -159,6 +173,12 @@ public class SideBarController {
       /* reset this listener */
       _model.ruleLoggingStateLoadRequestProperty().set(null);
     });
+
+    /* Listen to out of sync changes */
+    // TODO: Should not be needed, but seems to be a bug in JavaFX
+//    model._modifiedFilesProperty().addListener((o, ov, nv) -> {
+//      rudiTreeView.refresh();
+//    });
   }
 
   /**
@@ -176,7 +196,7 @@ public class SideBarController {
       }
 
       /* mark the wrapper file,  must be in root folder */
-      if (_model.getWrapperClass().getFileName()
+      if (_model.project.getWrapperClass().getFileName()
               .equals(x.getPath().getFileName())) {
         x._usedProperty().setValue(FILE_IS_WRAPPER);
         continue;
@@ -192,7 +212,8 @@ public class SideBarController {
 
     /* let the cells reload according to their usage state */
     // TODO: https://stackoverflow.com/questions/14682881/binding-image-in-javafx
-    rudiTreeView.refresh();
+    // Should not be needed anymore
+    //    rudiTreeView.refresh();
   }
 
   public static TreeItem buildTreeView(DataModel model) {

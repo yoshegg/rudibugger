@@ -1,18 +1,31 @@
 /*
- * Rudibugger is a debugger for .rudi code
- * written in the context of a bachelor's thesis
- * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+ * The Creative Commons CC-BY-NC 4.0 License
+ *
+ * http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+ * Creative Commons (CC) by DFKI GmbH
+ *  - Bernd Kiefer <kiefer@dfki.de>
+ *  - Anna Welker <anna.welker@dfki.de>
+ *  - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
 import static de.dfki.mlt.rudimant.common.Constants.*;
-import de.dfki.mlt.rudimant.common.ErrorInfo;
+import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
 import java.util.LinkedHashMap;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleGroup;
@@ -52,6 +65,8 @@ public class ImportContextMenu extends ContextMenu {
   /**
    * An <code>ImportContextMenu</code> should appear when a context menu was
    * requested by clicking on an import.
+   *
+   * @param ii
    */
   public ImportContextMenu(ImportInfoExtended ii) {
     super();
@@ -72,25 +87,38 @@ public class ImportContextMenu extends ContextMenu {
     CustomMenuItem openFile = new CustomMenuItem(new Label("Open "
             + _item.getAbsolutePath().getFileName().toString()));
     openFile.setOnAction((ActionEvent e) -> {
-      _item._model.openFile(_item.getAbsolutePath());
+      _item._model.rudiLoad.openFile(_item.getAbsolutePath());
     });
     SeparatorMenuItem sep = new SeparatorMenuItem();
     this.getItems().addAll(openFile, sep);
 
-    /* set possibility to open error (if any) */
-    if (! _item.getErrors().isEmpty()) {
-      for (ErrorInfo e : _item.getErrors()) {
-        String msg = "Go to error " + (_item.getErrors().indexOf(e) + 1) + " (line "
-                + e.getLocation().getLineNumber() + ")";
+    /* set possibility to open errors or warnings (if any) */
+    if (! _item.getErrors().isEmpty() || ! _item.getWarnings().isEmpty()) {
+      for (ErrorWarningInfo e : _item.getErrors()) {
+        String msg = "Go to error " + (_item.getErrors().indexOf(e) + 1)
+                   + " (line " + e.getLocation().getLineNumber() + ")";
         Label label = new Label(msg);
         CustomMenuItem errorItem = new CustomMenuItem(label);
         Tooltip t = new Tooltip(e.getMessage());
         Tooltip.install(label, t);
         errorItem.setOnAction(f -> {
-          _item._model.openRule(_item.getAbsolutePath(),
+          _item._model.rudiLoad.openRule(_item.getAbsolutePath(),
                                 e.getLocation().getLineNumber());
         });
         this.getItems().add(errorItem);
+      }
+      for (ErrorWarningInfo e : _item.getWarnings()) {
+        String msg = "Go to warning " + (_item.getWarnings().indexOf(e) + 1)
+                   + " (line " + e.getLocation().getLineNumber() + ")";
+        Label label = new Label(msg);
+        CustomMenuItem warningItem = new CustomMenuItem(label);
+        Tooltip t = new Tooltip(e.getMessage());
+        Tooltip.install(label, t);
+        warningItem.setOnAction(f -> {
+          _item._model.rudiLoad.openRule(_item.getAbsolutePath(),
+                                e.getLocation().getLineNumber());
+        });
+        this.getItems().add(warningItem);
       }
       this.getItems().add(sep);
     }

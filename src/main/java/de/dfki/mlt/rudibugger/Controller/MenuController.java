@@ -1,8 +1,22 @@
- /*
- * Rudibugger is a debugger for .rudi code
- * written in the context of a bachelor's thesis
- * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+/*
+ * The Creative Commons CC-BY-NC 4.0 License
+ *
+ * http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+ * Creative Commons (CC) by DFKI GmbH
+ *  - Bernd Kiefer <kiefer@dfki.de>
+ *  - Anna Welker <anna.welker@dfki.de>
+ *  - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+
 package de.dfki.mlt.rudibugger.Controller;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
@@ -17,10 +31,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SplitMenuButton;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +68,7 @@ public class MenuController {
     _model = model;
 
     /* this listener checks for a compile file */
-    _model.compileFileProperty().addListener((o, oldVal, newVal) -> {
+    _model.project.compileFileProperty().addListener((o, oldVal, newVal) -> {
       if (newVal != null) {
         log.debug("As a compile file has been found, "
                 + "the button was enabled.");
@@ -58,7 +79,7 @@ public class MenuController {
     });
 
     /* this listener checks for a run file */
-    _model.runFileProperty().addListener((o, oldVal, newVal) -> {
+    _model.project.runFileProperty().addListener((o, oldVal, newVal) -> {
       if (newVal != null) {
         log.debug("As a run file has been found, "
                 + "the button was enabled.");
@@ -76,13 +97,21 @@ public class MenuController {
         newRudiFileItem.setDisable(false);
         loadLoggingStateMenu.setDisable(false);
         saveLoggingStateItem.setDisable(false);
+        manageVondaConnectionButton();
+        replaceCompileButton();
       } else if ((int) newVal == PROJECT_CLOSED) {
         log.debug("Project closed: disable GUI-elements.");
         closeProjectItem.setDisable(true);
         newRudiFileItem.setDisable(true);
         loadLoggingStateMenu.setDisable(true);
         saveLoggingStateItem.setDisable(true);
+        manageVondaConnectionButton();
+        replaceCompileButton();
       }
+    });
+
+    _model.vonda.connectedProperty().addListener((o, ov, nv) -> {
+      manageVondaConnectionButton();
     });
 
     /* this listener enables saving depending on the selected tab */
@@ -123,12 +152,12 @@ public class MenuController {
     });
 
     /* initalize the recent projets submenu... */
-    if (! _model._recentProjects.isEmpty()) {
+    if (! _model.globalConf.recentProjects.isEmpty()) {
       buildRecentProjectsMenu();
     }
 
     /* ... then keep track of changes */
-    _model._recentProjects.addListener(
+    _model.globalConf.recentProjects.addListener(
             (ListChangeListener.Change<? extends String> c) -> {
       buildRecentProjectsMenu();
     });
@@ -136,13 +165,49 @@ public class MenuController {
 
   private void buildRecentProjectsMenu() {
     openRecentProjectMenu.getItems().clear();
-    _model._recentProjects.forEach((x) -> {
+    _model.globalConf.recentProjects.forEach((x) -> {
       MenuItem mi = new MenuItem(x);
       mi.setOnAction((event) -> {
         checkForOpenProject(Paths.get(x));
       });
       openRecentProjectMenu.getItems().add(mi);
     });
+  }
+
+  private void manageVondaConnectionButton() {
+
+    Button button = vondaConnectionButton;
+
+    if (_model.projectStatusProperty().get() == PROJECT_CLOSED) {
+      button.setText("No project");
+      button.setOnMouseEntered(e -> button.setText(null));
+      button.setOnMouseExited(e -> button.setText(null));
+      button.setDisable(true);
+      requestedConnection = false;
+
+    } else if (_model.vonda.connectedProperty().get()) {
+      requestedConnection = false;
+      button.setText("Connected");
+      System.out.println(_model.vonda.client.isConnected());
+      button.setOnMouseEntered(e -> button.setText("Disconnect"));
+      button.setOnMouseExited(e -> button.setText("Connected"));
+      button.setDisable(false);
+
+    } else if (! _model.vonda.connectedProperty().get()) {
+      if (requestedConnection) {
+        button.setText("Connecting");
+        button.setOnMouseEntered(e -> button.setText("Disconnect"));
+        button.setOnMouseExited(e -> button.setText("Connecting"));
+        button.setDisable(false);
+      } else {
+        button.setText("Disconnected");
+        button.setOnMouseEntered(e -> button.setText("Connect"));
+        button.setOnMouseExited(e -> button.setText("Disconnected"));
+        button.setDisable(false);
+      }
+    } else {
+      log.debug("Unexpected behaviour.");
+    }
   }
 
   private void buildLoadRuleSelectionStateMenu() {
@@ -170,13 +235,11 @@ public class MenuController {
         case OVERWRITE_CHECK_CURRENT_WINDOW:
           if (ymlFile == null)
             ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
-          if (ymlFile == null) { return; }
-          _model.closeProject();
-          try {
-            _model.initProject(ymlFile);
-          } catch (IOException e) {
-            log.error("Could not read in " + ymlFile.getFileName());
-          }
+          if (ymlFile == null) return;
+
+          _model.close(true);
+          _model.init(ymlFile);
+
           break;
         case OVERWRITE_CHECK_NEW_WINDOW:
         //TODO: not implemented yet.
@@ -192,12 +255,51 @@ public class MenuController {
       if (ymlFile == null) {
         return;
       }
-      try {
-        _model.initProject(ymlFile);
-      } catch (IOException e) {
-        log.error("Could not read in " + ymlFile.getFileName());
-      }
+      _model.init(ymlFile);
+
     }
+  }
+
+  public void replaceCompileButton() {
+    if (_model.project.getCompileFile() == null
+        | ! _model.project.getCustomCompileCommands().isEmpty()) {
+      if (toolBar.getItems().contains(customCompileButton)) {
+        toolBar.getItems().remove(customCompileButton);
+        toolBar.getItems().add(0, compileButton);
+      }
+    } else if ( ! _model.project.getCustomCompileCommands().isEmpty()) {
+      toolBar.getItems().remove(compileButton);
+      customCompileButton = new SplitMenuButton();
+      customCompileButton.setText("Compile");
+      customCompileButton.setOnAction(e -> {
+        try {
+          _model.compiler.startDefaultCompile();
+        } catch (IOException | InterruptedException ex) {
+          log.error(ex.toString());
+        }
+
+      });
+
+      /* iterate over alternative compile commands */
+      for (String k : _model.project.getCustomCompileCommands().keySet()) {
+        Label l = new Label(k);
+        CustomMenuItem cmi = new CustomMenuItem(l);
+        String cmd = _model.project.getCustomCompileCommands().get(k);
+        Tooltip t = new Tooltip(cmd);
+        Tooltip.install(l, t);
+        cmi.setOnAction(f -> {
+          try {
+            _model.compiler.startCompile(cmd);
+          } catch (IOException | InterruptedException ex) {
+            log.error(ex.toString());
+          }
+        });
+        customCompileButton.getItems().add(cmi);
+
+      }
+      toolBar.getItems().add(0, customCompileButton);
+    }
+
   }
 
 
@@ -209,9 +311,16 @@ public class MenuController {
   @FXML
   private Button compileButton;
 
+  /** Custom compile button */
+  private SplitMenuButton customCompileButton;
+
   /* the run button */
   @FXML
   private Button runButton;
+
+  /** Con-/Disconnect button. */
+  @FXML
+  private Button vondaConnectionButton;
 
 
   /*****************************************************************************
@@ -240,7 +349,7 @@ public class MenuController {
   @FXML
   private void newRudiFileAction(ActionEvent event)
           throws FileNotFoundException {
-    _model.openFile(null);
+    _model.rudiLoad.openFile(null);
   }
 
 
@@ -269,7 +378,7 @@ public class MenuController {
   @FXML
   private void closeProjectAction(ActionEvent event)
           throws FileNotFoundException {
-    _model.closeProject();
+    _model.close(false);
   }
 
 
@@ -302,7 +411,7 @@ public class MenuController {
   /** Action "Save" */
   @FXML
   private void saveAction(ActionEvent event) {
-    _model.updateFile();
+    _model.rudiSave.quickSaveFile();
   }
 
 
@@ -313,7 +422,7 @@ public class MenuController {
   /** Action "Save as..." */
   @FXML
   private void saveAsAction(ActionEvent event) {
-    _model.saveFileAs();
+    _model.rudiSave.saveFileAs();
   }
 
 
@@ -324,7 +433,7 @@ public class MenuController {
   /** Action "Save all" */
   @FXML
   private void saveAllAction(ActionEvent event) {
-    _model.updateAllFiles();
+    _model.rudiSave.quickSaveAllFiles();
   }
 
 
@@ -348,14 +457,18 @@ public class MenuController {
 
 
   /*****************************************************************************
-   * Button actions
+   * Button actions & toolBar
   *****************************************************************************/
+
+  /** Contains buttons */
+  @FXML
+  private ToolBar toolBar;
 
   /* Clicking the compile button */
   @FXML
   private void startCompile(ActionEvent event) throws IOException,
           InterruptedException {
-    _model.startCompile();
+    _model.compiler.startDefaultCompile();
   }
 
   /* Clicking the run button */
@@ -364,4 +477,18 @@ public class MenuController {
     log.warn("\"Run\" is not implemented yet.");
   }
 
+  /* Establishes a connection to the VOnDA server or disconnects from it. */
+  @FXML
+ private void changeVondaConnectionState(ActionEvent event) {
+    if (_model.vonda.connectedProperty().get() | requestedConnection) {
+      _model.vonda.closeConnection();
+    requestedConnection = false;
+    } else {
+      _model.vonda.connect();
+      requestedConnection = true;
+    }
+    manageVondaConnectionButton();
+  }
+
+ private boolean requestedConnection = false;
 }

@@ -1,8 +1,22 @@
 /*
- * Rudibugger is a debugger for .rudi code
- * written in the context of a bachelor's thesis
- * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+ * The Creative Commons CC-BY-NC 4.0 License
+ *
+ * http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+ * Creative Commons (CC) by DFKI GmbH
+ *  - Bernd Kiefer <kiefer@dfki.de>
+ *  - Anna Welker <anna.welker@dfki.de>
+ *  - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+
 package de.dfki.mlt.rudibugger.FileTreeView;
 
 import java.io.IOException;
@@ -31,6 +45,7 @@ public class RudiFolderHierarchy {
   private final HashMap<Path, TreeItem> folderMap;
   private final HashMap<Path, TreeItem> fileMap;
   public final HashSet<RudiPath> rudiPathSet;
+  public final HashMap<Path, RudiPath> rudiPathMap;
 
   /** create a new hierarchy and initialize its fields */
   public RudiFolderHierarchy(Path rudiFolder) {
@@ -38,11 +53,20 @@ public class RudiFolderHierarchy {
     folderMap = new HashMap<>();
     fileMap = new HashMap<>();
     rudiPathSet = new HashSet<>();
+    rudiPathMap = new HashMap<>();
+  }
+
+  public void resetModifiedProperties() {
+    for (Path p : rudiPathMap.keySet()) {
+      rudiPathMap.get(p)._modifiedProperty().setValue(false);
+    }
   }
 
   /** add a file or a folder to the hierarchy */
   public boolean addFileToHierarchy(RudiPath file) {
     Path f = file.getPath();
+
+    rudiPathMap.put(f, file);
 
     /* a folder */
     if (Files.isDirectory(f)) {
@@ -87,6 +111,8 @@ public class RudiFolderHierarchy {
   /** remove a file from the hierarchy (this only works for files!) */
   public void removeFromFileHierarchy(RudiPath file) {
     Path f = file.getPath();
+
+    rudiPathMap.remove(f);
 
     /* a file */
     if (! Files.isDirectory(f)) {

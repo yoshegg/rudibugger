@@ -1,3 +1,22 @@
+/*
+ * The Creative Commons CC-BY-NC 4.0 License
+ *
+ * http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+ * Creative Commons (CC) by DFKI GmbH
+ *  - Bernd Kiefer <kiefer@dfki.de>
+ *  - Anna Welker <anna.welker@dfki.de>
+ *  - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
 package de.dfki.mlt.rudibugger.Controller;
 
 /*
@@ -53,40 +72,40 @@ public class SettingsController {
     customEditor.setUserData("custom");
 
     /* define custom commands (if any) */
-    customFileEditor.setText((String) _model._globalConfigs.get("openFileWith"));
-    customRuleEditor.setText((String) _model._globalConfigs.get("openRuleWith"));
+    customFileEditor.setText((String) _model.globalConf.getOpenFileWith());
+    customRuleEditor.setText((String) _model.globalConf.getOpenRuleWith());
 
     /* set the listeners */
     editorSetting.selectedToggleProperty().addListener((cl, ot, nt) -> {
       String current = (String) nt.getUserData();
       switch (current) {
         case "rudibugger":
-          _model._globalConfigs.put("editor", "rudibugger");
-          _model.closeEmacs(true);
+          _model.globalConf.setSetting("editor", "rudibugger");
+          _model.emacs.close(true);
           customTextFields.setDisable(true);
           break;
         case "emacs":
-          _model._globalConfigs.put("editor", "emacs");
+          _model.globalConf.setSetting("editor", "emacs");
           customTextFields.setDisable(true);
           break;
         case "custom":
-          _model._globalConfigs.put("editor", "custom");
-          _model.closeEmacs(true);
+          _model.globalConf.setSetting("editor", "custom");
+          _model.emacs.close(true);
           customTextFields.setDisable(false);
           break;
       }
     });
     customFileEditor.textProperty().addListener((ob, ov, nv) -> {
-      _model._globalConfigs.put("openFileWith", nv);
+      _model.globalConf.setSetting("openFileWith", nv);
     });
     customRuleEditor.textProperty().addListener((ob, ov, nv) -> {
-      _model._globalConfigs.put("openRuleWith", nv);
+      _model.globalConf.setSetting("openRuleWith", nv);
     });
 
     /* preselect current editor */
     for (Toggle x : editorSetting.getToggles()) {
       if (((RadioButton) x).getUserData()
-              .equals(_model._globalConfigs.get("editor"))) {
+              .equals(_model.globalConf.getEditor())) {
         x.setSelected(true);
       }
     }
@@ -95,12 +114,12 @@ public class SettingsController {
 
     /* preselect timeStampIndexCheckBox */
     timeStampIndexCheckBox.setSelected(
-            (boolean) _model._globalConfigs.get("timeStampIndex")
+      _model.globalConf.timeStampIndexProperty().get()
     );
 
     /* listener */
     timeStampIndexCheckBox.selectedProperty().addListener((cl, ov, nv) -> {
-      _model._globalConfigs.put("timeStampIndex", nv);
+      _model.globalConf.setSetting("timeStampIndex", nv);
     });
 
   }

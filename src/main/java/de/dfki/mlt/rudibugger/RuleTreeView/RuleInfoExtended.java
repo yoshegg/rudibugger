@@ -1,8 +1,22 @@
 /*
- * Rudibugger is a debugger for .rudi code
- * written in the context of a bachelor's thesis
- * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+ * The Creative Commons CC-BY-NC 4.0 License
+ *
+ * http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+ * Creative Commons (CC) by DFKI GmbH
+ *  - Bernd Kiefer <kiefer@dfki.de>
+ *  - Anna Welker <anna.welker@dfki.de>
+ *  - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
 import de.dfki.mlt.rudibugger.DataModel;
@@ -40,7 +54,6 @@ public class RuleInfoExtended extends RuleInfo {
    * @return An Integer {@linkplain de.dfki.mlt.rudimant.common
    *         constant}.
    */
-  @Override
   public int getState() { return _state.get(); }
 
   /**
@@ -50,7 +63,6 @@ public class RuleInfoExtended extends RuleInfo {
    *           An Integer {@linkplain de.dfki.mlt.rudimant.common
    *           constant}.
    */
-  @Override
   public void setState(int i) { _state.setValue(i); }
 
   /**
@@ -88,7 +100,9 @@ public class RuleInfoExtended extends RuleInfo {
     _parent = parent;
     _state = new SimpleIntegerProperty(STATE_NEVER);
     _model = model;
-
+    _id = original.getId();
+    _expr = original.getExpression();
+    _baseTerms = original.getBaseterms();
 
     /* retrieve parent import and start listener*/
     if (_parent != null) {
@@ -102,7 +116,7 @@ public class RuleInfoExtended extends RuleInfo {
     /* TODO: This should probably be somewhere else. RuleModel maybe? */
     int id = original.getId();
     _state.addListener((o, ov, nv) -> {
-      _model.rudibuggerClient.setLoggingStatus(id, (int) nv);
+      _model.vonda.client.setLoggingStatus(id, (int) nv);
 
       /* TODO: dito, internal logging purposes */
       String output = "";

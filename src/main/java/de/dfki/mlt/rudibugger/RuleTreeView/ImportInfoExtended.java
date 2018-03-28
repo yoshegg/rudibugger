@@ -1,18 +1,30 @@
 /*
- * Rudibugger is a debugger for .rudi code
- * written in the context of a bachelor's thesis
- * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
+ * The Creative Commons CC-BY-NC 4.0 License
+ *
+ * http://creativecommons.org/licenses/by-nc/4.0/legalcode
+ *
+ * Creative Commons (CC) by DFKI GmbH
+ *  - Bernd Kiefer <kiefer@dfki.de>
+ *  - Anna Welker <anna.welker@dfki.de>
+ *  - Christophe Biwer <christophe.biwer@dfki.de>
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import static de.dfki.mlt.rudimant.common.Constants.*;
-import de.dfki.mlt.rudimant.common.ErrorInfo;
 import de.dfki.mlt.rudimant.common.ImportInfo;
 import java.nio.file.Path;
 import java.util.HashSet;
-import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.slf4j.Logger;
@@ -62,13 +74,6 @@ public class ImportInfoExtended extends ImportInfo {
    * @return An <code>IntegerProperty</code>.
    */
   public IntegerProperty stateProperty() { return _state; }
-
-  /** TODO: Remove when changes in vonda have been accepted */
-  private List<ErrorInfo> _errors;
-
-  /** TODO: Remove when changes in vonda have been accepted */
-  @Override
-  public List<ErrorInfo> getErrors() { return _errors; }
 
   /**
    * The underlying file
@@ -121,9 +126,11 @@ public class ImportInfoExtended extends ImportInfo {
       log.error("Tried to use a non-extended ImportInfo as parent.");
     _parent = parent;
     _errors = original.getErrors();
+    _warnings = original.getWarnings();
     _state = new SimpleIntegerProperty(STATE_NEVER);
     _model = model;
-    _file = _model.getRudiFolder().resolve(original.getFilePath()).normalize();
+    _file = _model.project.getRudiFolder()
+      .resolve(original.getFilePath()).normalize();
 
   }
 

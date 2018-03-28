@@ -1,1 +1,1 @@
-java -jar target/rudibugger-1.1-SNAPSHOT.jar
+java -jar target/rudibugger-1.2-SNAPSHOT.jar
