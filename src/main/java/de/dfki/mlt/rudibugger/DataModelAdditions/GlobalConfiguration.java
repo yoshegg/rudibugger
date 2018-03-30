@@ -247,7 +247,7 @@ public class GlobalConfiguration {
   /** @return The project that will be reopened when reopening rudibugger. */
   public Path getLastOpenedProject() {
     String s = (String) _globalConfigs.get("lastOpenedProject");
-    if (!"".equals(s))
+    if (s != null && !"".equals(s))
       return Paths.get(s);
     else
       return null;
