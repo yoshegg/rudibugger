@@ -43,6 +43,8 @@ import org.slf4j.LoggerFactory;
  */
 public class RudiFolderWatch {
 
+  private RudiFolderWatch() {}
+
   static Logger log = LoggerFactory.getLogger("rudiFolWatch");
 
   /** the Thread in which the WatchService is run*/
@@ -84,12 +86,15 @@ public class RudiFolderWatch {
     }
   }
 
-  public void createRudiFolderWatch(DataModel model) {
-    _model = model;
+  public static RudiFolderWatch createRudiFolderWatch(DataModel model) {
+
+    RudiFolderWatch newWatch = new RudiFolderWatch();
+    newWatch._model = model;
 
     try {
-      _watchService = FileSystems.getDefault().newWatchService();
-      model.project.getRudiFolder().register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
+      newWatch._watchService = FileSystems.getDefault().newWatchService();
+      model.project.getRudiFolder()
+        .register(newWatch._watchService, ENTRY_MODIFY, ENTRY_CREATE,
               ENTRY_DELETE);
 
       /* iterate over all subdirectories */
@@ -97,7 +102,7 @@ public class RudiFolderWatch {
       subpaths.forEach(x -> {
         try {
           if (Files.isDirectory(x))
-            x.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
+            x.register(newWatch._watchService, ENTRY_MODIFY, ENTRY_CREATE,
                     ENTRY_DELETE);
         } catch (IOException ex) {
           log.error("Could not set watch for subdirectories: " + ex);
@@ -106,7 +111,8 @@ public class RudiFolderWatch {
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
     }
-    startListening();
+    newWatch.startListening();
+    return newWatch;
   }
 
   public void eventLoop() throws IOException, InterruptedException {

@@ -41,6 +41,8 @@ import org.slf4j.LoggerFactory;
  */
 public class RuleLocationWatch {
 
+  private RuleLocationWatch() {}
+
   static Logger log = LoggerFactory.getLogger("ruleLocWatch");
 
   /** the Thread in which the WatchService is run */
@@ -84,18 +86,22 @@ public class RuleLocationWatch {
   /**
    * this function must be called to create a WatchService for ~RuleLocation.yml
    * @param model
+   * @return
    */
-  public void createRuleLocationWatch(DataModel model) {
-    _model = model;
+  public static RuleLocationWatch createRuleLocationWatch(DataModel model) {
+    RuleLocationWatch newWatch = new RuleLocationWatch();
+    newWatch._model = model;
 
     try {
-      _watchService = FileSystems.getDefault().newWatchService();
-      model.project.getGeneratedDirectory().register(_watchService, ENTRY_MODIFY, ENTRY_CREATE);
+      newWatch._watchService = FileSystems.getDefault().newWatchService();
+      newWatch._model.project.getGeneratedDirectory()
+        .register(newWatch._watchService, ENTRY_MODIFY, ENTRY_CREATE);
       log.debug("registered " + model.project.getGeneratedDirectory());
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
     }
-    startListening();
+    newWatch.startListening();
+    return newWatch;
   }
 
   public void eventLoop() throws IOException, InterruptedException {

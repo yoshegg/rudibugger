@@ -22,6 +22,7 @@ package de.dfki.mlt.rudibugger.StatusBar;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.RuleTreeView.ImportInfoExtended;
+import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -150,18 +151,15 @@ public class CompileIndicator {
    */
   private void addErrorWarningInfosToContextMenu(ContextMenu cm, String type,
     LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> data, DataModel model) {
-    int counter = 0;
     for (ErrorWarningInfo e : data.keySet()) {
           ImportInfoExtended item = data.get(e);
-          String msg = "Go to " + type + " " + (++counter)
-                     + " ("
-                     + "line " + e.getLocation().getLineNumber() + ", "
-                     + "file " + item.getLabel()
-                     + ")";
+          String shortType = (("warning".equals(type)) ? "WARN" : "ERROR");
+          String msg = shortType + ":"
+                     + item.getLabel() + RULE_FILE_EXTENSION + ":" +
+                     + e.getLocation().getLineNumber() + ": "
+                     + e.getMessage();
           Label label = new Label(msg);
           CustomMenuItem errorItem = new CustomMenuItem(label);
-          Tooltip t = new Tooltip(e.getMessage());
-          Tooltip.install(label, t);
           errorItem.setOnAction(f -> {
             model.rudiLoad.openRule(item.getAbsolutePath(),
                             e.getLocation().getLineNumber());
