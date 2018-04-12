@@ -39,6 +39,9 @@ public class VondaCompilation {
   /** The <code>DataModel</code> */
   private final DataModel _model;
 
+  /** Represents the compilation process. */
+  private Process _p;
+
   /**
    * Initializes this addition of <code>DataModel</code>.
    *
@@ -68,6 +71,11 @@ public class VondaCompilation {
   public void startCompile(String inputCmd) throws IOException, InterruptedException {
     _model.rudiSave.quickSaveAllFiles();
 
+    if ((_p != null) && (_p.isAlive())) {
+      log.debug("Aborting current compilation process...");
+      _p.destroy();
+    }
+
     String command = "bash -c '"
           + "cd " + _model.project.getRootFolder().toString() + ";"
           + inputCmd + ";"
@@ -75,7 +83,6 @@ public class VondaCompilation {
 
     log.info("Starting compilation...");
     File mateTerminal = new File("/usr/bin/mate-terminal");
-    Process p;
     String windowTitle = "Compiling " + _model.project.getProjectName();
     String titleOpt = "-T";
 
@@ -90,9 +97,9 @@ public class VondaCompilation {
 
       log.debug("Executing the following command: " + Arrays.toString(cmd));
 
-      p = Runtime.getRuntime().exec(cmd);
+      _p = Runtime.getRuntime().exec(cmd);
     } else {
-      p = Runtime.getRuntime().exec(_model.project.getCompileFile().toString());
+      _p = Runtime.getRuntime().exec(_model.project.getCompileFile().toString());
     }
   }
 }
