@@ -23,7 +23,6 @@ import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import de.dfki.mlt.rudibugger.FileTreeView.*;
-import static de.dfki.mlt.rudibugger.Helper.*;
 import de.dfki.mlt.rudibugger.RuleTreeView.*;
 import de.dfki.mlt.rudibugger.TabManagement.*;
 import de.dfki.mlt.rudibugger.WatchServices.*;
@@ -35,7 +34,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 import javafx.beans.property.*;
 import javafx.fxml.FXMLLoader;
@@ -104,23 +102,25 @@ public class DataModel {
   /** Provides additional functionality to start VOnDAs compiler. */
   public VondaCompilation compiler = new VondaCompilation(this);
 
+  /** Provides additional functionality to track changes in the file system. */
+  public WatchManager watch = new WatchManager(this);
+
 
   /*****************************************************************************
    * THE PROJECT INITIALIZER AND CLOSE METHODS
    ****************************************************************************/
 
   /**
+   * Initializes a project.
    *
-   * @param selectedProjectYml
+   * @param selectedProjectYml a configuration file of a project.
    */
   public void init(Path selectedProjectYml) {
 
     project.initConfiguration(selectedProjectYml);
 
-
-
-    initProjectFields();
-    initProjectWatches();
+    initProjectFields();  // TODO: Remove
+    watch.initWatches();
     readInRudiFiles();
 
     if (Files.exists(project.getRuleLocationFile()))
@@ -133,8 +133,7 @@ public class DataModel {
                        selectedProjectYml.toAbsolutePath().toString());
     log.info("Initializing done.");
 
-    /* Link to VOnDA's server. */
-//    vonda.connect();
+    if (globalConf.getAutomaticallyConnectToVonda()) vonda.connect();
   }
 
   /**
@@ -148,8 +147,7 @@ public class DataModel {
     project.resetConfiguration(false);
 
     ruleModel = null;
-    ruleLocWatch.shutDownListener();
-    rudiFolderWatch.shutDownListener();
+    watch.disableWatches();
     vonda.closeConnection();
     setRuleModelChangeStatus(RULE_MODEL_REMOVED);
     setProjectStatus(PROJECT_CLOSED);
@@ -161,13 +159,6 @@ public class DataModel {
   /*****************************************************************************
    * OLD
    ****************************************************************************/
-
-  private void initProjectWatches() {
-    ruleLocWatch = new RuleLocationWatch();
-    ruleLocWatch.createRuleLocationWatch(this);
-    rudiFolderWatch = new RudiFolderWatch();
-    rudiFolderWatch.createRudiFolderWatch(this);
-  }
 
   public void readInRudiFiles() {
     Stream<Path> stream;
@@ -311,10 +302,6 @@ public class DataModel {
   public void setProjectStatus(int val) { _projectStatus.set(val); }
   public IntegerProperty projectStatusProperty() { return _projectStatus; }
 
-  /* The WatchServices */
-  private RuleLocationWatch ruleLocWatch;
-  private RudiFolderWatch rudiFolderWatch;
-
 
   /*****************************************************************************
    * METHODS
@@ -362,7 +349,6 @@ public class DataModel {
 
   /** list of recent ruleLoggingStates */
   private ArrayList<Path> _recentRuleLoggingStates;
-
 
 
   /* SAVE SELECTION */
