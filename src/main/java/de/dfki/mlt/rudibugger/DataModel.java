@@ -144,7 +144,7 @@ public class DataModel {
    public void close(boolean stealthy) {
     log.info("Closing [" + project.getProjectName() + "]...");
 
-    project.resetConfiguration(false);
+    project.resetConfigurationWithLog();
 
     ruleModel = null;
     watch.disableWatches();

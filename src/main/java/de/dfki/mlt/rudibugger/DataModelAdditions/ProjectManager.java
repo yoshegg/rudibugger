@@ -95,9 +95,24 @@ public class ProjectManager {
       return true;
     }
 
-    resetConfiguration(true);
+    resetConfigurationWithoutLog();
     return false;
 
+  }
+
+  /**
+   * Called if a project has not been completely initialized. Every field will
+   * then be nullified.
+   */
+  private void resetConfigurationWithoutLog() {
+    resetConfiguration(true);
+  }
+
+  /**
+   * Called if a project has been closed. Every field will then be nullified.
+   */
+  public void resetConfigurationWithLog() {
+    resetConfiguration(false);
   }
 
   /**
@@ -106,7 +121,7 @@ public class ProjectManager {
    *
    * @param stealthy If true, no logs will be produced.
    */
-  public void resetConfiguration(boolean stealthy) {
+  private void resetConfiguration(boolean stealthy) {
     _projectConfigs.clear();
     runFile.set(null);
     ruleLocationFile = null;
