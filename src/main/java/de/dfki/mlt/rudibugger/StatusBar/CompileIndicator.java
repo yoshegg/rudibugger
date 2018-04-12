@@ -152,20 +152,20 @@ public class CompileIndicator {
   private void addErrorWarningInfosToContextMenu(ContextMenu cm, String type,
     LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> data, DataModel model) {
     for (ErrorWarningInfo e : data.keySet()) {
-          ImportInfoExtended item = data.get(e);
-          String shortType = (("warning".equals(type)) ? "WARN" : "ERROR");
-          String msg = shortType + ":"
-                     + item.getLabel() + RULE_FILE_EXTENSION + ":" +
-                     + e.getLocation().getLineNumber() + ": "
-                     + e.getMessage();
-          Label label = new Label(msg);
-          CustomMenuItem errorItem = new CustomMenuItem(label);
-          errorItem.setOnAction(f -> {
-            model.rudiLoad.openRule(item.getAbsolutePath(),
-                            e.getLocation().getLineNumber());
-          });
-          cm.getItems().add(errorItem);
-        }
+      ImportInfoExtended item = data.get(e);
+      String shortType = (("warning".equals(type)) ? "WARN" : "ERROR");
+      String msg = shortType + ":"
+                 + item.getLabel() + RULE_FILE_EXTENSION + ":"
+                 + e.getLocation().getLineNumber() + ": "
+                 + e.getMessage();
+      Label label = new Label(msg);
+      CustomMenuItem errorItem = new CustomMenuItem(label);
+      errorItem.setOnAction(f -> {
+        model.rudiLoad.openRule(item.getAbsolutePath(),
+          e.getLocation().getLineNumber());
+      });
+      cm.getItems().add(errorItem);
+    }
   }
 
   /**
