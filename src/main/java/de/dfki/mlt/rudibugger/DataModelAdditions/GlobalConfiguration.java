@@ -165,6 +165,7 @@ public class GlobalConfiguration {
       put("timeStampIndex", new SimpleBooleanProperty(true));
       put("saveOnCompile", 2);
       put("lastOpenedProject", null);
+      put("automaticallyConnectToVonda", false);
     }};
 
 
@@ -256,6 +257,14 @@ public class GlobalConfiguration {
   /** @return How unsaved files should be treated before compiling. */
   public int getSaveOnCompile() {
     return (int) _globalConfigs.get("lastOpenedProject");
+  }
+
+  /**
+   * @return True, if upon loading a project, rudibugger should try to connect
+   * to VOnDA automatically, else false
+   */
+  public boolean getAutomaticallyConnectToVonda() {
+    return (boolean) _globalConfigs.get("automaticallyConnectToVonda");
   }
 
 }
