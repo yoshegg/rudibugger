@@ -206,7 +206,7 @@ public class MenuController {
         button.setDisable(false);
       }
     } else {
-      log.debug("Unexpected behaviour.");
+      log.debug("Unexpected behaviour with connection button.");
     }
   }
 
