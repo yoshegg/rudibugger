@@ -98,7 +98,7 @@ public class MenuController {
         loadLoggingStateMenu.setDisable(false);
         saveLoggingStateItem.setDisable(false);
         manageVondaConnectionButton();
-        replaceCompileButton();
+        defineCompileButton();
       } else if ((int) newVal == PROJECT_CLOSED) {
         log.debug("Project closed: disable GUI-elements.");
         closeProjectItem.setDisable(true);
@@ -106,7 +106,7 @@ public class MenuController {
         loadLoggingStateMenu.setDisable(true);
         saveLoggingStateItem.setDisable(true);
         manageVondaConnectionButton();
-        replaceCompileButton();
+        defineCompileButton();
       }
     });
 
@@ -260,15 +260,33 @@ public class MenuController {
     }
   }
 
-  public void replaceCompileButton() {
-    if (_model.project.getCompileFile() == null
-        | ! _model.project.getCustomCompileCommands().isEmpty()) {
+  public void defineCompileButton() {
+    // TODO: Can probably be shortened.
+
+    /* No compile file & no custom compile commands. */
+    if (  (_model.project.getCompileFile() == null)
+        & (_model.project.getCustomCompileCommands().isEmpty()) ) {
       if (toolBar.getItems().contains(customCompileButton)) {
         toolBar.getItems().remove(customCompileButton);
         toolBar.getItems().add(0, compileButton);
       }
-    } else if ( ! _model.project.getCustomCompileCommands().isEmpty()) {
-      toolBar.getItems().remove(compileButton);
+    }
+
+    /* Compile file, but no custom compile commands. */
+    else if ( (_model.project.getCompileFile() != null)
+            & (_model.project.getCustomCompileCommands().isEmpty()) ) {
+      if (toolBar.getItems().contains(customCompileButton)) {
+        toolBar.getItems().remove(customCompileButton);
+        toolBar.getItems().add(0, compileButton);
+      }
+    }
+
+    /* Compile file & custom compile commands. */
+    else if ( (_model.project.getCompileFile() != null)
+            & (! _model.project.getCustomCompileCommands().isEmpty()) ) {
+
+      if (toolBar.getItems().contains(compileButton))
+        toolBar.getItems().remove(compileButton);
       customCompileButton = new SplitMenuButton();
       customCompileButton.setText("Compile");
       customCompileButton.setOnAction(e -> {
@@ -277,10 +295,9 @@ public class MenuController {
         } catch (IOException | InterruptedException ex) {
           log.error(ex.toString());
         }
-
       });
 
-      /* iterate over alternative compile commands */
+      /* Iterate over alternative compile commands */
       for (String k : _model.project.getCustomCompileCommands().keySet()) {
         Label l = new Label(k);
         CustomMenuItem cmi = new CustomMenuItem(l);
