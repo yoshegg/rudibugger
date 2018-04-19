@@ -116,7 +116,6 @@ public class MainApp extends Application {
     // TODO: Move
     if (! Files.exists(GLOBAL_CONFIG_PATH)) {
       GLOBAL_CONFIG_PATH.toFile().mkdirs();
-//      Files.createFile(model.GLOBAL_CONFIG_FILE.resolve("recentProjects.yml"));
       log.info("Created global config folder (first start of rudibugger");
     }
 

@@ -112,8 +112,13 @@ public class RuleModel {
     _rudiPath = rudiPath;
     errorInfos.clear();
     warnInfos.clear();
-    BasicInfo temp = upgradeInfos(readInRuleLocationFile(ruleLocYml), null, _model);
-    if (! (temp instanceof ImportInfoExtended)) {
+    BasicInfo basicRuleStructure = readInRuleLocationFile(ruleLocYml);
+    if (basicRuleStructure == null) {
+      return;
+    }
+    BasicInfo upgradedRuleStrucutre
+      = upgradeInfos(basicRuleStructure, null, _model);
+    if (! (upgradedRuleStrucutre instanceof ImportInfoExtended)) {
       log.error("Upgrading infos of RuleModel failed");
     }
     if (! errorInfos.isEmpty())
@@ -123,7 +128,7 @@ public class RuleModel {
     else
       _model._compilationStateProperty().setValue(COMPILATION_PERFECT);
 
-    rootImport = (ImportInfoExtended) temp;
+    rootImport = (ImportInfoExtended) upgradedRuleStrucutre;
     extractImportsAndIds(rootImport);
   }
 
@@ -167,6 +172,9 @@ public class RuleModel {
       ii = (ImportInfo) yaml.load(new FileReader(ruleLocFile.toFile()));
     } catch (FileNotFoundException e) {
       log.error("Could not read in RuleLoc.yml");
+      return null;
+    } catch (org.yaml.snakeyaml.error.YAMLException e) {
+      log.error(e.getMessage());
       return null;
     }
     return ii;

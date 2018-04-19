@@ -23,6 +23,7 @@ import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import static java.nio.file.StandardWatchEventKinds.*;
 import java.nio.file.WatchEvent;
@@ -186,7 +187,7 @@ public class RuleLocationWatch {
           if (watchKey == null) {
             Platform.runLater(() -> {
               log.debug("[" + changingFile + "] has changed.");
-              if (_model.project.getRuleLocationFile() == null) {
+              if (Files.exists(_model.project.getRuleLocationFile())) {
                 _model.initRules();
               } else {
                 _model.updateProject();

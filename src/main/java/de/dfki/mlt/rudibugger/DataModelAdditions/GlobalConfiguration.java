@@ -261,7 +261,7 @@ public class GlobalConfiguration {
 
   /**
    * @return True, if upon loading a project, rudibugger should try to connect
-   * to VOnDA automatically, else false
+   * to VOnDA automatically, else false.
    */
   public boolean getAutomaticallyConnectToVonda() {
     return (boolean) _globalConfigs.get("automaticallyConnectToVonda");
