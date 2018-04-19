@@ -44,7 +44,7 @@ public class VondaConnection {
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("vondaConnect");
 
-  /** The <code>DataModel</code> */
+  /** The <code>DataModel</code>. */
   private final DataModel _model;
 
   /**
@@ -137,6 +137,22 @@ public class VondaConnection {
       }
     });
 
+  }
+
+  /**
+   * Sets the logging state of a given rule. If no connection has been
+   * established yet, the command to set the logging state will be put into a
+   * queue to be sent later.
+   *
+   * @param id
+   * @param value
+   */
+  public void setLoggingStatus(int id, int value) {
+    if ((_model.vonda.client != null) && (_model.vonda.client.isConnected()))
+      _model.vonda.client.setLoggingStatus(id, id);
+    else {
+      // TODO: put onto stack
+    }
   }
 
 

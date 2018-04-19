@@ -91,6 +91,8 @@ public class RuleInfoExtended extends RuleInfo {
    *          An original RuleInfo retrieved from <code>VOnDA</code>.
    * @param   model
    *          The current DataModel of this rudibugger instance.
+   * @param   parent
+   *          The BasicInfo this RuleInfoExtended originates from.
    */
   public RuleInfoExtended(RuleInfo original, DataModel model,
                           BasicInfo parent) {
@@ -116,7 +118,7 @@ public class RuleInfoExtended extends RuleInfo {
     /* TODO: This should probably be somewhere else. RuleModel maybe? */
     int id = original.getId();
     _state.addListener((o, ov, nv) -> {
-      _model.vonda.client.setLoggingStatus(id, (int) nv);
+      _model.vonda.setLoggingStatus(id, (int) nv);
 
       /* TODO: dito, internal logging purposes */
       String output = "";
