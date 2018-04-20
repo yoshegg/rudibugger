@@ -19,40 +19,64 @@
 
 package de.dfki.mlt.rudibugger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
+ * Contains methods to extend Java's standard functionality without additional
+ * dependencies.
+ *
+ * Slicing functions taken from
+ * https://stackoverflow.com/questions/17307761/is-there-a-java-equivalent-to-pythons-easy-string-splicing
+ * and adapted.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class Helper {
 
-  static Logger log = LoggerFactory.getLogger("rudiLog");
-
-  // taken from https://stackoverflow.com/questions/17307761/is-there-a-java-equivalent-to-pythons-easy-string-splicing
-
+  /**
+   * Slices a given string at a given start position.
+   *
+   * @param s
+   *        The original string
+   * @param startIndex
+   *        The index from which the original string should be taken
+   * @return The new substring
+   */
   public static String slice_start(String s, int startIndex) {
-    if (startIndex < 0) {
+    if (startIndex < 0)
       startIndex = s.length() + startIndex;
-    }
     return s.substring(startIndex);
   }
 
+  /**
+   * Slices a given string at a given end position.
+   *
+   * @param s
+   *        The original string
+   * @param endIndex
+   *        The index until which the original string should be taken
+   * @return The new substring
+   */
   public static String slice_end(String s, int endIndex) {
-    if (endIndex < 0) {
+    if (endIndex < 0)
       endIndex = s.length() + endIndex;
-    }
     return s.substring(0, endIndex);
   }
 
+  /**
+   * Slices a given string at a given start and end position.
+   *
+   * @param s
+   *        The original string
+   * @param startIndex
+   *        The index from which the original string should be taken
+   * @param endIndex
+   *        The index until which the original string should be taken
+   * @return The new substring
+   */
   public static String slice_range(String s, int startIndex, int endIndex) {
-    if (startIndex < 0) {
+    if (startIndex < 0)
       startIndex = s.length() + startIndex;
-    }
-    if (endIndex < 0) {
+    if (endIndex < 0)
       endIndex = s.length() + endIndex;
-    }
     return s.substring(startIndex, endIndex);
   }
 }
