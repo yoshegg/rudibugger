@@ -19,6 +19,7 @@
 
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
+import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
 import java.util.LinkedHashMap;
@@ -59,7 +60,7 @@ public class ImportContextMenu extends ContextMenu {
    */
   private static final RadioMenuItem PSEUDO_BUTTON = new RadioMenuItem();
 
-  /** The clicked Import */
+  /** The clicked Import. */
   private final ImportInfoExtended _item;
 
   /**
@@ -80,7 +81,7 @@ public class ImportContextMenu extends ContextMenu {
       PSEUDO_BUTTON.setSelected(true);
   }
 
-  /** Initializes MenuItems */
+  /** Initializes MenuItems. */
   private void initializeMenuItems() {
 
     /* set open MenuItem and separator */

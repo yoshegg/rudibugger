@@ -20,42 +20,74 @@
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
 /**
+ * Represents the current state of a TreeItem: Is it expanded, what is its
+ * logging state and is it an import.
  *
- * @author christophe
+ * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class Properties {
 
-  public Properties() {}
-
+  /** Represents the expansion state of the associated TreeItem. */
   Boolean isExpanded;
+
+  /** Represents the ruleLoggingState of the associated TreeItem. */
   Integer loggingState;
+
+  /** Used to save whether or not the associated TreeItem is an Import. */
   Boolean isImport = false;
 
+  /** Nullary constructor needed for YAML (JavaBeans convention). */
+  public Properties() {}
+
+  /**
+   * Creates a new Properties instance.
+   *
+   * @param expStat True, if associated TreeItem is expanded, else false
+   * @param logStat An Integer representing the ruleLoggingState
+   */
   public Properties(Boolean expStat, int logStat) {
     isExpanded = expStat;
     loggingState = logStat;
   }
 
+  /** @return True, if associated TreeItem is expanded, else false */
   public Boolean getIsExpanded() {
     return isExpanded;
   }
 
+  /**
+   * Sets expansion state of associated TreeItem.
+   *
+   * @param isExpanded  True, if associated TreeItem is expanded, else false
+   */
   public void setIsExpanded(Boolean isExpanded) {
     this.isExpanded = isExpanded;
   }
 
+  /** @return An Integer representing the ruleLoggingState */
   public Integer getLoggingState() {
     return loggingState;
   }
 
+  /**
+   * Sets ruleLoggingState of associated TreeItem.
+   *
+   * @param loggingState An Integer representing the ruleLoggingState
+   */
   public void setLoggingState(Integer loggingState) {
     this.loggingState = loggingState;
   }
 
+  /** @return True, if associated TreeItem represents an import, else false */
   public Boolean getIsImport() {
     return isImport;
   }
 
+  /**
+   * Defines the associated TreeItem as an Import or not
+   *
+   * @param loggingState True, if associated TreeItem is an Import, else false
+   */
   public void setIsImport(Boolean isImport) {
     this.isImport = isImport;
   }

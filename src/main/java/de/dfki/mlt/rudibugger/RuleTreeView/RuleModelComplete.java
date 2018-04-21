@@ -19,6 +19,8 @@
 
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
+import de.dfki.mlt.rudibugger.RuleModel.RuleInfoExtended;
+import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import java.util.HashMap;
 import javafx.scene.control.TreeItem;
@@ -41,9 +43,9 @@ import javafx.scene.control.TreeView;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class RuleTreeViewState {
+public class RuleModelComplete {
 
-  public RuleTreeViewState() {}
+  public RuleModelComplete() {}
 
   private RuleStateItem root;
 
@@ -51,12 +53,12 @@ public class RuleTreeViewState {
   public void setRoot(RuleStateItem x) { this.root = x; }
 
   /**
-   * This function fills the RuleTreeViewState.
+   * This function fills the RuleModelComplete.
    *
    * @param tw
    * @return
    */
-  public RuleTreeViewState retrieveTreeState(TreeView tw) {
+  public RuleModelComplete retrieveTreeState(TreeView tw) {
 
     /* get root TreeItem of TreeView */
     TreeItem<ImportInfoExtended> root = tw.getRoot();
@@ -77,7 +79,7 @@ public class RuleTreeViewState {
     this.root.addChildren(retrieveTreeStateHelper(root, this.root));
 
 
-    /* return the RuleTreeViewState */
+    /* return the RuleModelComplete */
     return this;
 
   }
@@ -190,7 +192,7 @@ public class RuleTreeViewState {
   }
 
   /**
-   * Pretty print the RuleTreeViewState
+   * Pretty print the RuleModelComplete
    *
    * @return pretty String
    */

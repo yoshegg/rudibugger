@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RuleTreeView;
+package de.dfki.mlt.rudibugger.RuleModel;
 
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudimant.common.BasicInfo;
@@ -42,7 +42,7 @@ public class ImportInfoExtended extends ImportInfo {
   static Logger log = LoggerFactory.getLogger(ImportInfoExtended.class);
 
   /** The current <code>DataModel</code>. */
-  protected final DataModel _model;
+  public final DataModel _model;
 
   /** Describes how the rules of this import are being logged. */
   private final IntegerProperty _state;

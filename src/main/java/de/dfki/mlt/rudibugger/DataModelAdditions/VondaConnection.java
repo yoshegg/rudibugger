@@ -27,10 +27,14 @@ import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
 import de.dfki.mlt.rudimant.common.RuleLogger;
 import java.io.IOException;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.collections.MapChangeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +49,7 @@ public class VondaConnection {
   static Logger log = LoggerFactory.getLogger("vondaConnect");
 
   /** The <code>DataModel</code>. */
-  private final DataModel _model;
+  private DataModel _model = null;
 
   /**
    * Initializes this addition of <code>DataModel</code>.
@@ -69,6 +73,8 @@ public class VondaConnection {
     client = new RudibuggerClient("localhost", vondaPort,
         new RudibuggerAPI(_model));
 
+    connectedProperty().addListener(connectionStateListener);
+
     log.debug("RudibuggerClient has been started "
             + "on port [" + vondaPort + "].");
   }
@@ -83,6 +89,10 @@ public class VondaConnection {
       log.info("Could not close connection to VOnDA, "
               + "it was probably never established.");
     }
+    connectedProperty().set(false);
+    connectedProperty().removeListener(connectionStateListener);
+
+    log.debug("RudibuggerClient has been shut down.");
   }
 
   /** Represents the connection status between VOnDA and rudibugger. */
@@ -100,6 +110,28 @@ public class VondaConnection {
     return logOutput;
   }
 
+  /** Used to listen to ruleLoggingState changes. */
+  private MapChangeListener<Integer, IntegerProperty>
+          ruleLoggingStatesMapListener = ((cl) ->
+    setLoggingStatus(cl.getKey(), cl.getValueAdded().get()));
+
+  /** Used to listen to connection state changes. */
+  private final ChangeListener<Boolean> connectionStateListener = ((o, ov, nv)
+          -> {
+    if (nv) {
+      for (int ruleId : _model.ruleModel.idLoggingStatesMap().keySet()) {
+        int loggingState = _model.ruleModel.idLoggingStatesMap()
+                .get(ruleId).get();
+        setLoggingStatus(ruleId, loggingState);
+      }
+      _model.ruleModel.idLoggingStatesMap()
+              .addListener(ruleLoggingStatesMapListener);
+    } else {
+      _model.ruleModel.idLoggingStatesMap()
+              .removeListener(ruleLoggingStatesMapListener);
+    }
+  });
+
   private RuleLogger rl;
   private JavaFXLogger jfl;
 
@@ -109,7 +141,7 @@ public class VondaConnection {
    */
   private void initializeRuleLogger() {
     rl = new RuleLogger();
-    rl.setRootInfo(_model.ruleModel.rootImport);
+    rl.setRootInfo(_model.ruleModel.getRootImport());
     jfl = new JavaFXLogger();
     rl.registerPrinter(jfl);
     rl.logAllRules();
@@ -140,19 +172,14 @@ public class VondaConnection {
   }
 
   /**
-   * Sets the logging state of a given rule. If no connection has been
-   * established yet, the command to set the logging state will be put into a
-   * queue to be sent later.
+   * Sets the logging state of a given rule.
    *
    * @param id
    * @param value
    */
-  public void setLoggingStatus(int id, int value) {
+  private void setLoggingStatus(int id, int value) {
     if ((_model.vonda.client != null) && (_model.vonda.client.isConnected()))
-      _model.vonda.client.setLoggingStatus(id, id);
-    else {
-      // TODO: put onto stack
-    }
+      _model.vonda.client.setLoggingStatus(id, value);
   }
 
 

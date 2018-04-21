@@ -27,12 +27,11 @@ import de.dfki.mlt.rudibugger.RPC.LogData.DatePart;
 import de.dfki.mlt.rudibugger.RPC.LogData.StringPart;
 import de.dfki.mlt.rudibugger.RPC.TimestampCellFactory;
 import static de.dfki.mlt.rudibugger.RPC.TimestampCellFactory.dt;
-import de.dfki.mlt.rudibugger.RuleTreeView.RuleModel.RuleContainer;
 import de.dfki.mlt.rudibugger.TabManagement.TabStore;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
@@ -92,8 +91,9 @@ public class EditorController {
      */
     _model.vonda.connectedProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal == true) {
-        log.info("Rudimant successfully connected to rudibugger.");
+        log.info("VOnDA successfully connected to rudibugger.");
 
+        //TODO: Make sure the following is only happening once.
         /* create new TableView */
         ruleLoggingTableView = new TableView();
 
@@ -166,14 +166,15 @@ public class EditorController {
           if (e.isPrimaryButtonDown() && e.getClickCount() == 2) {
             int ruleId = ((LogData) ruleLoggingTableView.getSelectionModel()
                     .getSelectedItem()).getRuleId();
-            RuleContainer con = _model.ruleModel.getRuleContainer(ruleId);
-            _model.rudiLoad.openRule(con.getPath(), con.getLine());
+            Path importToOpen =
+                    _model.ruleModel.getRule(ruleId).getSourceFile();
+            int lineToOpen = _model.ruleModel.getRule(ruleId).getLine();
+            _model.rudiLoad.openRule(importToOpen, lineToOpen);
           }
         });
 
       } else {
-        System.out.println("rudimant is disconnected.");
-        // TODO: Remove SplitPane and ListView
+        log.info("Connection to VOnDA has been closed.");
       }
     });
 

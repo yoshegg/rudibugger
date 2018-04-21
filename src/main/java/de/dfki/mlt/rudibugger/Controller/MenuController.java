@@ -188,7 +188,6 @@ public class MenuController {
     } else if (_model.vonda.connectedProperty().get()) {
       requestedConnection = false;
       button.setText("Connected");
-      System.out.println(_model.vonda.client.isConnected());
       button.setOnMouseEntered(e -> button.setText("Disconnect"));
       button.setOnMouseExited(e -> button.setText("Connected"));
       button.setDisable(false);

@@ -27,9 +27,9 @@ import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiTreeCell;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
 import de.dfki.mlt.rudibugger.RuleTreeView.BasicInfoTreeCell;
-import de.dfki.mlt.rudibugger.RuleTreeView.ImportInfoExtended;
-import de.dfki.mlt.rudibugger.RuleTreeView.RuleInfoExtended;
-import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
+import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
+import de.dfki.mlt.rudibugger.RuleModel.RuleInfoExtended;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleModelComplete;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.file.Files;
@@ -57,10 +57,10 @@ public class SideBarController {
   private DataModel _model;
 
   /**
-   * the RuleTreeViewState, needed to save and load the expansion and rule
-   * logging state of the RuleTreeView
+   * the RuleModelComplete, needed to save and load the expansion and rule
+ logging state of the RuleTreeView
    */
-  private RuleTreeViewState ruleTreeViewState;
+  private RuleModelComplete ruleTreeViewState;
 
   /**
    * This function connects this controller to the DataModel
@@ -106,19 +106,19 @@ public class SideBarController {
 
     /* this Listener builds or modifies the RuleTreeView, if the RuleModel
     was changed.*/
-    model.ruleModelChangeProperty().addListener((o, oldVal, newVal) -> {
+    model.ruleModel.changedStateProperty().addListener((o, oldVal, newVal) -> {
       switch ((int) newVal) {
         case RULE_MODEL_NEWLY_CREATED:
           log.debug("RuleModel has been found.");
           log.debug("Building TreeView...");
           ruleTreeView.setRoot(buildTreeView(model));
           ruleTreeView.getRoot().setExpanded(true);
-          ruleTreeViewState = new RuleTreeViewState();
+          ruleTreeViewState = new RuleModelComplete();
           log.debug("TreeView based on RuleModel has been built.");
           log.debug("Marking used .rudi files...");
           markFilesInRudiList();
           log.debug("Marked used .rudi files.");
-          model.ruleModelChangeProperty().setValue(RULE_MODEL_UNCHANGED);
+          model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
           break;
         case RULE_MODEL_CHANGED:
           log.debug("RuleModel has been modified.");
@@ -130,14 +130,14 @@ public class SideBarController {
           log.debug("Remarking used .rudi files...");
           markFilesInRudiList();
           log.debug("Remarked used .rudi files.");
-          model.ruleModelChangeProperty().setValue(RULE_MODEL_UNCHANGED);
+          model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
           break;
         case RULE_MODEL_REMOVED:
           log.debug("RuleModel has been resetted / removed");
           ruleTreeView.setRoot(null);
           // TODO: reset file view
           log.debug("GUI has been resetted.");
-          model.ruleModelChangeProperty().setValue(RULE_MODEL_UNCHANGED);
+          model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
           break;
         case RULE_MODEL_UNCHANGED:
           break;
@@ -159,10 +159,10 @@ public class SideBarController {
     /* Listen to request for loading ruleLoggingState */
     _model.ruleLoggingStateLoadRequestProperty().addListener((o, ov, nv) -> {
       if (nv == null) return;
-      RuleTreeViewState rtvs;
+      RuleModelComplete rtvs;
       try {
         Yaml yaml = new Yaml();
-        rtvs = (RuleTreeViewState) yaml.load(new FileReader(nv.toFile()));
+        rtvs = (RuleModelComplete) yaml.load(new FileReader(nv.toFile()));
       } catch (FileNotFoundException e) {
         log.error("Could not read in configuration file");
         return;
@@ -189,7 +189,7 @@ public class SideBarController {
     for (RudiPath x : _model.rudiHierarchy.rudiPathSet) {
 
       /* mark the main .rudi file, must be in root folder */
-      if (_model.ruleModel.rootImport.getAbsolutePath().getFileName().equals(
+      if (_model.ruleModel.getRootImport().getAbsolutePath().getFileName().equals(
               x.getPath().getFileName())) {
         x._usedProperty().setValue(FILE_IS_MAIN);
         continue;
@@ -218,7 +218,7 @@ public class SideBarController {
 
   public static TreeItem buildTreeView(DataModel model) {
 
-    ImportInfoExtended root = model.ruleModel.rootImport;
+    ImportInfoExtended root = model.ruleModel.getRootImport();
 
     /* build rootItem */
     TreeItem<ImportInfoExtended> rootItem = new TreeItem(root);

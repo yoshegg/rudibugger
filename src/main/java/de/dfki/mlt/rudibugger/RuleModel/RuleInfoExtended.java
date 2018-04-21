@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RuleTreeView;
+package de.dfki.mlt.rudibugger.RuleModel;
 
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudimant.common.BasicInfo;
@@ -41,7 +41,7 @@ public class RuleInfoExtended extends RuleInfo {
   static Logger log = LoggerFactory.getLogger(RuleInfoExtended.class);
 
   /** The current <code>DataModel</code>. */
-  protected final DataModel _model;
+  public final DataModel _model;
 
   /** Describes how the rules of this import are being logged. */
   private final IntegerProperty _state;
@@ -115,18 +115,6 @@ public class RuleInfoExtended extends RuleInfo {
       _parentImport = (ImportInfoExtended) temp;
     } else { _parentImport = null; }
 
-    /* TODO: This should probably be somewhere else. RuleModel maybe? */
-    int id = original.getId();
-    _state.addListener((o, ov, nv) -> {
-      _model.vonda.setLoggingStatus(id, (int) nv);
-
-      /* TODO: dito, internal logging purposes */
-      String output = "";
-      output += "SENT TO VONDA: CHANGED " + this._parentImport.getLabel()
-              + ":" + this.getLabel() + " FROM " + ov + " TO " + nv;
-      log.debug(output);
-    });
-
   }
 
   /**
@@ -178,7 +166,7 @@ public class RuleInfoExtended extends RuleInfo {
    * @param state
    *        An integer {@linkplain de.dfki.mlt.rudimant.common constant}.
    */
-  protected void setAllChildrenStates(int state) {
+  public void setAllChildrenStates(int state) {
     this.setState(state);
     this.getChildren().forEach((child) -> {
       ((RuleInfoExtended) child).setAllChildrenStates(state);

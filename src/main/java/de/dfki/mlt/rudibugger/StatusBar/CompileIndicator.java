@@ -21,7 +21,7 @@ package de.dfki.mlt.rudibugger.StatusBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.RuleTreeView.ImportInfoExtended;
+import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
 import java.util.HashMap;
@@ -128,9 +128,9 @@ public class CompileIndicator {
 
     DataModel model = _controller.getModel();
     LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> errorInfos;
-    errorInfos = model.ruleModel.errorInfos;
+    errorInfos = model.ruleModel.getErrorInfos();
     LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> warnInfos;
-    warnInfos = model.ruleModel.warnInfos;
+    warnInfos = model.ruleModel.getWarnInfos();
 
     addErrorWarningInfosToContextMenu(cm, "error", errorInfos, model);
     if ((! errorInfos.isEmpty()) && (! warnInfos.isEmpty()))

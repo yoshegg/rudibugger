@@ -19,13 +19,13 @@
 
 package de.dfki.mlt.rudibugger;
 
+import de.dfki.mlt.rudibugger.RuleModel.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import de.dfki.mlt.rudibugger.FileTreeView.*;
 import de.dfki.mlt.rudibugger.RuleTreeView.*;
 import de.dfki.mlt.rudibugger.TabManagement.*;
-import de.dfki.mlt.rudibugger.WatchServices.*;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -51,6 +51,8 @@ import org.yaml.snakeyaml.Yaml;
 /**
  * The DataModel represents the business logic of rudibugger.
  *
+ * TODO: SHRINK AND COMPLETE DOCUMENTATION.
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class DataModel {
@@ -59,7 +61,7 @@ public class DataModel {
 
 
   /*****************************************************************************
-   * SOME BASIC FIELDS
+   * BASIC FIELDS
    ****************************************************************************/
 
   /** The logger. */
@@ -93,9 +95,6 @@ public class DataModel {
   /** Provides additional functionality to load .rudi files and rules. */
   public RudiLoadManager rudiLoad = new RudiLoadManager(this);
 
-  /** Provides additional functionality about project specific information. */
-  public ProjectManager project = new ProjectManager(this);
-
   /** Provides additional functionality concerning global configuration. */
   public GlobalConfiguration globalConf = new GlobalConfiguration(this);
 
@@ -107,7 +106,18 @@ public class DataModel {
 
 
   /*****************************************************************************
-   * THE PROJECT INITIALIZER AND CLOSE METHODS
+   * PROJECT ADDITIONS
+   ****************************************************************************/
+
+  /** Provides additional functionality about project specific information. */
+  public ProjectManager project = new ProjectManager(this);
+
+  /** Contains specific  information about project's rule structure. */
+  public RuleModel ruleModel = new RuleModel(this);
+
+
+  /*****************************************************************************
+   * PROJECT INITIALIZER AND CLOSE METHODS
    ****************************************************************************/
 
   /**
@@ -119,12 +129,17 @@ public class DataModel {
 
     project.initConfiguration(selectedProjectYml);
 
-    initProjectFields();  // TODO: Remove
+    rudiHierarchy = new RudiFolderHierarchy(project.getRudiFolder());
+
+    /* set the ruleLoggingStates configuration save folder */
+    _ruleLoggingStatesFolder = GLOBAL_CONFIG_PATH
+      .resolve("loggingConfigurations")
+      .resolve(project.projectNameProperty().get());
     watch.initWatches();
     readInRudiFiles();
 
     if (Files.exists(project.getRuleLocationFile()))
-      initRules();
+      ruleModel.init();
 
     setProjectStatus(PROJECT_OPEN);
 
@@ -146,10 +161,10 @@ public class DataModel {
 
     project.resetConfigurationWithLog();
 
-    ruleModel = null;
+    ruleModel.reset();
     watch.disableWatches();
     vonda.closeConnection();
-    setRuleModelChangeStatus(RULE_MODEL_REMOVED);
+
     setProjectStatus(PROJECT_CLOSED);
     globalConf.setSetting("lastOpenedProject", "");
   }
@@ -160,6 +175,7 @@ public class DataModel {
    * OLD
    ****************************************************************************/
 
+  /** for RudiHierarchy only */
   public void readInRudiFiles() {
     Stream<Path> stream;
     try {
@@ -175,38 +191,11 @@ public class DataModel {
     });
   }
 
-  public void initRules() {
-      ruleModel = RuleModel.createNewRuleModel(this);
-      ruleModel.readInRuleModel(project.getRuleLocationFile(),
-                                project.getRudiFolder());
-      setRuleModelChangeStatus(RULE_MODEL_NEWLY_CREATED);
-  }
-
-  private void initProjectFields() {
-
-    rudiHierarchy = new RudiFolderHierarchy(project.getRudiFolder());
-
-    /* set the ruleLoggingStates folder */
-    _ruleLoggingStatesFolder = GLOBAL_CONFIG_PATH
-      .resolve("loggingConfigurations")
-      .resolve(project.projectNameProperty().get());
-
-  }
 
   /*****************************************************************************
    * UPDATE METHODS FOR THE CURRENT PROJECT AKA DATAMODEL
    ****************************************************************************/
 
-  public void updateProject() {
-    updateRules();
-  }
-
-  private void updateRules() {
-    log.debug("Updating the RuleModel");
-    ruleModel.updateRuleModel(project.getRuleLocationFile(),
-                              project.getRudiFolder());
-    setRuleModelChangeStatus(RULE_MODEL_CHANGED);
-  }
 
   public void removeRudiPath(Path file) {
     rudiHierarchy.removeFromFileHierarchy(new RudiPath(file));
@@ -282,15 +271,6 @@ public class DataModel {
   /*****************************************************************************
    * UNDERLYING FIELDS / PROPERTIES OF THE CURRENT PROJECT AKA DATAMODEL
    ****************************************************************************/
-
-  /** the RuleModel represents all the data concerning rules */
-  public RuleModel ruleModel;
-
-  /** this variable is set to true if the ruleModel has been changed */
-  private final IntegerProperty ruleModelChanged
-          = new SimpleIntegerProperty(RULE_MODEL_UNCHANGED);
-  public void setRuleModelChangeStatus(int val) { ruleModelChanged.set(val); }
-  public IntegerProperty ruleModelChangeProperty() { return ruleModelChanged; }
 
   /** .rudi files */
   public TreeItem<RudiPath> rudiList;
@@ -380,7 +360,7 @@ public class DataModel {
    *
    * @param rtvs
    */
-  public void saveRuleLoggingState(RuleTreeViewState rtvs) {
+  public void saveRuleLoggingState(RuleModelComplete rtvs) {
     Path savePath = _ruleLoggingStatesFolder;
     if (! Files.exists(savePath)) savePath.toFile().mkdirs();
 
@@ -443,7 +423,7 @@ public class DataModel {
 
   /* RULE LOGGING STATE */
 
-  private final SimpleObjectProperty<RuleTreeViewState> _ruleLoggingStateProperty
+  private final SimpleObjectProperty<RuleModelComplete> _ruleLoggingStateProperty
     = new SimpleObjectProperty<>();
 
   public ObjectProperty ruleLoggingStateProperty() {

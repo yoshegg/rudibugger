@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
+ * TODO: COMPLETE DOCUMENTATION.
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public final class HelperWindows {
