@@ -187,8 +187,7 @@ public class RuleLocationWatch {
           if (watchKey == null) {
             Platform.runLater(() -> {
               log.debug("[" + changingFile + "] has changed.");
-              // TODO: might be outdated / unnecessary / not working the way it should
-              if (Files.exists(_model.project.getRuleLocationFile())) {
+              if (_model.ruleModel.getRootImport() == null) {
                 _model.ruleModel.init();
               } else {
                 _model.ruleModel.update();
