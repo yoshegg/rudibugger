@@ -110,7 +110,7 @@ public class RuleModel {
   public void init() {
     log.debug("Initializing the RuleModel...");
     _rootImport = defineRuleModel();
-    _changedState.set(RULE_MODEL_NEWLY_CREATED);
+    if (_rootImport != null) _changedState.set(RULE_MODEL_NEWLY_CREATED);
   }
 
   /** Updates the ruleModel. */
@@ -124,7 +124,7 @@ public class RuleModel {
     _idRuleMap.clear();
 
     _rootImport = defineRuleModel();
-    _changedState.set(RULE_MODEL_CHANGED);
+    if (_rootImport != null) _changedState.set(RULE_MODEL_CHANGED);
   }
 
   /** Resets the ruleModel. */
@@ -154,11 +154,14 @@ public class RuleModel {
   private ImportInfoExtended defineRuleModel() {
 
     BasicInfo basicRuleStructure = readInRuleLocationFile();
+    if (basicRuleStructure == null) { return null; }
+
     BasicInfo processedRuleStructure
             = processInfos(basicRuleStructure, null, _model);
 
     if (! (processedRuleStructure instanceof ImportInfoExtended)) {
       log.error("Processing infos of RuleModel failed");
+      return null;
     }
 
     /* Set compilation outcome state */
@@ -232,9 +235,11 @@ public class RuleModel {
       ii = (ImportInfo) yaml.load(new FileReader(ruleLocFile));
     } catch (FileNotFoundException e) {
       log.error("Could not read in RuleLoc.yml");
+      _changedState.set(RULE_MODEL_REMOVED);
       return null;
     } catch (org.yaml.snakeyaml.error.YAMLException e) {
       log.error(e.getMessage());
+      _changedState.set(RULE_MODEL_REMOVED);
       return null;
     }
     return ii;
