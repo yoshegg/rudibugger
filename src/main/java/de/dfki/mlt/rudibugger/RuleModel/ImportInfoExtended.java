@@ -127,6 +127,7 @@ public class ImportInfoExtended extends ImportInfo {
     _parent = parent;
     _errors = original.getErrors();
     _warnings = original.getWarnings();
+    _parsingFailure = original.getParsingFailure();
     _state = new SimpleIntegerProperty(STATE_NEVER);
     _model = model;
     _file = _model.project.getRudiFolder()

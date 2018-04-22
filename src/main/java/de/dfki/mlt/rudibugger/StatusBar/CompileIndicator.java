@@ -127,11 +127,15 @@ public class CompileIndicator {
     ContextMenu cm = new ContextMenu();
 
     DataModel model = _controller.getModel();
+
     LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> errorInfos;
     errorInfos = model.ruleModel.getErrorInfos();
     LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> warnInfos;
     warnInfos = model.ruleModel.getWarnInfos();
+    LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> parsingFailure;
+    parsingFailure = model.ruleModel.getParsingFailure();
 
+    addErrorWarningInfosToContextMenu(cm, "error", parsingFailure, model);
     addErrorWarningInfosToContextMenu(cm, "error", errorInfos, model);
     if ((! errorInfos.isEmpty()) && (! warnInfos.isEmpty()))
       cm.getItems().add(new SeparatorMenuItem());
@@ -154,9 +158,18 @@ public class CompileIndicator {
     for (ErrorWarningInfo e : data.keySet()) {
       ImportInfoExtended item = data.get(e);
       String shortType = (("warning".equals(type)) ? "WARN" : "ERROR");
+
+      String charPosition;
+      if (e.getLocation().getCharPosition() != 0)
+        charPosition = ":"
+                + Integer.toString(e.getLocation().getCharPosition());
+      else
+        charPosition = "";
+
       String msg = shortType + ":"
                  + item.getLabel() + RULE_FILE_EXTENSION + ":"
-                 + e.getLocation().getLineNumber() + ": "
+                 + e.getLocation().getLineNumber()
+                 + charPosition + ": "
                  + e.getMessage();
       Label label = new Label(msg);
       CustomMenuItem errorItem = new CustomMenuItem(label);

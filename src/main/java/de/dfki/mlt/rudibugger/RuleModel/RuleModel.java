@@ -82,6 +82,13 @@ public class RuleModel {
     = new LinkedHashMap<>();
 
   /**
+   * Contains parsing error that might have occurred during compilation
+   * attempt. Should normally only contain one element.
+   */
+  private final LinkedHashMap<ErrorWarningInfo, ImportInfoExtended>
+          _parsingFailure = new LinkedHashMap<>();
+
+  /**
    * Represents the root of the tree-like structure used to represent
    * all the rules of the RuleModel.
    */
@@ -165,7 +172,9 @@ public class RuleModel {
     }
 
     /* Set compilation outcome state */
-    if (! _errorInfos.isEmpty())
+    if (! _parsingFailure.isEmpty())
+      _model._compilationStateProperty().setValue(COMPILATION_FAILED);
+    else if (! _errorInfos.isEmpty())
       _model._compilationStateProperty().setValue(COMPILATION_WITH_ERRORS);
     else if (! _warnInfos.isEmpty() && _errorInfos.isEmpty())
       _model._compilationStateProperty().setValue(COMPILATION_WITH_WARNINGS);
@@ -253,6 +262,8 @@ public class RuleModel {
   private void extractWarnErrors(ImportInfoExtended ii) {
     ii.getWarnings().forEach((ewi) -> _warnInfos.put(ewi, ii) );
     ii.getErrors().forEach((ewi) -> _errorInfos.put(ewi, ii) );
+    if (ii.getParsingFailure() != null)
+      _parsingFailure.put(ii.getParsingFailure(), ii);
   }
 
 
@@ -275,6 +286,10 @@ public class RuleModel {
   public LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> getWarnInfos() {
     return _warnInfos;
   }
+
+  /** @return Parsing failure that might have occurred */
+  public LinkedHashMap<ErrorWarningInfo, ImportInfoExtended>
+        getParsingFailure() { return _parsingFailure; }
 
   /** @Return ObservableMap containing the ruleLoggingStates of all rules */
   public ObservableMap<Integer, IntegerProperty> idLoggingStatesMap() {

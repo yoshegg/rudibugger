@@ -167,7 +167,9 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         stateIndicator = new ImageView(ICONS_IMPORTS.get(ii.getState()));
 
         /* visually indicate errors and warnings happened during compile */
-        pseudoClassStateChanged(errorsInImportClass, !ii.getErrors().isEmpty());
+        pseudoClassStateChanged(errorsInImportClass,
+                (!ii.getErrors().isEmpty())
+             || (ii.getParsingFailure() != null));
         pseudoClassStateChanged(warningsInImportClass, !ii.getWarnings().isEmpty());
 
         /* define a listener to reflect the rule logging state */

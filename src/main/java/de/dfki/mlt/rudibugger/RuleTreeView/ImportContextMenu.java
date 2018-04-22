@@ -94,10 +94,25 @@ public class ImportContextMenu extends ContextMenu {
     this.getItems().addAll(openFile, sep);
 
     /* set possibility to open errors or warnings (if any) */
-    if (! _item.getErrors().isEmpty() || ! _item.getWarnings().isEmpty()) {
+    if (! _item.getErrors().isEmpty() || ! _item.getWarnings().isEmpty()
+                                      || (_item.getParsingFailure() != null)) {
+      if (_item.getParsingFailure() != null) {
+        ErrorWarningInfo e = _item.getParsingFailure();
+        String msg = "ERROR:" + e.getLocation().getLineNumber() + ":"
+                + e.getLocation().getCharPosition() + ": " + e.getMessage();
+        Label label = new Label(msg);
+        CustomMenuItem errorItem = new CustomMenuItem(label);
+        Tooltip t = new Tooltip(e.getMessage());
+        Tooltip.install(label, t);
+        errorItem.setOnAction(f -> {
+          _item._model.rudiLoad.openRule(_item.getAbsolutePath(),
+                                e.getLocation().getLineNumber());
+        });
+        this.getItems().add(errorItem);
+      }
       for (ErrorWarningInfo e : _item.getErrors()) {
-        String msg = "Go to error " + (_item.getErrors().indexOf(e) + 1)
-                   + " (line " + e.getLocation().getLineNumber() + ")";
+        String msg = "ERROR:" + e.getLocation().getLineNumber() + ": "
+                + e.getMessage();
         Label label = new Label(msg);
         CustomMenuItem errorItem = new CustomMenuItem(label);
         Tooltip t = new Tooltip(e.getMessage());
@@ -109,8 +124,8 @@ public class ImportContextMenu extends ContextMenu {
         this.getItems().add(errorItem);
       }
       for (ErrorWarningInfo e : _item.getWarnings()) {
-        String msg = "Go to warning " + (_item.getWarnings().indexOf(e) + 1)
-                   + " (line " + e.getLocation().getLineNumber() + ")";
+        String msg = "WARNING:" + e.getLocation().getLineNumber() + ": "
+                + e.getMessage();
         Label label = new Label(msg);
         CustomMenuItem warningItem = new CustomMenuItem(label);
         Tooltip t = new Tooltip(e.getMessage());
