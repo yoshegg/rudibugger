@@ -23,7 +23,7 @@ import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
-import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
+import de.dfki.mlt.rudimant.common.ErrorInfo;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import javafx.beans.property.IntegerProperty;
@@ -128,11 +128,11 @@ public class CompileIndicator {
 
     DataModel model = _controller.getModel();
 
-    LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> errorInfos;
+    LinkedHashMap<ErrorInfo, ImportInfoExtended> errorInfos;
     errorInfos = model.ruleModel.getErrorInfos();
-    LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> warnInfos;
+    LinkedHashMap<ErrorInfo, ImportInfoExtended> warnInfos;
     warnInfos = model.ruleModel.getWarnInfos();
-    LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> parsingFailure;
+    LinkedHashMap<ErrorInfo, ImportInfoExtended> parsingFailure;
     parsingFailure = model.ruleModel.getParsingFailure();
 
     addErrorWarningInfosToContextMenu(cm, "error", parsingFailure, model);
@@ -154,8 +154,8 @@ public class CompileIndicator {
    * @param model
    */
   private void addErrorWarningInfosToContextMenu(ContextMenu cm, String type,
-    LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> data, DataModel model) {
-    for (ErrorWarningInfo e : data.keySet()) {
+    LinkedHashMap<ErrorInfo, ImportInfoExtended> data, DataModel model) {
+    for (ErrorInfo e : data.keySet()) {
       ImportInfoExtended item = data.get(e);
       String shortType = (("warning".equals(type)) ? "WARN" : "ERROR");
 

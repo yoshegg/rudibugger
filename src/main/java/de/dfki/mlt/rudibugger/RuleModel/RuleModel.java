@@ -22,7 +22,7 @@ package de.dfki.mlt.rudibugger.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudimant.common.BasicInfo;
-import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
+import de.dfki.mlt.rudimant.common.ErrorInfo;
 import de.dfki.mlt.rudimant.common.ImportInfo;
 import de.dfki.mlt.rudimant.common.RuleInfo;
 import java.io.File;
@@ -74,18 +74,18 @@ public class RuleModel {
   private final HashMap<Integer, RuleInfoExtended> _idRuleMap = new HashMap<>();
 
   /** Contains errors that occured during compilation. */
-  private final LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> _errorInfos
+  private final LinkedHashMap<ErrorInfo, ImportInfoExtended> _errorInfos
     = new LinkedHashMap<>();
 
   /** Contains warnings that occurred during compilation. */
-  private final LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> _warnInfos
+  private final LinkedHashMap<ErrorInfo, ImportInfoExtended> _warnInfos
     = new LinkedHashMap<>();
 
   /**
    * Contains parsing error that might have occurred during compilation
    * attempt. Should normally only contain one element.
    */
-  private final LinkedHashMap<ErrorWarningInfo, ImportInfoExtended>
+  private final LinkedHashMap<ErrorInfo, ImportInfoExtended>
           _parsingFailure = new LinkedHashMap<>();
 
   /**
@@ -260,10 +260,13 @@ public class RuleModel {
    * @param ii Import to extract infos from
    */
   private void extractWarnErrors(ImportInfoExtended ii) {
-    ii.getWarnings().forEach((ewi) -> _warnInfos.put(ewi, ii) );
-    ii.getErrors().forEach((ewi) -> _errorInfos.put(ewi, ii) );
-    if (ii.getParsingFailure() != null)
-      _parsingFailure.put(ii.getParsingFailure(), ii);
+    ii.getErrors().forEach((ewi) -> {
+      switch (ewi.getType()) {
+      case ERROR: _errorInfos.put(ewi, ii); break;
+      case WARNING: _warnInfos.put(ewi, ii); break;
+      case PARSE_ERROR: _parsingFailure.put(ewi, ii); break;
+      }
+    });
   }
 
 
@@ -278,17 +281,17 @@ public class RuleModel {
   public ImportInfoExtended getRootImport() { return _rootImport; }
 
   /** @return Map containing errors that occured during compilation */
-  public LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> getErrorInfos() {
+  public LinkedHashMap<ErrorInfo, ImportInfoExtended> getErrorInfos() {
     return _errorInfos;
   }
 
   /** @return Map containing warnings that occured during compilation */
-  public LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> getWarnInfos() {
+  public LinkedHashMap<ErrorInfo, ImportInfoExtended> getWarnInfos() {
     return _warnInfos;
   }
 
   /** @return Parsing failure that might have occurred */
-  public LinkedHashMap<ErrorWarningInfo, ImportInfoExtended>
+  public LinkedHashMap<ErrorInfo, ImportInfoExtended>
         getParsingFailure() { return _parsingFailure; }
 
   /** @Return ObservableMap containing the ruleLoggingStates of all rules */
