@@ -170,11 +170,10 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
 
         /* visually indicate errors and warnings happened during compile */
         pseudoClassStateChanged(errorsInImportClass,
-            !ii.getErrors().stream().anyMatch(
+            ii.getErrors().stream().anyMatch(
                 ewi -> ewi.getType() == ERROR || ewi.getType() == PARSE_ERROR));
         pseudoClassStateChanged(warningsInImportClass,
-            !ii.getErrors().stream().anyMatch(
-                ewi -> ewi.getType() == WARNING));
+            ii.getErrors().stream().anyMatch(ewi -> ewi.getType() == WARNING));
 
         /* define a listener to reflect the rule logging state */
         ii.stateProperty().addListener(importStateListener);

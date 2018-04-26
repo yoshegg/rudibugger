@@ -82,15 +82,16 @@ public class ImportContextMenu extends ContextMenu {
   }
 
   private void treatErrorInfo(ErrorInfo e) {
-    String msg = e.getType().toString() + e.getLocation().getLineNumber() + ":"
-        + e.getLocation().getCharPosition() + ": " + e.getMessage();
+    String msg = e.getType().toString() + ": "
+        + (e.getLocation().getBegin().getLine() + 1) + ":"
+        + e.getLocation().getBegin().getColumn() + ": " + e.getMessage();
     Label label = new Label(msg);
     CustomMenuItem errorItem = new CustomMenuItem(label);
     Tooltip t = new Tooltip(e.getMessage());
     Tooltip.install(label, t);
     errorItem.setOnAction(f -> {
       _item._model.rudiLoad.openRule(_item.getAbsolutePath(),
-          e.getLocation().getLineNumber());
+          e.getLocation().getBegin().getLine() + 1);
     });
     this.getItems().add(errorItem);
   }

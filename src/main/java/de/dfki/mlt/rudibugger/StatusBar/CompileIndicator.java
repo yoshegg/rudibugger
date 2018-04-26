@@ -160,22 +160,21 @@ public class CompileIndicator {
       String shortType = (("warning".equals(type)) ? "WARN" : "ERROR");
 
       String charPosition;
-      if (e.getLocation().getCharPosition() != 0)
-        charPosition = ":"
-                + Integer.toString(e.getLocation().getCharPosition());
+      if (e.getLocation().getBegin().getColumn() != 0)
+        charPosition = ":" + e.getLocation().getBegin().getColumn();
       else
         charPosition = "";
 
       String msg = shortType + ":"
                  + item.getLabel() + RULE_FILE_EXTENSION + ":"
-                 + e.getLocation().getLineNumber()
+                 + e.getLocation().getBegin().getLine()
                  + charPosition + ": "
                  + e.getMessage();
       Label label = new Label(msg);
       CustomMenuItem errorItem = new CustomMenuItem(label);
       errorItem.setOnAction(f -> {
         model.rudiLoad.openRule(item.getAbsolutePath(),
-          e.getLocation().getLineNumber());
+          e.getLocation().getBegin().getLine());
       });
       cm.getItems().add(errorItem);
     }
