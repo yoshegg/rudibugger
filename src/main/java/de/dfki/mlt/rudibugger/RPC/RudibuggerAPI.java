@@ -21,27 +21,39 @@ package de.dfki.mlt.rudibugger.RPC;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import de.dfki.mlt.rudibugger.DataModel;
 
 /**
+ * This API specifies what commands can be sent from VOnDA to rudibugger.
+ *
+ * The received commands will be parsed an either handed to the correct function
+ * or ignored by indicating that they are illegal.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RudibuggerAPI implements Consumer<String[]> {
 
-  /** the logger */
+  /** The logger. */
   static Logger log = LoggerFactory.getLogger("rudibuggerAPI");
 
+  /** The <code>DataModel</code> */
   DataModel _model;
 
+  /** Initializes the API with the DataModel. */
   public RudibuggerAPI(DataModel model) {
     _model = model;
   }
 
+  /**
+   * Parses incoming commands by dividing them into the command's / function's
+   * name and the parameters of the function call. They will then be transmitted
+   * to the chosen function or ignored by stating that they are illegal.
+   *
+   * @param args
+   *        Array containing one command and multiple parameters
+   */
   public void parseCommand(String[] args) {
     String command = args[0];
     String[] parameters = Arrays.copyOfRange(args, 1, args.length);
@@ -55,8 +67,10 @@ public class RudibuggerAPI implements Consumer<String[]> {
     }
   }
 
+  @Override
   public void accept(String[] args) { parseCommand(args); }
 
+  /** Starts the process to print a received log in the ruleLogginTableView. */
   public void printLog(String[] args) {
     try {
       int ruleId = Integer.parseInt(args[0]);

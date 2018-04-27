@@ -21,40 +21,58 @@ package de.dfki.mlt.rudibugger.RPC;
 
 import java.io.IOException;
 import java.util.function.Consumer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import de.dfki.mlt.rudimant.common.SimpleClient;
+
 /**
- * an XML-RPC Client to connect to the debugger in Java
+ * An XML-RPC Client to connect to rudibugger in Java using VOnDA's
+ * SimpleClient. This is manly a wrapper class of this class but includes
+ * specific functionality to communicate with VOnDA's runtime system by sending
+ * commands to the latter.
+ *
+ * @author Bernd Kiefer kiefer@dfki.de
+ * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RudibuggerClient {
 
-  /** The logger of the the RuleModel */
-  static Logger log = LoggerFactory.getLogger("vonda");
+  /** The logger. */
+  static Logger log = LoggerFactory.getLogger("rudibuggerClient");
 
+  /** An instance of VOnDA's simple client. */
   SimpleClient client;
 
-  /** A client that connects to the server on localhost at the given port to
-   *  send log information to the debugger.
+  /**
+   * Initializes a client that connects to the server (VOnDA) on localhost at
+   * the given port to send log information to the debugger (rudibugger).
    */
   public RudibuggerClient(String host, int portNumber,
-      Consumer<String[]> consumer) {
+          Consumer<String[]> consumer) {
     client = new SimpleClient(host, portNumber, consumer, "Debugger");
     client.startClient();
   }
 
+  /** @return True, if client is connect to server (VOnDA), else false */
   public boolean isConnected() {
     return client.isConnected();
   }
 
+  /** Disconnects client from server (VOnDA). */
   public void disconnect() throws IOException {
     client.disconnect();
   }
 
-  public void setLoggingStatus(int ruleId, int what) {
-    client.send(Integer.toString(ruleId), Integer.toString(what));
+  /**
+   * Sets the ruleLoggingState of a given rule to a given state by sending a
+   * specific command to VOnDA.
+   *
+   * @param ruleId
+   *        The id of the Rule
+   * @param newState
+   *        The new state of the given Rule
+   */
+  public void setLoggingStatus(int ruleId, int newState) {
+    client.send(Integer.toString(ruleId), Integer.toString(newState));
   }
 
 }
