@@ -17,29 +17,21 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RPC;
+package de.dfki.mlt.rudibugger.RuleLoggingTableView;
 
-import static de.dfki.mlt.rudibugger.RPC.LogData.*;
-
-import java.util.HashMap;
+import de.dfki.mlt.rudibugger.RPC.LogData;
+import static de.dfki.mlt.rudibugger.RuleLoggingTableView.ColourMap.colourMap;
 import javafx.scene.control.TableCell;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 /**
+ * This TableCell is responsible for the appearance of the middle column of
+ * the ruleLoggingTableView which contains the rule's label.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class LabelCellFactory extends TableCell<LogData, LogData.StringPart> {
-
-  public static HashMap<Integer, Color> colourMap
-          = new HashMap<Integer, Color>() {{
-      put(RED, Color.RED);
-      put(GREEN, Color.GREEN);
-      put(GRAY, Color.GRAY);
-      put(BLACK, Color.BLACK);
-    }};
 
   @Override
   protected void updateItem(LogData.StringPart item, boolean empty) {
@@ -51,9 +43,10 @@ public class LabelCellFactory extends TableCell<LogData, LogData.StringPart> {
     } else {
       TextFlow textFlow = new TextFlow();
       Text t = new Text(item.content);
-        t.setFill(colourMap.get(item.colour));
+        t.setFill(colourMap.get(item.evalOutcome));
         textFlow.getChildren().add(t);
         setGraphic(textFlow);
       }
     }
+  
   }
