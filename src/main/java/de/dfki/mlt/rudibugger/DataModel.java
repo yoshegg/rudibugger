@@ -25,6 +25,7 @@ import de.dfki.mlt.rudibugger.Controller.SettingsController;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import de.dfki.mlt.rudibugger.FileTreeView.*;
 import de.dfki.mlt.rudibugger.RuleTreeView.*;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleModelState;
 import de.dfki.mlt.rudibugger.TabManagement.*;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import java.io.FileWriter;
@@ -112,6 +113,9 @@ public class DataModel {
   /** Contains specific  information about project's rule structure. */
   public RuleModel ruleModel = new RuleModel(this);
 
+  /** Contains specific information about the RuleModel's view state. */
+  public RuleModelState ruleModelState = new RuleModelState(this);
+
 
   /*****************************************************************************
    * PROJECT INITIALIZER AND CLOSE METHODS
@@ -128,10 +132,6 @@ public class DataModel {
 
     rudiHierarchy = new RudiFolderHierarchy(project.getRudiFolder());
 
-    /* set the ruleLoggingStates configuration save folder */
-    _ruleLoggingStatesFolder = GLOBAL_CONFIG_PATH
-      .resolve("loggingConfigurations")
-      .resolve(project.projectNameProperty().get());
     watch.initWatches();
     readInRudiFiles();
 
@@ -153,7 +153,7 @@ public class DataModel {
    *
    * @param stealthy
    */
-   public void close(boolean stealthy) {
+  public void close(boolean stealthy) {
     log.info("Closing [" + project.getProjectName() + "]...");
 
     project.resetConfigurationWithLog();
@@ -166,7 +166,11 @@ public class DataModel {
     globalConf.setSetting("lastOpenedProject", "");
   }
 
-
+  /** Starts a wizard to create a new VOnDA compatible project from scratch. */
+  public void createNewProject() {
+    log.info("Not implemented yet.");
+    // TODO
+  }
 
   /*****************************************************************************
    * OLD
@@ -284,9 +288,7 @@ public class DataModel {
    * METHODS
    ****************************************************************************/
 
-  public void createNewProject() {
-    log.info("Not implemented yet.");
-  }
+
 
   public void openSettingsDialog() {
     try {
@@ -312,123 +314,6 @@ public class DataModel {
     } catch (IOException e) {
       log.error(e.toString());
     }
-  }
-
-
-  /*****************************************************************************
-   * RULE LOGGING STATE MODEL
-   ****************************************************************************/
-
-  /** project's specific configuration file */
-  private Path _ruleLoggingStatesFolder;
-
-  /** project's folder for ruleLoggingState configurations */
-
-  /** list of recent ruleLoggingStates */
-  private ArrayList<Path> _recentRuleLoggingStates;
-
-
-  /* SAVE SELECTION */
-
-  /** Used to signalize the save request of a ruleLoggingState */
-  private final SimpleBooleanProperty _ruleLoggingStateSaveRequestProperty
-    = new SimpleBooleanProperty(false);
-
-  /**
-   * Used in a Controller to listen to property.
-   *
-   * @return
-   */
-  public BooleanProperty ruleLoggingStateSaveRequestProperty() {
-    return _ruleLoggingStateSaveRequestProperty;
-  }
-
-  public void resetRuleLoggingStateSaveRequestProperty() {
-    _ruleLoggingStateSaveRequestProperty.setValue(Boolean.FALSE);
-  }
-
-  /** Request to save the current ruleLoggingState selection */
-  public void requestSaveRuleLoggingState() {
-    _ruleLoggingStateSaveRequestProperty.setValue(Boolean.TRUE);
-  }
-
-  /**
-   * Save the current ruleLoggingState selection
-   *
-   * @param rtvs
-   */
-  public void saveRuleLoggingState(RuleModelComplete rtvs) {
-    Path savePath = _ruleLoggingStatesFolder;
-    if (! Files.exists(savePath)) savePath.toFile().mkdirs();
-
-    FileChooser fileChooser = new FileChooser();
-    fileChooser.setInitialDirectory(savePath.toFile());
-    FileChooser.ExtensionFilter extFilter
-            = new FileChooser.ExtensionFilter
-        ("YAML file (*" + "yml" + ")", "*" + "yml");
-    fileChooser.getExtensionFilters().add(extFilter);
-    Path file;
-    try {
-      file = (fileChooser.showSaveDialog(stageX)).toPath();
-    } catch (NullPointerException e) {
-      return;
-    }
-
-    if (!file.getFileName().toString().endsWith(".yml")) {
-      file = Paths.get(file.toString() + ".yml");
-    }
-
-    try {
-      FileWriter writer = new FileWriter(savePath.resolve(file).toFile());
-      yaml.dump(rtvs, writer);
-    } catch (IOException e) {
-      log.error(e.getMessage());
-    }
-    log.debug("Saved file " + file.toString());
-
-  }
-
-
-  /* LOAD SELECTION */
-
-  /** used to signalize the load request of a ruleLoggingState */
-  private final SimpleObjectProperty<Path> _ruleLoggingStateLoadRequestProperty
-    = new SimpleObjectProperty<>();
-
-  /**
-   * Used in a Controller to listen to property.
-   *
-   * @return
-   */
-  public ObjectProperty<Path> ruleLoggingStateLoadRequestProperty() {
-    return _ruleLoggingStateLoadRequestProperty;
-  }
-
-  /**
-   * load a given file as ruleSelectionState
-   *
-   * @param x
-   */
-  public void loadRuleLoggingState(Path x) {
-    _ruleLoggingStateLoadRequestProperty.setValue(x);
-  }
-
-  public void openRuleLoggingStateFileChooser() {
-    loadRuleLoggingState(HelperWindows.openRuleLoggingStateFile(
-      stageX, _ruleLoggingStatesFolder));
-  }
-
-  /* RULE LOGGING STATE */
-
-  private final SimpleObjectProperty<RuleModelComplete> _ruleLoggingStateProperty
-    = new SimpleObjectProperty<>();
-
-  public ObjectProperty ruleLoggingStateProperty() {
-    return _ruleLoggingStateProperty;
-  }
-
-  public ArrayList<Path> getRecentRuleLoggingStates() {
-    return _recentRuleLoggingStates;
   }
 
 }

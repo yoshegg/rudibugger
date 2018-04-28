@@ -29,9 +29,6 @@ import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
 import de.dfki.mlt.rudibugger.RuleTreeView.BasicInfoTreeCell;
 import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
 import de.dfki.mlt.rudibugger.RuleModel.RuleInfoExtended;
-import de.dfki.mlt.rudibugger.RuleTreeView.RuleModelComplete;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.nio.file.Files;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -40,37 +37,39 @@ import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 /**
- * This controller manages the left part of rudibugger window:
- * the TreeView of files, the TreeView of rules and some buttons.
+ * This controller manages the left part of the rudibugger window:
+ *   - the TreeView showing <code>.rudi</code> files,
+ *   - the TreeView showing Imports and Rules, and
+ *   - some buttons that manipulate these TreeViews.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class SideBarController {
 
-  /** the logger of the SideBarController */
-  static Logger log = LoggerFactory.getLogger("rudiLog");
+  /** The logger. */
+  static Logger log = LoggerFactory.getLogger("sideBarController");
 
-  /** the DataModel */
+  /** The <code>DataModel</code> */
   private DataModel _model;
 
   /**
    * the RuleModelComplete, needed to save and load the expansion and rule
  logging state of the RuleTreeView
    */
-  private RuleModelComplete ruleTreeViewState;
+//  private RuleModelState ruleTreeViewState;
 
   /**
-   * This function connects this controller to the DataModel
+   * Connects this controller to the DataModel and initializes it by defining
+   * different listeners and cell factories.
    *
    * @param model
+   *        The current DataModel
    */
   public void initModel(DataModel model) {
-    if (this._model != null) {
+    if (this._model != null)
       throw new IllegalStateException("Model can only be initialized once");
-    }
     this._model = model;
 
     /* this Listener keeps the rudiTreeView containing the .rudi files up to date */
@@ -113,7 +112,6 @@ public class SideBarController {
           log.debug("Building TreeView...");
           ruleTreeView.setRoot(buildTreeView(model));
           ruleTreeView.getRoot().setExpanded(true);
-          ruleTreeViewState = new RuleModelComplete();
           log.debug("TreeView based on RuleModel has been built.");
           log.debug("Marking used .rudi files...");
           markFilesInRudiList();
@@ -123,9 +121,9 @@ public class SideBarController {
         case RULE_MODEL_CHANGED:
           log.debug("RuleModel has been modified.");
           log.debug("Adapting ruleTreeView");
-          ruleTreeViewState.retrieveTreeState(ruleTreeView);
+          _model.ruleModelState.retrieveStateOf(ruleTreeView);
           ruleTreeView.setRoot(buildTreeView(model));
-          ruleTreeViewState.setTreeState(ruleTreeView);
+          _model.ruleModelState.setStateOf(ruleTreeView);
           log.debug("ruleTreeView has been adapted.");
           log.debug("Remarking used .rudi files...");
           markFilesInRudiList();
@@ -135,7 +133,7 @@ public class SideBarController {
         case RULE_MODEL_REMOVED:
           log.debug("RuleModel has been resetted / removed");
           ruleTreeView.setRoot(null);
-          // TODO: reset file view
+          markFilesInRudiList();
           log.debug("GUI has been resetted.");
           model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
           break;
@@ -147,44 +145,27 @@ public class SideBarController {
     });
 
     /* Listen to request for saving ruleLoggingState */
-    model.ruleLoggingStateSaveRequestProperty().addListener((o, ov, nv) -> {
+    _model.ruleModelState.saveRequestProperty().addListener((o, ov, nv) -> {
       if (nv) {
         log.debug("Requested to save ruleLoggingState.");
-        ruleTreeViewState.retrieveTreeState(ruleTreeView);
-        model.saveRuleLoggingState(ruleTreeViewState);
-        model.resetRuleLoggingStateSaveRequestProperty();
+        _model.ruleModelState.retrieveStateOf(ruleTreeView);
+        _model.ruleModelState.saveState();
+        _model.ruleModelState.resetSaveRequestProperty();
       }
     });
 
     /* Listen to request for loading ruleLoggingState */
-    _model.ruleLoggingStateLoadRequestProperty().addListener((o, ov, nv) -> {
+    _model.ruleModelState.loadRequestProperty().addListener((o, ov, nv) -> {
       if (nv == null) return;
-      RuleModelComplete rtvs;
-      try {
-        Yaml yaml = new Yaml();
-        rtvs = (RuleModelComplete) yaml.load(new FileReader(nv.toFile()));
-      } catch (FileNotFoundException e) {
-        log.error("Could not read in configuration file");
-        return;
-      }
-      ruleTreeViewState = rtvs;
-      ruleTreeViewState.setTreeState(ruleTreeView);
+      _model.ruleModelState.setStateOf(ruleTreeView);
 
       /* reset this listener */
-      _model.ruleLoggingStateLoadRequestProperty().set(null);
+      _model.ruleModelState.resetLoadRequestProperty();
     });
 
-    /* Listen to out of sync changes */
-    // TODO: Should not be needed, but seems to be a bug in JavaFX
-//    model._modifiedFilesProperty().addListener((o, ov, nv) -> {
-//      rudiTreeView.refresh();
-//    });
   }
 
-  /**
-   * This function is used to mark the files in the <b>rudiList</b> according to
-   * their state.
-   */
+  /** Marks the files in the <b>rudiList</b> according to their usage state. */
   private void markFilesInRudiList() {
     for (RudiPath x : _model.rudiHierarchy.rudiPathSet) {
 
@@ -210,10 +191,6 @@ public class SideBarController {
       }
     }
 
-    /* let the cells reload according to their usage state */
-    // TODO: https://stackoverflow.com/questions/14682881/binding-image-in-javafx
-    // Should not be needed anymore
-    //    rudiTreeView.refresh();
   }
 
   public static TreeItem buildTreeView(DataModel model) {
@@ -256,9 +233,6 @@ public class SideBarController {
       /* build newRuleItem */
       TreeItem<RuleInfoExtended> newRuleItem = new TreeItem(newRule);
 
-//      /* bind newRuleItem's properties to the Rule */
-//      newRuleItem.setState(newRule.getState());
-
       /* iterate over newRule's children and add them to the rootItem */
       for (BasicInfo obj : newRule.getChildren()) {
         newRuleItem.getChildren().add(buildTreeViewHelper(obj, model, newRule));
@@ -266,13 +240,14 @@ public class SideBarController {
       return newRuleItem;
     }
 
-    /* our new object is neither Rule nor Import, this should never happen */
+    /* The new object is neither Rule nor Import, this should never happen. */
     else {
-      log.error("tried to read in an object that is not an Import or a Rule.");
+      log.error("Tried to read in an object that is neither Rule nor Import.");
       return null;
     }
   }
 
+  /** Expands a given TreeItem and all its children. */
   private static void expandTreeItem(TreeItem item) {
     item.setExpanded(true);
     item.getChildren().forEach((child) -> {
@@ -280,6 +255,7 @@ public class SideBarController {
     });
   }
 
+  /** Collapses a given TreeItem and all its children. */
   private static void collapseTreeItem(TreeItem item) {
     item.setExpanded(false);
     item.getChildren().forEach((child) -> {
@@ -289,14 +265,14 @@ public class SideBarController {
 
 
   /*****************************************************************************
-   * The different GUI elements *
+   * GUI ELEMENTS
    ****************************************************************************/
 
-  /* The TreeView showing the different rudi rules and imports */
+  /** Shows the different <code>.rudi</code> rules and imports. */
   @FXML
   private TreeView ruleTreeView;
 
-  /* The ListView showing the content of the rudi folder */
+  /** Shows the content of the <code>.rudi</code> folder. */
   @FXML
   private TreeView rudiTreeView;
 
@@ -305,7 +281,7 @@ public class SideBarController {
    * GUI ACTIONS
    ****************************************************************************/
 
-  /** Expand all TreeItems */
+  /** Expands all TreeItems in the ruleTreeView. */
   @FXML
   private void expandAll(ActionEvent event) {
     if (ruleTreeView.getRoot() != null) {
@@ -313,7 +289,7 @@ public class SideBarController {
     }
   }
 
-  /** Collapse all TreeItems (Except for the root) */
+  /** Collapses all TreeItems, but the root item, in the ruleTreeView. */
   @FXML
   private void collapseAll(ActionEvent event) {
     if (ruleTreeView.getRoot() != null) {

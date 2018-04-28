@@ -27,7 +27,6 @@ import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
 import de.dfki.mlt.rudimant.common.RuleLogger;
 import java.io.IOException;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -39,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Provides additional functionality to interact with VOnDA.
+ * Provides additional functionality to interact with VOnDA's runtime system.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */

@@ -211,10 +211,10 @@ public class MenuController {
 
   private void buildLoadRuleSelectionStateMenu() {
     loadLoggingStateMenu.getItems().clear();
-    _model.getRecentRuleLoggingStates().forEach((x) -> {
+    _model.ruleModelState.getRecentStates().forEach((x) -> {
       MenuItem mi = new MenuItem(x.toString());
       mi.setOnAction((event) -> {
-        _model.loadRuleLoggingState(x);
+        _model.ruleModelState.loadState(x);
       });
       loadLoggingStateMenu.getItems().add(mi);
     });
@@ -405,7 +405,7 @@ public class MenuController {
   /** Action "Open configuration file..." */
   @FXML
   private void openRuleLoggingStateConfigurationFile(ActionEvent event) {
-    _model.openRuleLoggingStateFileChooser();
+    _model.ruleModelState.loadStateSelectFile();
   }
 
 
@@ -416,7 +416,7 @@ public class MenuController {
   /** Action "Save logging state" */
   @FXML
   private void saveLoggingStateAction(ActionEvent event) {
-    _model.requestSaveRuleLoggingState();
+    _model.ruleModelState.requestSave();
   }
 
 

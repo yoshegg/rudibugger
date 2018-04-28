@@ -20,13 +20,13 @@
 package de.dfki.mlt.rudibugger.Controller;
 
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.RPC.EvaluatedCellFactory;
-import de.dfki.mlt.rudibugger.RPC.LabelCellFactory;
+import de.dfki.mlt.rudibugger.RuleLoggingTableView.EvaluatedCellFactory;
+import de.dfki.mlt.rudibugger.RuleLoggingTableView.LabelCellFactory;
 import de.dfki.mlt.rudibugger.RPC.LogData;
 import de.dfki.mlt.rudibugger.RPC.LogData.DatePart;
 import de.dfki.mlt.rudibugger.RPC.LogData.StringPart;
-import de.dfki.mlt.rudibugger.RPC.TimestampCellFactory;
-import static de.dfki.mlt.rudibugger.RPC.TimestampCellFactory.dt;
+import de.dfki.mlt.rudibugger.RuleLoggingTableView.TimestampCellFactory;
+import static de.dfki.mlt.rudibugger.RuleLoggingTableView.TimestampCellFactory.dt;
 import de.dfki.mlt.rudibugger.TabManagement.TabStore;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -161,7 +161,7 @@ public class EditorController {
 
     /* setCellValueFactories */
     _labelColumn.setCellValueFactory(value -> value.getValue().label);
-    _evaluatedColumn.setCellValueFactory(value -> value.getValue().evaluated);
+    _evaluatedColumn.setCellValueFactory(value -> value.getValue().evaluatedRuleParts);
     _timeColumn.setCellValueFactory(value -> value.getValue().timestamp);
 
     /* setCellFactories */

@@ -24,6 +24,7 @@ import de.dfki.mlt.rudibugger.DataModel;
 import static de.dfki.mlt.rudibugger.Helper.slice_end;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.SimpleServer;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -227,6 +228,12 @@ public class ProjectManager {
              + continueMessage);
     }
 
+    /* Set the RuleModelState save folder */
+    _ruleModelStatesFolder = GLOBAL_CONFIG_PATH
+      .resolve("loggingConfigurations").resolve(projectName.get());
+    if (! Files.exists(_ruleModelStatesFolder))
+      _ruleModelStatesFolder.toFile().mkdirs();
+
     return true;
 
   }
@@ -309,6 +316,16 @@ public class ProjectManager {
 
   /** @return The Path to the RuleLoc.yml */
   public Path getRuleLocationFile() {return ruleLocationFile; }
+
+
+  /* RULEMODELSTATES FOLDER */
+
+  /** Represents the path to the project's RuleModelStates' save folder. */
+  private Path _ruleModelStatesFolder;
+
+  /** @return The Path to the RuleModelStates' save folder */
+  public Path getRuleModelStatesFolder() { return _ruleModelStatesFolder; }
+
 
 
   /* WRAPPER CLASS */

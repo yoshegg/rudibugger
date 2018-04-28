@@ -51,7 +51,7 @@ import org.yaml.snakeyaml.Yaml;
  * (<code>RuleLoc.yml</code>) and updating it. It also keeps track of
  *   - used Imports in the compiled project,
  *   - changes to the ruleLogging state of the different rules
- *   - warnings and errors that occured during compilation
+ *   - warnings and errors that occurred during compilation
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -60,7 +60,7 @@ public class RuleModel {
   /** The Logger. */
   static Logger log = LoggerFactory.getLogger("RuleModel");
 
-  /** The <code>DataModel</code> */
+  /** The <code>DataModel</code>. */
   private final DataModel _model;
 
   /** Contains all of the used Imports' paths. */
@@ -73,7 +73,7 @@ public class RuleModel {
   /** Maps ruleIds to paths and lines. */
   private final HashMap<Integer, RuleInfoExtended> _idRuleMap = new HashMap<>();
 
-  /** Contains errors that occured during compilation. */
+  /** Contains errors that occurred during compilation. */
   private final LinkedHashMap<ErrorInfo, ImportInfoExtended> _errorInfos
     = new LinkedHashMap<>();
 
@@ -100,7 +100,7 @@ public class RuleModel {
 
 
   /*****************************************************************************
-   * INITIALIZERS AND RESETTER
+   * INITIALIZERS, UPDATERS AND RESETTER
    ****************************************************************************/
 
   /**
@@ -269,9 +269,17 @@ public class RuleModel {
     });
   }
 
+  /**
+   * Gets rule with given id.
+   *
+   * @param id  Id of rule
+   * @return    Requested <code>RuleInfoExtended</code>
+   */
+  public RuleInfoExtended getRule(int id) { return _idRuleMap.get(id); }
+
 
   /*****************************************************************************
-   * GETTERS AND SETTERS FOR PRIVATE FIELDS
+   * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
    ****************************************************************************/
 
   /** @return Set of Paths of all used Imports */
@@ -310,13 +318,5 @@ public class RuleModel {
   public void setChangedStateProperty(int val) {
     _changedState.set(val);
   }
-
-  /**
-   * Gets rule with given id.
-   *
-   * @param id  Id of rule
-   * @return    Requested <code>RuleInfoExtended</code>
-   */
-  public RuleInfoExtended getRule(int id) { return _idRuleMap.get(id); }
 
 }

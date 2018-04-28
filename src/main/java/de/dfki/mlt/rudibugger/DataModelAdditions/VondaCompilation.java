@@ -68,7 +68,8 @@ public class VondaCompilation {
    * @throws IOException
    * @throws InterruptedException
    */
-  public void startCompile(String inputCmd) throws IOException, InterruptedException {
+  public void startCompile(String inputCmd)
+          throws IOException, InterruptedException {
     _model.rudiSave.quickSaveAllFiles();
 
     if ((_p != null) && (_p.isAlive())) {
@@ -99,7 +100,9 @@ public class VondaCompilation {
 
       _p = Runtime.getRuntime().exec(cmd);
     } else {
-      _p = Runtime.getRuntime().exec(_model.project.getCompileFile().toString());
+      _p = Runtime.getRuntime().exec(
+              _model.project.getCompileFile().toString());
     }
   }
+
 }
