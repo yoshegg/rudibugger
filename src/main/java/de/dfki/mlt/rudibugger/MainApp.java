@@ -35,6 +35,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +53,8 @@ public class MainApp extends Application {
   public void start(Stage stage) throws Exception {
 
     /* initialize log4j / sfl4j */
-    //BasicConfigurator.configure();
-    //PropertyConfigurator.configure("src/main/resources/log4j.properties");
+    BasicConfigurator.configure();
+    PropertyConfigurator.configure("src/main/resources/log4j.properties");
 
     log.info("Starting Rudibugger");
 
