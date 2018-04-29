@@ -152,9 +152,9 @@ public class RudiSaveManager {
    * @param file the file that has been saved
    */
   private void notifySaved(String file) {
-    _model.statusBarProperty().set("Saved " + file + ".");
+    _model.statusBarTextProperty().set("Saved " + file + ".");
     PauseTransition pause = new PauseTransition(Duration.seconds(3));
-    pause.setOnFinished(Ce -> _model.statusBarProperty().set(null));
+    pause.setOnFinished(Ce -> _model.statusBarTextProperty().set(null));
     pause.play();
   }
 }

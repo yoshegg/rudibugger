@@ -75,7 +75,7 @@ public class RudiHierarchy {
 
   /** Indicates if there were modifications after the last compilation. */
   private final IntegerProperty _modificationsAfterCompilation
-          = new SimpleIntegerProperty(FILES_SYNC_UNDEFINED);
+          = new SimpleIntegerProperty(FILES_SYNC_NO_PROJECT);
 
 
   /*****************************************************************************
@@ -102,12 +102,13 @@ public class RudiHierarchy {
   /** Resets the rudiHierarchy. */
   public void reset() {
     log.debug("Resetting the RudiFolderHierarchy...");
+    _root = null;
     _rudiFolder = null;
     _fileMap.clear();
     _folderMap.clear();
     _rudiPathMap.clear();
     _rudiPathSet.clear();
-    _modificationsAfterCompilation.set(FILES_SYNC_UNDEFINED);
+    _modificationsAfterCompilation.set(FILES_SYNC_NO_PROJECT);
     log.debug("Resetted the RudiFolderHierarchy.");
   }
 
@@ -145,6 +146,18 @@ public class RudiHierarchy {
               || Files.isDirectory(x))
         addFileToHierarchy(x.toAbsolutePath());
     });
+
+    /* Check if files are in sync */
+    Boolean notSynced = false;
+    for (Path p : _rudiPathMap.keySet()) {
+      if (_rudiPathMap.get(p).modifiedProperty().get()) {
+        notSynced = true;
+      }
+    }
+    if (notSynced) _model.rudiHierarchy._modificationsAfterCompilationProperty()
+              .set(FILES_OUT_OF_SYNC);
+    else _model.rudiHierarchy._modificationsAfterCompilationProperty()
+              .set(FILES_SYNCED);
   }
 
   /**

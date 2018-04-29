@@ -90,8 +90,8 @@ public class MenuController {
     });
 
     /* this listener checks if a project has been opened */
-    _model.projectStatusProperty().addListener((o, oldVal, newVal) -> {
-      if ((int) newVal == PROJECT_OPEN) {
+    _model.projectStatusProperty().addListener((o, ov, nv) -> {
+      if (nv) {
         log.debug("Project open: enable GUI-elements.");
         closeProjectItem.setDisable(false);
         newRudiFileItem.setDisable(false);
@@ -99,7 +99,7 @@ public class MenuController {
         saveLoggingStateItem.setDisable(false);
         manageVondaConnectionButton();
         defineCompileButton();
-      } else if ((int) newVal == PROJECT_CLOSED) {
+      } else {
         log.debug("Project closed: disable GUI-elements.");
         closeProjectItem.setDisable(true);
         newRudiFileItem.setDisable(true);

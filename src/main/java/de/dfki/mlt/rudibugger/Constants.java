@@ -72,8 +72,8 @@ public class Constants {
   * SIGNALIZE THE OPENING OR CLOSING OF A PROJECT
   *****************************************************************************/
 
-  public static final int PROJECT_OPEN = 1;
-  public static final int PROJECT_CLOSED = 0;
+  public static final boolean PROJECT_OPEN = true;
+  public static final boolean PROJECT_CLOSED = false;
 
 
  /******************************************************************************
@@ -96,6 +96,7 @@ public class Constants {
   public static final int COMPILATION_WITH_WARNINGS = 3;
   public static final int COMPILATION_FAILED = 4;
   public static final int COMPILATION_UNDEFINED = 5;
+  public static final int COMPILATION_NO_PROJECT = 9;
 
 
   /*****************************************************************************
@@ -105,5 +106,6 @@ public class Constants {
   public static final int FILES_SYNCED = 10;
   public static final int FILES_OUT_OF_SYNC = 20;
   public static final int FILES_SYNC_UNDEFINED = 30;
+  public static final int FILES_SYNC_NO_PROJECT = 90;
 
 }

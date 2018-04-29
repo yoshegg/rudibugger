@@ -73,16 +73,14 @@ public class SideBarController {
     this._model = model;
 
     /* this Listener keeps the rudiTreeView containing the .rudi files up to date */
-    model.projectStatusProperty().addListener((o, oldVal, newVal) -> {
-      switch ((int) newVal) {
-        case PROJECT_OPEN:
-          rudiTreeView.setRoot(model.rudiHierarchy.getRoot());
-          rudiTreeView.setShowRoot(false);
-          break;
-        case PROJECT_CLOSED:
-          rudiTreeView.setRoot(null);
-          break;
+    model.projectStatusProperty().addListener((o, ov, nv) -> {
+      if (nv) {
+        rudiTreeView.setRoot(model.rudiHierarchy.getRoot());
+        rudiTreeView.setShowRoot(false);
       }
+      else
+        rudiTreeView.setRoot(null);
+
     });
 
     /* define how a cell in this rudiTreeView looks like */
@@ -131,12 +129,11 @@ public class SideBarController {
           model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
           break;
         case RULE_MODEL_REMOVED:
-          if (_model.projectStatusProperty().get() != PROJECT_CLOSED) {
-            ruleTreeView.setRoot(null);
+          ruleTreeView.setRoot(null);
+          if (_model.rudiHierarchy.getRoot() != null)
             markFilesInRudiList();
-            log.debug("RuleModel has been resetted / removed");
-            model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
-          }
+          log.debug("RuleModel has been resetted / removed");
+          model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
           break;
         case RULE_MODEL_UNCHANGED:
           break;

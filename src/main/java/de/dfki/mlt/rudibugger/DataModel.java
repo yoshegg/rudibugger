@@ -154,10 +154,13 @@ public class DataModel {
 
     project.resetConfigurationWithLog();
 
-    ruleModel.reset();
     rudiHierarchy.reset();
+    ruleModel.reset();
     watch.disableWatches();
     vonda.closeConnection();
+
+    // TODO Move to right place
+    _compilationStateProperty().setValue(COMPILATION_NO_PROJECT);
 
     setProjectStatus(PROJECT_CLOSED);
     globalConf.setSetting("lastOpenedProject", "");
@@ -209,7 +212,7 @@ public class DataModel {
 
   /** statusBar */
   private final StringProperty statusBar = new SimpleStringProperty();
-  public StringProperty statusBarProperty() { return statusBar; }
+  public StringProperty statusBarTextProperty() { return statusBar; }
 
 
   /*****************************************************************************
@@ -217,10 +220,11 @@ public class DataModel {
    ****************************************************************************/
 
   /** Project status */
-  private final IntegerProperty _projectStatus
-          = new SimpleIntegerProperty(PROJECT_CLOSED);
-  public void setProjectStatus(int val) { _projectStatus.set(val); }
-  public IntegerProperty projectStatusProperty() { return _projectStatus; }
+  /** Indicates if a project is loaded or not. */
+  private final BooleanProperty _projectStatus
+          = new SimpleBooleanProperty(PROJECT_CLOSED);
+  private void setProjectStatus(boolean val) { _projectStatus.set(val); }
+  public BooleanProperty projectStatusProperty() { return _projectStatus; }
 
 
   /*****************************************************************************

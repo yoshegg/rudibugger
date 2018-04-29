@@ -116,7 +116,7 @@ public class RuleModel {
   /** Initializes the ruleModel. */
   public void init() {
     log.debug("Initializing the RuleModel...");
-    
+
     _rootImport = defineRuleModel();
     if (_rootImport != null) _changedState.set(RULE_MODEL_NEWLY_CREATED);
 
@@ -166,6 +166,8 @@ public class RuleModel {
    */
   private ImportInfoExtended defineRuleModel() {
 
+    resetWarnErrors();
+
     BasicInfo basicRuleStructure = readInRuleLocationFile();
     if (basicRuleStructure == null) { return null; }
 
@@ -208,7 +210,6 @@ public class RuleModel {
    */
   private BasicInfo processInfos(BasicInfo current, BasicInfo parent,
                                  DataModel model) {
-
     if (current instanceof ImportInfo) {
       ImportInfoExtended ii
               = new ImportInfoExtended((ImportInfo) current, model, parent);
@@ -273,6 +274,13 @@ public class RuleModel {
       case PARSE_ERROR: _parsingFailure.put(ewi, ii); break;
       }
     });
+  }
+
+  /** Resets known errors, warnings and parsing failures. */
+  private void resetWarnErrors() {
+    _errorInfos.clear();
+    _warnInfos.clear();
+    _parsingFailure.clear();
   }
 
   /**

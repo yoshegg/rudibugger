@@ -24,6 +24,7 @@ import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
+import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import javafx.beans.property.IntegerProperty;
@@ -67,7 +68,8 @@ public class CompileIndicator {
       put(COMPILATION_WITH_WARNINGS, new Image(ICONS_PATH + "warnings.png"));
       put(COMPILATION_FAILED,        new Image(ICONS_PATH + "failed.png"));
       put(COMPILATION_UNDEFINED,     new Image(ICONS_PATH + "undefined.png"));
-   }};
+      put(COMPILATION_NO_PROJECT,    new Image(ICONS_PATH + "undefined.png"));
+    }};
 
   /** Map of compilation status tooltip's texts. */
   private static final HashMap<Integer, String> MESSAGES
@@ -77,6 +79,7 @@ public class CompileIndicator {
       put(COMPILATION_WITH_WARNINGS, "Compilation succeeded with warnings.");
       put(COMPILATION_FAILED,        "Compilation failed.");
       put(COMPILATION_UNDEFINED,     "Compilation state unknown.");
+      put(COMPILATION_NO_PROJECT,    "");
     }};
 
   /** Creates a new instance of <code>CompileIndicator</code>, creates a tooltip
@@ -91,8 +94,8 @@ public class CompileIndicator {
     _controller = controller;
 
     /* Initializes the default look and behaviour if no project is loaded. */
-    _indicator.setImage(ICONS.get(COMPILATION_UNDEFINED));
-    _tooltip.setText(MESSAGES.get(COMPILATION_UNDEFINED));
+    _indicator.setImage(ICONS.get(COMPILATION_NO_PROJECT));
+    _tooltip.setText(MESSAGES.get(COMPILATION_NO_PROJECT));
     Tooltip.install(_indicator, _tooltip);
   }
 
@@ -101,8 +104,7 @@ public class CompileIndicator {
       int val = nv.intValue();
       String msg = MESSAGES.get(val);
 
-      if (val != COMPILATION_UNDEFINED)
-        _controller.setStatusBar(msg);
+      _controller.setStatusBarText(msg);
 
       _tooltip.setText(msg);
       Tooltip.install(_indicator, _tooltip);
