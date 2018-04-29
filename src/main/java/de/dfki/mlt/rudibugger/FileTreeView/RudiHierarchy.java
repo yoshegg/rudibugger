@@ -38,11 +38,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * RudiHierarchy manages the underlying model of the rudiTreeView.
+ * RudiHierarchy manages the underlying data of the rudiTreeView. This class
+ * also contains properties to listen to if changes to the file system must be
+ * noticed. 
+ *
  * When a file or a folder is deleted or added, the hierarchy is immediately
  * updated so that the rudiTreeView is adapted.
- *
- * TODO: REWORK AND COMPLETE
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
