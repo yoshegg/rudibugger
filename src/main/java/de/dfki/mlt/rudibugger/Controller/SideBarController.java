@@ -131,11 +131,12 @@ public class SideBarController {
           model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
           break;
         case RULE_MODEL_REMOVED:
-          log.debug("RuleModel has been resetted / removed");
-          ruleTreeView.setRoot(null);
-          markFilesInRudiList();
-          log.debug("GUI has been resetted.");
-          model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
+          if (_model.projectStatusProperty().get() != PROJECT_CLOSED) {
+            ruleTreeView.setRoot(null);
+            markFilesInRudiList();
+            log.debug("RuleModel has been resetted / removed");
+            model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
+          }
           break;
         case RULE_MODEL_UNCHANGED:
           break;
@@ -172,22 +173,22 @@ public class SideBarController {
       /* mark the main .rudi file, must be in root folder */
       if (_model.ruleModel.getRootImport().getAbsolutePath().getFileName().equals(
               x.getPath().getFileName())) {
-        x._usedProperty().setValue(FILE_IS_MAIN);
+        x.usedProperty().setValue(FILE_IS_MAIN);
         continue;
       }
 
       /* mark the wrapper file,  must be in root folder */
       if (_model.project.getWrapperClass().getFileName()
               .equals(x.getPath().getFileName())) {
-        x._usedProperty().setValue(FILE_IS_WRAPPER);
+        x.usedProperty().setValue(FILE_IS_WRAPPER);
         continue;
       }
 
       /* mark the other files */
       if (_model.ruleModel.getImportSet().contains(x.getPath())) {
-        x._usedProperty().setValue(FILE_USED);
+        x.usedProperty().setValue(FILE_USED);
       } else {
-        x._usedProperty().setValue(FILE_NOT_USED);
+        x.usedProperty().setValue(FILE_NOT_USED);
       }
     }
 

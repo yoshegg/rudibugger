@@ -96,7 +96,7 @@ public class RudiPath {
    * @return Indicates if the associated <code>.rudi</code> file has been
    * modified since the last successful compilation
    */
-  public BooleanProperty _modifiedProperty() {
+  public BooleanProperty modifiedProperty() {
     return _modified;
   }
 
@@ -104,6 +104,6 @@ public class RudiPath {
    * @return Indicates the usage state of the associated <code>.rudi</code>
    * file.
    */
-  public IntegerProperty _usedProperty() { return _used; }
+  public IntegerProperty usedProperty() { return _used; }
 
 }

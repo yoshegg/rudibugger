@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 /**
  * RudiHierarchy manages the underlying data of the rudiTreeView. This class
  * also contains properties to listen to if changes to the file system must be
- * noticed. 
+ * noticed.
  *
  * When a file or a folder is deleted or added, the hierarchy is immediately
  * updated so that the rudiTreeView is adapted.
@@ -155,8 +155,8 @@ public class RudiHierarchy {
    */
   public void addFileToHierarchy(Path f) {
     RudiPath rp = new RudiPath(f);
-
     _rudiPathMap.put(f, rp);
+
 
     /* A folder */
     if (Files.isDirectory(f)) {
@@ -185,6 +185,13 @@ public class RudiHierarchy {
       TreeItem ti = new TreeItem(rp);
       _folderMap.get(dir).getChildren().add(ti);
       _fileMap.put(f, ti);
+
+      /* Check if modified since last compilation */
+      if (Files.exists(_model.project.getRuleLocationFile())) {
+        if (rp.getPath().toFile().lastModified() >
+                _model.project.getRuleLocationFile().toFile().lastModified())
+          rp.modifiedProperty().set(true);
+      }
 
       /* sort the TreeItems, TODO: not efficient, but no easier way exists */
       ObservableList<TreeItem> children = _folderMap.get(dir).getChildren();
@@ -230,7 +237,7 @@ public class RudiHierarchy {
 
   /** Sets a file as modified since last compilation. */
   public void setFileAsModified(Path file) {
-    _rudiPathMap.get(file)._modifiedProperty().setValue(true);
+    _rudiPathMap.get(file).modifiedProperty().setValue(true);
     if (_modificationsAfterCompilation.get() != FILES_OUT_OF_SYNC)
       _modificationsAfterCompilation.setValue(FILES_OUT_OF_SYNC);
   }
@@ -243,7 +250,7 @@ public class RudiHierarchy {
 
   public void resetFilesModifiedProperties() {
     _rudiPathMap.keySet().forEach((p) -> {
-      _rudiPathMap.get(p)._modifiedProperty().setValue(false);
+      _rudiPathMap.get(p).modifiedProperty().setValue(false);
     });
   }
 

@@ -76,8 +76,8 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
     /* Remove old listener from the cell */
     RudiPath oldItem = getItem();
     if (oldItem != null) {
-      oldItem._modifiedProperty().removeListener(modificationListener);
-      oldItem._usedProperty().removeListener(usageStateListener);
+      oldItem.modifiedProperty().removeListener(modificationListener);
+      oldItem.usedProperty().removeListener(usageStateListener);
     }
 
     super.updateItem(rudiPath, empty);
@@ -93,16 +93,16 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
 
       /* Visually indicate out of sync files. */
       pseudoClassStateChanged(modifiedFileClass,
-              rudiPath._modifiedProperty().getValue());
-      rudiPath._modifiedProperty().addListener(modificationListener);
+              rudiPath.modifiedProperty().getValue());
+      rudiPath.modifiedProperty().addListener(modificationListener);
 
       /* Set label of TreeItem. */
       setText(rudiPath.toString());
 
       /* Define icon and listener for icon. */
       setGraphic(new ImageView(ICONS_FILES.get(
-              rudiPath._usedProperty().getValue())));
-      rudiPath._usedProperty().addListener(usageStateListener);
+              rudiPath.usedProperty().getValue())));
+      rudiPath.usedProperty().addListener(usageStateListener);
 
     }
   }
