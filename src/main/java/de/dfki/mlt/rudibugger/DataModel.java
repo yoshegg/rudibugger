@@ -24,24 +24,16 @@ import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import de.dfki.mlt.rudibugger.FileTreeView.*;
-import de.dfki.mlt.rudibugger.RuleTreeView.*;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleModelState;
 import de.dfki.mlt.rudibugger.TabManagement.*;
-import static de.dfki.mlt.rudimant.common.Constants.*;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.stream.Stream;
 import javafx.beans.property.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -116,6 +108,11 @@ public class DataModel {
   /** Contains specific information about the RuleModel's view state. */
   public RuleModelState ruleModelState = new RuleModelState(this);
 
+  /**
+   * Contains specific information about the involved <code>.rudi</code> folder
+   * and files.
+   */
+  public RudiHierarchy rudiHierarchy = new RudiHierarchy(this);
 
   /*****************************************************************************
    * PROJECT INITIALIZER AND CLOSE METHODS
@@ -130,10 +127,9 @@ public class DataModel {
 
     project.initConfiguration(selectedProjectYml);
 
-    rudiHierarchy = new RudiFolderHierarchy(project.getRudiFolder());
-
     watch.initWatches();
-    readInRudiFiles();
+
+    rudiHierarchy.init();
 
     if (Files.exists(project.getRuleLocationFile()))
       ruleModel.init();
@@ -159,6 +155,7 @@ public class DataModel {
     project.resetConfigurationWithLog();
 
     ruleModel.reset();
+    rudiHierarchy.reset();
     watch.disableWatches();
     vonda.closeConnection();
 
@@ -176,60 +173,6 @@ public class DataModel {
    * OLD
    ****************************************************************************/
 
-  /** for RudiHierarchy only */
-  public void readInRudiFiles() {
-    Stream<Path> stream;
-    try {
-      stream = Files.walk(project.getRudiFolder());
-    } catch (IOException e) {
-      log.error(e.toString());
-      return;
-    }
-    stream.forEach(x -> {
-      if (x.getFileName().toString().endsWith(RULE_FILE_EXTENSION)
-              || Files.isDirectory(x))
-        rudiHierarchy.addFileToHierarchy(new RudiPath(x.toAbsolutePath()));
-    });
-  }
-
-
-  /*****************************************************************************
-   * UPDATE METHODS FOR THE CURRENT PROJECT AKA DATAMODEL
-   ****************************************************************************/
-
-
-  public void removeRudiPath(Path file) {
-    rudiHierarchy.removeFromFileHierarchy(new RudiPath(file));
-  }
-
-  /**
-   * This function adds a newly appeared file to the rudiTreeView. Unfortunately
-   * it may be that this file has been modified externally and therefore is
-   * recognized as ENTRY_CREATE first. Because of this true or false are
-   * returned so that the logger may log correctly.
-   *
-   * @param file
-   * @return true if added, false if not added (already there)
-   */
-  public boolean addRudiPath(Path file) {
-    return rudiHierarchy.addFileToHierarchy(new RudiPath(file));
-  }
-
-  public void setFileHasBeenModified(Path file) {
-    rudiHierarchy.rudiPathMap.get(file)._modifiedProperty().setValue(true);
-    _modifiedFiles.setValue(FILES_OUT_OF_SYNC);
-  }
-
-  public void setFilesUpToDate() {
-    rudiHierarchy.resetModifiedProperties();
-    _modifiedFiles.setValue(FILES_SYNCED);
-  }
-
-  private final IntegerProperty _modifiedFiles
-          = new SimpleIntegerProperty(FILES_SYNC_UNDEFINED);
-  public IntegerProperty _modifiedFilesProperty() {
-    return _modifiedFiles;
-  }
 
   private final IntegerProperty _compilationState
     = new SimpleIntegerProperty();
@@ -272,10 +215,6 @@ public class DataModel {
   /*****************************************************************************
    * UNDERLYING FIELDS / PROPERTIES OF THE CURRENT PROJECT AKA DATAMODEL
    ****************************************************************************/
-
-  /** .rudi files */
-  public TreeItem<RudiPath> rudiList;
-  public RudiFolderHierarchy rudiHierarchy;
 
   /** Project status */
   private final IntegerProperty _projectStatus

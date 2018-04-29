@@ -29,19 +29,33 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 /**
+ * This class is some kind of extension to the usual <code>Path</code> class. It
+ * contains a <code>Path</code> field, but also properties indicating whether or
+ * not a file has been used in the current compiled project and whether or not
+ * it has been modified since the last compilation attempt.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RudiPath {
 
+  /** Represents the path of the associated <code>.rudi</code> file. */
   private final Path _path;
 
+  /** Indicates the usage state of the associated <code>.rudi</code> file. */
   private final IntegerProperty _used;
-  public IntegerProperty _usedProperty() { return _used; }
 
+  /**
+   * Indicates whether or not the associated <code>.rudi</code> file has been
+   * modified since the last successful compilation.
+   */
   private final BooleanProperty _modified;
-  public BooleanProperty _modifiedProperty() { return _modified; }
 
+  /**
+   * Creates a new <code>RudiPath</code> object.
+   *
+   * @param path
+   *        The associated <code>.rudi</code> file
+   */
   public RudiPath(Path path) {
     _path = path;
     if (Files.isDirectory(path)) {
@@ -52,6 +66,7 @@ public class RudiPath {
     _modified = new SimpleBooleanProperty(false);
   }
 
+  /** @return The <code>Path</code> of the associated <code>.rudi</code> file */
   public Path getPath() {
     return _path;
   }
@@ -76,5 +91,19 @@ public class RudiPath {
     hash = 37 * hash + Objects.hashCode(this._path);
     return hash;
   }
+
+  /**
+   * @return Indicates if the associated <code>.rudi</code> file has been
+   * modified since the last successful compilation
+   */
+  public BooleanProperty _modifiedProperty() {
+    return _modified;
+  }
+
+  /**
+   * @return Indicates the usage state of the associated <code>.rudi</code>
+   * file.
+   */
+  public IntegerProperty _usedProperty() { return _used; }
 
 }

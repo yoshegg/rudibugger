@@ -116,8 +116,11 @@ public class RuleModel {
   /** Initializes the ruleModel. */
   public void init() {
     log.debug("Initializing the RuleModel...");
+    
     _rootImport = defineRuleModel();
     if (_rootImport != null) _changedState.set(RULE_MODEL_NEWLY_CREATED);
+
+    log.debug("Initialized the RuleModel.");
   }
 
   /** Updates the ruleModel. */
@@ -132,6 +135,8 @@ public class RuleModel {
 
     _rootImport = defineRuleModel();
     if (_rootImport != null) _changedState.set(RULE_MODEL_CHANGED);
+
+    log.debug("Updated the RuleModel.");
   }
 
   /** Resets the ruleModel. */
@@ -146,6 +151,7 @@ public class RuleModel {
 
     _changedState.set(RULE_MODEL_REMOVED);
 
+    log.debug("Resetted the RuleModel.");
   }
 
 

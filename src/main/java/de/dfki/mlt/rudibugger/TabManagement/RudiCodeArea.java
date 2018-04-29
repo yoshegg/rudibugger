@@ -19,21 +19,16 @@
 
 package de.dfki.mlt.rudibugger.TabManagement;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javafx.geometry.Bounds;
 import javafx.scene.control.IndexRange;
 import static javafx.scene.input.KeyCode.*;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
-import org.fxmisc.richtext.model.StyledDocument;
 import static org.fxmisc.wellbehaved.event.EventPattern.*;
 import static org.fxmisc.wellbehaved.event.InputMap.*;
 import org.fxmisc.wellbehaved.event.Nodes;

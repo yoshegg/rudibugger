@@ -76,7 +76,7 @@ public class SideBarController {
     model.projectStatusProperty().addListener((o, oldVal, newVal) -> {
       switch ((int) newVal) {
         case PROJECT_OPEN:
-          rudiTreeView.setRoot(model.rudiHierarchy._root);
+          rudiTreeView.setRoot(model.rudiHierarchy.getRoot());
           rudiTreeView.setShowRoot(false);
           break;
         case PROJECT_CLOSED:
@@ -167,7 +167,7 @@ public class SideBarController {
 
   /** Marks the files in the <b>rudiList</b> according to their usage state. */
   private void markFilesInRudiList() {
-    for (RudiPath x : _model.rudiHierarchy.rudiPathSet) {
+    for (RudiPath x : _model.rudiHierarchy.getRudiPathSet()) {
 
       /* mark the main .rudi file, must be in root folder */
       if (_model.ruleModel.getRootImport().getAbsolutePath().getFileName().equals(

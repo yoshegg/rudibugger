@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This watch's one and only purpose is to check the folders containing .rudi
+ * This Watch's purpose is to check the folders containing <code>.rudi</code>
  * files for changes. If there are changes, a function to refresh the DataModel
  * is called.
  *
@@ -153,9 +153,9 @@ public class RudiFolderWatch {
             Platform.runLater(new Runnable() {
               @Override
               public void run() {
-                if (_model.addRudiPath(filename))
-                  log.info("rudi file added: " + filename);
-                _model.setFileHasBeenModified(filename);
+                _model.rudiHierarchy.addFileToHierarchy(filename);
+                log.info("rudi file added: " + filename);
+                _model.rudiHierarchy.setFileAsModified(filename);
               }
             });
 
@@ -168,7 +168,7 @@ public class RudiFolderWatch {
               public void run() {
 //              TODO: make better
                 log.info("rudi file has been modified : " + filename);
-                _model.setFileHasBeenModified(filename);
+                _model.rudiHierarchy.setFileAsModified(filename);
               }
             });
           }
@@ -179,7 +179,7 @@ public class RudiFolderWatch {
             Platform.runLater(new Runnable() {
               @Override
               public void run() {
-                _model.removeRudiPath(filename);
+                _model.rudiHierarchy.removeFromFileHierarchy(filename);
                 log.info("rudi file deleted: " + filename);
               }
             });
@@ -196,7 +196,7 @@ public class RudiFolderWatch {
           if (kind == ENTRY_CREATE) {
             filename.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
                   ENTRY_DELETE);
-            _model.addRudiPath(filename);
+            _model.rudiHierarchy.addFileToHierarchy(filename);
             log.debug("Started watching new folder: " + filename);
           }
         }

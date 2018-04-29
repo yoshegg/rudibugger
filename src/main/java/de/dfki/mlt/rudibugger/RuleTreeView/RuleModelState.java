@@ -78,7 +78,7 @@ public class RuleModelState {
   private final SimpleBooleanProperty _loadRequestProperty
     = new SimpleBooleanProperty(false);
 
-  /** Represents a list of all recent <code>RuleModelState</code>s */
+  /** Represents a list of all recent <code>RuleModelState</code>s. */
   private ArrayList<Path> _recentStates;
 
 
@@ -146,8 +146,11 @@ public class RuleModelState {
       RuleStateItem ruleStateItem;
 
       TreeItem<BasicInfo> item = (TreeItem) child;
+
       if (((TreeItem) child).getValue() instanceof RuleInfoExtended) {
-        RuleInfoExtended itemValue = (RuleInfoExtended) ((TreeItem) child).getValue();
+        RuleInfoExtended itemValue
+                = (RuleInfoExtended) ((TreeItem) child).getValue();
+
         /* is the child already known? if not: create a new one */
         if (ruleItem.getChildrenNames().contains(item.getValue().getLabel())) {
           ruleStateItem = ruleItem.getChild(item.getValue().getLabel());
@@ -163,8 +166,12 @@ public class RuleModelState {
             ruleStateItem.isImport(true);
           }
         }
-      } else {
-        ImportInfoExtended itemValue = (ImportInfoExtended) ((TreeItem) child).getValue();
+      }
+
+      else {
+        ImportInfoExtended itemValue
+                = (ImportInfoExtended) ((TreeItem) child).getValue();
+
         /* is the child already known? if not: create a new one */
         if (ruleItem.getChildrenNames().contains(item.getValue().getLabel())) {
           ruleStateItem = ruleItem.getChild(item.getValue().getLabel());

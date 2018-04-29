@@ -62,7 +62,8 @@ public class StatusBarController {
 
     /* Initialize the sync state indicator in the lower left. */
     SyncIndicator syncIndicator = new SyncIndicator(_syncIndicator, this);
-    syncIndicator.linkListenerToProperty(_model._modifiedFilesProperty());
+    syncIndicator.linkListenerToProperty(
+            _model.rudiHierarchy._modificationsAfterCompilationProperty());
 
     /* Initialize the compilation state indicator in the lower left. */
     CompileIndicator compileIndicator
