@@ -56,12 +56,6 @@ public class SideBarController {
   private DataModel _model;
 
   /**
-   * the RuleModelComplete, needed to save and load the expansion and rule
- logging state of the RuleTreeView
-   */
-//  private RuleModelState ruleTreeViewState;
-
-  /**
    * Connects this controller to the DataModel and initializes it by defining
    * different listeners and cell factories.
    *

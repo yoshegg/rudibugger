@@ -24,7 +24,6 @@ import de.dfki.mlt.rudibugger.DataModel;
 import static de.dfki.mlt.rudibugger.Helper.slice_end;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.SimpleServer;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;

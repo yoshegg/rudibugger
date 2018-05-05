@@ -95,7 +95,7 @@ public class MenuController {
         newRudiFileItem.setDisable(false);
         loadLoggingStateMenu.setDisable(false);
         saveLoggingStateItem.setDisable(false);
-        manageVondaConnectionButton();
+        manageLookOfVondaConnectionButton();
         defineCompileButton();
       } else {
         log.debug("Project closed: disable GUI-elements.");
@@ -103,14 +103,18 @@ public class MenuController {
         newRudiFileItem.setDisable(true);
         loadLoggingStateMenu.setDisable(true);
         saveLoggingStateItem.setDisable(true);
-        manageVondaConnectionButton();
+        manageLookOfVondaConnectionButton();
         defineCompileButton();
       }
     });
 
-    _model.vonda.connectedProperty().addListener((o, ov, nv) -> {
-      manageVondaConnectionButton();
-    });
+    _model.vonda.connectedProperty().addListener(l ->
+      manageLookOfVondaConnectionButton()
+    );
+
+    _model.vonda.establishConnectionProperty().addListener(l ->
+      manageLookOfVondaConnectionButton()
+    );
 
     /* this listener enables saving depending on the selected tab */
     _model.selectedTabProperty().addListener((o, oldVal, newVal) -> {
@@ -172,7 +176,8 @@ public class MenuController {
     });
   }
 
-  private void manageVondaConnectionButton() {
+  /** Manages the look (e.g. text) of the connect button. */
+  private void manageLookOfVondaConnectionButton() {
 
     Button button = vondaConnectionButton;
 
@@ -181,22 +186,20 @@ public class MenuController {
       button.setOnMouseEntered(e -> button.setText(null));
       button.setOnMouseExited(e -> button.setText(null));
       button.setDisable(true);
-      requestedConnection = false;
 
-    } else if (_model.vonda.connectedProperty().get()) {
-      requestedConnection = false;
+    } else if (_model.vonda.connectedProperty().get() == CONNECTED_TO_VONDA) {
       button.setText("Connected");
       button.setOnMouseEntered(e -> button.setText("Disconnect"));
       button.setOnMouseExited(e -> button.setText("Connected"));
       button.setDisable(false);
 
-    } else if (! _model.vonda.connectedProperty().get()) {
-      if (requestedConnection) {
+    } else if (_model.vonda.connectedProperty().get() == DISCONNECTED_FROM_VONDA) {
+      if (_model.vonda.establishConnectionProperty().get() == ESTABLISHING_CONNECTION) {
         button.setText("Connecting");
         button.setOnMouseEntered(e -> button.setText("Disconnect"));
         button.setOnMouseExited(e -> button.setText("Connecting"));
         button.setDisable(false);
-      } else {
+      } else if (_model.vonda.establishConnectionProperty().get() == NOT_ESTABLISHING_CONNECTION) {
         button.setText("Disconnected");
         button.setOnMouseEntered(e -> button.setText("Connect"));
         button.setOnMouseExited(e -> button.setText("Disconnected"));
@@ -494,16 +497,18 @@ public class MenuController {
 
   /** Establishes a connection to the VOnDA server or disconnects from it. */
   @FXML
- private void changeVondaConnectionState(ActionEvent event) {
-    if (_model.vonda.connectedProperty().get() | requestedConnection) {
+  private void changeVondaConnectionState(ActionEvent event) {
+    if (_model.vonda.connectedProperty().get() == CONNECTED_TO_VONDA |
+        _model.vonda.establishConnectionProperty().get()
+            == ESTABLISHING_CONNECTION) {
       _model.vonda.closeConnection();
-    requestedConnection = false;
-    } else {
+    } else if (_model.vonda.connectedProperty().get()
+            == DISCONNECTED_FROM_VONDA &&
+                    _model.vonda.establishConnectionProperty().get()
+            == NOT_ESTABLISHING_CONNECTION) {
       _model.vonda.connect();
-      requestedConnection = true;
     }
-    manageVondaConnectionButton();
+    manageLookOfVondaConnectionButton();
   }
 
- private boolean requestedConnection = false;
 }

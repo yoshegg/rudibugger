@@ -51,7 +51,7 @@ public class Constants {
           = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
                   "rudibuggerLayout.yml");
 
-  
+
  /******************************************************************************
   * MARK AND SIGNALIZE THE USER'S REQUEST OF A NEW PROJECT
   *****************************************************************************/
@@ -110,5 +110,15 @@ public class Constants {
   public static final int FILES_OUT_OF_SYNC = 20;
   public static final int FILES_SYNC_UNDEFINED = 30;
   public static final int FILES_SYNC_NO_PROJECT = 90;
+
+  
+  /*****************************************************************************
+   * CONNECTION STATE TO VONDA
+   ****************************************************************************/
+
+  public static final boolean ESTABLISHING_CONNECTION = true;
+  public static final boolean NOT_ESTABLISHING_CONNECTION = false;
+  public static final boolean CONNECTED_TO_VONDA = true;
+  public static final boolean DISCONNECTED_FROM_VONDA = false;
 
 }

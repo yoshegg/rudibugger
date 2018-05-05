@@ -118,9 +118,15 @@ public class SettingsController {
     );
 
     /* listener */
-    timeStampIndexCheckBox.selectedProperty().addListener((cl, ov, nv) -> {
-      _model.globalConf.setSetting("timeStampIndex", nv);
-    });
+    timeStampIndexCheckBox.selectedProperty().addListener((cl, ov, nv) ->
+      _model.globalConf.setSetting("timeStampIndex", nv)
+    );
+
+    autoConnectCheckBox.setSelected(
+            _model.globalConf.getAutomaticallyConnectToVonda());
+    autoConnectCheckBox.selectedProperty().addListener((cl, ov, nv) ->
+      _model.globalConf.setSetting("automaticallyConnectToVonda", nv)
+    );
 
   }
 
@@ -151,4 +157,7 @@ public class SettingsController {
 
   @FXML
   private CheckBox timeStampIndexCheckBox;
+
+  @FXML
+  private CheckBox autoConnectCheckBox;
 }

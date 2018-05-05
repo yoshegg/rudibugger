@@ -25,7 +25,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.logging.Level;
 import javafx.application.Platform;
 import javafx.scene.control.SplitPane;
 import org.slf4j.Logger;
@@ -135,10 +134,6 @@ public class ViewLayout {
     } else {
       initializeDividersPosition();
     }
-  }
-
-  public Double getDummy() {
-    return layoutConfiguration.get(DIVIDER_SIDEBAR_EDITOR);
   }
 
   /** Initializes the layout. */
