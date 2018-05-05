@@ -112,10 +112,6 @@ public class MenuController {
       manageLookOfVondaConnectionButton()
     );
 
-    _model.vonda.establishConnectionProperty().addListener(l ->
-      manageLookOfVondaConnectionButton()
-    );
-
     /* this listener enables saving depending on the selected tab */
     _model.selectedTabProperty().addListener((o, oldVal, newVal) -> {
 
@@ -187,27 +183,25 @@ public class MenuController {
       button.setOnMouseExited(e -> button.setText(null));
       button.setDisable(true);
 
-    } else if (_model.vonda.connectedProperty().get() == CONNECTED_TO_VONDA) {
-      button.setText("Connected");
-      button.setOnMouseEntered(e -> button.setText("Disconnect"));
-      button.setOnMouseExited(e -> button.setText("Connected"));
-      button.setDisable(false);
-
-    } else if (_model.vonda.connectedProperty().get() == DISCONNECTED_FROM_VONDA) {
-      if (_model.vonda.establishConnectionProperty().get() == ESTABLISHING_CONNECTION) {
+    } else switch(_model.vonda.connectedProperty().get()) {
+      case CONNECTED_TO_VONDA:
+        button.setText("Connected");
+        button.setOnMouseEntered(e -> button.setText("Disconnect"));
+        button.setOnMouseExited(e -> button.setText("Connected"));
+        button.setDisable(false);
+        break;
+      case ESTABLISHING_CONNECTION:
         button.setText("Connecting");
         button.setOnMouseEntered(e -> button.setText("Disconnect"));
         button.setOnMouseExited(e -> button.setText("Connecting"));
         button.setDisable(false);
-      } else if (_model.vonda.establishConnectionProperty().get() == NOT_ESTABLISHING_CONNECTION) {
+        break;
+      case DISCONNECTED_FROM_VONDA:
         button.setText("Disconnected");
         button.setOnMouseEntered(e -> button.setText("Connect"));
         button.setOnMouseExited(e -> button.setText("Disconnected"));
         button.setDisable(false);
       }
-    } else {
-      log.debug("Unexpected behaviour with connection button.");
-    }
   }
 
   private void buildLoadRuleSelectionStateMenu() {
@@ -498,17 +492,11 @@ public class MenuController {
   /** Establishes a connection to the VOnDA server or disconnects from it. */
   @FXML
   private void changeVondaConnectionState(ActionEvent event) {
-    if (_model.vonda.connectedProperty().get() == CONNECTED_TO_VONDA |
-        _model.vonda.establishConnectionProperty().get()
-            == ESTABLISHING_CONNECTION) {
-      _model.vonda.closeConnection();
-    } else if (_model.vonda.connectedProperty().get()
-            == DISCONNECTED_FROM_VONDA &&
-                    _model.vonda.establishConnectionProperty().get()
-            == NOT_ESTABLISHING_CONNECTION) {
+    int conStatus = _model.vonda.connectedProperty().get();
+    if (conStatus == DISCONNECTED_FROM_VONDA)
       _model.vonda.connect();
-    }
-    manageLookOfVondaConnectionButton();
+    else
+      _model.vonda.closeConnection();
   }
 
 }

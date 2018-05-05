@@ -19,6 +19,7 @@
 
 package de.dfki.mlt.rudibugger.Controller;
 
+import static de.dfki.mlt.rudibugger.Constants.CONNECTED_TO_VONDA;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.RuleLoggingTableView.EvaluatedCellFactory;
 import de.dfki.mlt.rudibugger.RuleLoggingTableView.LabelCellFactory;
@@ -90,7 +91,7 @@ public class EditorController {
      * rudimant has been established.
      */
     _model.vonda.connectedProperty().addListener((arg, oldVal, newVal) -> {
-      if (newVal == true) {
+      if (newVal.intValue() == CONNECTED_TO_VONDA) {
         log.info("VOnDA successfully connected to rudibugger.");
 
         if (ruleLoggingTableView == null)

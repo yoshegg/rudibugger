@@ -111,14 +111,13 @@ public class Constants {
   public static final int FILES_SYNC_UNDEFINED = 30;
   public static final int FILES_SYNC_NO_PROJECT = 90;
 
-  
+
   /*****************************************************************************
    * CONNECTION STATE TO VONDA
    ****************************************************************************/
 
-  public static final boolean ESTABLISHING_CONNECTION = true;
-  public static final boolean NOT_ESTABLISHING_CONNECTION = false;
-  public static final boolean CONNECTED_TO_VONDA = true;
-  public static final boolean DISCONNECTED_FROM_VONDA = false;
+  public static final int ESTABLISHING_CONNECTION = 1;
+  public static final int CONNECTED_TO_VONDA = 2;
+  public static final int DISCONNECTED_FROM_VONDA = 0;
 
 }

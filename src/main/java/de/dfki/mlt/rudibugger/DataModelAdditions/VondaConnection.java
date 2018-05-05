@@ -28,10 +28,9 @@ import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
 import de.dfki.mlt.rudimant.common.RuleLogger;
 import java.io.IOException;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.MapChangeListener;
@@ -66,12 +65,12 @@ public class VondaConnection {
    ****************************************************************************/
 
   /** Represents the connection status between VOnDA and rudibugger. */
-  private final BooleanProperty connected
-          = new SimpleBooleanProperty(DISCONNECTED_FROM_VONDA);
-
-  /** Represents whether or not a connection is being established. */
-  private final BooleanProperty establishCon
-          = new SimpleBooleanProperty(NOT_ESTABLISHING_CONNECTION);
+  private final IntegerProperty connected
+          = new SimpleIntegerProperty(DISCONNECTED_FROM_VONDA);
+//
+//  /** Represents whether or not a connection is being established. */
+//  private final BooleanProperty establishCon
+//          = new SimpleBooleanProperty(NOT_ESTABLISHING_CONNECTION);
 
   /** Represents the most recent logged data. */
   private final ObjectProperty<LogData> mostRecentlogOutput
@@ -89,16 +88,22 @@ public class VondaConnection {
    * Used to listen to connection state changes. If a connection has been
    * established, changes to RuleInfoExtended objects will be observed.
    */
-  private final ChangeListener<Boolean> connectionStateListener = ((o, ov, nv)
+  private final ChangeListener<Number> connectionStateListener = ((o, ov, nv)
           -> {
-    if (CONNECTED_TO_VONDA) {
-      establishCon.set(NOT_ESTABLISHING_CONNECTION);
-      setAllLoggingStatuses();
-      _model.ruleModel.idLoggingStatesMap()
-              .addListener(ruleLoggingStatesMapChangeListener);
-    } else if (DISCONNECTED_FROM_VONDA) {
-      _model.ruleModel.idLoggingStatesMap()
+    switch (nv.intValue()) {
+      case CONNECTED_TO_VONDA:
+        setAllLoggingStatuses();
+        _model.ruleModel.idLoggingStatesMap()
+                .addListener(ruleLoggingStatesMapChangeListener);
+        log.debug("Connected to VOnDA.");
+        break;
+      case ESTABLISHING_CONNECTION:
+        log.debug("Establishing connection to VOnDA...");
+        break;
+      case DISCONNECTED_FROM_VONDA:
+        _model.ruleModel.idLoggingStatesMap()
               .removeListener(ruleLoggingStatesMapChangeListener);
+        log.debug("Disconnected from VOnDA.");
     }
   });
 
@@ -138,7 +143,7 @@ public class VondaConnection {
     client = new RudibuggerClient("localhost", vondaPort,
         new RudibuggerAPI(_model));
 
-    establishCon.set(ESTABLISHING_CONNECTION);
+    connected.set(ESTABLISHING_CONNECTION);
     connected.addListener(connectionStateListener);
 
     log.debug("RudibuggerClient has been started "
@@ -156,7 +161,6 @@ public class VondaConnection {
               + "it was probably never established.");
     }
 
-    establishCon.set(NOT_ESTABLISHING_CONNECTION);
     connected.set(DISCONNECTED_FROM_VONDA);
     connected.removeListener(connectionStateListener);
 
@@ -201,8 +205,8 @@ public class VondaConnection {
     }
 
     Platform.runLater(() -> {
-      if (!connectedProperty().getValue())
-        connectedProperty().setValue(true);
+      if (connectedProperty().getValue() != CONNECTED_TO_VONDA)
+        connectedProperty().setValue(CONNECTED_TO_VONDA);
       rl.logRule(ruleId, result);
       if (jfl.pendingLoggingData()) {
         jfl.addRuleIdToLogData(ruleId);
@@ -223,8 +227,6 @@ public class VondaConnection {
   }
 
   /** @return The connection status property */
-  public BooleanProperty connectedProperty() { return connected; }
+  public IntegerProperty connectedProperty() { return connected; }
 
-  /** @return True, if connection should be established, false otherwise */
-  public BooleanProperty establishConnectionProperty() { return establishCon; }
 }
