@@ -24,6 +24,7 @@ import de.dfki.mlt.rudibugger.Controller.EditorController;
 import de.dfki.mlt.rudibugger.Controller.MenuController;
 import de.dfki.mlt.rudibugger.Controller.SideBarController;
 import de.dfki.mlt.rudibugger.StatusBar.StatusBarController;
+import static de.dfki.mlt.rudibugger.ViewLayout.*;
 import java.nio.file.Files;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -115,7 +116,6 @@ public class MainApp extends Application {
     DataModel model = new DataModel();
 
     /* create a global config folder if there is none */
-    // TODO: Move
     if (! Files.exists(GLOBAL_CONFIG_PATH)) {
       GLOBAL_CONFIG_PATH.toFile().mkdirs();
       log.info("Created global config folder (first start of rudibugger");
@@ -142,6 +142,16 @@ public class MainApp extends Application {
     Image icon = new Image("file:src/main/resources/"
             + "icons/baggerschaufel_titlebar_32x32.png");
     stage.getIcons().add(icon);
+
+    /* Link splitpanes to model.layout */
+    model.layout.addSplitPane(sideBarController.getSidebarSplitPane(),
+            DIVIDER_SIDEBAR);
+    model.layout.addSplitPane(centeredSplitPane, DIVIDER_SIDEBAR_EDITOR);
+
+    /* Restore the layout and set listener */
+    model.layout.restoreWindowPosition();
+    model.layout.setStageCloseListener();
+    model.layout.restoreDividerPositions();
 
     /* show Rudibugger */
     stage.show();

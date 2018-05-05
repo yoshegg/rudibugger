@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CustomMenuItem;
@@ -41,7 +40,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -460,6 +458,7 @@ public class MenuController {
   /** Action "Exit" */
   @FXML
   private void exitAction(ActionEvent event) {
+    _model.layout.saveLayoutToFile();
     MainApp.exitRudibugger();
   }
 
@@ -493,7 +492,7 @@ public class MenuController {
     log.warn("\"Run\" is not implemented yet.");
   }
 
-  /* Establishes a connection to the VOnDA server or disconnects from it. */
+  /** Establishes a connection to the VOnDA server or disconnects from it. */
   @FXML
  private void changeVondaConnectionState(ActionEvent event) {
     if (_model.vonda.connectedProperty().get() | requestedConnection) {

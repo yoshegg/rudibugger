@@ -73,6 +73,9 @@ public class DataModel {
    * ADDITIONS (ADDITIONAL MODULES OF DATAMODEL)
    ****************************************************************************/
 
+  /** Stores information about rudibugger's layout. */
+  public ViewLayout layout = new ViewLayout(this);
+
   /** Provides additional functionality to interact with Emacs. */
   public EmacsConnection emacs = new EmacsConnection();
 

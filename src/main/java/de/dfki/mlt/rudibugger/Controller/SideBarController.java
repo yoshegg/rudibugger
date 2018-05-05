@@ -32,6 +32,7 @@ import de.dfki.mlt.rudibugger.RuleModel.RuleInfoExtended;
 import java.nio.file.Files;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
@@ -261,10 +262,17 @@ public class SideBarController {
     });
   }
 
+  /** @return The SplitPane separating rule- and fileTreeView. */
+  public SplitPane getSidebarSplitPane() { return sidebarSplitPane; }
+
 
   /*****************************************************************************
    * GUI ELEMENTS
    ****************************************************************************/
+
+  /** Represents the root splitPane */
+  @FXML
+  private SplitPane sidebarSplitPane;
 
   /** Shows the different <code>.rudi</code> rules and imports. */
   @FXML

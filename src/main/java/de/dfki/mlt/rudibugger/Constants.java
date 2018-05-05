@@ -47,8 +47,11 @@ public class Constants {
                   "recentProjects.yml");
   public static Path GLOBAL_CONFIG_PATH
           = Paths.get(System.getProperty("user.home"), ".config", "rudibugger");
+  public static Path GLOBAL_LAYOUT_CONFIG_FILE
+          = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
+                  "rudibuggerLayout.yml");
 
-
+  
  /******************************************************************************
   * MARK AND SIGNALIZE THE USER'S REQUEST OF A NEW PROJECT
   *****************************************************************************/
