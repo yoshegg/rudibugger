@@ -19,14 +19,15 @@
 
 package de.dfki.mlt.rudibugger.Controller;
 
+import static de.dfki.mlt.rudibugger.Constants.CONNECTED_TO_VONDA;
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.RPC.EvaluatedCellFactory;
-import de.dfki.mlt.rudibugger.RPC.LabelCellFactory;
+import de.dfki.mlt.rudibugger.RuleLoggingTableView.EvaluatedCellFactory;
+import de.dfki.mlt.rudibugger.RuleLoggingTableView.LabelCellFactory;
 import de.dfki.mlt.rudibugger.RPC.LogData;
 import de.dfki.mlt.rudibugger.RPC.LogData.DatePart;
 import de.dfki.mlt.rudibugger.RPC.LogData.StringPart;
-import de.dfki.mlt.rudibugger.RPC.TimestampCellFactory;
-import static de.dfki.mlt.rudibugger.RPC.TimestampCellFactory.dt;
+import de.dfki.mlt.rudibugger.RuleLoggingTableView.TimestampCellFactory;
+import static de.dfki.mlt.rudibugger.RuleLoggingTableView.TimestampCellFactory.dt;
 import de.dfki.mlt.rudibugger.TabManagement.TabStore;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -90,88 +91,11 @@ public class EditorController {
      * rudimant has been established.
      */
     _model.vonda.connectedProperty().addListener((arg, oldVal, newVal) -> {
-      if (newVal == true) {
+      if (newVal.intValue() == CONNECTED_TO_VONDA) {
         log.info("VOnDA successfully connected to rudibugger.");
 
-        //TODO: Make sure the following is only happening once.
-        /* create new TableView */
-        ruleLoggingTableView = new TableView();
-
-        /* define columns */
-        _labelColumn = new TableColumn<>();
-        _labelColumn.setText("Label");
-        _labelColumn.setPrefWidth(180.0);
-        _evaluatedColumn = new TableColumn<>();
-        _evaluatedColumn.setText("Evaluated");
-//        _timeColumn = new TableColumn<>();
-        _timeColumn.setText("Time");
-        ruleLoggingTableView.getColumns().addAll(
-                _timeColumn, _labelColumn, _evaluatedColumn);
-
-        /* setCellValueFactories */
-        _labelColumn.setCellValueFactory(value -> value.getValue().label);
-        _evaluatedColumn.setCellValueFactory(value -> value.getValue().evaluated);
-        _timeColumn.setCellValueFactory(value -> value.getValue().timestamp);
-
-        /* setCellFactories */
-        _labelColumn.setCellFactory(value -> new LabelCellFactory());
-        _evaluatedColumn.setCellFactory(value -> new EvaluatedCellFactory());
-        _timeColumn.setCellFactory(value -> new TimestampCellFactory(
-                 _model.globalConf.timeStampIndexProperty().get())
-        );
-
-        /* set comparators */
-        _timeColumn.setComparator((x, y) -> (
-                dt.format(x.date) + Integer.toString(x.counter))
-                .compareToIgnoreCase(
-                dt.format(y.date) + Integer.toString(y.counter))
-        );
-        _labelColumn.setComparator((x, y) -> (
-                x.content.compareTo(y.content))
-        );
-
-        /* set items of TableView */
-        ruleLoggingTableView.setItems(ruleLoggingList);
-
-        /* set cell height of TableView */
-        ruleLoggingTableView.setFixedCellSize(25);
-
-        /* set column resizing policies */
-        ruleLoggingTableView.widthProperty().addListener((cl, ov, nv) -> {
-          adaptTableViewColumns();
-        });
-        _timeColumn.widthProperty().addListener((cl, ov, nv) -> {
-          adaptTableViewColumns();
-        });
-        _evaluatedColumn.widthProperty().addListener((cl, ov, nv) -> {
-          adaptTableViewColumns();
-        });
-        _labelColumn.widthProperty().addListener((cl, ov, nv) -> {
-          adaptTableViewColumns();
-        });
-
-        /* fit into AnchorPane */
-        AnchorPane ap = new AnchorPane();
-        editorSplitPane.getItems().add(1, ap);
-        AnchorPane.setTopAnchor(ruleLoggingTableView, 0.0);
-        AnchorPane.setRightAnchor(ruleLoggingTableView, 0.0);
-        AnchorPane.setLeftAnchor(ruleLoggingTableView, 0.0);
-        AnchorPane.setBottomAnchor(ruleLoggingTableView, 0.0);
-        ap.getChildren().add(ruleLoggingTableView);
-        editorSplitPane.setDividerPositions(0.5);
-
-
-        /* jump to rule when clicked */
-        ruleLoggingTableView.setOnMousePressed(e -> {
-          if (e.isPrimaryButtonDown() && e.getClickCount() == 2) {
-            int ruleId = ((LogData) ruleLoggingTableView.getSelectionModel()
-                    .getSelectedItem()).getRuleId();
-            Path importToOpen =
-                    _model.ruleModel.getRule(ruleId).getSourceFile();
-            int lineToOpen = _model.ruleModel.getRule(ruleId).getLine();
-            _model.rudiLoad.openRule(importToOpen, lineToOpen);
-          }
-        });
+        if (ruleLoggingTableView == null)
+          initRuleLoggingTableView();
 
       } else {
         log.info("Connection to VOnDA has been closed.");
@@ -219,6 +143,87 @@ public class EditorController {
     } else {
       _timeColumn.setPrefWidth(105.3310546875);
     }
+  }
+
+  private void initRuleLoggingTableView() {
+
+    /* create new TableView */
+    ruleLoggingTableView = new TableView();
+
+    /* define columns */
+    _labelColumn = new TableColumn<>();
+    _labelColumn.setText("Label");
+    _labelColumn.setPrefWidth(180.0);
+    _evaluatedColumn = new TableColumn<>();
+    _evaluatedColumn.setText("Evaluated");
+    _timeColumn.setText("Time");
+    ruleLoggingTableView.getColumns().addAll(
+            _timeColumn, _labelColumn, _evaluatedColumn);
+
+    /* setCellValueFactories */
+    _labelColumn.setCellValueFactory(value -> value.getValue().label);
+    _evaluatedColumn.setCellValueFactory(value -> value.getValue().evaluatedRuleParts);
+    _timeColumn.setCellValueFactory(value -> value.getValue().timestamp);
+
+    /* setCellFactories */
+    _labelColumn.setCellFactory(value -> new LabelCellFactory());
+    _evaluatedColumn.setCellFactory(value -> new EvaluatedCellFactory());
+    _timeColumn.setCellFactory(value -> new TimestampCellFactory(
+             _model.globalConf.timeStampIndexProperty().get())
+    );
+
+    /* set comparators */
+    _timeColumn.setComparator((x, y) -> (
+            dt.format(x.date) + Integer.toString(x.counter))
+            .compareToIgnoreCase(
+            dt.format(y.date) + Integer.toString(y.counter))
+    );
+    _labelColumn.setComparator((x, y) -> (
+            x.content.compareTo(y.content))
+    );
+
+    /* set items of TableView */
+    ruleLoggingTableView.setItems(ruleLoggingList);
+
+    /* set cell height of TableView */
+    ruleLoggingTableView.setFixedCellSize(25);
+
+    /* set column resizing policies */
+    ruleLoggingTableView.widthProperty().addListener((cl, ov, nv) -> {
+      adaptTableViewColumns();
+    });
+    _timeColumn.widthProperty().addListener((cl, ov, nv) -> {
+      adaptTableViewColumns();
+    });
+    _evaluatedColumn.widthProperty().addListener((cl, ov, nv) -> {
+      adaptTableViewColumns();
+    });
+    _labelColumn.widthProperty().addListener((cl, ov, nv) -> {
+      adaptTableViewColumns();
+    });
+
+    /* fit into AnchorPane */
+    AnchorPane ap = new AnchorPane();
+    editorSplitPane.getItems().add(1, ap);
+    AnchorPane.setTopAnchor(ruleLoggingTableView, 0.0);
+    AnchorPane.setRightAnchor(ruleLoggingTableView, 0.0);
+    AnchorPane.setLeftAnchor(ruleLoggingTableView, 0.0);
+    AnchorPane.setBottomAnchor(ruleLoggingTableView, 0.0);
+    ap.getChildren().add(ruleLoggingTableView);
+    editorSplitPane.setDividerPositions(0.5);
+
+
+    /* jump to rule when clicked */
+    ruleLoggingTableView.setOnMousePressed(e -> {
+      if (e.isPrimaryButtonDown() && e.getClickCount() == 2) {
+        int ruleId = ((LogData) ruleLoggingTableView.getSelectionModel()
+                .getSelectedItem()).getRuleId();
+        Path importToOpen =
+                _model.ruleModel.getRule(ruleId).getSourceFile();
+        int lineToOpen = _model.ruleModel.getRule(ruleId).getLine();
+        _model.rudiLoad.openRule(importToOpen, lineToOpen);
+      }
+    });
   }
 
 

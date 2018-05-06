@@ -24,6 +24,7 @@ import de.dfki.mlt.rudibugger.Controller.EditorController;
 import de.dfki.mlt.rudibugger.Controller.MenuController;
 import de.dfki.mlt.rudibugger.Controller.SideBarController;
 import de.dfki.mlt.rudibugger.StatusBar.StatusBarController;
+import static de.dfki.mlt.rudibugger.ViewLayout.*;
 import java.nio.file.Files;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -35,6 +36,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +54,8 @@ public class MainApp extends Application {
   public void start(Stage stage) throws Exception {
 
     /* initialize log4j / sfl4j */
-    //BasicConfigurator.configure();
-    //PropertyConfigurator.configure("src/main/resources/log4j.properties");
+    BasicConfigurator.configure();
+    PropertyConfigurator.configure("src/main/resources/log4j.properties");
 
     log.info("Starting Rudibugger");
 
@@ -113,7 +116,6 @@ public class MainApp extends Application {
     DataModel model = new DataModel();
 
     /* create a global config folder if there is none */
-    // TODO: Move
     if (! Files.exists(GLOBAL_CONFIG_PATH)) {
       GLOBAL_CONFIG_PATH.toFile().mkdirs();
       log.info("Created global config folder (first start of rudibugger");
@@ -140,6 +142,16 @@ public class MainApp extends Application {
     Image icon = new Image("file:src/main/resources/"
             + "icons/baggerschaufel_titlebar_32x32.png");
     stage.getIcons().add(icon);
+
+    /* Link splitpanes to model.layout */
+    model.layout.addSplitPane(sideBarController.getSidebarSplitPane(),
+            DIVIDER_SIDEBAR);
+    model.layout.addSplitPane(centeredSplitPane, DIVIDER_SIDEBAR_EDITOR);
+
+    /* Restore the layout and set listener */
+    model.layout.restoreWindowPosition();
+    model.layout.setStageCloseListener();
+    model.layout.restoreDividerPositions();
 
     /* show Rudibugger */
     stage.show();

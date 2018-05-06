@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CustomMenuItem;
@@ -41,7 +40,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,29 +88,29 @@ public class MenuController {
     });
 
     /* this listener checks if a project has been opened */
-    _model.projectStatusProperty().addListener((o, oldVal, newVal) -> {
-      if ((int) newVal == PROJECT_OPEN) {
+    _model.projectLoadedProperty().addListener((o, ov, nv) -> {
+      if (nv) {
         log.debug("Project open: enable GUI-elements.");
         closeProjectItem.setDisable(false);
         newRudiFileItem.setDisable(false);
         loadLoggingStateMenu.setDisable(false);
         saveLoggingStateItem.setDisable(false);
-        manageVondaConnectionButton();
+        manageLookOfVondaConnectionButton();
         defineCompileButton();
-      } else if ((int) newVal == PROJECT_CLOSED) {
+      } else {
         log.debug("Project closed: disable GUI-elements.");
         closeProjectItem.setDisable(true);
         newRudiFileItem.setDisable(true);
         loadLoggingStateMenu.setDisable(true);
         saveLoggingStateItem.setDisable(true);
-        manageVondaConnectionButton();
+        manageLookOfVondaConnectionButton();
         defineCompileButton();
       }
     });
 
-    _model.vonda.connectedProperty().addListener((o, ov, nv) -> {
-      manageVondaConnectionButton();
-    });
+    _model.vonda.connectedProperty().addListener(l ->
+      manageLookOfVondaConnectionButton()
+    );
 
     /* this listener enables saving depending on the selected tab */
     _model.selectedTabProperty().addListener((o, oldVal, newVal) -> {
@@ -174,47 +172,44 @@ public class MenuController {
     });
   }
 
-  private void manageVondaConnectionButton() {
+  /** Manages the look (e.g. text) of the connect button. */
+  private void manageLookOfVondaConnectionButton() {
 
     Button button = vondaConnectionButton;
 
-    if (_model.projectStatusProperty().get() == PROJECT_CLOSED) {
+    if (_model.projectLoadedProperty().get() == PROJECT_CLOSED) {
       button.setText("No project");
       button.setOnMouseEntered(e -> button.setText(null));
       button.setOnMouseExited(e -> button.setText(null));
       button.setDisable(true);
-      requestedConnection = false;
 
-    } else if (_model.vonda.connectedProperty().get()) {
-      requestedConnection = false;
-      button.setText("Connected");
-      button.setOnMouseEntered(e -> button.setText("Disconnect"));
-      button.setOnMouseExited(e -> button.setText("Connected"));
-      button.setDisable(false);
-
-    } else if (! _model.vonda.connectedProperty().get()) {
-      if (requestedConnection) {
+    } else switch(_model.vonda.connectedProperty().get()) {
+      case CONNECTED_TO_VONDA:
+        button.setText("Connected");
+        button.setOnMouseEntered(e -> button.setText("Disconnect"));
+        button.setOnMouseExited(e -> button.setText("Connected"));
+        button.setDisable(false);
+        break;
+      case ESTABLISHING_CONNECTION:
         button.setText("Connecting");
         button.setOnMouseEntered(e -> button.setText("Disconnect"));
         button.setOnMouseExited(e -> button.setText("Connecting"));
         button.setDisable(false);
-      } else {
+        break;
+      case DISCONNECTED_FROM_VONDA:
         button.setText("Disconnected");
         button.setOnMouseEntered(e -> button.setText("Connect"));
         button.setOnMouseExited(e -> button.setText("Disconnected"));
         button.setDisable(false);
       }
-    } else {
-      log.debug("Unexpected behaviour with connection button.");
-    }
   }
 
   private void buildLoadRuleSelectionStateMenu() {
     loadLoggingStateMenu.getItems().clear();
-    _model.getRecentRuleLoggingStates().forEach((x) -> {
+    _model.ruleModelState.getRecentStates().forEach((x) -> {
       MenuItem mi = new MenuItem(x.toString());
       mi.setOnAction((event) -> {
-        _model.loadRuleLoggingState(x);
+        _model.ruleModelState.loadState(x);
       });
       loadLoggingStateMenu.getItems().add(mi);
     });
@@ -229,7 +224,7 @@ public class MenuController {
   private void checkForOpenProject(Path ymlFile) {
 
     /* a project is already open */
-    if (_model.projectStatusProperty().getValue() == PROJECT_OPEN) {
+    if (_model.projectLoadedProperty().getValue() == PROJECT_OPEN) {
       switch (HelperWindows.overwriteProjectCheck(_model)) {
         case OVERWRITE_CHECK_CURRENT_WINDOW:
           if (ymlFile == null)
@@ -405,7 +400,7 @@ public class MenuController {
   /** Action "Open configuration file..." */
   @FXML
   private void openRuleLoggingStateConfigurationFile(ActionEvent event) {
-    _model.openRuleLoggingStateFileChooser();
+    _model.ruleModelState.loadStateSelectFile();
   }
 
 
@@ -416,7 +411,7 @@ public class MenuController {
   /** Action "Save logging state" */
   @FXML
   private void saveLoggingStateAction(ActionEvent event) {
-    _model.requestSaveRuleLoggingState();
+    _model.ruleModelState.requestSave();
   }
 
 
@@ -460,6 +455,7 @@ public class MenuController {
   /** Action "Exit" */
   @FXML
   private void exitAction(ActionEvent event) {
+    _model.layout.saveLayoutToFile();
     MainApp.exitRudibugger();
   }
 
@@ -470,6 +466,11 @@ public class MenuController {
     _model.openSettingsDialog();
   }
 
+  /********* Help *********/
+  @FXML
+  private void openAboutWindow(ActionEvent event) {
+    _model.openAboutWindow();
+  }
 
 
   /*****************************************************************************
@@ -493,18 +494,14 @@ public class MenuController {
     log.warn("\"Run\" is not implemented yet.");
   }
 
-  /* Establishes a connection to the VOnDA server or disconnects from it. */
+  /** Establishes a connection to the VOnDA server or disconnects from it. */
   @FXML
- private void changeVondaConnectionState(ActionEvent event) {
-    if (_model.vonda.connectedProperty().get() | requestedConnection) {
-      _model.vonda.closeConnection();
-    requestedConnection = false;
-    } else {
+  private void changeVondaConnectionState(ActionEvent event) {
+    int conStatus = _model.vonda.connectedProperty().get();
+    if (conStatus == DISCONNECTED_FROM_VONDA)
       _model.vonda.connect();
-      requestedConnection = true;
-    }
-    manageVondaConnectionButton();
+    else
+      _model.vonda.closeConnection();
   }
 
- private boolean requestedConnection = false;
 }

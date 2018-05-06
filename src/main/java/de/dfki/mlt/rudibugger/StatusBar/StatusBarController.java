@@ -58,24 +58,26 @@ public class StatusBarController {
     _model = model;
 
     /* Link the model's statusBar text property with the controller */
-    statusBar.textProperty().bindBidirectional(model.statusBarProperty());
+    statusBarText.textProperty().bindBidirectional(model.statusBarTextProperty());
 
     /* Initialize the sync state indicator in the lower left. */
     SyncIndicator syncIndicator = new SyncIndicator(_syncIndicator, this);
-    syncIndicator.linkListenerToProperty(_model._modifiedFilesProperty());
+    syncIndicator.linkListenerToProperty(
+            _model.rudiHierarchy._modificationsAfterCompilationProperty());
 
     /* Initialize the compilation state indicator in the lower left. */
     CompileIndicator compileIndicator
       = new CompileIndicator(_compileIndicator, this);
-    compileIndicator.linkListenerToProperty(_model._compilationStateProperty());
+    compileIndicator.linkListenerToProperty(
+            _model.ruleModel.compilationOutcomeProperty());
     compileIndicator.defineContextMenu();
   }
 
   /**
    * @param text text to display on the statusBar
    */
-  protected void setStatusBar(String text) {
-    statusBar.setText(text);
+  protected void setStatusBarText(String text) {
+    statusBarText.setText(text);
   }
 
   /**
@@ -85,7 +87,7 @@ public class StatusBarController {
 
   /** StatusBar's label. */
   @FXML
-  private Label statusBar;
+  private Label statusBarText;
 
   /** Icon for sync status of .rudi and .java code. */
   @FXML

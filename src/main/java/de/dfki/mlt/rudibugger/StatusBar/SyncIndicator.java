@@ -52,19 +52,21 @@ public class SyncIndicator {
   /** Map of sync status icons. */
   private static final HashMap<Integer, Image> ICONS
     = new HashMap<Integer, Image>() {{
-      put(FILES_SYNCED,         new Image(ICONS_PATH + "okay.png"));
-      put(FILES_OUT_OF_SYNC,    new Image(ICONS_PATH + "out.png"));
-      put(FILES_SYNC_UNDEFINED, new Image(ICONS_PATH + "undefined.png"));
-   }};
+      put(FILES_SYNCED,          new Image(ICONS_PATH + "okay.png"));
+      put(FILES_OUT_OF_SYNC,     new Image(ICONS_PATH + "out.png"));
+      put(FILES_SYNC_UNDEFINED,  new Image(ICONS_PATH + "undefined.png"));
+      put(FILES_SYNC_NO_PROJECT, new Image(ICONS_PATH + "undefined.png"));
+    }};
 
   /** Map of sync status tooltip's texts. */
   private static final HashMap<Integer, String> MESSAGES
     = new HashMap<Integer, String>() {{
-      put(FILES_SYNCED,         ".rudi files and compiled .java files "
-                              + "up-to-date.");
-      put(FILES_OUT_OF_SYNC,    ".rudi files out of sync.");
-      put(FILES_SYNC_UNDEFINED, ".rudi and compiled .java compile status "
-                              + "unknown. (Probably never compiled.)");
+      put(FILES_SYNCED,          ".rudi files and compiled .java files "
+                               + "up-to-date.");
+      put(FILES_OUT_OF_SYNC,     ".rudi files out of sync.");
+      put(FILES_SYNC_UNDEFINED,  ".rudi and compiled .java compile status "
+                               + "unknown. (Probably never compiled.)");
+      put(FILES_SYNC_NO_PROJECT, "");
     }};
 
   /**
@@ -80,8 +82,8 @@ public class SyncIndicator {
     _controller = controller;
 
     /* Initializes the default look and behaviour if no project is loaded. */
-    _indicator.setImage(ICONS.get(FILES_SYNC_UNDEFINED));
-    _tooltip.setText(MESSAGES.get(FILES_SYNC_UNDEFINED));
+    _indicator.setImage(ICONS.get(FILES_SYNC_NO_PROJECT));
+    _tooltip.setText(MESSAGES.get(FILES_SYNC_NO_PROJECT));
     Tooltip.install(_indicator, _tooltip);
   }
 
@@ -91,7 +93,7 @@ public class SyncIndicator {
       String msg = MESSAGES.get(val);
 
       if (val != FILES_SYNCED)
-        _controller.setStatusBar(msg);
+        _controller.setStatusBarText(msg);
 
       _tooltip.setText(msg);
       Tooltip.install(_indicator, _tooltip);

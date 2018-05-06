@@ -22,7 +22,7 @@ package de.dfki.mlt.rudibugger.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudimant.common.BasicInfo;
-import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
+import de.dfki.mlt.rudimant.common.ErrorInfo;
 import de.dfki.mlt.rudimant.common.ImportInfo;
 import de.dfki.mlt.rudimant.common.RuleInfo;
 import java.io.File;
@@ -51,7 +51,7 @@ import org.yaml.snakeyaml.Yaml;
  * (<code>RuleLoc.yml</code>) and updating it. It also keeps track of
  *   - used Imports in the compiled project,
  *   - changes to the ruleLogging state of the different rules
- *   - warnings and errors that occured during compilation
+ *   - warnings and errors that occurred during compilation
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -60,7 +60,7 @@ public class RuleModel {
   /** The Logger. */
   static Logger log = LoggerFactory.getLogger("RuleModel");
 
-  /** The <code>DataModel</code> */
+  /** The <code>DataModel</code>. */
   private final DataModel _model;
 
   /** Contains all of the used Imports' paths. */
@@ -73,19 +73,19 @@ public class RuleModel {
   /** Maps ruleIds to paths and lines. */
   private final HashMap<Integer, RuleInfoExtended> _idRuleMap = new HashMap<>();
 
-  /** Contains errors that occured during compilation. */
-  private final LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> _errorInfos
+  /** Contains errors that occurred during compilation. */
+  private final LinkedHashMap<ErrorInfo, ImportInfoExtended> _errorInfos
     = new LinkedHashMap<>();
 
   /** Contains warnings that occurred during compilation. */
-  private final LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> _warnInfos
+  private final LinkedHashMap<ErrorInfo, ImportInfoExtended> _warnInfos
     = new LinkedHashMap<>();
 
   /**
    * Contains parsing error that might have occurred during compilation
    * attempt. Should normally only contain one element.
    */
-  private final LinkedHashMap<ErrorWarningInfo, ImportInfoExtended>
+  private final LinkedHashMap<ErrorInfo, ImportInfoExtended>
           _parsingFailure = new LinkedHashMap<>();
 
   /**
@@ -94,13 +94,20 @@ public class RuleModel {
    */
   private ImportInfoExtended _rootImport;
 
-  /** Indicates that the ruleModel has been changed after various events. */
+  /**
+   * Indicates that the compiled ruleModel has been changed after various
+   * events.
+   */
   private final IntegerProperty _changedState
           = new SimpleIntegerProperty(RULE_MODEL_UNCHANGED);
 
+  /** Indicates the outcome of the last compilation attempt. */
+  private final IntegerProperty _compilationOutcome
+          = new SimpleIntegerProperty();
+
 
   /*****************************************************************************
-   * INITIALIZERS AND RESETTER
+   * INITIALIZERS, UPDATERS AND RESETTER
    ****************************************************************************/
 
   /**
@@ -116,8 +123,11 @@ public class RuleModel {
   /** Initializes the ruleModel. */
   public void init() {
     log.debug("Initializing the RuleModel...");
+
     _rootImport = defineRuleModel();
     if (_rootImport != null) _changedState.set(RULE_MODEL_NEWLY_CREATED);
+
+    log.debug("Initialized the RuleModel.");
   }
 
   /** Updates the ruleModel. */
@@ -132,6 +142,8 @@ public class RuleModel {
 
     _rootImport = defineRuleModel();
     if (_rootImport != null) _changedState.set(RULE_MODEL_CHANGED);
+
+    log.debug("Updated the RuleModel.");
   }
 
   /** Resets the ruleModel. */
@@ -145,7 +157,9 @@ public class RuleModel {
     _rootImport = null;
 
     _changedState.set(RULE_MODEL_REMOVED);
+    _compilationOutcome.set(COMPILATION_NO_PROJECT);
 
+    log.debug("Resetted the RuleModel.");
   }
 
 
@@ -160,6 +174,8 @@ public class RuleModel {
    */
   private ImportInfoExtended defineRuleModel() {
 
+    resetWarnErrors();
+
     BasicInfo basicRuleStructure = readInRuleLocationFile();
     if (basicRuleStructure == null) { return null; }
 
@@ -173,13 +189,13 @@ public class RuleModel {
 
     /* Set compilation outcome state */
     if (! _parsingFailure.isEmpty())
-      _model._compilationStateProperty().setValue(COMPILATION_FAILED);
+      _compilationOutcome.setValue(COMPILATION_FAILED);
     else if (! _errorInfos.isEmpty())
-      _model._compilationStateProperty().setValue(COMPILATION_WITH_ERRORS);
+      _compilationOutcome.setValue(COMPILATION_WITH_ERRORS);
     else if (! _warnInfos.isEmpty() && _errorInfos.isEmpty())
-      _model._compilationStateProperty().setValue(COMPILATION_WITH_WARNINGS);
+      _compilationOutcome.setValue(COMPILATION_WITH_WARNINGS);
     else
-      _model._compilationStateProperty().setValue(COMPILATION_PERFECT);
+      _compilationOutcome.setValue(COMPILATION_PERFECT);
 
     return (ImportInfoExtended) processedRuleStructure;
   }
@@ -202,7 +218,6 @@ public class RuleModel {
    */
   private BasicInfo processInfos(BasicInfo current, BasicInfo parent,
                                  DataModel model) {
-
     if (current instanceof ImportInfo) {
       ImportInfoExtended ii
               = new ImportInfoExtended((ImportInfo) current, model, parent);
@@ -260,15 +275,33 @@ public class RuleModel {
    * @param ii Import to extract infos from
    */
   private void extractWarnErrors(ImportInfoExtended ii) {
-    ii.getWarnings().forEach((ewi) -> _warnInfos.put(ewi, ii) );
-    ii.getErrors().forEach((ewi) -> _errorInfos.put(ewi, ii) );
-    if (ii.getParsingFailure() != null)
-      _parsingFailure.put(ii.getParsingFailure(), ii);
+    ii.getErrors().forEach((ewi) -> {
+      switch (ewi.getType()) {
+      case ERROR: _errorInfos.put(ewi, ii); break;
+      case WARNING: _warnInfos.put(ewi, ii); break;
+      case PARSE_ERROR: _parsingFailure.put(ewi, ii); break;
+      }
+    });
   }
+
+  /** Resets known errors, warnings and parsing failures. */
+  private void resetWarnErrors() {
+    _errorInfos.clear();
+    _warnInfos.clear();
+    _parsingFailure.clear();
+  }
+
+  /**
+   * Gets rule with given id.
+   *
+   * @param id  Id of rule
+   * @return    Requested <code>RuleInfoExtended</code>
+   */
+  public RuleInfoExtended getRule(int id) { return _idRuleMap.get(id); }
 
 
   /*****************************************************************************
-   * GETTERS AND SETTERS FOR PRIVATE FIELDS
+   * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
    ****************************************************************************/
 
   /** @return Set of Paths of all used Imports */
@@ -278,17 +311,17 @@ public class RuleModel {
   public ImportInfoExtended getRootImport() { return _rootImport; }
 
   /** @return Map containing errors that occured during compilation */
-  public LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> getErrorInfos() {
+  public LinkedHashMap<ErrorInfo, ImportInfoExtended> getErrorInfos() {
     return _errorInfos;
   }
 
   /** @return Map containing warnings that occured during compilation */
-  public LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> getWarnInfos() {
+  public LinkedHashMap<ErrorInfo, ImportInfoExtended> getWarnInfos() {
     return _warnInfos;
   }
 
   /** @return Parsing failure that might have occurred */
-  public LinkedHashMap<ErrorWarningInfo, ImportInfoExtended>
+  public LinkedHashMap<ErrorInfo, ImportInfoExtended>
         getParsingFailure() { return _parsingFailure; }
 
   /** @Return ObservableMap containing the ruleLoggingStates of all rules */
@@ -296,7 +329,10 @@ public class RuleModel {
     return _idLoggingStateMap;
   }
 
-  /** @Return Property reflecting the ruleModel's state after compilation */
+  /**
+   * @Return Property reflecting the ruleModel's state after compilation.
+   * <i>Not to be confused with the compilation outcome!</i>
+   */
   public IntegerProperty changedStateProperty() { return _changedState; }
 
   /**
@@ -308,12 +344,9 @@ public class RuleModel {
     _changedState.set(val);
   }
 
-  /**
-   * Gets rule with given id.
-   *
-   * @param id  Id of rule
-   * @return    Requested <code>RuleInfoExtended</code>
-   */
-  public RuleInfoExtended getRule(int id) { return _idRuleMap.get(id); }
+  /** @Return The outcome of the last compilation attempt. */
+  public IntegerProperty compilationOutcomeProperty() {
+    return _compilationOutcome;
+  }
 
 }

@@ -119,7 +119,7 @@ public final class HelperWindows {
   public static Path openRuleLoggingStateFile(Stage stage,
     Path ruleLogSavePath) {
     /* Defining the file chooser */
-    log.debug("Perparing ruleLoggingState file chooser...");
+    log.debug("Preparing ruleLoggingState file chooser...");
     FileChooser chooser = new FileChooser();
     chooser.setInitialDirectory(ruleLogSavePath.toFile());
     chooser.getExtensionFilters().addAll(
@@ -128,7 +128,7 @@ public final class HelperWindows {
 
     /* open the FileChooser */
     File chosenRuleLoggingStateFile = chooser.showOpenDialog(stage);
-    log.debug("ruleLoggingState file chooser has been opened.");
+    log.debug("RuleModelState file chooser has been opened.");
 
     /* abort selection if window has been closed */
     if (chosenRuleLoggingStateFile == null) {

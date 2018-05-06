@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
+ * TODO: DOCUMENTATION
  * @author christophe
  */
 public class RuleStateItem {
@@ -92,7 +92,7 @@ public class RuleStateItem {
   /**
    * add children to the RuleStateItem
    */
-  protected void addChildren(HashMap<String, RuleStateItem> e) {
+  public void addChildren(HashMap<String, RuleStateItem> e) {
     if (!e.isEmpty()) {
       e.forEach((key, val)
         -> children.put(key, val));

@@ -75,6 +75,9 @@ public class ProjectManager {
   /** Represents the project's configuration .yml. */
   private Path _configurationYml;
 
+  /** @Return project's configuration .yml file */
+  public Path getConfigurationYml() { return _configurationYml; }
+
   /**
    * Initializes a project's configuration using a provided configuration file.
    *
@@ -227,6 +230,12 @@ public class ProjectManager {
              + continueMessage);
     }
 
+    /* Set the RuleModelState save folder */
+    _ruleModelStatesFolder = GLOBAL_CONFIG_PATH
+      .resolve("loggingConfigurations").resolve(projectName.get());
+    if (! Files.exists(_ruleModelStatesFolder))
+      _ruleModelStatesFolder.toFile().mkdirs();
+
     return true;
 
   }
@@ -309,6 +318,16 @@ public class ProjectManager {
 
   /** @return The Path to the RuleLoc.yml */
   public Path getRuleLocationFile() {return ruleLocationFile; }
+
+
+  /* RULEMODELSTATES FOLDER */
+
+  /** Represents the path to the project's RuleModelStates' save folder. */
+  private Path _ruleModelStatesFolder;
+
+  /** @return The Path to the RuleModelStates' save folder */
+  public Path getRuleModelStatesFolder() { return _ruleModelStatesFolder; }
+
 
 
   /* WRAPPER CLASS */

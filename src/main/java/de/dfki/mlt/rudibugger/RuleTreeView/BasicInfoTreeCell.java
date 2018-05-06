@@ -19,6 +19,8 @@
 
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
+import static de.dfki.mlt.rudimant.common.ErrorInfo.ErrorType.*;
+
 import de.dfki.mlt.rudibugger.RuleModel.RuleInfoExtended;
 import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
 import de.dfki.mlt.rudimant.common.BasicInfo;
@@ -168,9 +170,10 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
 
         /* visually indicate errors and warnings happened during compile */
         pseudoClassStateChanged(errorsInImportClass,
-                (!ii.getErrors().isEmpty())
-             || (ii.getParsingFailure() != null));
-        pseudoClassStateChanged(warningsInImportClass, !ii.getWarnings().isEmpty());
+            ii.getErrors().stream().anyMatch(
+                ewi -> ewi.getType() == ERROR || ewi.getType() == PARSE_ERROR));
+        pseudoClassStateChanged(warningsInImportClass,
+            ii.getErrors().stream().anyMatch(ewi -> ewi.getType() == WARNING));
 
         /* define a listener to reflect the rule logging state */
         ii.stateProperty().addListener(importStateListener);

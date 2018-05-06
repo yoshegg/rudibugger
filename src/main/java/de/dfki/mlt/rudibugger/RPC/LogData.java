@@ -24,54 +24,125 @@ import java.util.Date;
 import javafx.beans.property.SimpleObjectProperty;
 
 /**
- * This class is used to organize the sent data by vonda. Its fields will be
- * used to show the needed information in the ruleLoggingTableView.
+ * This class is used to organize the received data from VOnDA. One instance of
+ * this class represents one log entry. Its fields will
+ * be used as columns in the different rows of the ruleLoggingTreeView.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class LogData {
 
-  /* The used colours */
-  protected static final int RED = 1;
-  protected static final int GREEN = 2;
-  protected static final int GRAY = 3;
-  protected static final int BLACK = 0;
 
-  /** The last used timestamp */
+  /*****************************************************************************
+   * EVALUATION OUTCOMES
+   ****************************************************************************/
+
+  /** Indicates that something evaluated to false. */
+  public static final int RED = 1;
+
+  /** Indicates that something evaluated to true. */
+  public static final int GREEN = 2;
+
+  /** Indicates that something has not been evaluated, but could have been. */
+  public static final int GRAY = 3;
+
+  /** Indicates that something has not been evaluated, and should not be. */
+  public static final int BLACK = 0;
+
+
+  /*****************************************************************************
+   * FIELDS
+   ****************************************************************************/
+
+  /** Currently used timestamp. */
   private static Date currentDate = new Date();
 
-  /** The number of times the last used timestamp has been used */
+  /**
+   * Represents when the specific rule was logged and how many rules where
+   * logged at the exact same millisecond + 1.
+   */
+  public SimpleObjectProperty<DatePart> timestamp;
+
+  /** Indicates how often the current timestamp has been used. */
   private static int timeCounter = 1;
 
-  /** This container class contains a String and its respective colour */
+  /** Represents the evaluated rule's label. */
+  public SimpleObjectProperty<StringPart> label = new SimpleObjectProperty<>();
+
+  /** Represents the evaluated strings / rule parts of the logged rule. */
+  public SimpleObjectProperty<ArrayList<StringPart>> evaluatedRuleParts
+          = new SimpleObjectProperty<>(new ArrayList<>());
+
+  /** Represents the ruleId of the logged rule. */
+  private int _ruleId;
+
+
+  /*****************************************************************************
+   * SUBCLASSES
+   ****************************************************************************/
+
+  /**
+   * Container class represents a (usually short) String and its evaluation
+   * state.
+   */
   public class StringPart {
 
+    /** Represents a (short) String) */
     public String content;
-    public int colour;
 
-    private StringPart(String content, int colour)  {
+    /** Represents the evaluation outcome of the included String. */
+    public int evalOutcome;
+
+    /**
+     * Creates a new instance of the container class StringPart.
+     *
+     * @param content
+     *        A (small) String, a part of a rule
+     * @param evalOutcome
+     *        The evaluation outcome of the given rule part
+     *
+     */
+    private StringPart(String content, int evalOutcome)  {
       this.content = content;
-      this.colour = colour;
+      this.evalOutcome = evalOutcome;
     }
+
   }
 
   /**
-   * This container class contains the time of logging and the ranking of that
-   * exact timestamp. This is necessary if things are logged at the exact same
+   * Container class contains the time of logging and the ranking of that exact
+   * timestamp. The ranking is necessary if things are logged at the exact same
    * moment.
    */
   public class DatePart {
 
+    /** Represents the date. */
     public Date date;
+
+    /** Represents the number of times something occurred at that exact time. */
     public int counter;
 
+    /**
+     * Creates a new instance of the container class DatePart.
+     *
+     * @param date
+     *        The current date
+     * @param counter
+     *        The number of times something occurred at the given date
+     */
     private DatePart(Date date, int counter) {
       this.date = date;
       this.counter = counter;
     }
+
   }
 
-  /** The constructor of LogData */
+
+  /*****************************************************************************
+   * CLASS-SPECIFIC METHODS
+   ****************************************************************************/
+
+  /** Creates a new LogData object. */
   public LogData() {
     Date date = new Date();
     if (currentDate.equals(date)) {
@@ -80,49 +151,36 @@ public class LogData {
       currentDate = date;
       timeCounter = 1;
     }
-      timestamp = new SimpleObjectProperty<>(new DatePart(date, timeCounter));
-  }
-
-  /** The label of this LogData */
-  public SimpleObjectProperty<StringPart> label
-          = new SimpleObjectProperty<>();
-
-  /** The evaluated data of this LogData */
-  public SimpleObjectProperty<ArrayList<StringPart>> evaluated
-          = new SimpleObjectProperty<>(new ArrayList<>());
-
-  /** The timestamp of this LogData */
-  public SimpleObjectProperty<DatePart> timestamp;
-
-  /** The ruleId of this LogData */
-  private int _ruleId;
-
-  /** This method is called to add another String and its colour to LogData */
-  public void addStringPart(String content, int colour) {
-    if (label.getValue() == null) {
-      label.setValue(new StringPart(content, colour));
-    } else {
-      evaluated.getValue().add(new StringPart(content, colour));
-    }
+    timestamp = new SimpleObjectProperty<>(new DatePart(date, timeCounter));
   }
 
   /**
-   * This method adds the ruleId to the instance of LogData. This is necessary
-   * due to restrictions of the superclasses of the Logger classes.
+   * Adds a part of the rule to the evaluated rule parts.
+   *
+   * @param content
+   *        A part of a rule
+   * @param evalOutcome
+   *        The evaluation outcome of the given part of the rule
+   */
+  public void addStringPart(String content, int evalOutcome) {
+    if (label.getValue() == null)
+      label.setValue(new StringPart(content, evalOutcome));
+    else
+      evaluatedRuleParts.getValue().add(new StringPart(content, evalOutcome));
+  }
+
+  /**
+   * Adds the ruleId to the instance of LogData.
+   *
+   * <br/><br/>(<i>This function is necessary due to restrictions of the
+   * superclasses of the Logger classes.</i>)
    *
    * @param ruleId
+   *        The ruleId of the given rule
    */
-  public void addRuleId(int ruleId) {
-    _ruleId = ruleId;
-  }
+  public void addRuleId(int ruleId) { _ruleId = ruleId; }
 
-  /**
-   * Getter for the ruleId
-   *
-   * @return
-   */
-  public int getRuleId() {
-    return _ruleId;
-  }
+  /** @return The ruleId of the rule linked to this log entry. */
+  public int getRuleId() { return _ruleId; }
 
 }

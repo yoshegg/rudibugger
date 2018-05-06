@@ -30,53 +30,94 @@ import java.nio.file.Paths;
  */
 public class Constants {
 
-  /* Default values of some essential files and folders. */
+ /******************************************************************************
+  * DEFAULT VALUES OF SOME ESSENTIAL FILES AND FOLDERS
+  *****************************************************************************/
+
   public static Path PATH_TO_RUDI_FOLDER = Paths.get("src/main/rudi/");
   public static Path PATH_TO_GENERATED_FOLDER
-    = Paths.get("src/main/resources/generated");
+          = Paths.get("src/main/resources/generated");
   public static String COMPILE_FILE = "compile";
   public static String RUN_FILE = "run.sh";
   public static Path GLOBAL_CONFIG_FILE
-    = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
-      "rudibuggerConfiguration.yml");
+          = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
+                  "rudibuggerConfiguration.yml");
   public static Path RECENT_PROJECTS_FILE
-    = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
-      "recentProjects.yml");
+          = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
+                  "recentProjects.yml");
   public static Path GLOBAL_CONFIG_PATH
-    = Paths.get(System.getProperty("user.home"), ".config", "rudibugger");
+          = Paths.get(System.getProperty("user.home"), ".config", "rudibugger");
+  public static Path GLOBAL_LAYOUT_CONFIG_FILE
+          = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
+                  "rudibuggerLayout.yml");
 
-  /* Mark and signalize the user's request of a new project. */
+
+ /******************************************************************************
+  * MARK AND SIGNALIZE THE USER'S REQUEST OF A NEW PROJECT
+  *****************************************************************************/
+
   public static final int OVERWRITE_CHECK_CANCEL = 0;
   public static final int OVERWRITE_CHECK_CURRENT_WINDOW = 1;
   public static final int OVERWRITE_CHECK_NEW_WINDOW = 2;
 
-  /* Mark and signalize the state of the RuleModel. */
+
+ /******************************************************************************
+  * MARK AND SIGNALIZE THE STATE OF THE RULEMODEL
+  *****************************************************************************/
+
   public static final int RULE_MODEL_UNCHANGED = 0;
   public static final int RULE_MODEL_NEWLY_CREATED = 1;
   public static final int RULE_MODEL_CHANGED = 2;
   public static final int RULE_MODEL_REMOVED = 9;
 
-  /* Signalize the opening or closing of a project. */
-  public static final int PROJECT_OPEN = 1;
-  public static final int PROJECT_CLOSED = 0;
 
-  /* Mark the usage state of a file in a project. */
+ /******************************************************************************
+  * SIGNALIZE THE OPENING OR CLOSING OF A PROJECT
+  *****************************************************************************/
+
+  public static final boolean PROJECT_OPEN = true;
+  public static final boolean PROJECT_CLOSED = false;
+
+
+ /******************************************************************************
+  * MARK THE USAGE STATE OF A FILE IN A PROJECT
+  *****************************************************************************/
+
   public static final int FILE_USED = 1;
   public static final int FILE_NOT_USED = 0;
   public static final int FILE_IS_MAIN = 2;
   public static final int FILE_IS_WRAPPER = 3;
   public static final int IS_FOLDER = 9;
 
-  /* Compilation state of .rudi files. */
+
+  /*****************************************************************************
+   * COMPILATION STATE OF <code>.rudi</code> FILES
+   ****************************************************************************/
+
   public static final int COMPILATION_PERFECT = 1;
   public static final int COMPILATION_WITH_ERRORS = 2;
   public static final int COMPILATION_WITH_WARNINGS = 3;
   public static final int COMPILATION_FAILED = 4;
   public static final int COMPILATION_UNDEFINED = 5;
+  public static final int COMPILATION_NO_PROJECT = 9;
 
-  /* Modification state of .rudi files. */
+
+  /*****************************************************************************
+   * MODIFICATION STATE OF <code>.rudi</code> FILES
+   ****************************************************************************/
+
   public static final int FILES_SYNCED = 10;
   public static final int FILES_OUT_OF_SYNC = 20;
   public static final int FILES_SYNC_UNDEFINED = 30;
+  public static final int FILES_SYNC_NO_PROJECT = 90;
+
+
+  /*****************************************************************************
+   * CONNECTION STATE TO VONDA
+   ****************************************************************************/
+
+  public static final int ESTABLISHING_CONNECTION = 1;
+  public static final int CONNECTED_TO_VONDA = 2;
+  public static final int DISCONNECTED_FROM_VONDA = 0;
 
 }

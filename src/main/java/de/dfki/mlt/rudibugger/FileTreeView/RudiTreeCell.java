@@ -31,6 +31,15 @@ import javafx.scene.control.TreeCell;
  * This TreeCell is used to visualize the different .rudi files according to
  * their usage stage in the current project.
  *
+ * An entry may be
+ *   - the main file,
+ *   - the wrapper file,
+ *   - a normal module used or not used in the current compiled project, or
+ *   - a folder.
+ *
+ * A file that has been modified since the last successful compilation will have
+ * a different background colour.
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RudiTreeCell extends TreeCell<RudiPath> {
@@ -40,7 +49,8 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
           = "file:src/main/resources/icons/FilesAndFolders/";
 
   /** Map of file icons. */
-  static final HashMap<Integer, Image> ICONS_FILES = new HashMap<Integer, Image>() {{
+  static final HashMap<Integer, Image> ICONS_FILES
+          = new HashMap<Integer, Image>() {{
     put(FILE_IS_MAIN,    new Image(ICON_PATH_FILES + "main.png"));
     put(FILE_IS_WRAPPER, new Image(ICON_PATH_FILES + "wrapper.png"));
     put(FILE_USED,       new Image(ICON_PATH_FILES + "enabled.png"));
@@ -63,11 +73,11 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
   @Override
   protected void updateItem(RudiPath rudiPath, boolean empty) {
 
-    /* Remove old listener of the cell */
+    /* Remove old listener from the cell */
     RudiPath oldItem = getItem();
     if (oldItem != null) {
-      oldItem._modifiedProperty().removeListener(modificationListener);
-      oldItem._usedProperty().removeListener(usageStateListener);
+      oldItem.modifiedProperty().removeListener(modificationListener);
+      oldItem.usedProperty().removeListener(usageStateListener);
     }
 
     super.updateItem(rudiPath, empty);
@@ -83,17 +93,18 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
 
       /* Visually indicate out of sync files. */
       pseudoClassStateChanged(modifiedFileClass,
-              rudiPath._modifiedProperty().getValue());
-      rudiPath._modifiedProperty().addListener(modificationListener);
+              rudiPath.modifiedProperty().getValue());
+      rudiPath.modifiedProperty().addListener(modificationListener);
 
       /* Set label of TreeItem. */
       setText(rudiPath.toString());
 
       /* Define icon and listener for icon. */
       setGraphic(new ImageView(ICONS_FILES.get(
-              rudiPath._usedProperty().getValue())));
-      rudiPath._usedProperty().addListener(usageStateListener);
+              rudiPath.usedProperty().getValue())));
+      rudiPath.usedProperty().addListener(usageStateListener);
 
     }
   }
+
 }

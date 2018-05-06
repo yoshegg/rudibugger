@@ -21,26 +21,20 @@ package de.dfki.mlt.rudibugger;
 
 import de.dfki.mlt.rudibugger.RuleModel.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.Controller.AboutController;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import de.dfki.mlt.rudibugger.FileTreeView.*;
-import de.dfki.mlt.rudibugger.RuleTreeView.*;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleModelState;
 import de.dfki.mlt.rudibugger.TabManagement.*;
-import static de.dfki.mlt.rudimant.common.Constants.*;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.stream.Stream;
 import javafx.beans.property.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -77,8 +71,23 @@ public class DataModel {
 
 
   /*****************************************************************************
+   * PROPERTIES
+   ****************************************************************************/
+
+  /** Indicates whether or not a project has been loaded. */
+  private final BooleanProperty _projectLoaded
+          = new SimpleBooleanProperty(PROJECT_CLOSED);
+
+  /** Represents the text shown on the status bar. */
+  private final StringProperty statusBar
+          = new SimpleStringProperty();
+
+  /*****************************************************************************
    * ADDITIONS (ADDITIONAL MODULES OF DATAMODEL)
    ****************************************************************************/
+
+  /** Stores information about rudibugger's layout. */
+  public ViewLayout layout = new ViewLayout(this);
 
   /** Provides additional functionality to interact with Emacs. */
   public EmacsConnection emacs = new EmacsConnection();
@@ -112,6 +121,15 @@ public class DataModel {
   /** Contains specific  information about project's rule structure. */
   public RuleModel ruleModel = new RuleModel(this);
 
+  /** Contains specific information about the RuleModel's view state. */
+  public RuleModelState ruleModelState = new RuleModelState(this);
+
+  /**
+   * Contains specific information about the involved <code>.rudi</code> folder
+   * and files.
+   */
+  public RudiHierarchy rudiHierarchy = new RudiHierarchy(this);
+
 
   /*****************************************************************************
    * PROJECT INITIALIZER AND CLOSE METHODS
@@ -124,25 +142,22 @@ public class DataModel {
    */
   public void init(Path selectedProjectYml) {
 
+    /** Loads project configuration and initializes fields */
     project.initConfiguration(selectedProjectYml);
 
-    rudiHierarchy = new RudiFolderHierarchy(project.getRudiFolder());
-
-    /* set the ruleLoggingStates configuration save folder */
-    _ruleLoggingStatesFolder = GLOBAL_CONFIG_PATH
-      .resolve("loggingConfigurations")
-      .resolve(project.projectNameProperty().get());
+    /** Start WatchServices */
     watch.initWatches();
-    readInRudiFiles();
 
+    /** Reads in .rudi files in rudiFolder */
+    rudiHierarchy.init();
+
+    /** Reads in ruleModel (if it exists) */
     if (Files.exists(project.getRuleLocationFile()))
       ruleModel.init();
 
-    setProjectStatus(PROJECT_OPEN);
+    /** Sets the property to true */
+    _projectLoaded.set(PROJECT_OPEN);
 
-    globalConf.addToRecentProjects(selectedProjectYml);
-    globalConf.setSetting("lastOpenedProject",
-                       selectedProjectYml.toAbsolutePath().toString());
     log.info("Initializing done.");
 
     if (globalConf.getAutomaticallyConnectToVonda()) vonda.connect();
@@ -153,86 +168,42 @@ public class DataModel {
    *
    * @param stealthy
    */
-   public void close(boolean stealthy) {
+  public void close(boolean stealthy) {
     log.info("Closing [" + project.getProjectName() + "]...");
 
     project.resetConfigurationWithLog();
 
+    rudiHierarchy.reset();
     ruleModel.reset();
     watch.disableWatches();
     vonda.closeConnection();
 
-    setProjectStatus(PROJECT_CLOSED);
-    globalConf.setSetting("lastOpenedProject", "");
+    _projectLoaded.set(PROJECT_CLOSED);
+
+    log.info("Project closed.");
   }
 
+  /** Starts a wizard to create a new VOnDA compatible project from scratch. */
+  public void createNewProject() {
+    log.info("Not implemented yet.");
+    // TODO
+  }
+
+
+  /*****************************************************************************
+   * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
+   ****************************************************************************/
+
+  /** @Return Property indicating whether or not a project has been loaded. */
+  public BooleanProperty projectLoadedProperty() { return _projectLoaded; }
+
+  /** @Return Property representing the text shown on the statusBar. */
+  public StringProperty statusBarTextProperty() { return statusBar; }
 
 
   /*****************************************************************************
    * OLD
    ****************************************************************************/
-
-  /** for RudiHierarchy only */
-  public void readInRudiFiles() {
-    Stream<Path> stream;
-    try {
-      stream = Files.walk(project.getRudiFolder());
-    } catch (IOException e) {
-      log.error(e.toString());
-      return;
-    }
-    stream.forEach(x -> {
-      if (x.getFileName().toString().endsWith(RULE_FILE_EXTENSION)
-              || Files.isDirectory(x))
-        rudiHierarchy.addFileToHierarchy(new RudiPath(x.toAbsolutePath()));
-    });
-  }
-
-
-  /*****************************************************************************
-   * UPDATE METHODS FOR THE CURRENT PROJECT AKA DATAMODEL
-   ****************************************************************************/
-
-
-  public void removeRudiPath(Path file) {
-    rudiHierarchy.removeFromFileHierarchy(new RudiPath(file));
-  }
-
-  /**
-   * This function adds a newly appeared file to the rudiTreeView. Unfortunately
-   * it may be that this file has been modified externally and therefore is
-   * recognized as ENTRY_CREATE first. Because of this true or false are
-   * returned so that the logger may log correctly.
-   *
-   * @param file
-   * @return true if added, false if not added (already there)
-   */
-  public boolean addRudiPath(Path file) {
-    return rudiHierarchy.addFileToHierarchy(new RudiPath(file));
-  }
-
-  public void setFileHasBeenModified(Path file) {
-    rudiHierarchy.rudiPathMap.get(file)._modifiedProperty().setValue(true);
-    _modifiedFiles.setValue(FILES_OUT_OF_SYNC);
-  }
-
-  public void setFilesUpToDate() {
-    rudiHierarchy.resetModifiedProperties();
-    _modifiedFiles.setValue(FILES_SYNCED);
-  }
-
-  private final IntegerProperty _modifiedFiles
-          = new SimpleIntegerProperty(FILES_SYNC_UNDEFINED);
-  public IntegerProperty _modifiedFilesProperty() {
-    return _modifiedFiles;
-  }
-
-  private final IntegerProperty _compilationState
-    = new SimpleIntegerProperty();
-  public IntegerProperty _compilationStateProperty() {
-    return _compilationState;
-  }
-
 
   private final ObjectProperty<HashMap<Path, RudiTab>> openTabs
           = new SimpleObjectProperty<>();
@@ -256,37 +227,39 @@ public class DataModel {
     return requestedFile;
   }
 
-  /*****************************************************************************
-   * NOTIFICATIONS
-   ****************************************************************************/
-
-  /** statusBar */
-  private final StringProperty statusBar = new SimpleStringProperty();
-  public StringProperty statusBarProperty() { return statusBar; }
-
-
-  /*****************************************************************************
-   * UNDERLYING FIELDS / PROPERTIES OF THE CURRENT PROJECT AKA DATAMODEL
-   ****************************************************************************/
-
-  /** .rudi files */
-  public TreeItem<RudiPath> rudiList;
-  public RudiFolderHierarchy rudiHierarchy;
-
-  /** Project status */
-  private final IntegerProperty _projectStatus
-          = new SimpleIntegerProperty(PROJECT_CLOSED);
-  public void setProjectStatus(int val) { _projectStatus.set(val); }
-  public IntegerProperty projectStatusProperty() { return _projectStatus; }
-
 
   /*****************************************************************************
    * METHODS
    ****************************************************************************/
 
-  public void createNewProject() {
-    log.info("Not implemented yet.");
+  /** Opens the about window. */
+  public void openAboutWindow() {
+    try {
+      /* Load the fxml file and create a new stage for the about window */
+      FXMLLoader loader = new FXMLLoader(getClass()
+              .getResource("/fxml/about.fxml"));
+      AnchorPane page = (AnchorPane) loader.load();
+      Stage aboutStage = new Stage();
+      aboutStage.setResizable(false);
+      aboutStage.setTitle("About Rudibugger");
+      aboutStage.initModality(Modality.NONE);
+      aboutStage.initOwner(stageX);
+      Scene scene = new Scene(page);
+      aboutStage.setScene(scene);
+
+      /* Set the controller */
+      AboutController controller = loader.getController();
+      controller.initModel(this);
+      controller.setDialogStage(aboutStage);
+
+      /* show the dialog */
+      aboutStage.show();
+
+    } catch (IOException e) {
+      log.error(e.toString());
+    }
   }
+
 
   public void openSettingsDialog() {
     try {
@@ -296,7 +269,7 @@ public class DataModel {
       AnchorPane page = (AnchorPane) loader.load();
       Stage settingsStage = new Stage();
       settingsStage.setTitle("Settings");
-      settingsStage.initModality(Modality.WINDOW_MODAL);
+      settingsStage.initModality(Modality.NONE);
       settingsStage.initOwner(stageX);
       Scene scene = new Scene(page);
       settingsStage.setScene(scene);
@@ -312,123 +285,6 @@ public class DataModel {
     } catch (IOException e) {
       log.error(e.toString());
     }
-  }
-
-
-  /*****************************************************************************
-   * RULE LOGGING STATE MODEL
-   ****************************************************************************/
-
-  /** project's specific configuration file */
-  private Path _ruleLoggingStatesFolder;
-
-  /** project's folder for ruleLoggingState configurations */
-
-  /** list of recent ruleLoggingStates */
-  private ArrayList<Path> _recentRuleLoggingStates;
-
-
-  /* SAVE SELECTION */
-
-  /** Used to signalize the save request of a ruleLoggingState */
-  private final SimpleBooleanProperty _ruleLoggingStateSaveRequestProperty
-    = new SimpleBooleanProperty(false);
-
-  /**
-   * Used in a Controller to listen to property.
-   *
-   * @return
-   */
-  public BooleanProperty ruleLoggingStateSaveRequestProperty() {
-    return _ruleLoggingStateSaveRequestProperty;
-  }
-
-  public void resetRuleLoggingStateSaveRequestProperty() {
-    _ruleLoggingStateSaveRequestProperty.setValue(Boolean.FALSE);
-  }
-
-  /** Request to save the current ruleLoggingState selection */
-  public void requestSaveRuleLoggingState() {
-    _ruleLoggingStateSaveRequestProperty.setValue(Boolean.TRUE);
-  }
-
-  /**
-   * Save the current ruleLoggingState selection
-   *
-   * @param rtvs
-   */
-  public void saveRuleLoggingState(RuleModelComplete rtvs) {
-    Path savePath = _ruleLoggingStatesFolder;
-    if (! Files.exists(savePath)) savePath.toFile().mkdirs();
-
-    FileChooser fileChooser = new FileChooser();
-    fileChooser.setInitialDirectory(savePath.toFile());
-    FileChooser.ExtensionFilter extFilter
-            = new FileChooser.ExtensionFilter
-        ("YAML file (*" + "yml" + ")", "*" + "yml");
-    fileChooser.getExtensionFilters().add(extFilter);
-    Path file;
-    try {
-      file = (fileChooser.showSaveDialog(stageX)).toPath();
-    } catch (NullPointerException e) {
-      return;
-    }
-
-    if (!file.getFileName().toString().endsWith(".yml")) {
-      file = Paths.get(file.toString() + ".yml");
-    }
-
-    try {
-      FileWriter writer = new FileWriter(savePath.resolve(file).toFile());
-      yaml.dump(rtvs, writer);
-    } catch (IOException e) {
-      log.error(e.getMessage());
-    }
-    log.debug("Saved file " + file.toString());
-
-  }
-
-
-  /* LOAD SELECTION */
-
-  /** used to signalize the load request of a ruleLoggingState */
-  private final SimpleObjectProperty<Path> _ruleLoggingStateLoadRequestProperty
-    = new SimpleObjectProperty<>();
-
-  /**
-   * Used in a Controller to listen to property.
-   *
-   * @return
-   */
-  public ObjectProperty<Path> ruleLoggingStateLoadRequestProperty() {
-    return _ruleLoggingStateLoadRequestProperty;
-  }
-
-  /**
-   * load a given file as ruleSelectionState
-   *
-   * @param x
-   */
-  public void loadRuleLoggingState(Path x) {
-    _ruleLoggingStateLoadRequestProperty.setValue(x);
-  }
-
-  public void openRuleLoggingStateFileChooser() {
-    loadRuleLoggingState(HelperWindows.openRuleLoggingStateFile(
-      stageX, _ruleLoggingStatesFolder));
-  }
-
-  /* RULE LOGGING STATE */
-
-  private final SimpleObjectProperty<RuleModelComplete> _ruleLoggingStateProperty
-    = new SimpleObjectProperty<>();
-
-  public ObjectProperty ruleLoggingStateProperty() {
-    return _ruleLoggingStateProperty;
-  }
-
-  public ArrayList<Path> getRecentRuleLoggingStates() {
-    return _recentRuleLoggingStates;
   }
 
 }

@@ -23,7 +23,8 @@ import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
-import de.dfki.mlt.rudimant.common.ErrorWarningInfo;
+import de.dfki.mlt.rudimant.common.ErrorInfo;
+import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import javafx.beans.property.IntegerProperty;
@@ -67,7 +68,8 @@ public class CompileIndicator {
       put(COMPILATION_WITH_WARNINGS, new Image(ICONS_PATH + "warnings.png"));
       put(COMPILATION_FAILED,        new Image(ICONS_PATH + "failed.png"));
       put(COMPILATION_UNDEFINED,     new Image(ICONS_PATH + "undefined.png"));
-   }};
+      put(COMPILATION_NO_PROJECT,    new Image(ICONS_PATH + "undefined.png"));
+    }};
 
   /** Map of compilation status tooltip's texts. */
   private static final HashMap<Integer, String> MESSAGES
@@ -77,6 +79,7 @@ public class CompileIndicator {
       put(COMPILATION_WITH_WARNINGS, "Compilation succeeded with warnings.");
       put(COMPILATION_FAILED,        "Compilation failed.");
       put(COMPILATION_UNDEFINED,     "Compilation state unknown.");
+      put(COMPILATION_NO_PROJECT,    "");
     }};
 
   /** Creates a new instance of <code>CompileIndicator</code>, creates a tooltip
@@ -91,8 +94,8 @@ public class CompileIndicator {
     _controller = controller;
 
     /* Initializes the default look and behaviour if no project is loaded. */
-    _indicator.setImage(ICONS.get(COMPILATION_UNDEFINED));
-    _tooltip.setText(MESSAGES.get(COMPILATION_UNDEFINED));
+    _indicator.setImage(ICONS.get(COMPILATION_NO_PROJECT));
+    _tooltip.setText(MESSAGES.get(COMPILATION_NO_PROJECT));
     Tooltip.install(_indicator, _tooltip);
   }
 
@@ -101,8 +104,7 @@ public class CompileIndicator {
       int val = nv.intValue();
       String msg = MESSAGES.get(val);
 
-      if (val != COMPILATION_UNDEFINED)
-        _controller.setStatusBar(msg);
+      _controller.setStatusBarText(msg);
 
       _tooltip.setText(msg);
       Tooltip.install(_indicator, _tooltip);
@@ -128,11 +130,11 @@ public class CompileIndicator {
 
     DataModel model = _controller.getModel();
 
-    LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> errorInfos;
+    LinkedHashMap<ErrorInfo, ImportInfoExtended> errorInfos;
     errorInfos = model.ruleModel.getErrorInfos();
-    LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> warnInfos;
+    LinkedHashMap<ErrorInfo, ImportInfoExtended> warnInfos;
     warnInfos = model.ruleModel.getWarnInfos();
-    LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> parsingFailure;
+    LinkedHashMap<ErrorInfo, ImportInfoExtended> parsingFailure;
     parsingFailure = model.ruleModel.getParsingFailure();
 
     addErrorWarningInfosToContextMenu(cm, "error", parsingFailure, model);
@@ -154,28 +156,27 @@ public class CompileIndicator {
    * @param model
    */
   private void addErrorWarningInfosToContextMenu(ContextMenu cm, String type,
-    LinkedHashMap<ErrorWarningInfo, ImportInfoExtended> data, DataModel model) {
-    for (ErrorWarningInfo e : data.keySet()) {
+    LinkedHashMap<ErrorInfo, ImportInfoExtended> data, DataModel model) {
+    for (ErrorInfo e : data.keySet()) {
       ImportInfoExtended item = data.get(e);
       String shortType = (("warning".equals(type)) ? "WARN" : "ERROR");
 
       String charPosition;
-      if (e.getLocation().getCharPosition() != 0)
-        charPosition = ":"
-                + Integer.toString(e.getLocation().getCharPosition());
+      if (e.getLocation().getBegin().getColumn() != 0)
+        charPosition = ":" + e.getLocation().getBegin().getColumn();
       else
         charPosition = "";
 
       String msg = shortType + ":"
                  + item.getLabel() + RULE_FILE_EXTENSION + ":"
-                 + e.getLocation().getLineNumber()
+                 + e.getLocation().getBegin().getLine()
                  + charPosition + ": "
                  + e.getMessage();
       Label label = new Label(msg);
       CustomMenuItem errorItem = new CustomMenuItem(label);
       errorItem.setOnAction(f -> {
         model.rudiLoad.openRule(item.getAbsolutePath(),
-          e.getLocation().getLineNumber());
+          e.getLocation().getBegin().getLine());
       });
       cm.getItems().add(errorItem);
     }

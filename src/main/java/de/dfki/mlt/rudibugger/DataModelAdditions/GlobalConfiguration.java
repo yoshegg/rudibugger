@@ -78,7 +78,9 @@ public class GlobalConfiguration {
     recentProjects.addListener((ListChangeListener) (cl -> {
       saveRecentProjects();
     }));
-
+    _model.projectLoadedProperty().addListener(cl -> {
+      updateRecentProjects();
+    });
   }
 
 
@@ -176,6 +178,17 @@ public class GlobalConfiguration {
   /** Represents the last opened projects. */
   public ObservableList<String> recentProjects;
 
+  /** */
+  private void updateRecentProjects() {
+    if (_model.projectLoadedProperty().get() == PROJECT_OPEN) {
+      Path c = _model.project.getConfigurationYml();
+      addToRecentProjects(c);
+      setSetting("lastOpenedProject", c.toAbsolutePath().toString());
+    } else {
+      setSetting("lastOpenedProject", "");
+    }
+  }
+
   /** Loads the recent projects. */
   private void loadRecentProjects() {
     try {
@@ -205,7 +218,7 @@ public class GlobalConfiguration {
    *
    * @param project  The project to add
    */
-  public void addToRecentProjects(Path project) {
+  private void addToRecentProjects(Path project) {
     String projPath = project.toString();
     if (recentProjects.contains(projPath)) {
       recentProjects.remove(projPath);

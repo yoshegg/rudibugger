@@ -23,7 +23,6 @@ import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import java.io.IOException;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import static java.nio.file.StandardWatchEventKinds.*;
 import java.nio.file.WatchEvent;
@@ -35,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This watch's one and only purpose is to check if the RuleLocation.yml file
+ * This Watch's purpose is to check if the <code>RuleLocation.yml</code> file
  * is being changed. If it is, a function to refresh the DataModel is called.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
@@ -192,7 +191,7 @@ public class RuleLocationWatch {
               } else {
                 _model.ruleModel.update();
               }
-              _model.setFilesUpToDate();
+              _model.rudiHierarchy.setFilesUpToDate();
             });
             ruleLocationFileChanged = false;
             break;

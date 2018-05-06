@@ -24,6 +24,7 @@ import static de.dfki.mlt.rudibugger.RPC.LogData.*;
 import java.util.ArrayList;
 
 /**
+ * TODO: Missing documentation
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
