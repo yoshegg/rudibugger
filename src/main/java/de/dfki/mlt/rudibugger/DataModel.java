@@ -21,6 +21,7 @@ package de.dfki.mlt.rudibugger;
 
 import de.dfki.mlt.rudibugger.RuleModel.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.Controller.AboutController;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import de.dfki.mlt.rudibugger.FileTreeView.*;
@@ -137,7 +138,7 @@ public class DataModel {
     if (Files.exists(project.getRuleLocationFile()))
       ruleModel.init();
 
-    setProjectStatus(PROJECT_OPEN);
+    _projectStatus.set(PROJECT_OPEN);
 
     globalConf.addToRecentProjects(selectedProjectYml);
     globalConf.setSetting("lastOpenedProject",
@@ -165,7 +166,7 @@ public class DataModel {
     // TODO Move to right place
     _compilationStateProperty().setValue(COMPILATION_NO_PROJECT);
 
-    setProjectStatus(PROJECT_CLOSED);
+    _projectStatus.set(PROJECT_CLOSED);
     globalConf.setSetting("lastOpenedProject", "");
   }
 
@@ -226,7 +227,6 @@ public class DataModel {
   /** Indicates if a project is loaded or not. */
   private final BooleanProperty _projectStatus
           = new SimpleBooleanProperty(PROJECT_CLOSED);
-  private void setProjectStatus(boolean val) { _projectStatus.set(val); }
   public BooleanProperty projectStatusProperty() { return _projectStatus; }
 
 
@@ -234,6 +234,33 @@ public class DataModel {
    * METHODS
    ****************************************************************************/
 
+  /** Opens the about window. */
+  public void openAboutWindow() {
+    try {
+      /* Load the fxml file and create a new stage for the about window */
+      FXMLLoader loader = new FXMLLoader(getClass()
+              .getResource("/fxml/about.fxml"));
+      AnchorPane page = (AnchorPane) loader.load();
+      Stage aboutStage = new Stage();
+      aboutStage.setResizable(false);
+      aboutStage.setTitle("About Rudibugger");
+      aboutStage.initModality(Modality.NONE);
+      aboutStage.initOwner(stageX);
+      Scene scene = new Scene(page);
+      aboutStage.setScene(scene);
+
+      /* Set the controller */
+      AboutController controller = loader.getController();
+      controller.initModel(this);
+      controller.setDialogStage(aboutStage);
+
+      /* show the dialog */
+      aboutStage.show();
+
+    } catch (IOException e) {
+      log.error(e.toString());
+    }
+  }
 
 
   public void openSettingsDialog() {
@@ -244,7 +271,7 @@ public class DataModel {
       AnchorPane page = (AnchorPane) loader.load();
       Stage settingsStage = new Stage();
       settingsStage.setTitle("Settings");
-      settingsStage.initModality(Modality.WINDOW_MODAL);
+      settingsStage.initModality(Modality.NONE);
       settingsStage.initOwner(stageX);
       Scene scene = new Scene(page);
       settingsStage.setScene(scene);

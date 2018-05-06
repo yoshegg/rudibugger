@@ -466,6 +466,11 @@ public class MenuController {
     _model.openSettingsDialog();
   }
 
+  /********* Help *********/
+  @FXML
+  private void openAboutWindow(ActionEvent event) {
+    _model.openAboutWindow();
+  }
 
 
   /*****************************************************************************
