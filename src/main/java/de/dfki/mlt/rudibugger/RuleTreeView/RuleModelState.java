@@ -296,6 +296,7 @@ public class RuleModelState {
       log.error("Could not read in configuration file");
       return;
     }
+
     rtvs.setDataModel(_model);
     _root = rtvs.getRoot();
     loadRequestProperty().set(true);
@@ -305,6 +306,7 @@ public class RuleModelState {
   public void loadStateSelectFile() {
     Path chosenFile = HelperWindows.openRuleLoggingStateFile(
       _model.stageX, _model.project.getRuleModelStatesFolder());
+    if (chosenFile == null) return;
     loadState(chosenFile);
   }
 
