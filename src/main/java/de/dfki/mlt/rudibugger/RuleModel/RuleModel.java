@@ -94,9 +94,16 @@ public class RuleModel {
    */
   private ImportInfoExtended _rootImport;
 
-  /** Indicates that the ruleModel has been changed after various events. */
+  /**
+   * Indicates that the compiled ruleModel has been changed after various
+   * events.
+   */
   private final IntegerProperty _changedState
           = new SimpleIntegerProperty(RULE_MODEL_UNCHANGED);
+
+  /** Indicates the outcome of the last compilation attempt. */
+  private final IntegerProperty _compilationOutcome
+          = new SimpleIntegerProperty();
 
 
   /*****************************************************************************
@@ -150,6 +157,7 @@ public class RuleModel {
     _rootImport = null;
 
     _changedState.set(RULE_MODEL_REMOVED);
+    _compilationOutcome.set(COMPILATION_NO_PROJECT);
 
     log.debug("Resetted the RuleModel.");
   }
@@ -181,13 +189,13 @@ public class RuleModel {
 
     /* Set compilation outcome state */
     if (! _parsingFailure.isEmpty())
-      _model._compilationStateProperty().setValue(COMPILATION_FAILED);
+      _compilationOutcome.setValue(COMPILATION_FAILED);
     else if (! _errorInfos.isEmpty())
-      _model._compilationStateProperty().setValue(COMPILATION_WITH_ERRORS);
+      _compilationOutcome.setValue(COMPILATION_WITH_ERRORS);
     else if (! _warnInfos.isEmpty() && _errorInfos.isEmpty())
-      _model._compilationStateProperty().setValue(COMPILATION_WITH_WARNINGS);
+      _compilationOutcome.setValue(COMPILATION_WITH_WARNINGS);
     else
-      _model._compilationStateProperty().setValue(COMPILATION_PERFECT);
+      _compilationOutcome.setValue(COMPILATION_PERFECT);
 
     return (ImportInfoExtended) processedRuleStructure;
   }
@@ -321,7 +329,10 @@ public class RuleModel {
     return _idLoggingStateMap;
   }
 
-  /** @Return Property reflecting the ruleModel's state after compilation */
+  /**
+   * @Return Property reflecting the ruleModel's state after compilation.
+   * <i>Not to be confused with the compilation outcome!</i>
+   */
   public IntegerProperty changedStateProperty() { return _changedState; }
 
   /**
@@ -331,6 +342,11 @@ public class RuleModel {
    */
   public void setChangedStateProperty(int val) {
     _changedState.set(val);
+  }
+
+  /** @Return The outcome of the last compilation attempt. */
+  public IntegerProperty compilationOutcomeProperty() {
+    return _compilationOutcome;
   }
 
 }

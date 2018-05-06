@@ -88,7 +88,7 @@ public class MenuController {
     });
 
     /* this listener checks if a project has been opened */
-    _model.projectStatusProperty().addListener((o, ov, nv) -> {
+    _model.projectLoadedProperty().addListener((o, ov, nv) -> {
       if (nv) {
         log.debug("Project open: enable GUI-elements.");
         closeProjectItem.setDisable(false);
@@ -177,7 +177,7 @@ public class MenuController {
 
     Button button = vondaConnectionButton;
 
-    if (_model.projectStatusProperty().get() == PROJECT_CLOSED) {
+    if (_model.projectLoadedProperty().get() == PROJECT_CLOSED) {
       button.setText("No project");
       button.setOnMouseEntered(e -> button.setText(null));
       button.setOnMouseExited(e -> button.setText(null));
@@ -224,7 +224,7 @@ public class MenuController {
   private void checkForOpenProject(Path ymlFile) {
 
     /* a project is already open */
-    if (_model.projectStatusProperty().getValue() == PROJECT_OPEN) {
+    if (_model.projectLoadedProperty().getValue() == PROJECT_OPEN) {
       switch (HelperWindows.overwriteProjectCheck(_model)) {
         case OVERWRITE_CHECK_CURRENT_WINDOW:
           if (ymlFile == null)

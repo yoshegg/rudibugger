@@ -68,7 +68,8 @@ public class StatusBarController {
     /* Initialize the compilation state indicator in the lower left. */
     CompileIndicator compileIndicator
       = new CompileIndicator(_compileIndicator, this);
-    compileIndicator.linkListenerToProperty(_model._compilationStateProperty());
+    compileIndicator.linkListenerToProperty(
+            _model.ruleModel.compilationOutcomeProperty());
     compileIndicator.defineContextMenu();
   }
 

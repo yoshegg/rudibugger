@@ -71,6 +71,18 @@ public class DataModel {
 
 
   /*****************************************************************************
+   * PROPERTIES
+   ****************************************************************************/
+
+  /** Indicates whether or not a project has been loaded. */
+  private final BooleanProperty _projectLoaded
+          = new SimpleBooleanProperty(PROJECT_CLOSED);
+
+  /** Represents the text shown on the status bar. */
+  private final StringProperty statusBar
+          = new SimpleStringProperty();
+
+  /*****************************************************************************
    * ADDITIONS (ADDITIONAL MODULES OF DATAMODEL)
    ****************************************************************************/
 
@@ -118,6 +130,7 @@ public class DataModel {
    */
   public RudiHierarchy rudiHierarchy = new RudiHierarchy(this);
 
+
   /*****************************************************************************
    * PROJECT INITIALIZER AND CLOSE METHODS
    ****************************************************************************/
@@ -129,20 +142,22 @@ public class DataModel {
    */
   public void init(Path selectedProjectYml) {
 
+    /** Loads project configuration and initializes fields */
     project.initConfiguration(selectedProjectYml);
 
+    /** Start WatchServices */
     watch.initWatches();
 
+    /** Reads in .rudi files in rudiFolder */
     rudiHierarchy.init();
 
+    /** Reads in ruleModel (if it exists) */
     if (Files.exists(project.getRuleLocationFile()))
       ruleModel.init();
 
-    _projectStatus.set(PROJECT_OPEN);
+    /** Sets the property to true */
+    _projectLoaded.set(PROJECT_OPEN);
 
-    globalConf.addToRecentProjects(selectedProjectYml);
-    globalConf.setSetting("lastOpenedProject",
-                       selectedProjectYml.toAbsolutePath().toString());
     log.info("Initializing done.");
 
     if (globalConf.getAutomaticallyConnectToVonda()) vonda.connect();
@@ -163,11 +178,9 @@ public class DataModel {
     watch.disableWatches();
     vonda.closeConnection();
 
-    // TODO Move to right place
-    _compilationStateProperty().setValue(COMPILATION_NO_PROJECT);
+    _projectLoaded.set(PROJECT_CLOSED);
 
-    _projectStatus.set(PROJECT_CLOSED);
-    globalConf.setSetting("lastOpenedProject", "");
+    log.info("Project closed.");
   }
 
   /** Starts a wizard to create a new VOnDA compatible project from scratch. */
@@ -176,17 +189,21 @@ public class DataModel {
     // TODO
   }
 
+
+  /*****************************************************************************
+   * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
+   ****************************************************************************/
+
+  /** @Return Property indicating whether or not a project has been loaded. */
+  public BooleanProperty projectLoadedProperty() { return _projectLoaded; }
+
+  /** @Return Property representing the text shown on the statusBar. */
+  public StringProperty statusBarTextProperty() { return statusBar; }
+
+
   /*****************************************************************************
    * OLD
    ****************************************************************************/
-
-
-  private final IntegerProperty _compilationState
-    = new SimpleIntegerProperty();
-  public IntegerProperty _compilationStateProperty() {
-    return _compilationState;
-  }
-
 
   private final ObjectProperty<HashMap<Path, RudiTab>> openTabs
           = new SimpleObjectProperty<>();
@@ -209,25 +226,6 @@ public class DataModel {
   public ObjectProperty<FileAtPos> requestedFileProperty() {
     return requestedFile;
   }
-
-  /*****************************************************************************
-   * NOTIFICATIONS
-   ****************************************************************************/
-
-  /** statusBar */
-  private final StringProperty statusBar = new SimpleStringProperty();
-  public StringProperty statusBarTextProperty() { return statusBar; }
-
-
-  /*****************************************************************************
-   * UNDERLYING FIELDS / PROPERTIES OF THE CURRENT PROJECT AKA DATAMODEL
-   ****************************************************************************/
-
-  /** Project status */
-  /** Indicates if a project is loaded or not. */
-  private final BooleanProperty _projectStatus
-          = new SimpleBooleanProperty(PROJECT_CLOSED);
-  public BooleanProperty projectStatusProperty() { return _projectStatus; }
 
 
   /*****************************************************************************

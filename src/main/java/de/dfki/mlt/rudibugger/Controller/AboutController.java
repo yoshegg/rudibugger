@@ -54,6 +54,10 @@ public class AboutController {
     _model = model;
   }
 
+  public static void openAboutWindow() {
+    
+  }
+
 
   /*****************************************************************************
    * METHODS

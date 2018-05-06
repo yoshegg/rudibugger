@@ -75,6 +75,9 @@ public class ProjectManager {
   /** Represents the project's configuration .yml. */
   private Path _configurationYml;
 
+  /** @Return project's configuration .yml file */
+  public Path getConfigurationYml() { return _configurationYml; }
+
   /**
    * Initializes a project's configuration using a provided configuration file.
    *

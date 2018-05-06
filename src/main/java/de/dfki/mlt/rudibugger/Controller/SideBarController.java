@@ -68,7 +68,7 @@ public class SideBarController {
     this._model = model;
 
     /* this Listener keeps the rudiTreeView containing the .rudi files up to date */
-    model.projectStatusProperty().addListener((o, ov, nv) -> {
+    model.projectLoadedProperty().addListener((o, ov, nv) -> {
       if (nv) {
         rudiTreeView.setRoot(model.rudiHierarchy.getRoot());
         rudiTreeView.setShowRoot(false);
