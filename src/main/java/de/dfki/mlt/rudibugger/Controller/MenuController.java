@@ -113,7 +113,7 @@ public class MenuController {
     );
 
     /* this listener enables saving depending on the selected tab */
-    _model.selectedTabProperty().addListener((o, oldVal, newVal) -> {
+    _model.tabStore.currentlySelectedTabProperty().addListener((o, oldVal, newVal) -> {
 
       /* no tab is opened */
       if (newVal == null) {

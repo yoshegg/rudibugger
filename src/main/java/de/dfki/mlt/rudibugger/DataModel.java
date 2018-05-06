@@ -21,8 +21,7 @@ package de.dfki.mlt.rudibugger;
 
 import de.dfki.mlt.rudibugger.RuleModel.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Controller.AboutController;
-import de.dfki.mlt.rudibugger.Controller.SettingsController;
+import de.dfki.mlt.rudibugger.Controller.*;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import de.dfki.mlt.rudibugger.FileTreeView.*;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleModelState;
@@ -30,7 +29,6 @@ import de.dfki.mlt.rudibugger.TabManagement.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import javafx.beans.property.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -82,6 +80,7 @@ public class DataModel {
   private final StringProperty statusBar
           = new SimpleStringProperty();
 
+
   /*****************************************************************************
    * ADDITIONS (ADDITIONAL MODULES OF DATAMODEL)
    ****************************************************************************/
@@ -129,6 +128,9 @@ public class DataModel {
    * and files.
    */
   public RudiHierarchy rudiHierarchy = new RudiHierarchy(this);
+
+  /** Contains information about the opened tabs. */
+  public TabManager tabStore = new TabManager(this);
 
 
   /*****************************************************************************
@@ -202,33 +204,6 @@ public class DataModel {
 
 
   /*****************************************************************************
-   * OLD
-   ****************************************************************************/
-
-  private final ObjectProperty<HashMap<Path, RudiTab>> openTabs
-          = new SimpleObjectProperty<>();
-  public ObjectProperty<HashMap<Path, RudiTab>> openTabsProperty() {
-    return openTabs;
-  }
-
-  private final ObjectProperty<RudiTab> selectedTab
-          = new SimpleObjectProperty<>();
-  public ObjectProperty<RudiTab> selectedTabProperty() { return selectedTab; }
-
-  private final ObjectProperty<RudiTab> requestedCloseTab
-          = new SimpleObjectProperty<>();
-  public ObjectProperty<RudiTab> requestedCloseTabProperty() {
-    return requestedCloseTab;
-  }
-
-  private final ObjectProperty<FileAtPos> requestedFile
-          = new SimpleObjectProperty<>();
-  public ObjectProperty<FileAtPos> requestedFileProperty() {
-    return requestedFile;
-  }
-
-
-  /*****************************************************************************
    * METHODS
    ****************************************************************************/
 
@@ -261,6 +236,7 @@ public class DataModel {
   }
 
 
+  /** Opens the settings menu. */
   public void openSettingsDialog() {
     try {
       /* Load the fxml file and create a new stage for the settings dialog */
