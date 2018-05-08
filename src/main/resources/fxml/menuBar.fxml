@@ -15,7 +15,7 @@
    <children>
       <MenuBar>
          <menus>
-            <Menu mnemonicParsing="false" text="File">
+            <Menu mnemonicParsing="false" onMenuValidation="#buildLoadRuleSelectionStateMenu" text="File">
                <items>
                   <MenuItem fx:id="newProjectItem" disable="true" mnemonicParsing="false" onAction="#newProjectAction" text="New Project...">
                      <accelerator>
@@ -49,9 +49,9 @@
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <Menu fx:id="loadLoggingStateMenu" disable="true" mnemonicParsing="false" text="Load logging state">
                      <items>
-                        <MenuItem disable="true" mnemonicParsing="false" text="No recent configuration found." />
+                        <MenuItem fx:id="noRecentConfigurationFound" disable="true" mnemonicParsing="false" text="No recent configuration found." />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" onAction="#openRuleLoggingStateConfigurationFile" text="Open configuration file..." />
+                        <MenuItem fx:id="openRuleLoggingStateItem" mnemonicParsing="false" onAction="#openRuleLoggingStateConfigurationFile" text="Open configuration file..." />
                      </items>
                   </Menu>
                   <MenuItem fx:id="saveLoggingStateItem" disable="true" mnemonicParsing="false" onAction="#saveLoggingStateAction" text="Save logging state..." />

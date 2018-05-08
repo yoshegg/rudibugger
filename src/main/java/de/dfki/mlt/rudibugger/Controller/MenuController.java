@@ -37,6 +37,7 @@ import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
@@ -204,15 +205,29 @@ public class MenuController {
       }
   }
 
+  /**
+   * Builds the menu offering to load the 10 most recent RuleModelState
+   * configurations.
+   */
+  @FXML
   private void buildLoadRuleSelectionStateMenu() {
-    loadLoggingStateMenu.getItems().clear();
-    _model.ruleModelState.getRecentStates().forEach((x) -> {
-      MenuItem mi = new MenuItem(x.toString());
-      mi.setOnAction((event) -> {
-        _model.ruleModelState.loadState(x);
+    if (!_model.ruleModelState.getRecentStates().isEmpty()) {
+      loadLoggingStateMenu.getItems().clear();
+      _model.ruleModelState.getRecentStates().forEach((x) -> {
+        String filenameWithFolder = _model.project.getRuleModelStatesFolder()
+                .relativize(x).toString();
+        MenuItem mi = new MenuItem(filenameWithFolder);
+        mi.setOnAction((event) -> {
+          _model.ruleModelState.loadState(x);
+        });
+        loadLoggingStateMenu.getItems().add(mi);
       });
-      loadLoggingStateMenu.getItems().add(mi);
-    });
+    } else {
+      loadLoggingStateMenu.getItems().clear();
+      loadLoggingStateMenu.getItems().add(noRecentConfigurationFound);
+    }
+    loadLoggingStateMenu.getItems().add(new SeparatorMenuItem());
+    loadLoggingStateMenu.getItems().add(openRuleLoggingStateItem);
   }
 
   /**
@@ -393,6 +408,14 @@ public class MenuController {
   }
 
 
+  /** MenuItem "No recent configuration found. */
+  @FXML
+  private MenuItem noRecentConfigurationFound;
+
+  /** MenuItem "Open configuration file... */
+  @FXML
+  private MenuItem openRuleLoggingStateItem;
+
   /** Menu "Load logging state" */
   @FXML
   private Menu loadLoggingStateMenu;
@@ -402,7 +425,6 @@ public class MenuController {
   private void openRuleLoggingStateConfigurationFile(ActionEvent event) {
     _model.ruleModelState.loadStateSelectFile();
   }
-
 
   /** MenuItem "Save logging state..." */
   @FXML
