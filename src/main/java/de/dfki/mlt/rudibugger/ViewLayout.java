@@ -97,7 +97,7 @@ public class ViewLayout {
 
   /** Restores the window's position if a configuration file exists. */
   public void restoreWindowPosition() {
-    if (Files.exists(GLOBAL_LAYOUT_CONFIG_FILE)) {
+    if (GLOBAL_LAYOUT_CONFIG_FILE.toFile().length() != 0) {
       try {
         layoutConfiguration = (HashMap<String, Double>) _model.yaml.load(
                 new FileReader(GLOBAL_LAYOUT_CONFIG_FILE.toFile()));
@@ -106,6 +106,7 @@ public class ViewLayout {
         log.error(e.getMessage());
         return;
       }
+
       _model.stageX.setX(layoutConfiguration.get(WINDOW_POSITION_X));
       _model.stageX.setY(layoutConfiguration.get(WINDOW_POSITION_Y));
       _model.stageX.setWidth(layoutConfiguration.get(WINDOW_WIDTH));
@@ -115,7 +116,7 @@ public class ViewLayout {
 
   /** Restores the dividers' positions if a configuration file exists. */
   public void restoreDividerPositions() {
-    if (Files.exists(GLOBAL_LAYOUT_CONFIG_FILE)) {
+    if (GLOBAL_LAYOUT_CONFIG_FILE.toFile().length() != 0) {
       try {
         layoutConfiguration = (HashMap<String, Double>) _model.yaml.load(
                 new FileReader(GLOBAL_LAYOUT_CONFIG_FILE.toFile()));
@@ -124,6 +125,7 @@ public class ViewLayout {
         log.error(e.getMessage());
         return;
       }
+
       Platform.runLater(() -> {
         _sidebarSplitPane.setDividerPositions(
               layoutConfiguration.get(DIVIDER_SIDEBAR));
