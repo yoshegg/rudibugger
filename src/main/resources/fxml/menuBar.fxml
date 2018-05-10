@@ -11,7 +11,7 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="36.0" prefWidth="494.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.Controller.MenuController">
+<VBox prefHeight="36.0" prefWidth="494.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.Controller.MenuController">
    <children>
       <MenuBar>
          <menus>
@@ -111,7 +111,7 @@
                      </accelerator>
                   </MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem disable="true" mnemonicParsing="false" text="Find in Project...">
+                  <MenuItem fx:id="findInProjectItem" disable="true" mnemonicParsing="false" onAction="#findInProject" text="Find in project...">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>

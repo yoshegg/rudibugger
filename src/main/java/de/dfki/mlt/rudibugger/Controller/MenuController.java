@@ -96,6 +96,7 @@ public class MenuController {
         newRudiFileItem.setDisable(false);
         loadLoggingStateMenu.setDisable(false);
         saveLoggingStateItem.setDisable(false);
+        findInProjectItem.setDisable(false);
         manageLookOfVondaConnectionButton();
         defineCompileButton();
       } else {
@@ -104,6 +105,7 @@ public class MenuController {
         newRudiFileItem.setDisable(true);
         loadLoggingStateMenu.setDisable(true);
         saveLoggingStateItem.setDisable(true);
+        findInProjectItem.setDisable(true);
         manageLookOfVondaConnectionButton();
         defineCompileButton();
       }
@@ -352,6 +354,14 @@ public class MenuController {
   /*****************************************************************************
    * Menu items actions (from menu bar)
    ****************************************************************************/
+
+  @FXML
+  private void findInProject(ActionEvent event) {
+    _model.openSearchWindow();
+  }
+
+  @FXML
+  private MenuItem findInProjectItem;
 
   /********* File *********/
 

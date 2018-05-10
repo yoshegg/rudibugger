@@ -19,16 +19,19 @@
 
 package de.dfki.mlt.rudibugger;
 
+import de.dfki.mlt.rudibugger.SearchAndFind.SearchManager;
 import de.dfki.mlt.rudibugger.RuleModel.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.*;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import de.dfki.mlt.rudibugger.FileTreeView.*;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleModelState;
+import de.dfki.mlt.rudibugger.SearchAndFind.SearchController;
 import de.dfki.mlt.rudibugger.TabManagement.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import javafx.beans.property.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -108,6 +111,9 @@ public class DataModel {
 
   /** Provides additional functionality to track changes in the file system. */
   public WatchManager watch = new WatchManager(this);
+
+  /** Provides additional functionality to search trough files. */
+  public SearchManager search = new SearchManager(this);
 
 
   /*****************************************************************************
@@ -196,10 +202,10 @@ public class DataModel {
    * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
    ****************************************************************************/
 
-  /** @Return Property indicating whether or not a project has been loaded. */
+  /** @return Property indicating whether or not a project has been loaded. */
   public BooleanProperty projectLoadedProperty() { return _projectLoaded; }
 
-  /** @Return Property representing the text shown on the statusBar. */
+  /** @return Property representing the text shown on the statusBar. */
   public StringProperty statusBarTextProperty() { return statusBar; }
 
 
@@ -257,6 +263,31 @@ public class DataModel {
 
       /* show the dialog */
       settingsStage.show();
+
+    } catch (IOException e) {
+      log.error(e.toString());
+    }
+  }
+
+  public void openSearchWindow() {
+    try {
+      /* Load the fxml file and create a new stage for the about window */
+      FXMLLoader loader = new FXMLLoader(getClass()
+        .getResource("/fxml/findInProjectWindow.fxml"));
+      AnchorPane page = (AnchorPane) loader.load();
+      Stage findStage = new Stage();
+      findStage.setTitle("Find in project...");
+      findStage.initModality(Modality.NONE);
+      findStage.initOwner(stageX);
+      Scene scene = new Scene(page);
+      findStage.setScene(scene);
+
+      /* Set the controller */
+      SearchController controller = loader.getController();
+      controller.initModel(this);
+
+      /* show the dialog */
+      findStage.show();
 
     } catch (IOException e) {
       log.error(e.toString());
