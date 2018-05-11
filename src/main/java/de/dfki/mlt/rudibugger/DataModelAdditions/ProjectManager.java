@@ -21,7 +21,7 @@ package de.dfki.mlt.rudibugger.DataModelAdditions;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
-import static de.dfki.mlt.rudibugger.Helper.slice_end;
+import static de.dfki.mlt.rudibugger.HelperMethods.slice_end;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.SimpleServer;
 import java.io.FileInputStream;

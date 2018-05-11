@@ -123,7 +123,7 @@ public class MainApp extends Application {
 
     menuController.initModel(model);
     statusBarController.initModel(model);
-    sideBarController.initModel(model);
+    sideBarController.init(model);
     editorController.initModel(model);
 
 

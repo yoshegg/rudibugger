@@ -22,7 +22,6 @@ package de.dfki.mlt.rudibugger;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.AboutController;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
-import static de.dfki.mlt.rudibugger.DataModel.log;
 import de.dfki.mlt.rudibugger.SearchAndFind.SearchController;
 import java.io.File;
 import java.io.IOException;
@@ -212,8 +211,8 @@ public final class HelperWindows {
 
       /* Set the controller */
       SettingsController controller = loader.getController();
-      controller.initModel(model);
-      controller.setDialogStage(settingsStage);
+      controller.init(model);
+//      controller.setDialogStage(settingsStage);
 
       /* show the dialog */
       settingsStage.show();

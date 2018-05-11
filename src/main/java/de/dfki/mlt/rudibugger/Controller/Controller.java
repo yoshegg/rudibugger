@@ -16,54 +16,28 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-
 package de.dfki.mlt.rudibugger.Controller;
 
 import de.dfki.mlt.rudibugger.DataModel;
-import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Controls the about window.
- *
- * TODO:
- *   - Add mailto
- *   - Rework design
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class AboutController {
-
-  /** The logger. */
-  static Logger log = LoggerFactory.getLogger("About");
+public class Controller {
 
   /** The <code>DataModel</code>. */
-  private DataModel _model = null;
-
-  /** The stage. */
-  private Stage _stage;
+  public DataModel _model;
 
   /**
-   * Initializes the controller.
-   * 
+   * Binds the current <code>DataModel</code> to the controller.
+   *
    * @param model The current <code>DataModel</code>
    */
-  public void initModel(DataModel model) {
+  public void linkModel(DataModel model) {
     if (_model != null) {
       throw new IllegalStateException("Model can only be initialized once");
     }
     _model = model;
   }
-
-
-  /*****************************************************************************
-   * METHODS
-   ****************************************************************************/
-
-  /** Binds the stage to the controller. */
-  public void setDialogStage(Stage dialogStage) {
-    _stage = dialogStage;
-  }
-
 }
