@@ -152,7 +152,7 @@ public class EditorController {
     _evaluatedColumn.setCellFactory(value -> new EvaluatedCellFactory());
     _timeColumn.setCellFactory(value -> new TimestampCellFactory(
              _model.globalConf.timeStampIndexProperty().get())
-    );
+   );
 
     /* set comparators */
     _timeColumn.setComparator((x, y) -> (
@@ -208,7 +208,7 @@ public class EditorController {
     });
   }
 
-  
+
   /*****************************************************************************
    * The different GUI elements
    ****************************************************************************/

@@ -242,7 +242,8 @@ public class MenuController {
 
     /* a project is already open */
     if (_model.projectLoadedProperty().getValue() == PROJECT_OPEN) {
-      switch (HelperWindows.overwriteProjectCheck(_model)) {
+      switch (HelperWindows.overwriteProjectCheck(
+        _model.project.getProjectName())) {
         case OVERWRITE_CHECK_CURRENT_WINDOW:
           if (ymlFile == null)
             ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
@@ -357,7 +358,7 @@ public class MenuController {
 
   @FXML
   private void findInProject(ActionEvent event) {
-    _model.openSearchWindow();
+    HelperWindows.openSearchWindow(_model);
   }
 
   @FXML
@@ -495,13 +496,13 @@ public class MenuController {
   /********* Tools *********/
   @FXML
   private void openSettingsDialog(ActionEvent event) {
-    _model.openSettingsDialog();
+    HelperWindows.openSettingsDialog(_model);
   }
 
   /********* Help *********/
   @FXML
   private void openAboutWindow(ActionEvent event) {
-    _model.openAboutWindow();
+    HelperWindows.openAboutWindow(_model);
   }
 
 

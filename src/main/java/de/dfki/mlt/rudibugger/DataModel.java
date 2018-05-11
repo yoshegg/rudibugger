@@ -22,21 +22,13 @@ package de.dfki.mlt.rudibugger;
 import de.dfki.mlt.rudibugger.SearchAndFind.SearchManager;
 import de.dfki.mlt.rudibugger.RuleModel.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Controller.*;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import de.dfki.mlt.rudibugger.FileTreeView.*;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleModelState;
-import de.dfki.mlt.rudibugger.SearchAndFind.SearchController;
 import de.dfki.mlt.rudibugger.TabManagement.*;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import javafx.beans.property.*;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +36,9 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * The DataModel represents the business logic of rudibugger.
- *
- * TODO: SHRINK AND COMPLETE DOCUMENTATION.
+ * The DataModel represents the business logic of rudibugger and acts as the
+ * central class having all other used classes as fields. Besides it contains
+ * methods to create, open and close projects.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -207,91 +199,5 @@ public class DataModel {
 
   /** @return Property representing the text shown on the statusBar. */
   public StringProperty statusBarTextProperty() { return statusBar; }
-
-
-  /*****************************************************************************
-   * METHODS
-   ****************************************************************************/
-
-  /** Opens the about window. */
-  public void openAboutWindow() {
-    try {
-      /* Load the fxml file and create a new stage for the about window */
-      FXMLLoader loader = new FXMLLoader(getClass()
-              .getResource("/fxml/about.fxml"));
-      AnchorPane page = (AnchorPane) loader.load();
-      Stage aboutStage = new Stage();
-      aboutStage.setResizable(false);
-      aboutStage.setTitle("About Rudibugger");
-      aboutStage.initModality(Modality.NONE);
-      aboutStage.initOwner(stageX);
-      Scene scene = new Scene(page);
-      aboutStage.setScene(scene);
-
-      /* Set the controller */
-      AboutController controller = loader.getController();
-      controller.initModel(this);
-      controller.setDialogStage(aboutStage);
-
-      /* show the dialog */
-      aboutStage.show();
-
-    } catch (IOException e) {
-      log.error(e.toString());
-    }
-  }
-
-
-  /** Opens the settings menu. */
-  public void openSettingsDialog() {
-    try {
-      /* Load the fxml file and create a new stage for the settings dialog */
-      FXMLLoader loader = new FXMLLoader(getClass()
-              .getResource("/fxml/settings.fxml"));
-      AnchorPane page = (AnchorPane) loader.load();
-      Stage settingsStage = new Stage();
-      settingsStage.setTitle("Settings");
-      settingsStage.initModality(Modality.NONE);
-      settingsStage.initOwner(stageX);
-      Scene scene = new Scene(page);
-      settingsStage.setScene(scene);
-
-      /* Set the controller */
-      SettingsController controller = loader.getController();
-      controller.initModel(this);
-      controller.setDialogStage(settingsStage);
-
-      /* show the dialog */
-      settingsStage.show();
-
-    } catch (IOException e) {
-      log.error(e.toString());
-    }
-  }
-
-  public void openSearchWindow() {
-    try {
-      /* Load the fxml file and create a new stage for the about window */
-      FXMLLoader loader = new FXMLLoader(getClass()
-        .getResource("/fxml/findInProjectWindow.fxml"));
-      AnchorPane page = (AnchorPane) loader.load();
-      Stage findStage = new Stage();
-      findStage.setTitle("Find in project...");
-      findStage.initModality(Modality.NONE);
-      findStage.initOwner(stageX);
-      Scene scene = new Scene(page);
-      findStage.setScene(scene);
-
-      /* Set the controller */
-      SearchController controller = loader.getController();
-      controller.initModel(this);
-
-      /* show the dialog */
-      findStage.show();
-
-    } catch (IOException e) {
-      log.error(e.toString());
-    }
-  }
 
 }
