@@ -43,49 +43,38 @@ import org.slf4j.LoggerFactory;
  */
 public class RudiFolderWatch {
 
-  private RudiFolderWatch() {}
-
+  /** The logger. */
   static Logger log = LoggerFactory.getLogger("rudiFolWatch");
+  
 
-  /** the Thread in which the WatchService is run*/
+  /*****************************************************************************
+   * FIELDS
+   ****************************************************************************/
+
+  /** Represents the Thread in which the WatchService is run. */
   private volatile Thread watchingTread;
 
-  /** the corresponding WatchService */
+  /** The corresponding WatchService */
   private WatchService _watchService;
 
-  /** the DataModel */
+  /** The current <code>DataModel</code>. */
   private DataModel _model;
 
-  /**
-   * start listening for folder changes
-   */
-  private void startListening() {
-    watchingTread = new Thread() {
-      @Override
-      public void run() {
-        try {
-          eventLoop();
-        } catch (IOException | InterruptedException ex) {
-          watchingTread = null;
-        }
-      }
-    };
-    watchingTread.setDaemon(true);
-    watchingTread.setName("rudiFolderWatchingTread");
-    watchingTread.start();
-    log.info("RudiFolderWatch has been started.");
-  }
+
+  /*****************************************************************************
+   * INITIALIZERS / CONSTRUCTORS
+   ****************************************************************************/
+
+  /** Private nullary construct to obstruct instantiating. */
+  private RudiFolderWatch() {}
 
   /**
-   * stop listening for folder changes
+   * Creates the WatchService to check for changes in the <code>.rudi</code>
+   * folder.
+   *
+   * @param model The current <code>DataModel</code>.
+   * @return The created WatchService
    */
-  public void shutDownListener() {
-    Thread thr = watchingTread;
-    if (thr != null) {
-      thr.interrupt();
-    }
-  }
-
   public static RudiFolderWatch createRudiFolderWatch(DataModel model) {
 
     RudiFolderWatch newWatch = new RudiFolderWatch();
@@ -113,6 +102,37 @@ public class RudiFolderWatch {
     }
     newWatch.startListening();
     return newWatch;
+  }
+
+
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
+
+  /** Starts listening for folder changes. */
+  private void startListening() {
+    watchingTread = new Thread() {
+      @Override
+      public void run() {
+        try {
+          eventLoop();
+        } catch (IOException | InterruptedException ex) {
+          watchingTread = null;
+        }
+      }
+    };
+    watchingTread.setDaemon(true);
+    watchingTread.setName("rudiFolderWatchingTread");
+    watchingTread.start();
+    log.info("RudiFolderWatch has been started.");
+  }
+
+  /** Stops listening for folder changes. */
+  public void shutDownListener() {
+    Thread thr = watchingTread;
+    if (thr != null) {
+      thr.interrupt();
+    }
   }
 
   public void eventLoop() throws IOException, InterruptedException {
@@ -149,42 +169,30 @@ public class RudiFolderWatch {
 
           /* rudi file added */
           if (kind == ENTRY_CREATE) {
-
-            Platform.runLater(new Runnable() {
-              @Override
-              public void run() {
-                _model.rudiHierarchy.addFileToHierarchy(filename);
-                log.info("rudi file added: " + filename);
-                _model.rudiHierarchy.setFileAsModified(filename);
-              }
+            Platform.runLater(() -> {
+              _model.rudiHierarchy.addFileToHierarchy(filename);
+              log.info("rudi file added: " + filename);
+              _model.rudiHierarchy.setFileAsModified(filename);
             });
 
           }
 
           /* rudi file modified */
           if (kind == ENTRY_MODIFY) {
-            Platform.runLater(new Runnable() {
-              @Override
-              public void run() {
-//              TODO: make better
-                log.info("rudi file has been modified : " + filename);
-                _model.rudiHierarchy.setFileAsModified(filename);
-              }
+            Platform.runLater(() -> {
+              log.info("rudi file has been modified : " + filename);
+              _model.rudiHierarchy.setFileAsModified(filename);
             });
           }
 
           /* rudi file deleted */
           if (kind == ENTRY_DELETE) {
-
-            Platform.runLater(new Runnable() {
-              @Override
-              public void run() {
-                _model.rudiHierarchy.removeFromFileHierarchy(filename);
-                log.info("rudi file deleted: " + filename);
-              }
+            Platform.runLater(() -> {
+              _model.rudiHierarchy.removeFromFileHierarchy(filename);
+              log.info("rudi file deleted: " + filename);
             });
-
           }
+
           continue;
         }
 
@@ -200,7 +208,6 @@ public class RudiFolderWatch {
             log.debug("Started watching new folder: " + filename);
           }
         }
-
       }
 
 

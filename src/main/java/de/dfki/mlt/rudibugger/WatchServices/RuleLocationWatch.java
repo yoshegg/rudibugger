@@ -41,14 +41,63 @@ import org.slf4j.LoggerFactory;
  */
 public class RuleLocationWatch {
 
-  private RuleLocationWatch() {}
-
+  /** The logger. */
   static Logger log = LoggerFactory.getLogger("ruleLocWatch");
 
-  /** the Thread in which the WatchService is run */
+
+  /*****************************************************************************
+   * FIELDS
+   ****************************************************************************/
+
+  /** Represents the Thread in which the WatchService is run. */
   private volatile Thread watchingTread;
 
-  /** start listening for file changes */
+  /** The corresponding WatchService. */
+  private WatchService _watchService;
+
+  /** This Path contains the currently modified file. */
+  private Path changingFile;
+
+  /** The current <code>DataModel</code>. */
+  private DataModel _model;
+
+
+  /*****************************************************************************
+   * INITIALIZERS / CONSTRUCTORS
+   ****************************************************************************/
+
+  /** Private nullary construct to obstruct instantiating. */
+  private RuleLocationWatch() {}
+
+  /**
+   * Creates the Watch to check for changes of the file
+   * <code>RuleLoc.yml</code>.
+   *
+   * @param model The current <code>DataModel</code>
+   * @return The created WatchService
+   */
+  public static RuleLocationWatch createRuleLocationWatch(DataModel model) {
+    RuleLocationWatch newWatch = new RuleLocationWatch();
+    newWatch._model = model;
+
+    try {
+      newWatch._watchService = FileSystems.getDefault().newWatchService();
+      newWatch._model.project.getGeneratedDirectory()
+        .register(newWatch._watchService, ENTRY_MODIFY, ENTRY_CREATE);
+      log.debug("registered " + model.project.getGeneratedDirectory());
+    } catch (IOException e) {
+      log.error("Could not register WatchService: " + e);
+    }
+    newWatch.startListening();
+    return newWatch;
+  }
+
+
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
+
+  /** Starts listening for <code>RuleLoc.yml</code> changes .*/
   private void startListening() {
     watchingTread = new Thread() {
       @Override
@@ -66,42 +115,12 @@ public class RuleLocationWatch {
     log.info("RuleLocationWatch has been started.");
   }
 
-  /** stop listening for file changes */
+  /** Stops listening for <code>RuleLoc.yml</code> changes. */
   public void shutDownListener() {
     Thread thr = watchingTread;
     if (thr != null) {
       thr.interrupt();
     }
-  }
-
-  /** the corresponding WatchSercie */
-  private WatchService _watchService;
-
-  /** this Path contains the currently modified file */
-  private Path changingFile;
-
-  /** the DataModel */
-  DataModel _model;
-
-  /**
-   * this function must be called to create a WatchService for ~RuleLocation.yml
-   * @param model
-   * @return
-   */
-  public static RuleLocationWatch createRuleLocationWatch(DataModel model) {
-    RuleLocationWatch newWatch = new RuleLocationWatch();
-    newWatch._model = model;
-
-    try {
-      newWatch._watchService = FileSystems.getDefault().newWatchService();
-      newWatch._model.project.getGeneratedDirectory()
-        .register(newWatch._watchService, ENTRY_MODIFY, ENTRY_CREATE);
-      log.debug("registered " + model.project.getGeneratedDirectory());
-    } catch (IOException e) {
-      log.error("Could not register WatchService: " + e);
-    }
-    newWatch.startListening();
-    return newWatch;
   }
 
   public void eventLoop() throws IOException, InterruptedException {
