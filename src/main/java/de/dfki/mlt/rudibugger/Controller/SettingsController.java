@@ -140,8 +140,10 @@ public class SettingsController extends Controller {
   @FXML
   private VBox customTextFields;
 
-  /** Represents a <code>TextField</code> specifying how to open a file with a
-   * custom editor. */
+  /**
+   * Represents a <code>TextField</code> specifying how to open a file with a
+   * custom editor.
+   */
   @FXML
   private TextField customFileEditor;
 

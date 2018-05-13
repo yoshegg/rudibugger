@@ -137,7 +137,7 @@ public class SideBarController extends Controller {
           .getSelectedItem();
         RudiPath rp = (RudiPath) ti.getValue();
         if (! Files.isDirectory(rp.getPath()))
-          model.rudiLoad.openFile(rp.getPath());
+          _model.rudiLoad.openFile(rp.getPath());
       }
     });
   }
@@ -182,7 +182,6 @@ public class SideBarController extends Controller {
     item.getChildren().forEach(c ->
       collapseTreeItem((TreeItem) c));
   }
-
 
   /** Builds the ruleTreeView. */
   private static TreeItem buildRuleTreeView(BasicInfo bi) {
