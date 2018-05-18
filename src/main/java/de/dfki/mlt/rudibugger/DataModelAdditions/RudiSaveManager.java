@@ -58,7 +58,7 @@ public class RudiSaveManager {
    * Saves a file by overwriting the old version without asking.
    */
   public void quickSaveFile() {
-    RudiTab tab = _model.selectedTabProperty().get();
+    RudiTab tab = _model.tabStore.currentlySelectedTabProperty().get();
     Path file = tab.getFile();
     String content = tab.getRudiCode();
 
@@ -91,7 +91,7 @@ public class RudiSaveManager {
    * Quick-save all open files.
    */
   public void quickSaveAllFiles() {
-    for (RudiTab tab : _model.openTabsProperty().getValue().values()) {
+    for (RudiTab tab : _model.tabStore.openTabsProperty().getValue().values()) {
       Path file = tab.getFile();
       String content = tab.getRudiCode();
       if (tab.hasBeenModifiedProperty().getValue()) {
@@ -109,7 +109,7 @@ public class RudiSaveManager {
    * Save tab's content into a new file.
    */
   public void saveFileAs() {
-    RudiTab tab = _model.selectedTabProperty().get();
+    RudiTab tab = _model.tabStore.currentlySelectedTabProperty().get();
     String content = tab.getRudiCode();
 
     FileChooser fileChooser = new FileChooser();
@@ -135,7 +135,7 @@ public class RudiSaveManager {
       if (null != handler) {
         handler.handle(null);
       } else {
-        _model.requestedCloseTabProperty().setValue(tab);
+        _model.tabStore.requestedClosingOfTabProperty().set(tab);
         tab.getTabPane().getTabs().remove(tab);
       }
 

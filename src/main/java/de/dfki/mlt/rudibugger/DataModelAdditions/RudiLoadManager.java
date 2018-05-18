@@ -65,7 +65,7 @@ public class RudiLoadManager {
    */
   private void requestTabOfRule(Path file, Integer position) {
     FileAtPos temp = new FileAtPos(file, position);
-    _model.requestedFileProperty().set(temp);
+    _model.tabStore.requestedFileProperty().set(temp);
   }
 
   /**

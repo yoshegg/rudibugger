@@ -23,7 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
 import javafx.application.Platform;
 import javafx.scene.control.SplitPane;
@@ -44,8 +43,22 @@ public class ViewLayout {
   private final DataModel _model;
 
 
+  /*****************************************************************************
+   * FIELDS
+   ****************************************************************************/
+
   /** Contains all layout settings. */
   private HashMap<String, Double> layoutConfiguration = new HashMap();
+
+  /** Represents the SplitPane separating editor and sidebar. */
+  private SplitPane _sidebarEditorSplitPane;
+
+  /** Represents the SplitPane separating ruleTreeView and fileTreeView. */
+  private SplitPane _sidebarSplitPane;
+
+  /*****************************************************************************
+   * INITIALIZERS / CONSTRUCTORS
+   ****************************************************************************/
 
   /**
    * Initializes this addition of <code>DataModel</code>.
@@ -55,6 +68,7 @@ public class ViewLayout {
   public ViewLayout(DataModel model) {
     _model = model;
   }
+
 
   /*****************************************************************************
    * CONSTANTS
@@ -76,28 +90,16 @@ public class ViewLayout {
   public static final String DIVIDER_SIDEBAR_EDITOR = "Divider_Sidebar_Editor";
 
   /** SplitPane dividing sidebar and editor */
-  public static final String DIVIDER_SIDEBAR
-          = "Divider_Sidebar";
+  public static final String DIVIDER_SIDEBAR = "Divider_Sidebar";
 
-
-  /*****************************************************************************
-   * SPLITPANES
-   ****************************************************************************/
-
-  /** Represents the SplitPane separating editor and sidebar. */
-  public SplitPane _sidebarEditorSplitPane;
-
-  /** Represents the SplitPane separating ruleTreeView and fileTreeView. */
-  private SplitPane _sidebarSplitPane;
-
-
+  
   /*****************************************************************************
    * METHODS
    *****************************************************************************/
 
   /** Restores the window's position if a configuration file exists. */
   public void restoreWindowPosition() {
-    if (Files.exists(GLOBAL_LAYOUT_CONFIG_FILE)) {
+    if (GLOBAL_LAYOUT_CONFIG_FILE.toFile().length() != 0) {
       try {
         layoutConfiguration = (HashMap<String, Double>) _model.yaml.load(
                 new FileReader(GLOBAL_LAYOUT_CONFIG_FILE.toFile()));
@@ -106,6 +108,7 @@ public class ViewLayout {
         log.error(e.getMessage());
         return;
       }
+
       _model.stageX.setX(layoutConfiguration.get(WINDOW_POSITION_X));
       _model.stageX.setY(layoutConfiguration.get(WINDOW_POSITION_Y));
       _model.stageX.setWidth(layoutConfiguration.get(WINDOW_WIDTH));
@@ -115,7 +118,7 @@ public class ViewLayout {
 
   /** Restores the dividers' positions if a configuration file exists. */
   public void restoreDividerPositions() {
-    if (Files.exists(GLOBAL_LAYOUT_CONFIG_FILE)) {
+    if (GLOBAL_LAYOUT_CONFIG_FILE.toFile().length() != 0) {
       try {
         layoutConfiguration = (HashMap<String, Double>) _model.yaml.load(
                 new FileReader(GLOBAL_LAYOUT_CONFIG_FILE.toFile()));
@@ -124,6 +127,7 @@ public class ViewLayout {
         log.error(e.getMessage());
         return;
       }
+
       Platform.runLater(() -> {
         _sidebarSplitPane.setDividerPositions(
               layoutConfiguration.get(DIVIDER_SIDEBAR));
@@ -168,7 +172,10 @@ public class ViewLayout {
     log.debug("Saved layout settings.");
   }
 
-  /** Links a SplitPane to model.layout. */
+  /** Links a <code>SplitPane</code> to model.layout.
+   * @param sp The <code>SplitPane</code> to link
+   * @param s The description of the <code>SplitPane</code>
+   */
   public void addSplitPane(SplitPane sp, String s) {
     switch (s) {
       case DIVIDER_SIDEBAR_EDITOR:

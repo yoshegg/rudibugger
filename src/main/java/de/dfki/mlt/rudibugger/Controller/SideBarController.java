@@ -20,16 +20,13 @@
 package de.dfki.mlt.rudibugger.Controller;
 
 import de.dfki.mlt.rudimant.common.BasicInfo;
-import de.dfki.mlt.rudimant.common.ImportInfo;
-import de.dfki.mlt.rudimant.common.RuleInfo;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiTreeCell;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
 import de.dfki.mlt.rudibugger.RuleTreeView.BasicInfoTreeCell;
-import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
-import de.dfki.mlt.rudibugger.RuleModel.RuleInfoExtended;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
@@ -40,20 +37,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This controller manages the left part of the rudibugger window:
- *   - the TreeView showing <code>.rudi</code> files,
- *   - the TreeView showing Imports and Rules, and
- *   - some buttons that manipulate these TreeViews.
+ * This controller manages the left part of the rudibugger window: <br>
+ *   - the TreeView showing <code>.rudi</code> files, <br>
+ *   - the TreeView showing Imports and Rules, and <br>
+ *   - some buttons that manipulate these <code>TreeView</code>s. <br>
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class SideBarController {
+public class SideBarController extends Controller {
 
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("sideBarController");
 
-  /** The <code>DataModel</code> */
-  private DataModel _model;
+
+  /*****************************************************************************
+   * INITIALIZERS / CONSTRUCTORS
+   ****************************************************************************/
 
   /**
    * Connects this controller to the DataModel and initializes it by defining
@@ -62,10 +61,11 @@ public class SideBarController {
    * @param model
    *        The current DataModel
    */
-  public void initModel(DataModel model) {
-    if (this._model != null)
-      throw new IllegalStateException("Model can only be initialized once");
-    this._model = model;
+  public void init(DataModel model) {
+    linkModel(model);
+
+    defineRudiTreeView();
+    defineRuleTreeView();
 
     /* this Listener keeps the rudiTreeView containing the .rudi files up to date */
     model.projectLoadedProperty().addListener((o, ov, nv) -> {
@@ -78,49 +78,23 @@ public class SideBarController {
 
     });
 
-    /* define how a cell in this rudiTreeView looks like */
-    rudiTreeView.setCellFactory(value -> new RudiTreeCell());
-
-    /* open a new tab or select the already opened tab from the selected file */
-    rudiTreeView.setOnMouseClicked((MouseEvent mouseEvent) -> {
-      if (mouseEvent.getClickCount() == 2) {
-        TreeItem ti = (TreeItem) rudiTreeView.getSelectionModel().getSelectedItem();
-        RudiPath rp = (RudiPath) ti.getValue();
-        if (! Files.isDirectory(rp.getPath())) {
-          model.rudiLoad.openFile(rp.getPath());
-        }
-      }
-    });
-
-    /* define how a cell in the ruleTreeView looks like */
-    ruleTreeView.setCellFactory(value -> new BasicInfoTreeCell());
-
-
     /* this Listener builds or modifies the RuleTreeView, if the RuleModel
     was changed.*/
     model.ruleModel.changedStateProperty().addListener((o, oldVal, newVal) -> {
       switch ((int) newVal) {
         case RULE_MODEL_NEWLY_CREATED:
           log.debug("RuleModel has been found.");
-          log.debug("Building TreeView...");
-          ruleTreeView.setRoot(buildTreeView(model));
+          ruleTreeView.setRoot(buildRuleTreeView(model.ruleModel.getRootImport()));
           ruleTreeView.getRoot().setExpanded(true);
-          log.debug("TreeView based on RuleModel has been built.");
-          log.debug("Marking used .rudi files...");
           markFilesInRudiList();
-          log.debug("Marked used .rudi files.");
           model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
           break;
         case RULE_MODEL_CHANGED:
           log.debug("RuleModel has been modified.");
-          log.debug("Adapting ruleTreeView");
           _model.ruleModelState.retrieveStateOf(ruleTreeView);
-          ruleTreeView.setRoot(buildTreeView(model));
+          ruleTreeView.setRoot(buildRuleTreeView(model.ruleModel.getRootImport()));
           _model.ruleModelState.setStateOf(ruleTreeView);
-          log.debug("ruleTreeView has been adapted.");
-          log.debug("Remarking used .rudi files...");
           markFilesInRudiList();
-          log.debug("Remarked used .rudi files.");
           model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
           break;
         case RULE_MODEL_REMOVED:
@@ -129,8 +103,6 @@ public class SideBarController {
             markFilesInRudiList();
           log.debug("RuleModel has been resetted / removed");
           model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
-          break;
-        case RULE_MODEL_UNCHANGED:
           break;
         default:
           break;
@@ -151,110 +123,78 @@ public class SideBarController {
     _model.ruleModelState.loadRequestProperty().addListener((o, ov, nv) -> {
       if (nv == null) return;
       _model.ruleModelState.setStateOf(ruleTreeView);
-
-      /* reset this listener */
       _model.ruleModelState.resetLoadRequestProperty();
     });
 
   }
 
+  /** Defines the look and feel of the rudiTreeView. */
+  private void defineRudiTreeView() {
+    rudiTreeView.setCellFactory(value -> new RudiTreeCell());
+    rudiTreeView.setOnMouseClicked((MouseEvent mouseEvent) -> {
+      if (mouseEvent.getClickCount() == 2) {
+        TreeItem ti = (TreeItem) rudiTreeView.getSelectionModel()
+          .getSelectedItem();
+        RudiPath rp = (RudiPath) ti.getValue();
+        if (! Files.isDirectory(rp.getPath()))
+          _model.rudiLoad.openFile(rp.getPath());
+      }
+    });
+  }
+
+  /** Defines the look and feel of the ruleTreeView. */
+  private void defineRuleTreeView() {
+    ruleTreeView.setCellFactory(value -> new BasicInfoTreeCell());
+  }
+
+
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
+
   /** Marks the files in the <b>rudiList</b> according to their usage state. */
   private void markFilesInRudiList() {
-    for (RudiPath x : _model.rudiHierarchy.getRudiPathSet()) {
+    Path mainRudi = _model.ruleModel.getRootImport().getAbsolutePath();
+    Path wrapperRudi = _model.project.getWrapperClass();
 
-      /* mark the main .rudi file, must be in root folder */
-      if (_model.ruleModel.getRootImport().getAbsolutePath().getFileName().equals(
-              x.getPath().getFileName())) {
+    _model.rudiHierarchy.getRudiPathSet().forEach((x) -> {
+      if (mainRudi.getFileName().equals(x.getPath().getFileName()))
         x.usedProperty().setValue(FILE_IS_MAIN);
-        continue;
-      }
-
-      /* mark the wrapper file,  must be in root folder */
-      if (_model.project.getWrapperClass().getFileName()
-              .equals(x.getPath().getFileName())) {
+      else if (wrapperRudi.getFileName().equals(x.getPath().getFileName()))
         x.usedProperty().setValue(FILE_IS_WRAPPER);
-        continue;
-      }
-
-      /* mark the other files */
-      if (_model.ruleModel.getImportSet().contains(x.getPath())) {
+      else if (_model.ruleModel.getImportSet().contains(x.getPath()))
         x.usedProperty().setValue(FILE_USED);
-      } else {
+      else
         x.usedProperty().setValue(FILE_NOT_USED);
-      }
-    }
-
-  }
-
-  public static TreeItem buildTreeView(DataModel model) {
-
-    ImportInfoExtended root = model.ruleModel.getRootImport();
-
-    /* build rootItem */
-    TreeItem<ImportInfoExtended> rootItem = new TreeItem(root);
-
-    /* iterate over rootImport's children and add them to the rootItem */
-    for (BasicInfo obj : root.getChildren()) {
-      rootItem.getChildren().add(buildTreeViewHelper(obj, model, root));
-    }
-
-    /* return the rootItem */
-    return rootItem;
-  }
-
-  private static TreeItem buildTreeViewHelper(BasicInfo unknownObj,
-          DataModel model, BasicInfo parent) {
-
-    /* the next object is an Import */
-    if (unknownObj instanceof ImportInfo) {
-      ImportInfoExtended newImport = (ImportInfoExtended) unknownObj;
-
-      /* build newImportItem */
-      TreeItem<ImportInfoExtended> newImportItem = new TreeItem(newImport);
-
-      /* iterate over newImport's children and add them to the rootItem */
-      for (BasicInfo obj : newImport.getChildren()) {
-        newImportItem.getChildren().add(buildTreeViewHelper(obj, model, newImport));
-      }
-      return newImportItem;
-    }
-
-    /* the next object is a Rule */
-    if (unknownObj instanceof RuleInfo) {
-      RuleInfoExtended newRule = (RuleInfoExtended) unknownObj;
-
-      /* build newRuleItem */
-      TreeItem<RuleInfoExtended> newRuleItem = new TreeItem(newRule);
-
-      /* iterate over newRule's children and add them to the rootItem */
-      for (BasicInfo obj : newRule.getChildren()) {
-        newRuleItem.getChildren().add(buildTreeViewHelper(obj, model, newRule));
-      }
-      return newRuleItem;
-    }
-
-    /* The new object is neither Rule nor Import, this should never happen. */
-    else {
-      log.error("Tried to read in an object that is neither Rule nor Import.");
-      return null;
-    }
+    });
   }
 
   /** Expands a given TreeItem and all its children. */
   private static void expandTreeItem(TreeItem item) {
     item.setExpanded(true);
-    item.getChildren().forEach((child) -> {
-      expandTreeItem((TreeItem) child);
-    });
+    item.getChildren().forEach(c ->
+      expandTreeItem((TreeItem) c));
   }
 
   /** Collapses a given TreeItem and all its children. */
   private static void collapseTreeItem(TreeItem item) {
     item.setExpanded(false);
-    item.getChildren().forEach((child) -> {
-      collapseTreeItem((TreeItem) child);
-    });
+    item.getChildren().forEach(c ->
+      collapseTreeItem((TreeItem) c));
   }
+
+  /** Builds the ruleTreeView. */
+  private static TreeItem buildRuleTreeView(BasicInfo bi) {
+    TreeItem treeItem = new TreeItem(bi);
+    bi.getChildren().forEach(o ->
+      treeItem.getChildren().add(buildRuleTreeView(o)));
+    return treeItem;
+  }
+
+
+  /*****************************************************************************
+   * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
+   ****************************************************************************/
 
   /** @return The SplitPane separating rule- and fileTreeView. */
   public SplitPane getSidebarSplitPane() { return sidebarSplitPane; }
@@ -281,15 +221,16 @@ public class SideBarController {
    * GUI ACTIONS
    ****************************************************************************/
 
-  /** Expands all TreeItems in the ruleTreeView. */
+  /** Expands all <code>TreeItem</code>s in the ruleTreeView. */
   @FXML
   private void expandAll(ActionEvent event) {
-    if (ruleTreeView.getRoot() != null) {
-      expandTreeItem((TreeItem) ruleTreeView.getRoot());
-    }
+    if (ruleTreeView.getRoot() != null) expandTreeItem(ruleTreeView.getRoot());
   }
 
-  /** Collapses all TreeItems, but the root item, in the ruleTreeView. */
+  /**
+   * Collapses all <code>TreeItem</code>s, but the root item, in the
+   * ruleTreeView.
+   */
   @FXML
   private void collapseAll(ActionEvent event) {
     if (ruleTreeView.getRoot() != null) {

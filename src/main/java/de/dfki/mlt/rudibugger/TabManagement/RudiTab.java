@@ -164,5 +164,7 @@ public class RudiTab extends Tab {
     return _codeArea.getText();
   }
 
+  public RudiCodeArea getCodeArea() { return _codeArea; }
+
 
 }

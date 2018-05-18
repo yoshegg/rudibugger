@@ -28,7 +28,7 @@ import de.dfki.mlt.rudibugger.RPC.LogData.DatePart;
 import de.dfki.mlt.rudibugger.RPC.LogData.StringPart;
 import de.dfki.mlt.rudibugger.RuleLoggingTableView.TimestampCellFactory;
 import static de.dfki.mlt.rudibugger.RuleLoggingTableView.TimestampCellFactory.dt;
-import de.dfki.mlt.rudibugger.TabManagement.TabStore;
+import de.dfki.mlt.rudibugger.TabManagement.TabStoreView;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import javafx.application.Platform;
@@ -49,11 +49,14 @@ import org.slf4j.LoggerFactory;
  */
 public class EditorController {
 
-  /* the logger */
+  /** the logger. */
   static Logger log = LoggerFactory.getLogger("rudiLog");
 
-  /* the model */
+  /** The current <code>DataModel</code> */
   private DataModel _model;
+
+  /** Manages the look of the <code>TabPane</code>(s). */
+  private TabStoreView _tabView;
 
   public void initModel(DataModel model) {
     if (_model != null) {
@@ -61,31 +64,10 @@ public class EditorController {
     }
     _model = model;
 
-    /* initialise the TabStore */
-    tabStore = new TabStore(tabBox);
+    /* Manage TabStoreView */
+    _tabView = new TabStoreView(tabBox);
+    _tabView.initialize(_model.tabStore);
 
-    /* this listener waits for tab requests: open or switch to */
-    _model.requestedFileProperty().addListener((arg, oldVal, newVal) -> {
-      if (newVal != null) {
-        tabStore.openTab(newVal);
-      }
-    _model.requestedFileProperty().setValue(null);
-    });
-
-    /* this listener waits for tab requests: close */
-    _model.requestedCloseTabProperty().addListener((arg, oldVal, newVal) -> {
-      if (newVal != null) {
-        tabStore.closeTab(newVal);
-      }
-    });
-
-    /* this listener represents the current active tab */
-    _model.selectedTabProperty().bindBidirectional(
-            tabStore.currentTabProperty());
-
-    /* this listener represents all the currently open tabs */
-    _model.openTabsProperty().bindBidirectional(
-            tabStore.openTabsProperty());
 
     /* this listener adds a TableView to the editorSplitPane if connection to
      * rudimant has been established.
@@ -170,7 +152,7 @@ public class EditorController {
     _evaluatedColumn.setCellFactory(value -> new EvaluatedCellFactory());
     _timeColumn.setCellFactory(value -> new TimestampCellFactory(
              _model.globalConf.timeStampIndexProperty().get())
-    );
+   );
 
     /* set comparators */
     _timeColumn.setComparator((x, y) -> (
@@ -228,13 +210,6 @@ public class EditorController {
 
 
   /*****************************************************************************
-   * The Tab Management
-   ****************************************************************************/
-
-  private TabStore tabStore;
-
-
-  /*****************************************************************************
    * The different GUI elements
    ****************************************************************************/
 
@@ -249,7 +224,7 @@ public class EditorController {
   @FXML
   private HBox tabBox;
 
-  /** The underlying SplitPane to which the ruleLogger will be added */
+  /** The underlying SplitPane to which the tabBoxruleLogger will be added */
   @FXML
   private SplitPane editorSplitPane;
 

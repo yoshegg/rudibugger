@@ -32,7 +32,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Stream;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.TreeItem;
@@ -79,7 +82,7 @@ public class RuleModelState {
     = new SimpleBooleanProperty(false);
 
   /** Represents a list of all recent <code>RuleModelState</code>s. */
-  private ArrayList<Path> _recentStates;
+  private List<Path> _recentStates = new ArrayList<>();
 
 
   /*****************************************************************************
@@ -96,10 +99,10 @@ public class RuleModelState {
   }
 
   /** Creates a new RuleModelState. (<i>Constructor needed for YAML</i>) */
-  public RuleModelState() {}
+  private RuleModelState() {}
 
   /** Sets the DataModel of RuleModelState. (<i>Function needed for YAML</i>) */
-  public void setDataModel(DataModel model) { _model = model; }
+  private void setDataModel(DataModel model) { _model = model; }
 
 
   /*****************************************************************************
@@ -321,6 +324,37 @@ public class RuleModelState {
 
 
   /*****************************************************************************
+   * OTHER METHODS
+   ****************************************************************************/
+
+  /**
+   * Retrieves the 10 most recent saved RuleModelState configurations.
+   */
+  public void retrieveRecentConfigurations() {
+    List<Path> temp = new ArrayList<>();
+
+    /* Retrieve all files and add them to a list. */
+    Stream<Path> stream;
+    try {
+      stream = Files.walk(_model.project.getRuleModelStatesFolder());
+    } catch (IOException e) {
+      log.error(e.toString());
+      return;
+    }
+    stream.forEach(x -> { if (!Files.isDirectory(x)) temp.add(x); });
+
+    /* Sort the list by modification date. */
+    Collections.sort(temp, (Path p1, Path p2) ->
+        Long.compare(p2.toFile().lastModified(), p1.toFile().lastModified()));
+
+    /* Set the last 10 as the one's that will be shown in the menu. */
+    int subListLength = 10;
+    if (temp.size() < 10) subListLength = temp.size();
+    _recentStates = temp.subList(0, subListLength);
+  }
+
+
+  /*****************************************************************************
    * PRETTY PRINTING
    ****************************************************************************/
 
@@ -362,7 +396,10 @@ public class RuleModelState {
    ****************************************************************************/
 
   /** @return A list of all recently saved <code>RuleModelState</code>s */
-  public ArrayList<Path> getRecentStates() { return _recentStates; }
+  public List<Path> getRecentStates() {
+    retrieveRecentConfigurations();
+    return _recentStates;
+  }
 
   /** @return Signalizes a save request of the RuleModelState. */
   public BooleanProperty saveRequestProperty() { return _saveRequestProperty; }

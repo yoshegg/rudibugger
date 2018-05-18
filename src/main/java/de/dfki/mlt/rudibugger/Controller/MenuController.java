@@ -37,6 +37,7 @@ import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
@@ -95,6 +96,7 @@ public class MenuController {
         newRudiFileItem.setDisable(false);
         loadLoggingStateMenu.setDisable(false);
         saveLoggingStateItem.setDisable(false);
+        findInProjectItem.setDisable(false);
         manageLookOfVondaConnectionButton();
         defineCompileButton();
       } else {
@@ -103,6 +105,7 @@ public class MenuController {
         newRudiFileItem.setDisable(true);
         loadLoggingStateMenu.setDisable(true);
         saveLoggingStateItem.setDisable(true);
+        findInProjectItem.setDisable(true);
         manageLookOfVondaConnectionButton();
         defineCompileButton();
       }
@@ -113,7 +116,7 @@ public class MenuController {
     );
 
     /* this listener enables saving depending on the selected tab */
-    _model.selectedTabProperty().addListener((o, oldVal, newVal) -> {
+    _model.tabStore.currentlySelectedTabProperty().addListener((o, oldVal, newVal) -> {
 
       /* no tab is opened */
       if (newVal == null) {
@@ -204,15 +207,29 @@ public class MenuController {
       }
   }
 
+  /**
+   * Builds the menu offering to load the 10 most recent RuleModelState
+   * configurations.
+   */
+  @FXML
   private void buildLoadRuleSelectionStateMenu() {
-    loadLoggingStateMenu.getItems().clear();
-    _model.ruleModelState.getRecentStates().forEach((x) -> {
-      MenuItem mi = new MenuItem(x.toString());
-      mi.setOnAction((event) -> {
-        _model.ruleModelState.loadState(x);
+    if (!_model.ruleModelState.getRecentStates().isEmpty()) {
+      loadLoggingStateMenu.getItems().clear();
+      _model.ruleModelState.getRecentStates().forEach((x) -> {
+        String filenameWithFolder = _model.project.getRuleModelStatesFolder()
+                .relativize(x).toString();
+        MenuItem mi = new MenuItem(filenameWithFolder);
+        mi.setOnAction((event) -> {
+          _model.ruleModelState.loadState(x);
+        });
+        loadLoggingStateMenu.getItems().add(mi);
       });
-      loadLoggingStateMenu.getItems().add(mi);
-    });
+    } else {
+      loadLoggingStateMenu.getItems().clear();
+      loadLoggingStateMenu.getItems().add(noRecentConfigurationFound);
+    }
+    loadLoggingStateMenu.getItems().add(new SeparatorMenuItem());
+    loadLoggingStateMenu.getItems().add(openRuleLoggingStateItem);
   }
 
   /**
@@ -225,7 +242,8 @@ public class MenuController {
 
     /* a project is already open */
     if (_model.projectLoadedProperty().getValue() == PROJECT_OPEN) {
-      switch (HelperWindows.overwriteProjectCheck(_model)) {
+      switch (HelperWindows.overwriteProjectCheck(
+        _model.project.getProjectName())) {
         case OVERWRITE_CHECK_CURRENT_WINDOW:
           if (ymlFile == null)
             ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
@@ -338,6 +356,14 @@ public class MenuController {
    * Menu items actions (from menu bar)
    ****************************************************************************/
 
+  @FXML
+  private void findInProject(ActionEvent event) {
+    HelperWindows.openSearchWindow(_model);
+  }
+
+  @FXML
+  private MenuItem findInProjectItem;
+
   /********* File *********/
 
 
@@ -393,6 +419,14 @@ public class MenuController {
   }
 
 
+  /** MenuItem "No recent configuration found. */
+  @FXML
+  private MenuItem noRecentConfigurationFound;
+
+  /** MenuItem "Open configuration file... */
+  @FXML
+  private MenuItem openRuleLoggingStateItem;
+
   /** Menu "Load logging state" */
   @FXML
   private Menu loadLoggingStateMenu;
@@ -402,7 +436,6 @@ public class MenuController {
   private void openRuleLoggingStateConfigurationFile(ActionEvent event) {
     _model.ruleModelState.loadStateSelectFile();
   }
-
 
   /** MenuItem "Save logging state..." */
   @FXML
@@ -463,13 +496,13 @@ public class MenuController {
   /********* Tools *********/
   @FXML
   private void openSettingsDialog(ActionEvent event) {
-    _model.openSettingsDialog();
+    HelperWindows.openSettingsDialog(_model);
   }
 
   /********* Help *********/
   @FXML
   private void openAboutWindow(ActionEvent event) {
-    _model.openAboutWindow();
+    HelperWindows.openAboutWindow(_model);
   }
 
 

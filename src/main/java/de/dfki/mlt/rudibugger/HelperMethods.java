@@ -29,7 +29,7 @@ package de.dfki.mlt.rudibugger;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class Helper {
+public class HelperMethods {
 
   /**
    * Slices a given string at a given start position.

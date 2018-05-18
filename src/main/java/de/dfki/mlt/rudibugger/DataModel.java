@@ -19,23 +19,16 @@
 
 package de.dfki.mlt.rudibugger;
 
+import de.dfki.mlt.rudibugger.SearchAndFind.SearchManager;
 import de.dfki.mlt.rudibugger.RuleModel.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Controller.AboutController;
-import de.dfki.mlt.rudibugger.Controller.SettingsController;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import de.dfki.mlt.rudibugger.FileTreeView.*;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleModelState;
 import de.dfki.mlt.rudibugger.TabManagement.*;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import javafx.beans.property.*;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +36,9 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * The DataModel represents the business logic of rudibugger.
- *
- * TODO: SHRINK AND COMPLETE DOCUMENTATION.
+ * The DataModel represents the business logic of rudibugger and acts as the
+ * central class having all other used classes as fields. Besides it contains
+ * methods to create, open and close projects.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -82,6 +75,7 @@ public class DataModel {
   private final StringProperty statusBar
           = new SimpleStringProperty();
 
+
   /*****************************************************************************
    * ADDITIONS (ADDITIONAL MODULES OF DATAMODEL)
    ****************************************************************************/
@@ -110,6 +104,9 @@ public class DataModel {
   /** Provides additional functionality to track changes in the file system. */
   public WatchManager watch = new WatchManager(this);
 
+  /** Provides additional functionality to search trough files. */
+  public SearchManager search = new SearchManager(this);
+
 
   /*****************************************************************************
    * PROJECT ADDITIONS
@@ -129,6 +126,9 @@ public class DataModel {
    * and files.
    */
   public RudiHierarchy rudiHierarchy = new RudiHierarchy(this);
+
+  /** Contains information about the opened tabs. */
+  public TabManager tabStore = new TabManager(this);
 
 
   /*****************************************************************************
@@ -194,97 +194,10 @@ public class DataModel {
    * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
    ****************************************************************************/
 
-  /** @Return Property indicating whether or not a project has been loaded. */
+  /** @return Property indicating whether or not a project has been loaded. */
   public BooleanProperty projectLoadedProperty() { return _projectLoaded; }
 
-  /** @Return Property representing the text shown on the statusBar. */
+  /** @return Property representing the text shown on the statusBar. */
   public StringProperty statusBarTextProperty() { return statusBar; }
-
-
-  /*****************************************************************************
-   * OLD
-   ****************************************************************************/
-
-  private final ObjectProperty<HashMap<Path, RudiTab>> openTabs
-          = new SimpleObjectProperty<>();
-  public ObjectProperty<HashMap<Path, RudiTab>> openTabsProperty() {
-    return openTabs;
-  }
-
-  private final ObjectProperty<RudiTab> selectedTab
-          = new SimpleObjectProperty<>();
-  public ObjectProperty<RudiTab> selectedTabProperty() { return selectedTab; }
-
-  private final ObjectProperty<RudiTab> requestedCloseTab
-          = new SimpleObjectProperty<>();
-  public ObjectProperty<RudiTab> requestedCloseTabProperty() {
-    return requestedCloseTab;
-  }
-
-  private final ObjectProperty<FileAtPos> requestedFile
-          = new SimpleObjectProperty<>();
-  public ObjectProperty<FileAtPos> requestedFileProperty() {
-    return requestedFile;
-  }
-
-
-  /*****************************************************************************
-   * METHODS
-   ****************************************************************************/
-
-  /** Opens the about window. */
-  public void openAboutWindow() {
-    try {
-      /* Load the fxml file and create a new stage for the about window */
-      FXMLLoader loader = new FXMLLoader(getClass()
-              .getResource("/fxml/about.fxml"));
-      AnchorPane page = (AnchorPane) loader.load();
-      Stage aboutStage = new Stage();
-      aboutStage.setResizable(false);
-      aboutStage.setTitle("About Rudibugger");
-      aboutStage.initModality(Modality.NONE);
-      aboutStage.initOwner(stageX);
-      Scene scene = new Scene(page);
-      aboutStage.setScene(scene);
-
-      /* Set the controller */
-      AboutController controller = loader.getController();
-      controller.initModel(this);
-      controller.setDialogStage(aboutStage);
-
-      /* show the dialog */
-      aboutStage.show();
-
-    } catch (IOException e) {
-      log.error(e.toString());
-    }
-  }
-
-
-  public void openSettingsDialog() {
-    try {
-      /* Load the fxml file and create a new stage for the settings dialog */
-      FXMLLoader loader = new FXMLLoader(getClass()
-              .getResource("/fxml/settings.fxml"));
-      AnchorPane page = (AnchorPane) loader.load();
-      Stage settingsStage = new Stage();
-      settingsStage.setTitle("Settings");
-      settingsStage.initModality(Modality.NONE);
-      settingsStage.initOwner(stageX);
-      Scene scene = new Scene(page);
-      settingsStage.setScene(scene);
-
-      /* Set the controller */
-      SettingsController controller = loader.getController();
-      controller.initModel(this);
-      controller.setDialogStage(settingsStage);
-
-      /* show the dialog */
-      settingsStage.show();
-
-    } catch (IOException e) {
-      log.error(e.toString());
-    }
-  }
 
 }

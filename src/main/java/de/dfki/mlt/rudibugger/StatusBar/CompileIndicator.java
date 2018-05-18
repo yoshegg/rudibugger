@@ -24,7 +24,6 @@ import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
-import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import javafx.beans.property.IntegerProperty;
