@@ -10,23 +10,20 @@ A video demonstrating rudibugger can be found [here](https://youtu.be/nSotEVZUEy
 
 ## Installation
 
-**rudibugger** is a maven-based project. It is mainly based on JavaFX, which might not be installed on your system if you're using OpenJDK.
+### Prerequisites
 
-If you are using an Ubuntu-based linux, you can install it using
+**rudibugger** is a maven-based project. 
+
+It is mainly based on JavaFX, which might not be installed on your system if you're using OpenJDK. If you are using an Ubuntu-based linux, you can install it using
 
 ```sudo apt install openjfx```
 
-*missing: detailed installation instructions*
-
-
-### Prerequisites
-
 It is mandatory to install [**VOnDA**](https://github.com/bkiefer/vonda) first, as it contains most of the dependencies needed to build **rudibugger**.
-
-*missing: further requisites*
 
 
 ### Installation process
+
+If you installed the prerequisites, you can clone rudibugger and install it the usual way:
 
 ```
 git clone https://github.com/yoshegg/rudibugger
@@ -35,7 +32,10 @@ mvn install
 ```
 
 
+
 ## How to run rudibugger
+
+A (not yet complete) documentation can be found [here](http://rudibugger.readthedocs.io/en/latest/index.html).
 
 ### Start rudibugger
 
@@ -47,7 +47,8 @@ In the root folder of **rudibugger**, two scripts are included:
 
 ### Connect to VOnDA
 
-Given a **VOnDA**-based project on the same machine, one must only open the project in **rudibugger** by selecting the project's configuration file. If the system is running, one can connect to VOnDA by clicking the connect button in the upper left. 
+Given a **VOnDA**-based project on the same machine, one must only open the project in **rudibugger** by selecting the project's configuration file. If the system is running, one can connect to **VOnDA** by clicking the connect button in the upper left. 
+
 
 
 ## Origin
