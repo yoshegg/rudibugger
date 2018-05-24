@@ -242,21 +242,16 @@ public class MenuController {
 
     /* a project is already open */
     if (_model.projectLoadedProperty().getValue() == PROJECT_OPEN) {
-      switch (HelperWindows.overwriteProjectCheck(
+      if (OVERWRITE_PROJECT == HelperWindows.overwriteProjectCheck(
         _model.project.getProjectName())) {
-        case OVERWRITE_CHECK_CURRENT_WINDOW:
-          if (ymlFile == null)
-            ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
-          if (ymlFile == null) return;
 
-          _model.close(true);
-          _model.init(ymlFile);
+        if (ymlFile == null)
+          ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
+        if (ymlFile == null)
+          return;
 
-          break;
-        case OVERWRITE_CHECK_NEW_WINDOW:
-        //TODO: not implemented yet.
-        case OVERWRITE_CHECK_CANCEL:
-          break;
+        _model.close(true);
+        _model.init(ymlFile);
       }
     }
 

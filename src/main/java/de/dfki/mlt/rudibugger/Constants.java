@@ -56,9 +56,7 @@ public class Constants {
   * MARK AND SIGNALIZE THE USER'S REQUEST OF A NEW PROJECT
   *****************************************************************************/
 
-  public static final int OVERWRITE_CHECK_CANCEL = 0;
-  public static final int OVERWRITE_CHECK_CURRENT_WINDOW = 1;
-  public static final int OVERWRITE_CHECK_NEW_WINDOW = 2;
+  public static final boolean OVERWRITE_PROJECT = true;
 
 
  /******************************************************************************

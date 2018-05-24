@@ -63,10 +63,9 @@ public final class HelperWindows {
    * Asks the user what to do if there is already an open project.
    *
    * @param projectName The currently open project's name
-   * @return Integer stating to replace current project, open new window or do
-   * nothing
+   * @return true, if current project should be overwritten, else false
    */
-  public static int overwriteProjectCheck(String projectName) {
+  public static boolean overwriteProjectCheck(String projectName) {
     log.debug("Asking what should happen because of the open project.");
 
     /* defining an Alert Window */
@@ -74,30 +73,22 @@ public final class HelperWindows {
     alert.setTitle("Open Project...");
     alert.setHeaderText(projectName + " is already open.");
     alert.setContentText("Do you want to close the current project and \n"
-                       + "open the new one in this window or do you \n"
-                       + "want to open a new window instead?");
+                       + "open the new one instead?");
 
     /* defining its buttons */
-    ButtonType currentWindow = new ButtonType("Close");
-    ButtonType newWindow = new ButtonType("New");
+    ButtonType close_and_open = new ButtonType("Close & Open");
     ButtonType cancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
-    alert.getButtonTypes().setAll(currentWindow, newWindow, cancel);
-
-    /* TODO: remove this if the according functions are implemented */
-    alert.getDialogPane().lookupButton(currentWindow).setDisable(false);
-    alert.getDialogPane().lookupButton(newWindow).setDisable(true);
+    alert.getButtonTypes().setAll(close_and_open, cancel);
 
     /* open the window and bind its choice to variable */
     Optional<ButtonType> result = alert.showAndWait();
 
     /* define return value */
-    if (result.get() == currentWindow)
-      return OVERWRITE_CHECK_CURRENT_WINDOW;
-    else if (result.get() == newWindow)
-      return OVERWRITE_CHECK_NEW_WINDOW;
+    if (result.get() == close_and_open)
+      return OVERWRITE_PROJECT;
     else
-      return OVERWRITE_CHECK_CANCEL;
-    }
+      return !OVERWRITE_PROJECT;
+  }
 
   /**
    * Opens a window to select a <code>.yml</code> project file.
