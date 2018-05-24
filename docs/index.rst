@@ -27,6 +27,8 @@ For further questions do not hesitate to write me a mail or open an issue. My ad
    :maxdepth: 2
    :caption: User Documentation
 
+   user_doc/installation
+   user_doc/start
    user_doc/first_steps
    user_doc/gui_overview
    user_doc/editor

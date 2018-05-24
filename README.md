@@ -8,34 +8,14 @@ A video demonstrating rudibugger can be found [here](https://youtu.be/nSotEVZUEy
 
 
 
-## Installation
+## Documentation
 
-### Prerequisites
+Installation instructions, how to run rudibugger and information about its features can be found in the (not yet complete) [documentation](http://rudibugger.readthedocs.io/en/latest/index.html).
 
-**rudibugger** is a maven-based project. 
-
-It is mainly based on JavaFX, which might not be installed on your system if you're using OpenJDK. If you are using an Ubuntu-based linux, you can install it using
-
-```sudo apt install openjfx```
-
-It is mandatory to install [**VOnDA**](https://github.com/bkiefer/vonda) first, as it contains most of the dependencies needed to build **rudibugger**.
+A short quickguide on how to start rudibugger can be found below.
 
 
-### Installation process
-
-If you installed the prerequisites, you can clone rudibugger and install it the usual way:
-
-```
-git clone https://github.com/yoshegg/rudibugger
-cd rudibugger
-mvn install
-```
-
-
-
-## How to run rudibugger
-
-A (not yet complete) documentation can be found [here](http://rudibugger.readthedocs.io/en/latest/index.html).
+## How to run rudibugger (quick-guide)
 
 ### Start rudibugger
 
@@ -43,7 +23,6 @@ In the root folder of **rudibugger**, two scripts are included:
 
   - `runRudibugger.sh` runs rudibugger and prints its own logging statements on the running shell. (e.g. `rudibugger has been started.`)
   - `run.sh` does not print these statements. 
-
 
 ### Connect to VOnDA
 

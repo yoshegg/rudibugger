@@ -17,7 +17,11 @@ You can create a new module (aka ``.rudi`` file) for the currently open project 
 Load / Save rule logging states
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For more information on *rule logging states* cf. section :ref:`Rule Logging States <Rule-Logging-States>`.
+It is possible to save the current selection of how rules are logged. (cf. :term:`RuleModelState`). Besides, it is also possible to reload a selection. 
+
+.. tip::
+   The saved file will contain information about all the rules that were ever used until this point. This is especially useful if you need to disable some rules temporary, but want to continue using them later. 
+
 
 Save files / modules
 ~~~~~~~~~~~~~~~~~~~~
@@ -69,7 +73,7 @@ VOnDA connection button
 
 The button right of the *run* button shows the connection state to **VOnDA**'s live system. Clicking it starts a connection attempt or, if an attempt has already been started or a connection has already been established, closes the connection.
 
-.. hint:: Take a look at section :ref:`Connection to VOnDA <Connection-to-VOnDA>` if you want to automatically connect after opening a project. 
+.. hint:: Take a look at section :ref:`connection-to-vonda`, if you want to automatically connect after opening a project. 
 
 
 The fileTreeView
@@ -78,8 +82,8 @@ The fileTreeView
 This ``TreeView`` represents the ``.rudi`` folder of a project and its subdirectories. 
 Double clicking an entry opens the represented file in your default editor (cf. section :ref:`Editor <Editor>` for more information).
 
-Icons 
-~~~~~
+File icons 
+~~~~~~~~~~
 
 Different icons indicate the usage state of the shown file:
 
@@ -99,7 +103,7 @@ Orange file icon             Main module of the project
 Further graphical indications
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If a file has been modified after the last compilation attempt, its background colour will change. For more information, cf. section :ref:`Sync indicator <Sync-indicator>`.
+If a file has been modified after the last compilation attempt, its background colour will change. For more information, cf. section :ref:`Sync indicator <Sync indicator>`.
 
 
 The ruleTreeView
@@ -108,8 +112,8 @@ The ruleTreeView
 This ``TreeView`` shows all the rules that are included in the currently used modules. 
 
 
-Icons
-~~~~~
+RuleLoggingState Icons
+~~~~~~~~~~~~~~~~~~~~~~
  
 The modules are represented with file icons and the rules with custom ``CheckBox``es. According to the rule logging state, the boxes have different colour:
 
@@ -149,8 +153,6 @@ Set a rule logging state
 
 There are different ways to set the logging state of a rule:
 
-  * Test
-  
   * You can **cycle through** the different states **by clicking** on the `CheckBox`. 
   * You can set the state of a **specific rule** via context menu.
   * You can set the state of **all the children of a module** in a similar way. 
