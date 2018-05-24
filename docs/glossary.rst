@@ -3,7 +3,7 @@ Glossary
 
 .. glossary::
 
-   FileTreeView
+   fileTreeView
      Represents the folder (and its subfolders) containing the ``.rudi`` files.
 
 
@@ -11,7 +11,7 @@ Glossary
      Contains all the currently used modules and rules of the project. After compiling the ``.rudi`` code, this structure is saved in a file called ``RuleLoc.yml``.
 
 
-   RuleTreeView
+   ruleTreeView
      A ``TreeView`` representing the hierarchical structure of the *RuleModel*.
 
 

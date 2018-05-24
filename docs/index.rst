@@ -6,12 +6,15 @@
 Welcome to rudibugger's documentation!
 ======================================
 
+This is the documentation of **rudibugger**, a debugger for **VOnDA**. **rudibugger** is open source and is hosted on `github <https://github.com/yoshegg/rudibugger>`_.
+
 .. toctree::
    :maxdepth: 3
    :caption: Contents:
 
-This documentation is still a draft.  
-For further questions do not hesitate to write me a mail or open an issue. My address can be found in the ``README.md`` of **rudibugger**'s repository.
+.. warning:: This documentation is still a draft as of 2018.05.24.
+
+.. note:: For further questions do not hesitate to open an issue on this project's github repository.
 
 .. _general-info:
 

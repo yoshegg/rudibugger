@@ -6,8 +6,8 @@ General GUI overview
 After opening a project, some GUI elements become accessible or show project specific content. 
 
 
-The MenuBar's file menu
------------------------
+MenuBar's file menu
+-------------------
 
 New .rudi file
 ~~~~~~~~~~~~~~
@@ -39,8 +39,8 @@ Closing a project resets all GUI elements (except for tabs) and closes a potenti
     Closing **does not ask for confirmation**. Besides, it does not close open files or saves them. You must save and / or close them yourself.
 
 
-The Toolbar
------------
+Toolbar
+-------
 
 Compile and run buttons
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,8 +76,8 @@ The button right of the *run* button shows the connection state to **VOnDA**'s l
 .. hint:: Take a look at section :ref:`connection-to-vonda`, if you want to automatically connect after opening a project. 
 
 
-The fileTreeView
-----------------
+fileTreeView
+------------
 
 This ``TreeView`` represents the ``.rudi`` folder of a project and its subdirectories. 
 Double clicking an entry opens the represented file in your default editor (cf. section :ref:`Editor <Editor>` for more information).
@@ -106,8 +106,8 @@ Further graphical indications
 If a file has been modified after the last compilation attempt, its background colour will change. For more information, cf. section :ref:`Sync indicator <Sync indicator>`.
 
 
-The ruleTreeView
-----------------
+ruleTreeView
+------------
 
 This ``TreeView`` shows all the rules that are included in the currently used modules. 
 
@@ -173,8 +173,8 @@ Modules that produced warnings or errors will be shown with a coloured ground. Y
 
 
 
-The Statusbar (and its indicators)
-----------------------------------
+Statusbar (and its indicators)
+------------------------------
 
 The Statusbar contains two circles, the so called *indicators*. 
 
