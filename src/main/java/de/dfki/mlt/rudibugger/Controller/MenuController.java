@@ -353,7 +353,7 @@ public class MenuController {
 
   @FXML
   private void findInProject(ActionEvent event) {
-    HelperWindows.openSearchWindow(_model);
+    _model.helperWindows.openSearchWindow();
   }
 
   @FXML
@@ -491,13 +491,13 @@ public class MenuController {
   /********* Tools *********/
   @FXML
   private void openSettingsDialog(ActionEvent event) {
-    HelperWindows.openSettingsDialog(_model);
+    _model.helperWindows.openSettingsDialog();
   }
 
   /********* Help *********/
   @FXML
   private void openAboutWindow(ActionEvent event) {
-    HelperWindows.openAboutWindow(_model);
+    _model.helperWindows.openAboutWindow();
   }
 
 
