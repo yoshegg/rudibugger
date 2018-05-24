@@ -19,6 +19,6 @@ Glossary
      The *ruleLoggingState* describes under what circumstances a rule is being logged.
 
 
-   RuleModel state
+   RuleModelState
       The hierarchical structure reflecting the structure of the modules and their rules is shown in the *ruleTreeview*. The current look of this ``TreeView`` (its expansion state and the *ruleLoggingStates* of the contained rules is called *RuleModel state*. This state can be saved and reloaded.
 

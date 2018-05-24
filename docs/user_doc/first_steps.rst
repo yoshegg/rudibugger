@@ -7,7 +7,7 @@ As rudibugger is a debugger for **VOnDA** projects, one must open a project firs
 Open a project
 --------------
 
-To open a project, go to :menuselection:`File --> Open project...`. *(Alternatively, you can use the shortcut* :kbd:`Ctrl+Shift+O` *.)*
+To open a project, go to :menuselection:`File --> Open project...`. Alternatively, you can use the shortcut :kbd:`Ctrl` + :kbd:`Shift` + :kbd:`O` .
 
 In the appearing file dialogue, you must choose a ``.yml`` file meeting the minimum requirements of rudibugger. This configuration file will be called **$CONFIG_YAML** from here on. 
 
