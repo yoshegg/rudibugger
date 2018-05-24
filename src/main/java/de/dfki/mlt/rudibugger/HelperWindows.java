@@ -44,6 +44,8 @@ import org.slf4j.LoggerFactory;
  *   - open dialogs that only have a simple purpose, and <br>
  *   - additional windows that have more functionality (search, settings, ...).
  *
+ * Properties are used to disallow more than one window of a kind.
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public final class HelperWindows {
@@ -51,12 +53,34 @@ public final class HelperWindows {
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("HelperWin");
 
-  /** Private constructor to obstruct instantiating of this utility class. */
-  private HelperWindows() {}
+  /** The <code>DataModel</code> */
+  private final DataModel _model;
+
+  /**
+   * Initializes this addition of <code>DataModel</code>.
+   *
+   * @param model  The current <code>DataModel</code>
+   */
+  public HelperWindows(DataModel model) {
+    _model = model;
+  }
+
+  /*****************************************************************************
+   * PROPERTIES / FIELDS
+   ****************************************************************************/
+
+  /** Indicates if the settings window is open. */
+  private boolean settingsWindowOpened = false;
+
+  /** Indicates if the about window is open. */
+  private boolean aboutWindowOpened = false;
+
+  /** Indicates if the search in project window is open. */
+  private boolean searchInProjectWindowOpened = false;
 
 
   /*****************************************************************************
-   * METHODS
+   * STATIC METHODS
    ****************************************************************************/
 
   /**
@@ -150,12 +174,14 @@ public final class HelperWindows {
     return chosenRuleLoggingStateFile.toPath();
   }
 
-  /**
-   * Opens the about window.
-   *
-   * @param model The current <code>DataModel</code>
-   */
-  public static void openAboutWindow(DataModel model) {
+
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
+
+  /** Opens the about window. */
+  public void openAboutWindow() {
+    if (aboutWindowOpened) return;
     try {
       /* Load the fxml file and create a new stage for the about window */
       FXMLLoader loader = new FXMLLoader(HelperWindows.class
@@ -165,29 +191,30 @@ public final class HelperWindows {
       aboutStage.setResizable(false);
       aboutStage.setTitle("About Rudibugger");
       aboutStage.initModality(Modality.NONE);
-      aboutStage.initOwner(model.stageX);
+      aboutStage.initOwner(_model.stageX);
       Scene scene = new Scene(page);
       aboutStage.setScene(scene);
 
       /* Set the controller */
       AboutController controller = loader.getController();
-      controller.initModel(model);
+      controller.initModel(_model);
       controller.setDialogStage(aboutStage);
 
       /* show the dialog */
       aboutStage.show();
+      aboutWindowOpened = true;
+
+      /* handle close request */
+      aboutStage.setOnCloseRequest(value -> aboutWindowOpened = false);
 
     } catch (IOException e) {
       log.error(e.toString());
     }
   }
 
-  /**
-   * Opens the settings menu.
-   *
-   * @param model The current <code>DataModel</code>
-   */
-  public static void openSettingsDialog(DataModel model) {
+  /** Opens the settings menu. */
+  public void openSettingsDialog() {
+    if (settingsWindowOpened) return;
     try {
       /* Load the fxml file and create a new stage for the settings dialog */
       FXMLLoader loader = new FXMLLoader(HelperWindows.class
@@ -196,29 +223,29 @@ public final class HelperWindows {
       Stage settingsStage = new Stage();
       settingsStage.setTitle("Settings");
       settingsStage.initModality(Modality.NONE);
-      settingsStage.initOwner(model.stageX);
+      settingsStage.initOwner(_model.stageX);
       Scene scene = new Scene(page);
       settingsStage.setScene(scene);
 
       /* Set the controller */
       SettingsController controller = loader.getController();
-      controller.init(model);
-//      controller.setDialogStage(settingsStage);
+      controller.init(_model);
 
       /* show the dialog */
       settingsStage.show();
+      settingsWindowOpened = true;
+
+      /* handle close request */
+      settingsStage.setOnCloseRequest(value -> settingsWindowOpened = false);
 
     } catch (IOException e) {
       log.error(e.toString());
     }
   }
 
-  /**
-   * Opens the search window.
-   *
-   * @param model The current <code>DataModel</code>
-   */
-  public static void openSearchWindow(DataModel model) {
+  /** Opens the search window. */
+  public void openSearchWindow() {
+    if (searchInProjectWindowOpened) return;
     try {
       /* Load the fxml file and create a new stage for the about window */
       FXMLLoader loader = new FXMLLoader(HelperWindows.class
@@ -227,16 +254,20 @@ public final class HelperWindows {
       Stage findStage = new Stage();
       findStage.setTitle("Find in project...");
       findStage.initModality(Modality.NONE);
-      findStage.initOwner(model.stageX);
+      findStage.initOwner(_model.stageX);
       Scene scene = new Scene(page);
       findStage.setScene(scene);
 
       /* Set the controller */
       SearchController controller = loader.getController();
-      controller.initModel(model);
+      controller.initModel(_model);
 
       /* show the dialog */
       findStage.show();
+      searchInProjectWindowOpened = true;
+
+      /* handle close request */
+      findStage.setOnCloseRequest(value -> searchInProjectWindowOpened = false);
 
     } catch (IOException e) {
       log.error(e.toString());

@@ -80,6 +80,9 @@ public class DataModel {
    * ADDITIONS (ADDITIONAL MODULES OF DATAMODEL)
    ****************************************************************************/
 
+  /** Manages additional helper windows. */
+  public HelperWindows helperWindows = new HelperWindows(this);
+
   /** Stores information about rudibugger's layout. */
   public ViewLayout layout = new ViewLayout(this);
 
