@@ -1,7 +1,7 @@
 Settings
 ========
 
-Some settings can be configured in the settings window. :menuselection:`Tools --> Options`.
+Some settings can be configured in the settings window: :menuselection:`Tools --> Options`.
 
 
 Default editor
@@ -18,7 +18,7 @@ Connection to VOnDA
 -------------------
 
 Show index after timestamp in logging table   
-  If multiple logging events occur at the same time, they might not be distinguishable. Therefore one can show an index alongside of the timestamp.
+  If multiple logging events occur at the same time, they might not be distinguishable. Therefore, one can show an index alongside of the timestamp.
 
 Automatically connect to VOnDA when opening a project
   Basically what it says.

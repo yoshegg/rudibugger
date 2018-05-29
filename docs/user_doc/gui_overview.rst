@@ -45,7 +45,7 @@ Toolbar
 Compile and run buttons
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Upon loading a project, the *Compile* and the *Run* Button might become active, if an according script has been found in the root directory of the chosen project. 
+Upon loading a project, the *Compile* and the *Run* Button might become active if an according script has been found in the root directory of the chosen project. 
 
 .. attention:: 
     The compile script must be called ``compile`` and the run file ``run.sh``. They must be executable. 
@@ -66,6 +66,8 @@ Upon loading a project, the *Compile* and the *Run* Button might become active, 
   The second command *bar* shows that a normal shell script file can also be used.
 
   It is also possible to use command names with white spaces.
+  
+  Additional compile commands are accessible via a drop-down menu of the compile button. The menu only appears if additional commands have been speicifed, though. 
 
 
 VOnDA connection button
@@ -73,7 +75,7 @@ VOnDA connection button
 
 The button right of the *run* button shows the connection state to **VOnDA**'s live system. Clicking it starts a connection attempt or, if an attempt has already been started or a connection has already been established, closes the connection.
 
-.. hint:: Take a look at section :ref:`connection-to-vonda`, if you want to automatically connect after opening a project. 
+.. hint:: Take a look at the section :ref:`connection-to-vonda` if you want to automatically connect after opening a project. 
 
 
 fileTreeView
@@ -115,7 +117,7 @@ This ``TreeView`` shows all the rules that are included in the currently used mo
 RuleLoggingState Icons
 ~~~~~~~~~~~~~~~~~~~~~~
  
-The modules are represented with file icons and the rules with custom ``CheckBox``es. According to the rule logging state, the boxes have different colour:
+The modules are represented with file icons and the rules with custom CheckBoxes. According to the rule logging state, the boxes have different colour:
 
 ==============  ===============================
 Colour          Rule is...    
@@ -129,7 +131,7 @@ Colour          Rule is...
 
 Module icons will change their colour according to the states of their children. 
 
-.. note:: Modules that do not contain any rules are also shown, but don't contain any children in the ``TreeView``. Therefore, their icon will always be grey. 
+.. note:: Modules that do not contain any rules are also shown, but don't contain any children in the ``TreeView``. Therefore, their icons will always be grey. 
 
 
 
@@ -173,10 +175,10 @@ Modules that produced warnings or errors will be shown with a coloured ground. Y
 
 
 
-Statusbar (and its indicators)
+Status bar (and its indicators)
 ------------------------------
 
-The Statusbar contains two circles, the so called *indicators*. 
+The status bar contains two circles, the so-called *indicators*. 
 
 
 Sync indicator
@@ -218,7 +220,7 @@ Colour            Status
 
 .. note:: Undefined means that the project has never been compiled or that no project has been opened.
 
-.. tip:: You can go to the specific lines of the occurred problems via context menu.
+.. tip:: You can go to the specific lines of the problems via context menu.
 
 
 
