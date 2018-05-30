@@ -6,4 +6,4 @@
 ## Start a local server
 ```/startLocalTestServer.sh```
 
-N.B.: You might need to restart your current session
+N.B.: You might need to restart your current session.
