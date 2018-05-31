@@ -29,20 +29,29 @@ import java.nio.file.Path;
  */
 public class FileAtPos {
 
+  /** Represents the requested file. */
   private final Path _file;
+
+  /** Represents the requested line of the requested file. */
   private final int _pos;
 
-  public Path getFile() {
-    return _file;
-  }
-
-  public int getPosition() {
-    return _pos;
-  }
-
+  /**
+   * Creates a new request.
+   *
+   * @param path
+   *        The requested file.
+   * @param position
+   *        The line of the requested file.
+   */
   public FileAtPos(Path path, Integer position) {
     _file = path;
     _pos = position;
   }
+
+  /** @return The requested file. */
+  public Path getFile() { return _file; }
+
+  /** @return The requested line of the requested file. */
+  public int getPosition() { return _pos; }
 
 }
