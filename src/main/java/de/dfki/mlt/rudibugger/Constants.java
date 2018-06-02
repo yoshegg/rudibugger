@@ -118,4 +118,13 @@ public class Constants {
   public static final int CONNECTED_TO_VONDA = 2;
   public static final int DISCONNECTED_FROM_VONDA = 0;
 
+
+  /*****************************************************************************
+   * CLOSE MODIFIED FILE
+   ****************************************************************************/
+
+  public static final int CANCEL_CLOSING = 0;
+  public static final int CLOSE_BUT_SAVE_FIRST = 1;
+  public static final int CLOSE_WITHOUT_SAVING = 2;
+
 }

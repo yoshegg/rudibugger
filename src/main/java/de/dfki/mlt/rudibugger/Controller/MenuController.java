@@ -450,7 +450,8 @@ public class MenuController {
   /** Action "Save" */
   @FXML
   private void saveAction(ActionEvent event) {
-    _model.rudiSave.quickSaveFile();
+    _model.rudiSave.quickSaveFile(
+            _model.tabStore.currentlySelectedTabProperty().get());
   }
 
 
@@ -461,7 +462,8 @@ public class MenuController {
   /** Action "Save as..." */
   @FXML
   private void saveAsAction(ActionEvent event) {
-    _model.rudiSave.saveFileAs();
+    _model.rudiSave.saveFileAs(
+            _model.tabStore.currentlySelectedTabProperty().get());
   }
 
 

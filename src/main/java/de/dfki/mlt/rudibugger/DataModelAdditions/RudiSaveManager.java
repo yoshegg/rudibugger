@@ -52,19 +52,32 @@ public class RudiSaveManager {
    *
    * @param model  The current <code>DataModel</code>
    */
-  public RudiSaveManager(DataModel model) { _model = model; }
+  public RudiSaveManager(DataModel model) {
+    _model = model;
+  }
 
-  /**
-   * Saves a file by overwriting the old version without asking.
-   */
-  public void quickSaveFile() {
-    RudiTab tab = _model.tabStore.currentlySelectedTabProperty().get();
+
+  /** Reponsible for processing save requests. */
+  public void initSaveListener() {
+    _model.tabStore.requestedSavingOfTabProperty().addListener((o, ov, nv) -> {
+      if (nv != null) {
+        if (nv.isKnown())
+          quickSaveFile(nv);
+        else
+          saveFileAs(nv);
+        _model.tabStore.requestedSavingOfTabProperty().set(null);
+      }
+    });
+  }
+
+  /** Saves a file by overwriting the old version without asking. */
+  public void quickSaveFile(RudiTab tab) {
     Path file = tab.getFile();
     String content = tab.getRudiCode();
 
     if (saveFile(file, content)) {
       tab.setText(file.getFileName().toString());
-      tab.waitForModif();
+      tab.waitForModifications();
       log.debug("File " + file.getFileName() + " has been saved.");
       notifySaved(file.getFileName().toString());
     }
@@ -87,9 +100,7 @@ public class RudiSaveManager {
     }
   }
 
-  /**
-   * Quick-save all open files.
-   */
+  /** Quick-save all open files. */
   public void quickSaveAllFiles() {
     for (RudiTab tab : _model.tabStore.openTabsProperty().getValue().values()) {
       Path file = tab.getFile();
@@ -97,7 +108,7 @@ public class RudiSaveManager {
       if (tab.hasBeenModifiedProperty().getValue()) {
         if (saveFile(file, content)) {
           tab.setText(file.getFileName().toString());
-          tab.waitForModif();
+          tab.waitForModifications();
           log.debug("File " + file.getFileName() + " has been saved.");
           notifySaved(file.getFileName().toString());
         }
@@ -107,9 +118,10 @@ public class RudiSaveManager {
 
   /**
    * Save tab's content into a new file.
+   *
+   * @return True, if the file has been successfully saved, else false
    */
-  public void saveFileAs() {
-    RudiTab tab = _model.tabStore.currentlySelectedTabProperty().get();
+  public boolean saveFileAs(RudiTab tab) {
     String content = tab.getRudiCode();
 
     FileChooser fileChooser = new FileChooser();
@@ -122,28 +134,36 @@ public class RudiSaveManager {
     try {
       file = (fileChooser.showSaveDialog(_model.stageX)).toPath();
     } catch (NullPointerException e) {
-      return;
+      return false;
     }
-      if (! file.getFileName().toString().endsWith(RULE_FILE_EXTENSION)) {
-        file = Paths.get(file.toString() + RULE_FILE_EXTENSION);
+    if (file == null) return false;
+    if (! file.getFileName().toString().endsWith(RULE_FILE_EXTENSION)) {
+      file = Paths.get(file.toString() + RULE_FILE_EXTENSION);
     }
 
     if (saveFile(file, content)) {
 
-      /* close old tab */
-      EventHandler<Event> handler = tab.getOnClosed();
-      if (null != handler) {
-        handler.handle(null);
-      } else {
-        _model.tabStore.requestedClosingOfTabProperty().set(tab);
-        tab.getTabPane().getTabs().remove(tab);
-      }
+//      /* close old tab */
+//      EventHandler<Event> handler = tab.getOnClosed();
+//      if (null != handler) {
+//        handler.handle(null);
+//      } else {
+//        _model.tabStore.requestedClosingOfTabProperty().set(tab);
+//        tab.getTabPane().getTabs().remove(tab);
+//      }
+//
+//      /* open a new tab */
+//      _model.rudiLoad.openFile(file);
 
-      /* open a new tab */
-      _model.rudiLoad.openFile(file);
+      tab.setText(file.getFileName().toString());
+      _model.tabStore.openTabsProperty().get().remove(tab.getFile());
+      tab.setFile(file);
+      _model.tabStore.openTabsProperty().get().put(file, tab);
+      tab.waitForModifications();
 
       log.debug("File " + file.getFileName() + " has been saved.");
     }
+    return true;
   }
 
   /**
