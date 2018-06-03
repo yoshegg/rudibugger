@@ -19,6 +19,8 @@
 
 package de.dfki.mlt.rudibugger.TabManagement;
 
+import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.HelperWindows;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.Scanner;
@@ -33,66 +35,85 @@ import org.slf4j.LoggerFactory;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 
 /**
+ * A <code>RudiTab</code> is a tab containing <code>.rudi</code> code and
+ * showing it with special syntax highlighting.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RudiTab extends Tab {
 
-  /** the logger */
+  /** The logger. */
   static Logger log = LoggerFactory.getLogger("rudiLog");
 
-  /** the associated file */
+
+  /*****************************************************************************
+   * FIELDS & PROPERTIES
+   ****************************************************************************/
+
+  /** Represents the associated file. */
   private Path _file;
 
-  /** the codeArea */
+  /** Represents the codeArea showing the current <code>.rudi</code> code. */
   protected RudiCodeArea _codeArea;
 
-  /** is this a known file or a new one? */
-  private Boolean isKnown;
+  /** Indicates whether or not a file has already been saved once. */
+  private Boolean _isKnown;
 
-  /* creates a new empty tab */
+  /** Indicates if the content of a tab has been modified and not saved yet. */
+  private final BooleanProperty hasBeenModified = new SimpleBooleanProperty();
+
+  /** Represents the main <code>AnchorPane</code> that is shown in the tab. */
+  private AnchorPane _mainAnchorPane;
+
+  /**
+   * Represents the <code>TabStoreView</code> that manages the view of the tabs.
+   */
+  private TabStoreView _tabStoreView;
+
+  /** Listens to modifications of the <code>codeArea</code>. */
+  private ChangeListener contentChangeListener = new ChangeListener() {
+    @Override
+    public void changed(ObservableValue o, Object oldValue, Object newValue) {
+      setText("*" + RudiTab.this.getText());
+      hasBeenModified.setValue(true);
+      o.removeListener(contentChangeListener);
+    }
+  };
+
+
+  /*****************************************************************************
+   * CONSTRUCTORS
+   ****************************************************************************/
+
+  /** Creates a new empty tab. */
   public RudiTab() {
     super();
   }
 
-  /* creates a new tab and links a file to it */
-  public RudiTab(Path file) {
+  /** Creates a new tab and links a file to it. */
+  public RudiTab(Path file, TabStoreView tsv) {
     this();
     _file = file;
+    _tabStoreView = tsv;
+    initCodeArea();
+    initLayout();
+    waitForModifications();
+    setClosingBehaviour();
   }
 
-  public void setContent() {
 
-    /* set the title of the tab */
-    if (_file == null) {
-      this.setText("Untitled RudiTab");
-    } else {
-      this.setText(_file.getFileName().toString());
-    }
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
 
-    /* create a CodeArea */
+  /** Reads in a possibly provided file and sets up the <code>codeArea</code>. */
+  private void initCodeArea() {
+
+    /* Create a codeArea. */
     _codeArea = new RudiCodeArea();
     _codeArea.initializeCodeArea();
 
-    /* add Scrollbar to tab's content */
-    VirtualizedScrollPane textAreaWithScrollBar
-            = new VirtualizedScrollPane<>(_codeArea);
-
-    /* set TextArea to fit parent VirtualizedScrollPane */
-    AnchorPane.setTopAnchor(textAreaWithScrollBar, 0.0);
-    AnchorPane.setRightAnchor(textAreaWithScrollBar, 0.0);
-    AnchorPane.setLeftAnchor(textAreaWithScrollBar, 0.0);
-    AnchorPane.setBottomAnchor(textAreaWithScrollBar, 0.0);
-    AnchorPane content = new AnchorPane(textAreaWithScrollBar);
-
-    /* set css */
-    try {
-      content.getStylesheets().add("/styles/rudi-keywords.css");
-    } catch (NullPointerException e) {
-      log.error("The provided css file could not be found.");
-    }
-
-    /* read in file (if provided) */
+    /* Read in file (if provided). */
     if (_file != null) {
       try {
         Scanner s = new Scanner(_file.toFile()).useDelimiter("\n");
@@ -103,68 +124,116 @@ public class RudiTab extends Tab {
         log.error("Something went wrong while reading in "
                 + _file.getFileName().toString());
       }
-      isKnown = true;
+      _isKnown = true;
     } else {
-      isKnown = false;
+      _isKnown = false;
+    }
+  }
+
+
+  /** Initializes the layout. */
+  private void initLayout() {
+
+    /* Set the title of the tab. */
+    if (_file == null)
+      setText("Untitled RudiTab");
+    else
+      setText(_file.getFileName().toString());
+
+    /* Add Scrollbar to tab's content. */
+    VirtualizedScrollPane textAreaWithScrollBar
+            = new VirtualizedScrollPane<>(_codeArea);
+
+    /* Set TextArea to fit parent VirtualizedScrollPane. */
+    AnchorPane.setTopAnchor(textAreaWithScrollBar, 0.0);
+    AnchorPane.setRightAnchor(textAreaWithScrollBar, 0.0);
+    AnchorPane.setLeftAnchor(textAreaWithScrollBar, 0.0);
+    AnchorPane.setBottomAnchor(textAreaWithScrollBar, 0.0);
+    _mainAnchorPane = new AnchorPane(textAreaWithScrollBar);
+
+    /* Set CSS. */
+    try {
+      _mainAnchorPane.getStylesheets().add("/styles/rudi-keywords.css");
+    } catch (NullPointerException e) {
+      log.error("The provided .css file could not be found.");
     }
 
-    /* set the shown part of the file */
-    _codeArea.showParagraphAtTop(0);
-    _codeArea.moveTo(0, 0);
-
-    /* load content into tab */
-    this.setContent(content);
-
-    /* wait for modifications */
-    waitForModif();
+    /* Link content to tab. */
+    setContent(_mainAnchorPane);
 
   }
 
-  private final BooleanProperty hasBeenModified = new SimpleBooleanProperty();
-  public BooleanProperty hasBeenModifiedProperty() { return hasBeenModified; }
-
-  public void waitForModif() {
+  /**
+   * Resets the field indicating that a file has unsaved changes and starts
+   * listening for possible changes.
+   */
+  public void waitForModifications() {
     hasBeenModified.setValue(false);
-    _codeArea.textProperty().addListener(cl);
+    _codeArea.textProperty().addListener(contentChangeListener);
   }
 
-  private ChangeListener cl = (ChangeListener) new ChangeListener() {
-    @Override
-    public void changed(ObservableValue o, Object oldValue, Object newValue) {
-      setText("*" + RudiTab.this.getText());
-      hasBeenModified.setValue(true);
-      o.removeListener(cl);
-    }
-  };
+  private void setClosingBehaviour() {
+    this.setOnCloseRequest(e -> {
+      while (true) {
+
+        if (hasBeenModified.get()) {
+          String fileName = (_file != null) ? _file.getFileName().toString()
+                  : "Untitled file";
+          int returnValue = HelperWindows.closeFileWithoutSavingCheck(fileName);
+          switch (returnValue) {
+            case CLOSE_BUT_SAVE_FIRST:
+              _tabStoreView.requestedSavingOfTabProperty().set(this);
+              /*
+               * Immediately reset this listener;
+               * probably needed because of a JavaFX bug.
+               */
+              _tabStoreView.requestedSavingOfTabProperty().set(null);
+              continue; // continue with while
+            case CLOSE_WITHOUT_SAVING:
+              _tabStoreView.closeTab(this);
+              break; // break out of switch
+            case CANCEL_CLOSING:
+              e.consume();
+              break; // break out of switch
+          }
+          break; // break out of while
+        } else {
+          _tabStoreView.closeTab(this);
+          break; // break out of while
+        }
+      }
+    });
+  }
+
+
+  /*****************************************************************************
+   * GETTERS & SETTERS
+   ****************************************************************************/
+
+  /** @return False, if the tab's content has never been saved, else true. */
+  public Boolean isKnown() { return _isKnown; }
+
+  /** @return The associated file of this tab. */
+  public Path getFile() { return _file; }
 
   /**
-   * Indicates that the file is not a new, unsaved file
+   * Sets the file of this tab.
    *
-   * @return
+   * @param file
+   *        The associated file.
    */
-  public Boolean isKnown() {
-    return isKnown;
-  }
+  public void setFile(Path file) { _file = file; }
 
-  /**
-   * Returns the file this tab is associated to
-   *
-   * @return
-   */
-  public Path getFile() {
-    return _file;
-  }
+  /** @return The <code>.rudi</code> code shown in the tab. */
+  public String getRudiCode() { return _codeArea.getText(); }
 
-  /**
-   * Returns the .rudi code shown in the tab
-   *
-   * @return
-   */
-  public String getRudiCode() {
-    return _codeArea.getText();
-  }
-
+  /** @return The codeArea showing the <code>.rudi</code> code. */
   public RudiCodeArea getCodeArea() { return _codeArea; }
 
+  /**
+   * @return Property indicating if the content of a tab has been modified and
+   * not saved.
+   */
+  public BooleanProperty hasBeenModifiedProperty() { return hasBeenModified; }
 
 }

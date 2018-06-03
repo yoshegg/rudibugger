@@ -76,6 +76,10 @@ public class TabManager {
   private final ObjectProperty<FileAtPos> requestedFile
           = new SimpleObjectProperty<>();
 
+  /** Represents a tab that is requested to be saved. */
+  private final ObjectProperty<RudiTab> requestedSavingOfTab =
+          new SimpleObjectProperty<>();
+
 
   /*****************************************************************************
    * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
@@ -99,6 +103,11 @@ public class TabManager {
   /** @Return A file that should be opened at a certain position. */
   public ObjectProperty<FileAtPos> requestedFileProperty() {
     return requestedFile;
+  }
+
+  /** @Return A tab that should be closed. */
+  public ObjectProperty<RudiTab> requestedSavingOfTabProperty() {
+    return requestedSavingOfTab;
   }
 
 }

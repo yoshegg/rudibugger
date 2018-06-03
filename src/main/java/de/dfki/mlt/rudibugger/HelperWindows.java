@@ -115,6 +115,42 @@ public final class HelperWindows {
   }
 
   /**
+   * Asks the user what should happen to the modified but unsaved file if a
+   * close request has been sent.
+   *
+   * @param fileName
+   *        The name of the modified file
+   * @return Integer representing the user's choice
+   */
+  public static int closeFileWithoutSavingCheck(String fileName) {
+    log.debug("Asking how an unsaved file should be closed.");
+
+    /* Defining an Alert window. */
+    Alert alert = new Alert(Alert.AlertType.WARNING);
+    alert.setTitle("Close unsaved file?");
+    alert.setHeaderText(fileName + " has unsaved changes.");
+    alert.setContentText("Do you want to save the file before closing it?");
+
+    /* Defining the buttons. */
+    ButtonType discard_changes = new ButtonType("Discard", ButtonData.CANCEL_CLOSE);
+    ButtonType save_and_close = new ButtonType("Save", ButtonData.OK_DONE);
+    ButtonType cancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+    alert.getButtonTypes().setAll(save_and_close, cancel, discard_changes);
+
+     /* Open the window and bind its choice to variable. */
+    Optional<ButtonType> result = alert.showAndWait();
+
+    /* Return the correct Integer value. */
+    if (result.get() == save_and_close)
+      return CLOSE_BUT_SAVE_FIRST;
+    else if (result.get() == discard_changes)
+      return CLOSE_WITHOUT_SAVING;
+    else
+      return CANCEL_CLOSING;
+  }
+
+
+  /**
    * Opens a window to select a <code>.yml</code> project file.
    *
    * @param stage

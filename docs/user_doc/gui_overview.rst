@@ -102,8 +102,8 @@ Orange file icon             Main module of the project
 
 
 
-Further graphical indications
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Further graphical file indications
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If a file has been modified after the last compilation attempt, its background colour will change. For more information, cf. section :ref:`Sync indicator <Sync indicator>`.
 
@@ -135,8 +135,8 @@ Module icons will change their colour according to the states of their children.
 
 
 
-Further graphical indications
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Further graphical compilation indications
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Compilation problems will be indicated in the following way:
 
@@ -176,7 +176,7 @@ Modules that produced warnings or errors will be shown with a coloured ground. Y
 
 
 Status bar (and its indicators)
-------------------------------
+-------------------------------
 
 The status bar contains two circles, the so-called *indicators*. 
 

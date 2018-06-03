@@ -15,9 +15,6 @@ When opening a file or a rule, it will be opened in a new tab in the editor part
 
 Syntax highlighting is supported via *RichTextFX*. It might be buggy, though. 
 
-.. danger:: Right now, there is no *ask-for-confirmation* dialog to save the content of a modified file that should be closed.
-
-
 
 Search in project
 -----------------

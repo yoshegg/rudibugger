@@ -21,7 +21,7 @@ package de.dfki.mlt.rudibugger;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.EditorController;
-import de.dfki.mlt.rudibugger.Controller.MenuController;
+import de.dfki.mlt.rudibugger.Controller.MenuBar.MenuController;
 import de.dfki.mlt.rudibugger.Controller.SideBarController;
 import de.dfki.mlt.rudibugger.StatusBar.StatusBarController;
 import static de.dfki.mlt.rudibugger.ViewLayout.*;
@@ -121,7 +121,7 @@ public class MainApp extends Application {
       log.info("Created global config folder (first start of rudibugger");
     }
 
-    menuController.initModel(model);
+    menuController.init(model);
     statusBarController.initModel(model);
     sideBarController.init(model);
     editorController.initModel(model);

@@ -17,9 +17,10 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.Controller;
+package de.dfki.mlt.rudibugger.Controller.MenuBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.Controller.Controller;
 
 import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.MainApp;
@@ -48,34 +49,40 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class MenuController {
+public class MenuController extends Controller {
 
-  /** the logger of the MenuController */
-  static Logger log = LoggerFactory.getLogger("GUIlog");
+  /** The logger. */
+  static Logger log = LoggerFactory.getLogger("MenuController");
 
-  /** the DataModel */
-  private DataModel _model;
 
+  /*****************************************************************************
+   * EXTENSIONS OF THE MENU CONTROLLER
+   ****************************************************************************/
+
+  private CompileButtonManager compileButtonManager;
+
+
+  /*****************************************************************************
+   * INITIALIZERS / CONSTRUCTORS
+   ****************************************************************************/
+
+  /**
+   * Initializes this controller.
+   *
+   * @param model The current <code>DataModel</code>
+   */
+  public void init(DataModel model) {
+    linkModel(model);
+//    compileButtonManager = new CompileButtonManager(_model);
+    compileButtonManager = CompileButtonManager.init(_model, compileButton,
+            toolBar);
+    initModel();
+  }
   /** This function connects this controller to the DataModel
    *
    * @param model
    */
-  public void initModel(DataModel model) {
-    if (this._model != null) {
-      throw new IllegalStateException("Model can only be initialized once");
-    }
-    _model = model;
-
-    /* this listener checks for a compile file */
-    _model.project.compileFileProperty().addListener((o, oldVal, newVal) -> {
-      if (newVal != null) {
-        log.debug("As a compile file has been found, "
-                + "the button was enabled.");
-        compileButton.setDisable(false);
-      } else {
-        compileButton.setDisable(true);
-      }
-    });
+  public void initModel() {
 
     /* this listener checks for a run file */
     _model.project.runFileProperty().addListener((o, oldVal, newVal) -> {
@@ -98,7 +105,7 @@ public class MenuController {
         saveLoggingStateItem.setDisable(false);
         findInProjectItem.setDisable(false);
         manageLookOfVondaConnectionButton();
-        defineCompileButton();
+        compileButtonManager.defineCompileButton();
       } else {
         log.debug("Project closed: disable GUI-elements.");
         closeProjectItem.setDisable(true);
@@ -107,8 +114,13 @@ public class MenuController {
         saveLoggingStateItem.setDisable(true);
         findInProjectItem.setDisable(true);
         manageLookOfVondaConnectionButton();
-        defineCompileButton();
+        compileButtonManager.defineCompileButton();
       }
+    });
+
+    /* Keep track of default compile command. */
+    _model.project.defaultCompileCommandProperty().addListener((cl, ov, vn) -> {
+      compileButtonManager.defineCompileButton();
     });
 
     _model.vonda.connectedProperty().addListener(l ->
@@ -213,6 +225,7 @@ public class MenuController {
    */
   @FXML
   private void buildLoadRuleSelectionStateMenu() {
+    if (! _model.projectLoadedProperty().get()) return; 
     if (!_model.ruleModelState.getRecentStates().isEmpty()) {
       loadLoggingStateMenu.getItems().clear();
       _model.ruleModelState.getRecentStates().forEach((x) -> {
@@ -267,65 +280,6 @@ public class MenuController {
     }
   }
 
-  public void defineCompileButton() {
-    // TODO: Can probably be shortened.
-
-    /* No compile file & no custom compile commands. */
-    if (  (_model.project.getCompileFile() == null)
-        & (_model.project.getCustomCompileCommands().isEmpty()) ) {
-      if (toolBar.getItems().contains(customCompileButton)) {
-        toolBar.getItems().remove(customCompileButton);
-        toolBar.getItems().add(0, compileButton);
-      }
-    }
-
-    /* Compile file, but no custom compile commands. */
-    else if ( (_model.project.getCompileFile() != null)
-            & (_model.project.getCustomCompileCommands().isEmpty()) ) {
-      if (toolBar.getItems().contains(customCompileButton)) {
-        toolBar.getItems().remove(customCompileButton);
-        toolBar.getItems().add(0, compileButton);
-      }
-    }
-
-    /* Compile file & custom compile commands. */
-    else if ( (_model.project.getCompileFile() != null)
-            & (! _model.project.getCustomCompileCommands().isEmpty()) ) {
-
-      if (toolBar.getItems().contains(compileButton))
-        toolBar.getItems().remove(compileButton);
-      customCompileButton = new SplitMenuButton();
-      customCompileButton.setText("Compile");
-      customCompileButton.setOnAction(e -> {
-        try {
-          _model.compiler.startDefaultCompile();
-        } catch (IOException | InterruptedException ex) {
-          log.error(ex.toString());
-        }
-      });
-
-      /* Iterate over alternative compile commands */
-      for (String k : _model.project.getCustomCompileCommands().keySet()) {
-        Label l = new Label(k);
-        CustomMenuItem cmi = new CustomMenuItem(l);
-        String cmd = _model.project.getCustomCompileCommands().get(k);
-        Tooltip t = new Tooltip(cmd);
-        Tooltip.install(l, t);
-        cmi.setOnAction(f -> {
-          try {
-            _model.compiler.startCompile(cmd);
-          } catch (IOException | InterruptedException ex) {
-            log.error(ex.toString());
-          }
-        });
-        customCompileButton.getItems().add(cmi);
-
-      }
-      toolBar.getItems().add(0, customCompileButton);
-    }
-
-  }
-
 
   /*****************************************************************************
    * The different GUI elements
@@ -334,9 +288,6 @@ public class MenuController {
   /* the compile button */
   @FXML
   private Button compileButton;
-
-  /** Custom compile button */
-  private SplitMenuButton customCompileButton;
 
   /* the run button */
   @FXML
@@ -450,7 +401,8 @@ public class MenuController {
   /** Action "Save" */
   @FXML
   private void saveAction(ActionEvent event) {
-    _model.rudiSave.quickSaveFile();
+    _model.rudiSave.quickSaveFile(
+            _model.tabStore.currentlySelectedTabProperty().get());
   }
 
 
@@ -461,7 +413,8 @@ public class MenuController {
   /** Action "Save as..." */
   @FXML
   private void saveAsAction(ActionEvent event) {
-    _model.rudiSave.saveFileAs();
+    _model.rudiSave.saveFileAs(
+            _model.tabStore.currentlySelectedTabProperty().get());
   }
 
 
@@ -508,13 +461,6 @@ public class MenuController {
   /** Contains buttons */
   @FXML
   private ToolBar toolBar;
-
-  /* Clicking the compile button */
-  @FXML
-  private void startCompile(ActionEvent event) throws IOException,
-          InterruptedException {
-    _model.compiler.startDefaultCompile();
-  }
 
   /* Clicking the run button */
   @FXML

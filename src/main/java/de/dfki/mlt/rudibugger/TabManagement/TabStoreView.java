@@ -71,6 +71,7 @@ public class TabStoreView {
     ts.openTabsProperty().bindBidirectional(openTabs);
     ts.requestedFileProperty().bindBidirectional(requestedFile);
     ts.requestedClosingOfTabProperty().bindBidirectional(requestedClosingOfTab);
+    ts.requestedSavingOfTabProperty().bindBidirectional(requestedSavingOfTab);
   }
 
   /** Defines what should be done when requesting a tab related action. */
@@ -78,6 +79,7 @@ public class TabStoreView {
     requestedFile.addListener((cl, ov, nv) -> { if (nv != null) openTab(nv); });
     requestedClosingOfTab.addListener((cl, ov, nv) -> closeTab(nv) );
   }
+
 
   /*****************************************************************************
    * METHODS
@@ -99,10 +101,7 @@ public class TabStoreView {
 
   /** Creates a new tab. */
   private void createTab(FileAtPos request) {
-    RudiTab newTab = new RudiTab(request.getFile());
-    newTab.setContent();
-    newTab.setOnCloseRequest(e -> closeTab(newTab));
-
+    RudiTab newTab = new RudiTab(request.getFile(), this);
     addToTabPane(newTab);
 
     newTab.getCodeArea().showParagraphPretty(request.getPosition() - 1);
@@ -170,5 +169,17 @@ public class TabStoreView {
   private final ObjectProperty<FileAtPos> requestedFile
           = new SimpleObjectProperty<>();
 
+  /** Represents a tab whose content should be saved. */
+  private final ObjectProperty<RudiTab> requestedSavingOfTab =
+          new SimpleObjectProperty<>();
 
+
+  /*****************************************************************************
+   * GETTERS
+   ****************************************************************************/
+
+  /** @Return A tab that should be closed. */
+  public ObjectProperty<RudiTab> requestedSavingOfTabProperty() {
+    return requestedSavingOfTab;
+  }
 }

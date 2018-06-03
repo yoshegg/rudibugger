@@ -135,6 +135,21 @@ public class DataModel {
 
 
   /*****************************************************************************
+   * DATAMODEL CONSTRUCTOR AND INITIALIZER
+   ****************************************************************************/
+
+  /** Creates a new <code>DataModel</code>. */
+  public DataModel() {
+    initializeConnectionsBetweenAdditions();
+  }
+
+  /** Called to initialize connections between additions. */
+  private void initializeConnectionsBetweenAdditions() {
+    rudiSave.initSaveListener();
+  }
+
+
+  /*****************************************************************************
    * PROJECT INITIALIZER AND CLOSE METHODS
    ****************************************************************************/
 
