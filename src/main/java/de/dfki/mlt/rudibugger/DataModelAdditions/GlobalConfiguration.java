@@ -244,9 +244,7 @@ public class GlobalConfiguration {
    * @return The property indicating whether or not an index should be shown in
    * the log in case of simultaneous logs
    */
-  public BooleanProperty timeStampIndexProperty() {
-    return timeStampIndex;
-  }
+  public BooleanProperty timeStampIndexProperty() { return timeStampIndex; }
 
   /** @return A custom editor (not rudibugger or emacs). */
   public String getOpenFileWith() {

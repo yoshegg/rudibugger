@@ -52,11 +52,8 @@ public class VondaCompilation {
   /**
    * Starts the default compilation process as specified in the project's YAML
    * configuration file.
-   *
-   * @throws IOException
-   * @throws InterruptedException
    */
-  public void startDefaultCompile() throws IOException, InterruptedException {
+  public void startCompileFileBasedCompilation() {
     String compileScript = _model.project.getCompileFile().toString();
     startCompile(compileScript);
   }
@@ -68,8 +65,7 @@ public class VondaCompilation {
    * @throws IOException
    * @throws InterruptedException
    */
-  public void startCompile(String inputCmd)
-          throws IOException, InterruptedException {
+  public void startCompile(String inputCmd) {
     _model.rudiSave.quickSaveAllFiles();
 
     if ((_p != null) && (_p.isAlive())) {
@@ -87,21 +83,25 @@ public class VondaCompilation {
     String windowTitle = "Compiling " + _model.project.getProjectName();
     String titleOpt = "-T";
 
-    if ("Linux".equals(System.getProperty("os.name"))) {
-      String[] cmd;
-      String termString = "/usr/bin/xterm";
-      if (mateTerminal.exists()) {
-        termString = "/usr/bin/mate-terminal";
-        titleOpt = "-t";
+    try {
+      if ("Linux".equals(System.getProperty("os.name"))) {
+        String[] cmd;
+        String termString = "/usr/bin/xterm";
+        if (mateTerminal.exists()) {
+          termString = "/usr/bin/mate-terminal";
+          titleOpt = "-t";
+        }
+        cmd = new String[] { termString, titleOpt, windowTitle, "-e", command};
+
+        log.debug("Executing the following command: " + Arrays.toString(cmd));
+
+        _p = Runtime.getRuntime().exec(cmd);
+      } else {
+        _p = Runtime.getRuntime().exec(
+                _model.project.getCompileFile().toString());
       }
-      cmd = new String[] { termString, titleOpt, windowTitle, "-e", command};
-
-      log.debug("Executing the following command: " + Arrays.toString(cmd));
-
-      _p = Runtime.getRuntime().exec(cmd);
-    } else {
-      _p = Runtime.getRuntime().exec(
-              _model.project.getCompileFile().toString());
+    } catch (IOException ex) {
+        log.error(ex.getMessage());
     }
   }
 

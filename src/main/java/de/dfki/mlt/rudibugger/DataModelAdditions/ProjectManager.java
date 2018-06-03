@@ -25,6 +25,7 @@ import static de.dfki.mlt.rudibugger.HelperMethods.slice_end;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.SimpleServer;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +38,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import org.slf4j.Logger;
@@ -66,7 +68,7 @@ public class ProjectManager {
   }
 
   /*****************************************************************************
-   * PROJECT CONFIGURATION
+   * FIELDS AND PROPERTIES
    ****************************************************************************/
 
   /** Contains all project configuration data. */
@@ -75,8 +77,45 @@ public class ProjectManager {
   /** Represents the project's configuration .yml. */
   private Path _configurationYml;
 
-  /** @Return project's configuration .yml file */
-  public Path getConfigurationYml() { return _configurationYml; }
+  /** Contains the keys a default project configuration file. */
+  private static final HashSet<String> DEFAULT_PROJECT_CONFIGURATION_KEYS =
+          new HashSet<String>() {{
+      add("outputDirectory");
+      add("wrapperClass");
+      add("ontologyFile");
+      add("rootPackage");
+    }};
+
+  /** Indicates the project's name. */
+  private final StringProperty projectName = new SimpleStringProperty();
+
+  /** Represents the file containing the compile file. */
+  private final ObjectProperty<Path> compileFile
+    = new SimpleObjectProperty<>(null);
+
+  /** Represents the default compile command. */
+  private final StringProperty _defaultCompileCommand
+          = new SimpleStringProperty("");
+
+  /** Represents the file containing the run file. */
+  private final ObjectProperty<Path> runFile = new SimpleObjectProperty<>(null);
+
+  /** Represents the project's RuleLoc.yml. */
+  private Path ruleLocationFile = null;
+
+  /** Represents the path to the project's RuleModelStates' save folder. */
+  private Path _ruleModelStatesFolder;
+
+  /** Represents the project's root folder. */
+  private Path rootFolder = null;
+
+  /** Represents the project's .rudi folder. */
+  private Path rudiFolder = null;
+
+
+  /*****************************************************************************
+   * PROJECT CONFIGURATION METHODS
+   ****************************************************************************/
 
   /**
    * Initializes a project's configuration using a provided configuration file.
@@ -95,6 +134,7 @@ public class ProjectManager {
       if (! initFields()) break;
       else log.info("Successfully initialized project fields.");
 
+      enableListeners();
       return true;
     }
 
@@ -107,16 +147,12 @@ public class ProjectManager {
    * Called if a project has not been completely initialized. Every field will
    * then be nullified.
    */
-  private void resetConfigurationWithoutLog() {
-    resetConfiguration(true);
-  }
+  private void resetConfigurationWithoutLog() { resetConfiguration(true); }
 
   /**
    * Called if a project has been closed. Every field will then be nullified.
    */
-  public void resetConfigurationWithLog() {
-    resetConfiguration(false);
-  }
+  public void resetConfigurationWithLog() { resetConfiguration(false); }
 
   /**
    * Called if a project has been closed or could not even be initialized. In
@@ -133,6 +169,8 @@ public class ProjectManager {
     projectName.set(null);
     compileFile.set(null);
     _configurationYml = null;
+    _defaultCompileCommand.set(null);
+    disableListeners();
 
     if (! stealthy)
       log.info("Project fields have been resetted.");
@@ -167,6 +205,16 @@ public class ProjectManager {
     }
   }
 
+  /** Saves the project's configuration. */
+  private void saveProjectConfiguration() {
+    try {
+      FileWriter writer = new FileWriter(_configurationYml.toFile());
+      _model.yaml.dump(_projectConfigs, writer);
+    } catch (IOException ex) {
+       log.error("Could not save project configuration file.");
+    }
+  }
+
   /**
    * Initializes projects fields.
    *
@@ -195,7 +243,12 @@ public class ProjectManager {
       log.error("Compilation file could not be found. \n"
               + "Should be here: " + compileFile.get() + "\n"
               + abortMessage);
-      return false;
+      // No return, as this is not crucial.
+    }
+
+    if (_projectConfigs.containsKey("defaultCompileCommand")) {
+      _defaultCompileCommand.set((String) _projectConfigs
+              .get("defaultCompileCommand"));
     }
 
     runFile.set(rootFolder.resolve(RUN_FILE));
@@ -263,24 +316,37 @@ public class ProjectManager {
     }
   }
 
-  /** Contains the keys a default project configuration file. */
-  private static final HashSet<String> DEFAULT_PROJECT_CONFIGURATION_KEYS =
-          new HashSet<String>() {{
-      add("outputDirectory");
-      add("wrapperClass");
-      add("ontologyFile");
-      add("rootPackage");
-    }};
+
+  /*****************************************************************************
+   * UPDATING
+   ****************************************************************************/
+
+  /**
+   * Defines listeners to automatically update relative files and properties on
+   * changes.
+   */
+  private void enableListeners() {
+    _defaultCompileCommand.addListener(defaultCompileCommandListener);
+  }
+
+  /** Disables listeners to update project's config file. */
+  private void disableListeners() {
+    _defaultCompileCommand.removeListener(defaultCompileCommandListener);
+  }
+
+  private final ChangeListener<String> defaultCompileCommandListener
+          = (o, ov, nv) -> {
+            _projectConfigs.put("defaultCompileCommand", nv);
+            saveProjectConfiguration();
+          };
 
 
   /*****************************************************************************
-   * FIELDS, PROPERTIES AND GETTERS REPRESENTING CONFIGURATION DETAILS
+   * GETTERS REPRESENTING CONFIGURATION DETAILS
    ****************************************************************************/
 
-  /* PROJECT NAME */
-
-  /** Indicates the project's name. */
-  private final StringProperty projectName = new SimpleStringProperty();
+  /** @Return project's configuration .yml file */
+  public Path getConfigurationYml() { return _configurationYml; }
 
   /** @return The property indicating the project's name */
   public StringProperty projectNameProperty() { return projectName; }
@@ -288,49 +354,27 @@ public class ProjectManager {
   /** @return The project's name */
   public String getProjectName() { return projectName.get(); }
 
-
-  /* COMPILE FILE */
-
-  /** Represents the file containing the compile file. */
-  private final ObjectProperty<Path> compileFile
-    = new SimpleObjectProperty<>(null);
-
-  /** @return The property containing the compile file */
-  public ObjectProperty<Path> compileFileProperty() { return compileFile; }
-
   /** @return The compile file */
   public Path getCompileFile() { return compileFile.get(); }
 
+  /** @return The default compile command */
+  public StringProperty defaultCompileCommandProperty() {
+    return _defaultCompileCommand;
+  }
 
-  /* RUN FILE */
-
-  /** Represents the file containing the run file. */
-  private final ObjectProperty<Path> runFile = new SimpleObjectProperty<>(null);
+  /** @return The default compile command */
+  public String getDefaultCompileCommand() {
+    return _defaultCompileCommand.get();
+  }
 
   /** @return The property containing the run file */
   public ObjectProperty<Path> runFileProperty() { return runFile; }
 
-
-  /* RULE LOCATION FILE */
-
-  /** Represents the project's RuleLoc.yml. */
-  private Path ruleLocationFile = null;
-
   /** @return The Path to the RuleLoc.yml */
   public Path getRuleLocationFile() {return ruleLocationFile; }
 
-
-  /* RULEMODELSTATES FOLDER */
-
-  /** Represents the path to the project's RuleModelStates' save folder. */
-  private Path _ruleModelStatesFolder;
-
   /** @return The Path to the RuleModelStates' save folder */
   public Path getRuleModelStatesFolder() { return _ruleModelStatesFolder; }
-
-
-
-  /* WRAPPER CLASS */
 
   /** @return The project's wrapper class */
   public Path getWrapperClass() {
@@ -340,17 +384,11 @@ public class ProjectManager {
     return rudiFolder.resolve(shortName + RULE_FILE_EXTENSION);
   }
 
-
-  /* OUTPUT DIRECTORY */
-
   /** @return The project's output directory (aka gen-java) */
   public Path getOutputDirectory() {
     String c = (String) _projectConfigs.get("outputDirectory");
     return Paths.get(c);
   }
-
-
-  /* GENERATED DIRECTORY */
 
   /**
    * @return the project's generated directory
@@ -360,35 +398,17 @@ public class ProjectManager {
     return rootFolder.resolve(PATH_TO_GENERATED_FOLDER);
   }
 
-
-  /* ROOT FOLDER */
-
-  /** Represents the project's root folder. */
-  private Path rootFolder = null;
-
   /** @return The project's root folder */
   public Path getRootFolder() { return rootFolder; }
 
-
-  /* RUDI FOLDER */
-
-  /** Represents the project's .rudi folder. */
-  private Path rudiFolder = null;
-
   /** @return The project's .rudi folder */
   public Path getRudiFolder() { return rudiFolder; }
-
-
-  /* ONTOLOGY */
 
   /** @return The project's ontology */
   public Path getOntology() {
     String s = (String) _projectConfigs.get("ontologyFile");
     return Paths.get(s);
   }
-
-
-  /* VONDA PORT */
 
   /** @return The custom VOnDA port (if any) or the default port */
   public int getVondaPort() {
@@ -397,8 +417,6 @@ public class ProjectManager {
     else
       return SimpleServer.DEFAULT_PORT;
   }
-
-  /* CUSTOM COMPILE COMMANDS */
 
   /**
    * @return A Map of custom compile commands (if any) with the name of the
