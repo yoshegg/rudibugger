@@ -27,8 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.animation.PauseTransition;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import org.slf4j.Logger;
@@ -57,7 +55,7 @@ public class RudiSaveManager {
   }
 
 
-  /** Reponsible for processing save requests. */
+  /** Responsible for processing save requests. */
   public void initSaveListener() {
     _model.tabStore.requestedSavingOfTabProperty().addListener((o, ov, nv) -> {
       if (nv != null) {
@@ -142,19 +140,6 @@ public class RudiSaveManager {
     }
 
     if (saveFile(file, content)) {
-
-//      /* close old tab */
-//      EventHandler<Event> handler = tab.getOnClosed();
-//      if (null != handler) {
-//        handler.handle(null);
-//      } else {
-//        _model.tabStore.requestedClosingOfTabProperty().set(tab);
-//        tab.getTabPane().getTabs().remove(tab);
-//      }
-//
-//      /* open a new tab */
-//      _model.rudiLoad.openFile(file);
-
       tab.setText(file.getFileName().toString());
       _model.tabStore.openTabsProperty().get().remove(tab.getFile());
       tab.setFile(file);
@@ -162,8 +147,9 @@ public class RudiSaveManager {
       tab.waitForModifications();
 
       log.debug("File " + file.getFileName() + " has been saved.");
+      return true;
     }
-    return true;
+    return false;
   }
 
   /**

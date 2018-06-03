@@ -28,7 +28,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import org.slf4j.Logger;
