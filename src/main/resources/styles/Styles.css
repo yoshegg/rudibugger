@@ -22,13 +22,21 @@
 }*/
 
 .tree-cell:errorsInImport {
-  -fx-background-color: red;
+  -fx-background-color: #ff3300;
 }
 
 .tree-cell:warningsInImport {
-  -fx-background-color: salmon;
+  -fx-background-color: #e6e600;
 }
 
 .tree-cell:modifiedFile {
-  -fx-background-color: salmon;
+  -fx-background-color: #e0e0d1;
+}
+
+.tree-cell:modifiedAndErrorsInImport {
+  -fx-background-color: #ffd6cc;
+}
+
+.tree-cell:modifiedAndWarningsInImport {
+  -fx-background-color: #ffffcc;
 }

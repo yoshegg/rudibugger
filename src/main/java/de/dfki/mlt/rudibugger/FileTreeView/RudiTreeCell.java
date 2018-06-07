@@ -21,8 +21,11 @@ package de.dfki.mlt.rudibugger.FileTreeView;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import java.util.HashSet;
 import static de.dfki.mlt.rudibugger.Constants.*;
+import static de.dfki.mlt.rudimant.common.ErrorInfo.ErrorType.*;
 import java.util.HashMap;
+import java.util.Set;
 import javafx.beans.value.ChangeListener;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
@@ -62,9 +65,35 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
   private final PseudoClass modifiedFileClass
           = PseudoClass.getPseudoClass("modifiedFile");
 
+  /** Used to visually distinguish erroneous imports with CSS. */
+  private final PseudoClass errorsInImportClass
+          = PseudoClass.getPseudoClass("errorsInImport");
+
+  /** Used to visually distinguish imports with warnings with CSS. */
+  private final PseudoClass warningsInImportClass
+          = PseudoClass.getPseudoClass("warningsInImport");
+
+  /** Used to visually distinguish erroneous, modified imports with CSS. */
+  private final PseudoClass modifiedAndErrorsInImportClass
+          = PseudoClass.getPseudoClass("modifiedAndErrorsInImport");
+
+  /** Used to visually distinguish modified imports with warnings with CSS. */
+  private final PseudoClass modifiedAndWarningsInImportClass
+          = PseudoClass.getPseudoClass("modifiedAndWarningsInImport");
+
+  /** Contains all <code>PseudoClass</code>es. */
+  private final Set<PseudoClass> _pseudoClasses = new HashSet<PseudoClass>() {{
+    add(modifiedFileClass);
+    add(errorsInImportClass);
+    add(warningsInImportClass);
+    add(modifiedAndErrorsInImportClass);
+    add(modifiedAndWarningsInImportClass);
+  }};
+
   /** Used to listen to modification changes. */
-  private final ChangeListener<Boolean> modificationListener = (o, ov, nv)
-    -> pseudoClassStateChanged(modifiedFileClass, nv);
+  private final ChangeListener<Boolean> modificationListener = (o, ov, nv) -> {
+    setPseudoClass(nv);
+  };
 
   /** Used to listen to usage state changes. */
   private final ChangeListener<Number> usageStateListener = ((o, ov, nv)
@@ -87,13 +116,12 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
       setText(null);
       setGraphic(null);
 
-      pseudoClassStateChanged(modifiedFileClass, false);
+      _pseudoClasses.forEach(e -> pseudoClassStateChanged(e, false));
 
     } else {
 
-      /* Visually indicate out of sync files. */
-      pseudoClassStateChanged(modifiedFileClass,
-              rudiPath.modifiedProperty().getValue());
+      /* Set the correct pseudoClass for the background of the cell */
+      setPseudoClass(rudiPath.modifiedProperty().getValue());
       rudiPath.modifiedProperty().addListener(modificationListener);
 
       /* Set label of TreeItem. */
@@ -105,6 +133,47 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
       rudiPath.usedProperty().addListener(usageStateListener);
 
     }
+  }
+
+  /**
+   * Sets the needed pseudoClass to the given state and all the other to false.
+   * Only one pseudoClass should be true at the same time.
+   *
+   * @param modified True, if the file has been modified, else false.
+   */
+  private void setPseudoClass(boolean modified) {
+    _pseudoClasses.forEach(e -> pseudoClassStateChanged(e, false));
+    if (this.getItem().getImportInfo() != null) {
+      if (modified) {  // has been modified
+        if (hasErrors())
+          pseudoClassStateChanged(modifiedAndErrorsInImportClass, true);
+        else if (hasWarnings())
+          pseudoClassStateChanged(modifiedAndWarningsInImportClass, true);
+        else
+          pseudoClassStateChanged(modifiedFileClass, true);
+      } else {  // has not been modified
+        if (hasErrors())
+          pseudoClassStateChanged(errorsInImportClass, true);
+        else if (hasWarnings())
+          pseudoClassStateChanged(warningsInImportClass, true);
+        else
+          pseudoClassStateChanged(modifiedFileClass, false);
+      }
+    } else
+      pseudoClassStateChanged(modifiedFileClass, modified);
+  }
+
+
+  /** @return True, if errors occurred with this file, else false. */
+  private boolean hasErrors() {
+    return this.getItem().getImportInfo().getErrors().stream().anyMatch(
+                ewi -> ewi.getType() == ERROR || ewi.getType() == PARSE_ERROR);
+  }
+
+  /** @return True, if warnings occurred with this file, else false. */
+  private boolean hasWarnings() {
+    return this.getItem().getImportInfo().getErrors().stream().anyMatch(
+                ewi -> ewi.getType() == WARNING);
   }
 
 }

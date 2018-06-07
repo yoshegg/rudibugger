@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
 import java.nio.file.Files;
 import java.util.Objects;
 import javafx.beans.property.BooleanProperty;
@@ -38,6 +39,10 @@ import javafx.beans.property.SimpleBooleanProperty;
  */
 public class RudiPath {
 
+  /*****************************************************************************
+   * FIELDS
+   ****************************************************************************/
+
   /** Represents the path of the associated <code>.rudi</code> file. */
   private final Path _path;
 
@@ -49,6 +54,14 @@ public class RudiPath {
    * modified since the last successful compilation.
    */
   private final BooleanProperty _modified;
+
+  /** Represents the associated ImportInfoExtended in the RuleModel. */
+  private ImportInfoExtended _importInfo;
+
+
+  /*****************************************************************************
+   * CONSTRUCTOR
+   ****************************************************************************/
 
   /**
    * Creates a new <code>RudiPath</code> object.
@@ -66,10 +79,10 @@ public class RudiPath {
     _modified = new SimpleBooleanProperty(false);
   }
 
-  /** @return The <code>Path</code> of the associated <code>.rudi</code> file */
-  public Path getPath() {
-    return _path;
-  }
+
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
 
   @Override
   public String toString() {
@@ -92,17 +105,39 @@ public class RudiPath {
     return hash;
   }
 
+
+  /*****************************************************************************
+   * SETTERS
+   ****************************************************************************/
+
+  /**
+   * Links a given <code>ImportInfoExtended</code> to this
+   * <code>RudiPath</code>.
+   *
+   * @param ii The associated <code>ImportInfoExtended</code>
+   */
+  public void setImportInfo(ImportInfoExtended ii) { _importInfo = ii; }
+
+
+  /*****************************************************************************
+   * GETTERS
+   ****************************************************************************/
+
+  /** @return The associated <code>ImportInfoExtended</code> */
+  public ImportInfoExtended getImportInfo() { return _importInfo; }
+
+  /** @return The <code>Path</code> of the associated <code>.rudi</code> file */
+  public Path getPath() { return _path; }
+
   /**
    * @return Indicates if the associated <code>.rudi</code> file has been
    * modified since the last successful compilation
    */
-  public BooleanProperty modifiedProperty() {
-    return _modified;
-  }
+  public BooleanProperty modifiedProperty() { return _modified; }
 
   /**
    * @return Indicates the usage state of the associated <code>.rudi</code>
-   * file.
+   * file
    */
   public IntegerProperty usedProperty() { return _used; }
 
