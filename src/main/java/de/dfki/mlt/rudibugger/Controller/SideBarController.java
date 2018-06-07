@@ -87,6 +87,7 @@ public class SideBarController extends Controller {
           ruleTreeView.setRoot(buildRuleTreeView(model.ruleModel.getRootImport()));
           ruleTreeView.getRoot().setExpanded(true);
           markFilesInRudiList();
+          linkRudiPathsToImportInfos();
           model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
           break;
         case RULE_MODEL_CHANGED:
@@ -95,12 +96,15 @@ public class SideBarController extends Controller {
           ruleTreeView.setRoot(buildRuleTreeView(model.ruleModel.getRootImport()));
           _model.ruleModelState.setStateOf(ruleTreeView);
           markFilesInRudiList();
+          linkRudiPathsToImportInfos();
           model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
           break;
         case RULE_MODEL_REMOVED:
           ruleTreeView.setRoot(null);
-          if (_model.rudiHierarchy.getRoot() != null)
+          if (_model.rudiHierarchy.getRoot() != null) {
             markFilesInRudiList();
+            linkRudiPathsToImportInfos();
+          }
           log.debug("RuleModel has been resetted / removed");
           model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
           break;
@@ -166,6 +170,18 @@ public class SideBarController extends Controller {
         x.usedProperty().setValue(FILE_USED);
       else
         x.usedProperty().setValue(FILE_NOT_USED);
+    });
+  }
+
+  /**
+   * Links all the <code>ImportInfoExtended</code> from the
+   * <code>RuleModel</code> to their respective <code>RudiPath</code>.
+   */
+  private void linkRudiPathsToImportInfos() {
+    _model.rudiHierarchy.getRudiPathSet().forEach(x -> {
+      if (_model.ruleModel.getImportSet().contains(x.getPath()))
+        x.setImportInfo(_model.ruleModel.getPathToImportMap().get(x.getPath()));
+      else x.setImportInfo(null);
     });
   }
 

@@ -169,11 +169,19 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         stateIndicator = new ImageView(ICONS_IMPORTS.get(ii.getState()));
 
         /* visually indicate errors and warnings happened during compile */
-        pseudoClassStateChanged(errorsInImportClass,
-            ii.getErrors().stream().anyMatch(
-                ewi -> ewi.getType() == ERROR || ewi.getType() == PARSE_ERROR));
-        pseudoClassStateChanged(warningsInImportClass,
-            ii.getErrors().stream().anyMatch(ewi -> ewi.getType() == WARNING));
+        if (ii.getErrors().stream().anyMatch(ewi ->
+                ewi.getType() == ERROR || ewi.getType() == PARSE_ERROR)) {
+          pseudoClassStateChanged(errorsInImportClass, true);
+          pseudoClassStateChanged(warningsInImportClass, false);
+        } else if (ii.getErrors().stream().anyMatch(ewi ->
+                ewi.getType() == WARNING)) {
+          pseudoClassStateChanged(warningsInImportClass, true);
+          pseudoClassStateChanged(errorsInImportClass, false);
+        } else {
+          pseudoClassStateChanged(errorsInImportClass, false);
+          pseudoClassStateChanged(warningsInImportClass, false);
+
+        }
 
         /* define a listener to reflect the rule logging state */
         ii.stateProperty().addListener(importStateListener);

@@ -30,8 +30,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
@@ -63,8 +64,8 @@ public class RuleModel {
   /** The <code>DataModel</code>. */
   private final DataModel _model;
 
-  /** Contains all of the used Imports' paths. */
-  private final HashSet<Path> _importSet = new HashSet();
+  /** Maps used Paths to their respective <code>ImportInfoExtended</code>. */
+  private final Map<Path, ImportInfoExtended> _pathToImport = new HashMap();
 
   /** Maps rule ID's to their ruleLoggingState property. */
   private final ObservableMap<Integer, IntegerProperty> _idLoggingStateMap
@@ -137,7 +138,7 @@ public class RuleModel {
     /* Resetting compilation specific fields */
     _errorInfos.clear();
     _warnInfos.clear();
-    _importSet.clear();
+    _pathToImport.clear();
     _idRuleMap.clear();
 
     _rootImport = defineRuleModel();
@@ -152,7 +153,7 @@ public class RuleModel {
 
     _errorInfos.clear();
     _warnInfos.clear();
-    _importSet.clear();
+    _pathToImport.clear();
     _idRuleMap.clear();
     _rootImport = null;
 
@@ -222,7 +223,7 @@ public class RuleModel {
       ImportInfoExtended ii
               = new ImportInfoExtended((ImportInfo) current, model, parent);
       extractWarnErrors(ii);
-      _importSet.add(ii.getAbsolutePath());
+      _pathToImport.put(ii.getAbsolutePath(), ii);
       for (BasicInfo child : current.getChildren()) {
         ii.getChildren().add(processInfos(child, ii, model));
       }
@@ -305,7 +306,12 @@ public class RuleModel {
    ****************************************************************************/
 
   /** @return Set of Paths of all used Imports */
-  public HashSet<Path> getImportSet() { return _importSet; }
+  public Set<Path> getImportSet() { return _pathToImport.keySet(); }
+
+  /** @return Map of used Paths with their respective ImportInfoExtended */
+  public Map<Path, ImportInfoExtended> getPathToImportMap() {
+    return _pathToImport;
+  }
 
   /** @return Root Import of RuleModel */
   public ImportInfoExtended getRootImport() { return _rootImport; }
