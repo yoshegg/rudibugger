@@ -105,7 +105,21 @@ Orange file icon             Main module of the project
 Further graphical file indications
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If a file has been modified after the last compilation attempt, its background colour will change. For more information, cf. section :ref:`Sync indicator <Sync indicator>`.
+If a file has been modified after the last compilation attempt, its background colour will turn grey. 
+
+If there were problems during compilation, the background colour will change according to the following table: 
+
+============  ==============  =================
+Problem       Compilation...  Background colour
+============  ==============  =================
+Syntax error  **stops**       Red
+Error         continues       Red
+Warning       continues       Yellow
+============  ==============  =================
+
+.. note:: If a problematic file is modified after compilation, its background colour will turn brighter.
+
+For more information, cf. section :ref:`Sync indicator <Sync indicator>`.
 
 
 ruleTreeView
@@ -143,7 +157,7 @@ Compilation problems will be indicated in the following way:
 ============  ==============  =================
 Problem       Compilation...  Background colour
 ============  ==============  =================
-Syntax error  **stops**       Dark red
+Syntax error  **stops**       Red
 Error         continues       Red
 Warning       continues       Yellow
 ============  ==============  =================
