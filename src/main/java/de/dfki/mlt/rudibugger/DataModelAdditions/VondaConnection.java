@@ -50,6 +50,11 @@ public class VondaConnection {
   /** The <code>DataModel</code>. */
   private DataModel _model = null;
 
+
+  /*****************************************************************************
+   * FIELDS
+   ****************************************************************************/
+
   /** A client that can connect to a server of VOnDA. */
   public RudibuggerClient client;
 
@@ -67,10 +72,6 @@ public class VondaConnection {
   /** Represents the connection status between VOnDA and rudibugger. */
   private final IntegerProperty connected
           = new SimpleIntegerProperty(DISCONNECTED_FROM_VONDA);
-//
-//  /** Represents whether or not a connection is being established. */
-//  private final BooleanProperty establishCon
-//          = new SimpleBooleanProperty(NOT_ESTABLISHING_CONNECTION);
 
   /** Represents the most recent logged data. */
   private final ObjectProperty<LogData> mostRecentlogOutput

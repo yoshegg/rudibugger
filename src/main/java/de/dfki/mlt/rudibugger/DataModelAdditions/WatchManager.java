@@ -34,17 +34,27 @@ import org.slf4j.LoggerFactory;
  */
 public class WatchManager {
 
-    /** The logger. */
+  /** The logger. */
   static Logger log = LoggerFactory.getLogger("Watches");
 
   /** The <code>DataModel</code> */
   private final DataModel _model;
+
+
+  /*****************************************************************************
+   * WATCH SERVICES
+   ****************************************************************************/
 
   /** Watches the .rudi folder for changes. */
   public RudiFolderWatch rudiWatch;
 
   /** Watches the RuleLoc.yml file for changes. */
   public RuleLocationWatch ruleLocWatch;
+
+
+  /*****************************************************************************
+   * CONSTRUCTOR
+   ****************************************************************************/
 
   /**
    * Initializes this addition of <code>DataModel</code>.
@@ -55,6 +65,11 @@ public class WatchManager {
     _model = model;
   }
 
+
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
+
   /**
    * Initializes WatchServices to monitor changes in the .rudi folder and of the
    * file <code>RuleLoc.yml</code>.
@@ -62,7 +77,6 @@ public class WatchManager {
   public void initWatches() {
     ruleLocWatch = createRuleLocationWatch(_model);
     rudiWatch = createRudiFolderWatch(_model);
-
   }
 
   /** Disables the project's WatchServices. */

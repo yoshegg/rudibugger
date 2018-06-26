@@ -40,11 +40,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This utility class contains static methods that are called to <br>
+ * This utility class contains methods that are called to <br>
  *   - open dialogs that only have a simple purpose, and <br>
  *   - additional windows that have more functionality (search, settings, ...).
  *
- * Properties are used to disallow more than one window of a kind.
+ * Properties are used to disallow more than one window of a kind; due to
+ * technical reasons, the according functions can't be static. 
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -233,7 +234,7 @@ public final class HelperWindows {
 
       /* Set the controller */
       AboutController controller = loader.getController();
-      controller.initModel(_model);
+      controller.init(_model);
       controller.setDialogStage(aboutStage);
 
       /* show the dialog */

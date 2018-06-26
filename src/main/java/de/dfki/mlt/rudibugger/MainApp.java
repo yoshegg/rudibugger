@@ -42,12 +42,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * This class contains the main method to start rudibugger. 
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class MainApp extends Application {
 
-  /** the logger */
+  /** The logger. */
   static Logger log = LoggerFactory.getLogger("mainLog");
 
   @Override
@@ -63,7 +64,7 @@ public class MainApp extends Application {
      * GENERAL FIXES
      **************************************************************************/
 
-    /* improve font rendering for RichTextFX, caused by JavaFX bug */
+    /* Improve font rendering for RichTextFX, caused by JavaFX bug */
     /* https://github.com/FXMisc/RichTextFX/wiki/Known-Issues */
     System.setProperty("prism.lcdtext", "false");
     System.setProperty("prism.text", "t2k");
@@ -73,28 +74,28 @@ public class MainApp extends Application {
      * INITIALIZE CONTROLLERS AND FXMLs
      **************************************************************************/
 
-    /* create root BorderPane */
+    /* Create root BorderPane */
     BorderPane root = new BorderPane();
 
-    /* initialize menuBar (top of BorderPane) */
+    /* Initialize menuBar (top of BorderPane) */
     FXMLLoader menuLoader = new FXMLLoader(getClass()
             .getResource("/fxml/menuBar.fxml"));
     root.setTop(menuLoader.load());
     MenuController menuController = menuLoader.getController();
 
-    /* initialize statusBar (bottom of BorderPane) */
+    /* Initialize statusBar (bottom of BorderPane) */
     FXMLLoader statusLoader = new FXMLLoader(getClass()
             .getResource("/fxml/statusBar.fxml"));
     root.setBottom(statusLoader.load());
     StatusBarController statusBarController = statusLoader.getController();
 
-    /* prepare SplitPane in the center of the root BorderPane */
+    /* Prepare SplitPane in the center of the root BorderPane */
     SplitPane centeredSplitPane = new SplitPane();
     centeredSplitPane.setOrientation(Orientation.HORIZONTAL);
     centeredSplitPane.setDividerPositions(0.30);
     root.setCenter(centeredSplitPane);
 
-    /* initialize sideBar (left part of centeredSplitPane) */
+    /* Initialize sideBar (left part of centeredSplitPane) */
     FXMLLoader sideBarLoader = new FXMLLoader(getClass()
             .getResource("/fxml/sideBar.fxml"));
     AnchorPane sideBar = sideBarLoader.load();
@@ -102,7 +103,7 @@ public class MainApp extends Application {
     SideBarController sideBarController = sideBarLoader.getController();
     SplitPane.setResizableWithParent(sideBar, Boolean.FALSE);
 
-    /* initalize editor (right part of centeredSplitPane) */
+    /* Initalize editor (right part of centeredSplitPane) */
     FXMLLoader editorLoader = new FXMLLoader(getClass()
             .getResource("/fxml/editor.fxml"));
     centeredSplitPane.getItems().add(editorLoader.load());
@@ -115,7 +116,7 @@ public class MainApp extends Application {
 
     DataModel model = new DataModel();
 
-    /* create a global config folder if there is none */
+    /* Create a global config folder if there is none */
     if (! Files.exists(GLOBAL_CONFIG_PATH)) {
       GLOBAL_CONFIG_PATH.toFile().mkdirs();
       log.info("Created global config folder (first start of rudibugger");
@@ -131,10 +132,10 @@ public class MainApp extends Application {
      * PREPARE GUI
      **************************************************************************/
 
-    /* bind stage to field */
+    /* Bind stage to field */
     model.stageX = stage;
 
-    /* define GUI */
+    /* Define GUI */
     Scene scene = new Scene(root);
     scene.getStylesheets().add("/styles/Styles.css");
     stage.setTitle("Rudibugger");
@@ -153,11 +154,11 @@ public class MainApp extends Application {
     model.layout.setStageCloseListener();
     model.layout.restoreDividerPositions();
 
-    /* show Rudibugger */
+    /* Show Rudibugger */
     stage.show();
     log.info("Rudibugger has been started");
 
-    /* opening last openend project (if any) */
+    /* Open last openend project (if any) */
     if (model.globalConf.getLastOpenedProject() != null) {
       log.info("Opening previous project...");
       model.init(model.globalConf.getLastOpenedProject());
@@ -177,7 +178,7 @@ public class MainApp extends Application {
     launch(args);
   }
 
-  /** method to correctly exit this JavaFX application */
+  /** Correctly exits this JavaFX application. */
   public static void exitRudibugger() {
     Platform.exit();
   }

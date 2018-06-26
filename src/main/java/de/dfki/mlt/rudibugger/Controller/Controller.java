@@ -21,10 +21,11 @@ package de.dfki.mlt.rudibugger.Controller;
 import de.dfki.mlt.rudibugger.DataModel;
 
 /**
+ * This class
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class Controller {
+public abstract class Controller {
 
   /** The <code>DataModel</code>. */
   public DataModel _model;

@@ -33,27 +33,21 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class AboutController {
+public class AboutController extends Controller {
 
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("About");
-
-  /** The <code>DataModel</code>. */
-  private DataModel _model = null;
 
   /** The stage. */
   private Stage _stage;
 
   /**
-   * Initializes the controller.
-   * 
+   * Initializes the controller of the AboutWindow.
+   *
    * @param model The current <code>DataModel</code>
    */
-  public void initModel(DataModel model) {
-    if (_model != null) {
-      throw new IllegalStateException("Model can only be initialized once");
-    }
-    _model = model;
+  public void init(DataModel model) {
+    linkModel(model);
   }
 
 
