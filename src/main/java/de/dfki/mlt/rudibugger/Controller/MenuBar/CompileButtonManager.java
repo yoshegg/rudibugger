@@ -55,7 +55,7 @@ public class CompileButtonManager {
   private Button standardCompileButton;
 
   /** Represents the custom compile button. */
-  private SplitMenuButton extendedCompileButton = new SplitMenuButton();
+  private final SplitMenuButton extendedCompileButton = new SplitMenuButton();
 
 
   /*****************************************************************************

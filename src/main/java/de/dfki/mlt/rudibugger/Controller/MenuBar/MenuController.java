@@ -226,6 +226,7 @@ public class MenuController extends Controller {
 
   /**
    * This function is used to check for open projects
+   * TODO: Should probably be somewhere else
    *
    * @param ymlFile null, if the project has not been defined yet, else the Path
    * to the project's .yml file
