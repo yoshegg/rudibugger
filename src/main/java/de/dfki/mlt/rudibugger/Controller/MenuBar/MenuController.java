@@ -95,17 +95,6 @@ public class MenuController extends Controller {
    */
   public void initModel() {
 
-    /* this listener checks for a run file */
-    _model.project.runFileProperty().addListener((o, oldVal, newVal) -> {
-      if (newVal != null) {
-        log.debug("As a run file has been found, "
-                + "the button was enabled.");
-        runButton.setDisable(false);
-      } else {
-        runButton.setDisable(true);
-      }
-    });
-
     /* this listener checks if a project has been opened */
     _model.projectLoadedProperty().addListener((o, ov, nv) -> {
       if (nv) {
@@ -268,10 +257,6 @@ public class MenuController extends Controller {
   /* Represents the compile button. */
   @FXML
   private Button compileButton;
-
-  /* Represents the run button. */
-  @FXML
-  private Button runButton;
 
   /**
    * Represents the con-/disconnect button also monitoring the connection state.
@@ -443,12 +428,6 @@ public class MenuController extends Controller {
   /** Contains buttons */
   @FXML
   private ToolBar toolBar;
-
-  /* Clicking the run button */
-  @FXML
-  private void startRun(ActionEvent event) {
-    log.warn("\"Run\" is not implemented yet.");
-  }
 
   /** Establishes a connection to the VOnDA server or disconnects from it. */
   @FXML

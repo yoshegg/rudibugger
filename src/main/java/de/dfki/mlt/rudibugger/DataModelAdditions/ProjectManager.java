@@ -97,9 +97,6 @@ public class ProjectManager {
   private final StringProperty _defaultCompileCommand
           = new SimpleStringProperty("");
 
-  /** Represents the file containing the run file. */
-  private final ObjectProperty<Path> runFile = new SimpleObjectProperty<>(null);
-
   /** Represents the project's RuleLoc.yml. */
   private Path ruleLocationFile = null;
 
@@ -162,7 +159,6 @@ public class ProjectManager {
    */
   private void resetConfiguration(boolean stealthy) {
     _projectConfigs.clear();
-    runFile.set(null);
     ruleLocationFile = null;
     rudiFolder = null;
     rootFolder = null;
@@ -249,14 +245,6 @@ public class ProjectManager {
     if (_projectConfigs.containsKey("defaultCompileCommand")) {
       _defaultCompileCommand.set((String) _projectConfigs
               .get("defaultCompileCommand"));
-    }
-
-    runFile.set(rootFolder.resolve(RUN_FILE));
-    if (! Files.exists(runFile.get())) {
-      log.warn("Run file could not be found. \n"
-             + "Could be here: " + runFile.get() + "\n"
-             + continueMessage);
-      // No return, as this is not crucial.
     }
 
     /* Create generated directory (if necessary) */
@@ -366,9 +354,6 @@ public class ProjectManager {
   public String getDefaultCompileCommand() {
     return _defaultCompileCommand.get();
   }
-
-  /** @return The property containing the run file */
-  public ObjectProperty<Path> runFileProperty() { return runFile; }
 
   /** @return The Path to the RuleLoc.yml */
   public Path getRuleLocationFile() {return ruleLocationFile; }
