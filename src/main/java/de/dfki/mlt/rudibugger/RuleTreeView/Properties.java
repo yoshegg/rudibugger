@@ -27,6 +27,10 @@ package de.dfki.mlt.rudibugger.RuleTreeView;
  */
 public class Properties {
 
+  /*****************************************************************************
+   * FIELDS
+   ****************************************************************************/
+
   /** Represents the expansion state of the associated TreeItem. */
   Boolean isExpanded;
 
@@ -36,8 +40,10 @@ public class Properties {
   /** Used to save whether or not the associated TreeItem is an Import. */
   Boolean isImport = false;
 
-  /** Nullary constructor needed for YAML (JavaBeans convention). */
-  public Properties() {}
+
+  /*****************************************************************************
+   * CONSTRUCTOR
+   ****************************************************************************/
 
   /**
    * Creates a new Properties instance.
@@ -49,6 +55,11 @@ public class Properties {
     isExpanded = expStat;
     loggingState = logStat;
   }
+
+
+  /*****************************************************************************
+   * GETTER / SETTER
+   ****************************************************************************/
 
   /** @return True, if associated TreeItem is expanded, else false */
   public Boolean getIsExpanded() {
@@ -91,4 +102,13 @@ public class Properties {
   public void setIsImport(Boolean isImport) {
     this.isImport = isImport;
   }
+
+
+  /*****************************************************************************
+   * YAML
+   ****************************************************************************/
+
+  /** Nullary constructor needed for YAML (JavaBeans convention). */
+  public Properties() {}
+
 }

@@ -25,73 +25,49 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * TODO: DOCUMENTATION
- * @author christophe
+ * A <code>RuleStateItem</code> represents the look of a <code>TreeItem</code>
+ * in <code>RuleTreeView</code>.
+ *
+ * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RuleStateItem {
 
-  /**
-   * The label of this RuleStateItem
-   */
+  /*****************************************************************************
+   * FIELDS
+   ****************************************************************************/
+
+  /** Represents the label of this <code>RuleStateItem</code>. */
   private String label;
 
-  /**
-   * A container containing the states of this RuleStateItem
-   */
+  /** Represents a container describing this <code>RuleStateItem</code>. */
   private Properties props;
 
-  /**
-   * The children of this RuleStateItem
-   */
+  /** Contains the children of this RuleStateItem. */
   private Map<String, RuleStateItem> children = new HashMap<>();
 
 
-  public RuleStateItem() {}
+  /*****************************************************************************
+   * CONSTRUCTOR
+   ****************************************************************************/
 
-
-  public void setLabel(String x) {
-    this.label = x;
-  }
-
-  public String getLabel() {
-    return label;
-  }
-
-  public void setProps(Properties p) {
-    this.props = p;
-  }
-
-  public Properties getProps() {
-    return props;
-  }
-
-  public void setChildren(HashMap<String, RuleStateItem> m) {
-    this.children = m;
-  }
-
-  public Map<String, RuleStateItem> getChildren() {
-    return children;
-  }
-
-  /**
-   * Constructor of the RuleStateItem
-   */
+  /** Creates a new instance of <code>RuleStateItem</code>. */
   public RuleStateItem(String lab, Boolean expStat, int logStat) {
     label = lab;
     props = new Properties(expStat, logStat);
   }
 
-  /**
-   * update the RuleStateItem
-   */
+
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
+
+  /** Updates the <code>RuleStateItem</code>. */
   public void updateRuleStateItem(Boolean expState, int logStat) {
     props.setIsExpanded(expState);
     props.setLoggingState((Integer) logStat);
   }
 
-  /**
-   * add children to the RuleStateItem
-   */
+  /** Adds children to the <code>RuleStateItem</code>. */
   public void addChildren(HashMap<String, RuleStateItem> e) {
     if (!e.isEmpty()) {
       e.forEach((key, val)
@@ -99,18 +75,30 @@ public class RuleStateItem {
     }
   }
 
+  /**
+   * @param x
+   *        True, if the <code>RuleStateItem</code> should be defined as an
+   *        import, else false
+   */
   public void isImport(Boolean x) {
     props.setIsImport(x);
   }
 
+  /** @return The children's associated <code>RuleStateItem</code> */
   public Collection<RuleStateItem> getChildrenValues() {
     return children.values();
   }
 
+  /** @return The children's names */
   public Set<String> getChildrenNames() {
     return children.keySet();
   }
 
+  /**
+   * @param key
+   *        The <code>RuleStateItem</code>'s name
+   * @return The <code>RuleStateItem</code> with the specified name
+   */
   public RuleStateItem getChild(String key) {
     return children.get(key);
   }
@@ -121,5 +109,33 @@ public class RuleStateItem {
       + "expanded: " + props.getIsExpanded() + ", logState: "
       + props.getLoggingState() + ")";
   }
+
+
+  /*****************************************************************************
+   * YAML
+   ****************************************************************************/
+
+  /** Nullary constructor needed for YAML. */
+  public RuleStateItem() {}
+
+  /** Label setter for YAML. */
+  public void setLabel(String x) { this.label = x; }
+
+  /** Label getter for YAML. */
+  public String getLabel() { return label; }
+
+  /** Properties setter for YAML. */
+  public void setProps(Properties p) { this.props = p; }
+
+  /** Properties getter for YAML. */
+  public Properties getProps() { return props; }
+
+  /** Children setter for YAML. */
+  public void setChildren(HashMap<String, RuleStateItem> m) {
+    this.children = m;
+  }
+
+  /** Children getter for YAML. */
+  public Map<String, RuleStateItem> getChildren() { return children; }
 
 }

@@ -21,7 +21,8 @@ package de.dfki.mlt.rudibugger.Controller;
 import de.dfki.mlt.rudibugger.DataModel;
 
 /**
- * This class
+ * Controllers should extend this class as it contains fields and methods needed
+ * by every Controller. 
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
