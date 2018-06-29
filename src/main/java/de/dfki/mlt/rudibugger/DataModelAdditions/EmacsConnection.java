@@ -20,6 +20,8 @@
 package de.dfki.mlt.rudibugger.DataModelAdditions;
 
 import de.dfki.lt.j2emacs.J2Emacs;
+import de.dfki.lt.j2emacs.J2Emacs.Action;
+
 import java.io.File;
 
 /**
@@ -48,6 +50,13 @@ public class EmacsConnection {
     _j2e.addStartHook(
         "(setq auto-mode-alist (append (list '(\"\\\\.rudi\" . java-mode))))");
     _j2e.startEmacs();
+    _j2e.registerAction("file_changed", new Action() {
+      @Override
+      public void execute(String... args) {
+
+      }
+    });
+
   }
 
   /**
