@@ -72,7 +72,20 @@ public class RudibuggerClient {
    *        The new state of the given Rule
    */
   public void setLoggingStatus(int ruleId, int newState) {
-    client.send(Integer.toString(ruleId), Integer.toString(newState));
+    client.send("setLogStat", Integer.toString(ruleId), Integer.toString(newState));
+  }
+
+  /**
+   * Request information from VOnDA about a database entry (HFC).
+   *
+   * @param uri
+   *        The subject of the database entry
+   * @param property
+   *        The property of the database entry
+   *
+   */
+  public void requestDatabaseInfo(String uri, String property) {
+    client.send("reqDbInfo", uri, property);
   }
 
 }
