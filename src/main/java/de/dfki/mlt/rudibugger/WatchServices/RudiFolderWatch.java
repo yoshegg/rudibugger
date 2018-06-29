@@ -45,7 +45,7 @@ public class RudiFolderWatch {
 
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("rudiFolWatch");
-  
+
 
   /*****************************************************************************
    * FIELDS
@@ -170,8 +170,12 @@ public class RudiFolderWatch {
           /* rudi file added */
           if (kind == ENTRY_CREATE) {
             Platform.runLater(() -> {
-              _model.rudiHierarchy.addFileToHierarchy(filename);
-              log.info("rudi file added: " + filename);
+              if (_model.rudiHierarchy.isFileInHierarchy(filename)) {
+                log.info("rudi file has been modified : " + filename);
+              } else {
+                _model.rudiHierarchy.addFileToHierarchy(filename);
+                log.info("rudi file added: " + filename);
+              }
               _model.rudiHierarchy.setFileAsModified(filename);
             });
 
