@@ -184,7 +184,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         /* define double click on cell: open rule (file at specific line) */
         this.setOnMouseClicked(e -> {
           if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY) {
-            ri._model.rudiLoad.openRule(ri.getSourceFile(), ri.getLine());
+            ri.getModel().rudiLoad.openRule(ri.getSourceFile(), ri.getLine());
           }
         });
       }
