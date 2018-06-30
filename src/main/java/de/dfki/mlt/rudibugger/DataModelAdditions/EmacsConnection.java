@@ -20,9 +20,7 @@
 package de.dfki.mlt.rudibugger.DataModelAdditions;
 
 import de.dfki.lt.j2emacs.J2Emacs;
-import de.dfki.lt.j2emacs.J2Emacs.Action;
 import de.dfki.mlt.rudibugger.DataModel;
-
 import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
