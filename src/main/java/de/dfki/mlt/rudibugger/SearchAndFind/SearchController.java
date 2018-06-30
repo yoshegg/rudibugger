@@ -21,12 +21,14 @@ package de.dfki.mlt.rudibugger.SearchAndFind;
 import de.dfki.mlt.rudibugger.DataModel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,8 +98,8 @@ public class SearchController {
       -> new SimpleStringProperty(value.getValue()[2]));
 
     /* When to open a file. */
-    searchResultTable.setOnKeyPressed(e -> openLine());
-    searchResultTable.setOnMousePressed(e -> openLine());
+    searchResultTable.getSelectionModel().selectedItemProperty()
+            .addListener(cl -> openLine());
   }
 
   /** Opens the file and line of the selected result. */
