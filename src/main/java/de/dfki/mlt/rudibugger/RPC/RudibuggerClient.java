@@ -76,16 +76,13 @@ public class RudibuggerClient {
   }
 
   /**
-   * Request information from VOnDA about a database entry (HFC).
+   * Request information from VOnDA about a field of custom agent.
    *
-   * @param uri
-   *        The subject of the database entry
-   * @param property
-   *        The property of the database entry
-   *
+   * @param field
+   *        The name of the wanted field
    */
-  public void requestDatabaseInfo(String uri, String property) {
-    client.send("reqDbInfo", uri, property);
+  public void requestFieldInfo(String field) {
+    client.send("reqFieldInfo", field);
   }
 
 }
