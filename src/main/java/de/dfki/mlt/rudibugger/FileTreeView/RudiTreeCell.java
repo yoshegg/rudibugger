@@ -23,12 +23,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import java.util.HashSet;
 import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.DataModelAdditions.RudiLoadManager;
 import static de.dfki.mlt.rudimant.common.ErrorInfo.ErrorType.*;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Set;
 import javafx.beans.value.ChangeListener;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TreeCell;
+import javafx.scene.input.MouseButton;
 
 /**
  * This TreeCell is used to visualize the different .rudi files according to
@@ -47,6 +50,10 @@ import javafx.scene.control.TreeCell;
  */
 public class RudiTreeCell extends TreeCell<RudiPath> {
 
+  /*****************************************************************************
+   * CONSTANTS
+   ****************************************************************************/
+
   /** Icon path of files. */
   static final String ICON_PATH_FILES
           = "file:src/main/resources/icons/FilesAndFolders/";
@@ -60,6 +67,22 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
     put(FILE_NOT_USED,   new Image(ICON_PATH_FILES + "disabled.png"));
     put(IS_FOLDER,       new Image(ICON_PATH_FILES + "folder.png"));
   }};
+
+
+  /*****************************************************************************
+   * FIELDS
+   ****************************************************************************/
+
+  /**
+   * Represents the <code>DataModel</code> addition to load <code>.rudi</code>
+   * files.
+   */
+  private final RudiLoadManager _rudiLoad;
+
+
+  /*****************************************************************************
+   * PSEUDOCLASSES
+   ****************************************************************************/
 
   /** Used to visually distinguish modified files with CSS. */
   private final PseudoClass modifiedFileClass
@@ -90,14 +113,35 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
     add(modifiedAndWarningsInImportClass);
   }};
 
+
+  /*****************************************************************************
+   * LISTENERS
+   ****************************************************************************/
+
   /** Used to listen to modification changes. */
-  private final ChangeListener<Boolean> modificationListener = (o, ov, nv) -> {
-    setPseudoClass(nv);
-  };
+  private final ChangeListener<Boolean> modificationListener = (o, ov, nv)
+          -> setPseudoClass(nv);
 
   /** Used to listen to usage state changes. */
-  private final ChangeListener<Number> usageStateListener = ((o, ov, nv)
-    -> this.setGraphic(new ImageView(ICONS_FILES.get(nv.intValue()))));
+  private final ChangeListener<Number> usageStateListener = (o, ov, nv)
+          -> this.setGraphic(new ImageView(ICONS_FILES.get(nv.intValue())));
+
+
+
+  /*****************************************************************************
+   * CONSTRUCTOR
+   ****************************************************************************/
+
+  /** Initializes a new cell. */
+  public RudiTreeCell(RudiLoadManager rl) {
+    super();
+    _rudiLoad = rl;
+  }
+
+
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
 
   @Override
   protected void updateItem(RudiPath rudiPath, boolean empty) {
@@ -132,7 +176,38 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
               rudiPath.usedProperty().getValue())));
       rudiPath.usedProperty().addListener(usageStateListener);
 
+      /* Define click actions. */
+      defineContextMenu(rudiPath);
+      defineDoubleClickBehaviour(rudiPath);
+
     }
+  }
+
+  /**
+   * Defines the <code>ContextMenu</code>.
+   *
+   * @param rudiPath The associated file of this cell
+   */
+  private void defineContextMenu(RudiPath rudiPath) {
+    this.setOnContextMenuRequested(e -> {
+        if (! Files.isDirectory(rudiPath.getPath())) {
+          RudiContextMenu rcm = new RudiContextMenu(rudiPath, _rudiLoad);
+          rcm.show(this, e.getScreenX(), e.getScreenY());
+        }
+      });
+  }
+
+  /**
+   * Defines the double click behaviour.
+   *
+   * @param rudiPath The associated file of this cell
+   */
+  private void defineDoubleClickBehaviour(RudiPath rudiPath) {
+    this.setOnMouseClicked(e -> {
+      if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY)
+        if (! Files.isDirectory(rudiPath.getPath()))
+          _rudiLoad.openFile(rudiPath.getPath());
+    });
   }
 
   /**
@@ -162,7 +237,6 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
     } else
       pseudoClassStateChanged(modifiedFileClass, modified);
   }
-
 
   /** @return True, if errors occurred with this file, else false. */
   private boolean hasErrors() {

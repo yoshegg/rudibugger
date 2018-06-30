@@ -87,7 +87,7 @@ public class DataModel {
   public ViewLayout layout = new ViewLayout(this);
 
   /** Provides additional functionality to interact with Emacs. */
-  public EmacsConnection emacs = new EmacsConnection();
+  public EmacsConnection emacs = new EmacsConnection(this);
 
   /** Provides additional functionality to interact with VOnDA. */
   public VondaConnection vonda = new VondaConnection(this);
@@ -160,24 +160,25 @@ public class DataModel {
    */
   public void init(Path selectedProjectYml) {
 
-    /** Loads project configuration and initializes fields */
+    /* Loads project configuration and initializes fields */
     project.initConfiguration(selectedProjectYml);
 
-    /** Start WatchServices */
+    /* Start WatchServices */
     watch.initWatches();
 
-    /** Reads in .rudi files in rudiFolder */
+    /* Reads in .rudi files in rudiFolder */
     rudiHierarchy.init();
 
-    /** Reads in ruleModel (if it exists) */
+    /* Reads in ruleModel (if it exists) */
     if (Files.exists(project.getRuleLocationFile()))
       ruleModel.init();
 
-    /** Sets the property to true */
+    /* Sets the property to true */
     _projectLoaded.set(PROJECT_OPEN);
 
     log.info("Initializing done.");
 
+    /* Automatically connect to VOnDA (if specified in settings) */
     if (globalConf.getAutomaticallyConnectToVonda()) vonda.connect();
   }
 

@@ -20,7 +20,10 @@
 package de.dfki.mlt.rudibugger.DataModelAdditions;
 
 import de.dfki.lt.j2emacs.J2Emacs;
+import de.dfki.mlt.rudibugger.DataModel;
 import java.io.File;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides additional functionality to interact with Emacs.
@@ -29,8 +32,24 @@ import java.io.File;
  */
 public class EmacsConnection {
 
+  /** The logger. */
+  static Logger log = LoggerFactory.getLogger("emacsCon");
+
+  /** The <code>DataModel</code> */
+  private final DataModel _model;
+
   /** An Emacs connector. */
   private J2Emacs _j2e = null;
+
+   /**
+   * Initializes this addition of <code>DataModel</code>.
+   *
+   * @param model  The current <code>DataModel</code>
+   */
+  public EmacsConnection(DataModel model) {
+    _model = model;
+  }
+
 
   /**
    * @return The Emacs connector (instance of class <code>J2Emacs</code>)
@@ -48,6 +67,10 @@ public class EmacsConnection {
     _j2e.addStartHook(
         "(setq auto-mode-alist (append (list '(\"\\\\.rudi\" . java-mode))))");
     _j2e.startEmacs();
+    _j2e.registerAction("file_changed", (String... args) -> {
+      _model.compiler.startCompile(_model.project.getDefaultCompileCommand());
+    });
+
   }
 
   /**

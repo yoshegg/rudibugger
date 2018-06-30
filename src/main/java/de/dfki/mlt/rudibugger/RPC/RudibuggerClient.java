@@ -72,7 +72,17 @@ public class RudibuggerClient {
    *        The new state of the given Rule
    */
   public void setLoggingStatus(int ruleId, int newState) {
-    client.send(Integer.toString(ruleId), Integer.toString(newState));
+    client.send("setLogStat", Integer.toString(ruleId), Integer.toString(newState));
+  }
+
+  /**
+   * Request information from VOnDA about a field of custom agent.
+   *
+   * @param field
+   *        The name of the wanted field
+   */
+  public void requestFieldInfo(String field) {
+    client.send("reqFieldInfo", field);
   }
 
 }

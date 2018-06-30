@@ -140,7 +140,6 @@
       <ToolBar fx:id="toolBar" prefHeight="40.0" prefWidth="200.0">
          <items>
             <Button fx:id="compileButton" defaultButton="true" disable="true" mnemonicParsing="false" text="Compile" />
-            <Button fx:id="runButton" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#startRun" text="Run" />
             <Button fx:id="vondaConnectionButton" disable="true" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#changeVondaConnectionState" prefWidth="150.0" text="No project" />
          </items>
       </ToolBar>

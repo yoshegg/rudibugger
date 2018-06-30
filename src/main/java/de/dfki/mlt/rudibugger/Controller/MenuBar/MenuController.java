@@ -34,18 +34,16 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.ToolBar;
-import javafx.scene.control.Tooltip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * This controller's purpose is to manage the MenuBar and the ToolBar of
+ * rudibugger.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -59,7 +57,16 @@ public class MenuController extends Controller {
    * EXTENSIONS OF THE MENU CONTROLLER
    ****************************************************************************/
 
+  /**
+   * Contains functionality to manage the look and file of the compile button.
+   */
   private CompileButtonManager compileButtonManager;
+
+  /**
+   * Contains functionality to manage the look and file of the connection
+   * button.
+   */
+  private ConnectionButtonManager connectionButtonManager;
 
 
   /*****************************************************************************
@@ -73,27 +80,20 @@ public class MenuController extends Controller {
    */
   public void init(DataModel model) {
     linkModel(model);
-//    compileButtonManager = new CompileButtonManager(_model);
     compileButtonManager = CompileButtonManager.init(_model, compileButton,
             toolBar);
+    connectionButtonManager = ConnectionButtonManager.init(_model,
+            vondaConnectionButton, toolBar);
     initModel();
   }
-  /** This function connects this controller to the DataModel
+
+
+  /**
+   * Connects this controller to the DataModel.
    *
    * @param model
    */
   public void initModel() {
-
-    /* this listener checks for a run file */
-    _model.project.runFileProperty().addListener((o, oldVal, newVal) -> {
-      if (newVal != null) {
-        log.debug("As a run file has been found, "
-                + "the button was enabled.");
-        runButton.setDisable(false);
-      } else {
-        runButton.setDisable(true);
-      }
-    });
 
     /* this listener checks if a project has been opened */
     _model.projectLoadedProperty().addListener((o, ov, nv) -> {
@@ -104,7 +104,7 @@ public class MenuController extends Controller {
         loadLoggingStateMenu.setDisable(false);
         saveLoggingStateItem.setDisable(false);
         findInProjectItem.setDisable(false);
-        manageLookOfVondaConnectionButton();
+        connectionButtonManager.manageLookOfVondaConnectionButton();
         compileButtonManager.defineCompileButton();
       } else {
         log.debug("Project closed: disable GUI-elements.");
@@ -113,7 +113,7 @@ public class MenuController extends Controller {
         loadLoggingStateMenu.setDisable(true);
         saveLoggingStateItem.setDisable(true);
         findInProjectItem.setDisable(true);
-        manageLookOfVondaConnectionButton();
+        connectionButtonManager.manageLookOfVondaConnectionButton();
         compileButtonManager.defineCompileButton();
       }
     });
@@ -124,7 +124,7 @@ public class MenuController extends Controller {
     });
 
     _model.vonda.connectedProperty().addListener(l ->
-      manageLookOfVondaConnectionButton()
+      connectionButtonManager.manageLookOfVondaConnectionButton()
     );
 
     /* this listener enables saving depending on the selected tab */
@@ -187,45 +187,13 @@ public class MenuController extends Controller {
     });
   }
 
-  /** Manages the look (e.g. text) of the connect button. */
-  private void manageLookOfVondaConnectionButton() {
-
-    Button button = vondaConnectionButton;
-
-    if (_model.projectLoadedProperty().get() == PROJECT_CLOSED) {
-      button.setText("No project");
-      button.setOnMouseEntered(e -> button.setText(null));
-      button.setOnMouseExited(e -> button.setText(null));
-      button.setDisable(true);
-
-    } else switch(_model.vonda.connectedProperty().get()) {
-      case CONNECTED_TO_VONDA:
-        button.setText("Connected");
-        button.setOnMouseEntered(e -> button.setText("Disconnect"));
-        button.setOnMouseExited(e -> button.setText("Connected"));
-        button.setDisable(false);
-        break;
-      case ESTABLISHING_CONNECTION:
-        button.setText("Connecting");
-        button.setOnMouseEntered(e -> button.setText("Disconnect"));
-        button.setOnMouseExited(e -> button.setText("Connecting"));
-        button.setDisable(false);
-        break;
-      case DISCONNECTED_FROM_VONDA:
-        button.setText("Disconnected");
-        button.setOnMouseEntered(e -> button.setText("Connect"));
-        button.setOnMouseExited(e -> button.setText("Disconnected"));
-        button.setDisable(false);
-      }
-  }
-
   /**
    * Builds the menu offering to load the 10 most recent RuleModelState
    * configurations.
    */
   @FXML
   private void buildLoadRuleSelectionStateMenu() {
-    if (! _model.projectLoadedProperty().get()) return; 
+    if (! _model.projectLoadedProperty().get()) return;
     if (!_model.ruleModelState.getRecentStates().isEmpty()) {
       loadLoggingStateMenu.getItems().clear();
       _model.ruleModelState.getRecentStates().forEach((x) -> {
@@ -247,6 +215,7 @@ public class MenuController extends Controller {
 
   /**
    * This function is used to check for open projects
+   * TODO: Should probably be somewhere else
    *
    * @param ymlFile null, if the project has not been defined yet, else the Path
    * to the project's .yml file
@@ -282,18 +251,16 @@ public class MenuController extends Controller {
 
 
   /*****************************************************************************
-   * The different GUI elements
+   * TOOLBAR BUTTONS
    ****************************************************************************/
 
-  /* the compile button */
+  /* Represents the compile button. */
   @FXML
   private Button compileButton;
 
-  /* the run button */
-  @FXML
-  private Button runButton;
-
-  /** Con-/Disconnect button. */
+  /**
+   * Represents the con-/disconnect button also monitoring the connection state.
+   */
   @FXML
   private Button vondaConnectionButton;
 
@@ -461,12 +428,6 @@ public class MenuController extends Controller {
   /** Contains buttons */
   @FXML
   private ToolBar toolBar;
-
-  /* Clicking the run button */
-  @FXML
-  private void startRun(ActionEvent event) {
-    log.warn("\"Run\" is not implemented yet.");
-  }
 
   /** Establishes a connection to the VOnDA server or disconnects from it. */
   @FXML

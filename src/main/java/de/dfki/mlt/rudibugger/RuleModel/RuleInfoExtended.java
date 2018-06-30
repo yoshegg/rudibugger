@@ -38,50 +38,27 @@ import org.slf4j.LoggerFactory;
  */
 public class RuleInfoExtended extends RuleInfo {
 
+  /** The logger. */
   static Logger log = LoggerFactory.getLogger(RuleInfoExtended.class);
 
   /** The current <code>DataModel</code>. */
-  public final DataModel _model;
+  private final DataModel _model;
+
+
+  /*****************************************************************************
+   * FIELDS & PROPERTIES
+   ****************************************************************************/
 
   /** Describes how the rules of this import are being logged. */
   private final IntegerProperty _state;
 
-  /**
-   * Returns an Integer {@linkplain de.dfki.mlt.rudimant.common
-   * constant} representing the logging state of this
-   * <code>RuleInfoExtended</code>.
-   *
-   * @return An Integer {@linkplain de.dfki.mlt.rudimant.common
-   *         constant}.
-   */
-  public int getState() { return _state.get(); }
+  /** Represents the Import containing this rule. */
+  private final ImportInfoExtended _parentImport;
 
-  /**
-   * Sets the rule logging state of this <code>RuleInfoExtended</code>.
-   *
-   * @param    i
-   *           An Integer {@linkplain de.dfki.mlt.rudimant.common
-   *           constant}.
-   */
-  public void setState(int i) { _state.setValue(i); }
 
-  /**
-   * Sets the given Integer {@linkplain de.dfki.mlt.rudimant.common
-   * constant} as state of this <code>RuleInfoExtended</code>.
-   *
-   * @param value
-   *        An Integer {@linkplain de.dfki.mlt.rudimant.common
-   *        constant}
-   */
-  public void setStateProperty(int value) { _state.setValue(value); }
-
-  /**
-   * Returns an <code>IntegerProperty</code> representing the logging state of
-   * this <code>RuleInfoExtended</code>.
-   *
-   * @return An <code>IntegerProperty</code>.
-   */
-  public IntegerProperty stateProperty() { return _state; }
+  /*****************************************************************************
+   * INITIALIZERS / CONSTRUCTORS
+   ****************************************************************************/
 
   /**
    * An extended version of <code>RuleInfo</code> containing information
@@ -117,27 +94,10 @@ public class RuleInfoExtended extends RuleInfo {
 
   }
 
-  /**
-   * The Import containing this rule.
-   */
-  private final ImportInfoExtended _parentImport;
 
-  /**
-   * Returns the parent Import.
-   *
-   * @return A <code>ImportInfoExtended</code>.
-   */
-  public ImportInfoExtended getParentImport() { return _parentImport; }
-
-  /**
-   * Returns the parent's path of this <code>RuleInfoExtended</code> (the file
-   * containing this rule).
-   *
-   * @return The file containing this rule.
-   */
-  public Path getSourceFile() {
-    return ((ImportInfoExtended) _parentImport).getAbsolutePath();
-  }
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
 
   /** Cycles through the different rule logging states */
   public void cycleThroughStates() {
@@ -172,4 +132,59 @@ public class RuleInfoExtended extends RuleInfo {
       ((RuleInfoExtended) child).setAllChildrenStates(state);
     });
   }
+
+
+  /*****************************************************************************
+   * GETTERS & SETTERS
+   ****************************************************************************/
+
+  /** @return The current <code>DataModel</code> */
+  public DataModel getModel() { return _model; }
+
+  /**
+   * Returns an Integer {@linkplain de.dfki.mlt.rudimant.common
+   * constant} representing the logging state of this
+   * <code>RuleInfoExtended</code>.
+   *
+   * @return An Integer {@linkplain de.dfki.mlt.rudimant.common
+   *         constant}.
+   */
+  public int getState() { return _state.get(); }
+
+  /**
+   * Sets the rule logging state of this <code>RuleInfoExtended</code>.
+   *
+   * @param    i
+   *           An Integer {@linkplain de.dfki.mlt.rudimant.common
+   *           constant}.
+   */
+  public void setState(int i) { _state.setValue(i); }
+
+  /**
+   * Sets the given Integer {@linkplain de.dfki.mlt.rudimant.common
+   * constant} as state of this <code>RuleInfoExtended</code>.
+   *
+   * @param value
+   *        An Integer {@linkplain de.dfki.mlt.rudimant.common
+   *        constant}
+   */
+  public void setStateProperty(int value) { _state.setValue(value); }
+
+  /**
+   * @return An <code>IntegerProperty</code> representing the logging state of
+   * this <code>RuleInfoExtended</code>
+   */
+  public IntegerProperty stateProperty() { return _state; }
+
+  /** @return The parent <code>ImportInfoExtended</code> */
+  public ImportInfoExtended getParentImport() { return _parentImport; }
+
+  /**
+   * @return The parent's path of this <code>RuleInfoExtended</code> (the file
+   * containing this rule)
+   */
+  public Path getSourceFile() {
+    return ((ImportInfoExtended) _parentImport).getAbsolutePath();
+  }
+
 }

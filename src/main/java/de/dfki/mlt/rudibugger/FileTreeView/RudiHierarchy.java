@@ -261,10 +261,16 @@ public class RudiHierarchy {
     _modificationsAfterCompilation.setValue(FILES_SYNCED);
   }
 
+  /** Sets all files as not modified. */
   public void resetFilesModifiedProperties() {
     _rudiPathMap.keySet().forEach((p) -> {
       _rudiPathMap.get(p).modifiedProperty().setValue(false);
     });
+  }
+
+  /** @return True, if file is already known, else false */
+  public boolean isFileInHierarchy(Path file) {
+    return _rudiPathMap.keySet().contains(file);
   }
 
 
