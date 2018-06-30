@@ -42,7 +42,10 @@ public class ImportInfoExtended extends ImportInfo {
   static Logger log = LoggerFactory.getLogger(ImportInfoExtended.class);
 
   /** The current <code>DataModel</code>. */
-  public final DataModel _model;
+  private final DataModel _model;
+
+  /** @return The current <code>DataModel</code> */
+  public DataModel getModel() { return _model; }
 
   /** Describes how the rules of this import are being logged. */
   private final IntegerProperty _state;

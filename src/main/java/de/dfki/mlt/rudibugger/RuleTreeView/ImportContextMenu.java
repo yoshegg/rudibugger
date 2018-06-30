@@ -90,7 +90,7 @@ public class ImportContextMenu extends ContextMenu {
     Tooltip t = new Tooltip(e.getMessage());
     Tooltip.install(label, t);
     errorItem.setOnAction(f -> {
-      _item._model.rudiLoad.openRule(_item.getAbsolutePath(),
+      _item.getModel().rudiLoad.openRule(_item.getAbsolutePath(),
           e.getLocation().getBegin().getLine() + 1);
     });
     this.getItems().add(errorItem);
@@ -103,7 +103,7 @@ public class ImportContextMenu extends ContextMenu {
     CustomMenuItem openFile = new CustomMenuItem(new Label("Open "
             + _item.getAbsolutePath().getFileName().toString()));
     openFile.setOnAction((ActionEvent e) -> {
-      _item._model.rudiLoad.openFile(_item.getAbsolutePath());
+      _item.getModel().rudiLoad.openFile(_item.getAbsolutePath());
     });
     SeparatorMenuItem sep = new SeparatorMenuItem();
     this.getItems().addAll(openFile, sep);

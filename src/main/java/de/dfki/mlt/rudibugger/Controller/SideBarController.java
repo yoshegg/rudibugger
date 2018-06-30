@@ -23,16 +23,13 @@ import de.dfki.mlt.rudimant.common.BasicInfo;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiTreeCell;
-import de.dfki.mlt.rudibugger.FileTreeView.RudiPath;
 import de.dfki.mlt.rudibugger.RuleTreeView.BasicInfoTreeCell;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.input.MouseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,8 +61,8 @@ public class SideBarController extends Controller {
   public void init(DataModel model) {
     linkModel(model);
 
-    defineRudiTreeView();
-    defineRuleTreeView();
+    rudiTreeView.setCellFactory(value -> new RudiTreeCell(_model.rudiLoad));
+    ruleTreeView.setCellFactory(value -> new BasicInfoTreeCell());
 
     /* this Listener keeps the rudiTreeView containing the .rudi files up to date */
     model.projectLoadedProperty().addListener((o, ov, nv) -> {
@@ -130,25 +127,6 @@ public class SideBarController extends Controller {
       _model.ruleModelState.resetLoadRequestProperty();
     });
 
-  }
-
-  /** Defines the look and feel of the rudiTreeView. */
-  private void defineRudiTreeView() {
-    rudiTreeView.setCellFactory(value -> new RudiTreeCell());
-    rudiTreeView.setOnMouseClicked((MouseEvent mouseEvent) -> {
-      if (mouseEvent.getClickCount() == 2) {
-        TreeItem ti = (TreeItem) rudiTreeView.getSelectionModel()
-          .getSelectedItem();
-        RudiPath rp = (RudiPath) ti.getValue();
-        if (! Files.isDirectory(rp.getPath()))
-          _model.rudiLoad.openFile(rp.getPath());
-      }
-    });
-  }
-
-  /** Defines the look and feel of the ruleTreeView. */
-  private void defineRuleTreeView() {
-    ruleTreeView.setCellFactory(value -> new BasicInfoTreeCell());
   }
 
 

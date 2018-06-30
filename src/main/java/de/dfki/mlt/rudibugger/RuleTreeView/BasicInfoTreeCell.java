@@ -44,12 +44,17 @@ import javafx.scene.text.Text;
  */
 public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
 
+  /*****************************************************************************
+   * CONSTANTS
+   ****************************************************************************/
+
   /** Icon path of imports. */
   static final String ICON_PATH_IMPORTS
           = "file:src/main/resources/icons/RudiLogFileStatus/";
 
   /** Map of import icons. */
-  static final HashMap<Integer, Image> ICONS_IMPORTS = new HashMap<Integer, Image>() {{
+  static final HashMap<Integer, Image> ICONS_IMPORTS
+          = new HashMap<Integer, Image>() {{
     put(STATE_ALWAYS,   new Image(ICON_PATH_IMPORTS + "Always.png"));
     put(STATE_IF_TRUE,  new Image(ICON_PATH_IMPORTS + "IfTrue.png"));
     put(STATE_IF_FALSE, new Image(ICON_PATH_IMPORTS + "IfFalse.png"));
@@ -62,13 +67,27 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
           = "file:src/main/resources/icons/RudiLogRuleStatus/";
 
   /** Map of rule icons. */
-  static final HashMap<Integer, Image> ICONS_RULES = new HashMap<Integer, Image>() {{
+  static final HashMap<Integer, Image> ICONS_RULES
+          = new HashMap<Integer, Image>() {{
     put(STATE_ALWAYS,   new Image(ICON_PATH_RULES + "Always.png"));
     put(STATE_IF_TRUE,  new Image(ICON_PATH_RULES + "IfTrue.png"));
     put(STATE_IF_FALSE, new Image(ICON_PATH_RULES + "IfFalse.png"));
     put(STATE_NEVER,    new Image(ICON_PATH_RULES + "Never.png"));
     put(STATE_PARTLY,   new Image(ICON_PATH_RULES + "Partly.png"));
   }};
+
+
+  /*****************************************************************************
+   * FIELDS
+   ****************************************************************************/
+
+  /** Icon of the TreeItem, indication rule logging state. */
+  private ImageView stateIndicator;
+
+
+  /*****************************************************************************
+   * PSEUDOCLASSES
+   ****************************************************************************/
 
   /** Used to visually distinguish erroneous imports with CSS. */
   private final PseudoClass errorsInImportClass
@@ -78,6 +97,11 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
   private final PseudoClass warningsInImportClass
           = PseudoClass.getPseudoClass("warningsInImport");
 
+
+  /*****************************************************************************
+   * LISTENERS
+   ****************************************************************************/
+
   /** Used to listen to rule state changes. */
   private final ChangeListener<Number> ruleStateListener = ((o, ov, nv)
     -> this.stateIndicator.setImage(ICONS_RULES.get(nv.intValue())));
@@ -86,8 +110,10 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
   private final ChangeListener<Number> importStateListener = ((o, ov, nv)
     -> this.stateIndicator.setImage(ICONS_IMPORTS.get(nv.intValue())));
 
-  /** Icon of the TreeItem, indication rule logging state. */
-  private ImageView stateIndicator;
+
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
 
   @Override
   protected void updateItem(BasicInfo bi, boolean empty) {
@@ -199,7 +225,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         /* define double click on cell */
         this.setOnMouseClicked(e -> {
           if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY) {
-            ii._model.rudiLoad.openFile(ii.getAbsolutePath());
+            ii.getModel().rudiLoad.openFile(ii.getAbsolutePath());
           }
         });
       }
