@@ -133,19 +133,20 @@ RuleLoggingState Icons
  
 The modules are represented with file icons and the rules with custom CheckBoxes. According to the rule logging state, the boxes have different colour:
 
-==============  ===============================
+==============  ====================================
 Colour          Rule is...    
-==============  ===============================
+==============  ====================================
 :grey:`Grey`    not logged at all  
 :green:`Green`  logged if it evaluated to true
 :red:`Red`      logged if it evaluated to false
 :blue:`Blue`    always logged  
-==============  ===============================
+:black:`Black`  *files only*: does not contain rules
+==============  ====================================
 
 
 Module icons will change their colour according to the states of their children. 
 
-.. note:: Modules that do not contain any rules are also shown, but don't contain any children in the ``TreeView``. Therefore, their icons will always be grey. 
+.. note:: Modules that do not contain any rules are also shown, but don't contain any children in the ``TreeView``. Their icon will be **black**. 
 
 
 
