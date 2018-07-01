@@ -55,11 +55,12 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
   /** Map of import icons. */
   static final HashMap<Integer, Image> ICONS_IMPORTS
           = new HashMap<Integer, Image>() {{
-    put(STATE_ALWAYS,   new Image(ICON_PATH_IMPORTS + "Always.png"));
-    put(STATE_IF_TRUE,  new Image(ICON_PATH_IMPORTS + "IfTrue.png"));
-    put(STATE_IF_FALSE, new Image(ICON_PATH_IMPORTS + "IfFalse.png"));
-    put(STATE_NEVER,    new Image(ICON_PATH_IMPORTS + "Never.png"));
-    put(STATE_PARTLY,   new Image(ICON_PATH_IMPORTS + "Partly.png"));
+    put(STATE_ALWAYS,     new Image(ICON_PATH_IMPORTS + "Always.png"));
+    put(STATE_IF_TRUE,    new Image(ICON_PATH_IMPORTS + "IfTrue.png"));
+    put(STATE_IF_FALSE,   new Image(ICON_PATH_IMPORTS + "IfFalse.png"));
+    put(STATE_NEVER,      new Image(ICON_PATH_IMPORTS + "Never.png"));
+    put(STATE_PARTLY,     new Image(ICON_PATH_IMPORTS + "Partly.png"));
+    put(STATE_RULELESS, new Image(ICON_PATH_IMPORTS + "NoRule.png"));
   }};
 
   /** Icon path of rules. */
