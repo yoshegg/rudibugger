@@ -22,6 +22,7 @@ package de.dfki.mlt.rudibugger.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudimant.common.BasicInfo;
+import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
 import de.dfki.mlt.rudimant.common.ImportInfo;
 import de.dfki.mlt.rudimant.common.RuleInfo;
@@ -224,8 +225,14 @@ public class RuleModel {
               = new ImportInfoExtended((ImportInfo) current, model, parent);
       extractWarnErrors(ii);
       _pathToImport.put(ii.getAbsolutePath(), ii);
-      for (BasicInfo child : current.getChildren()) {
-        ii.getChildren().add(processInfos(child, ii, model));
+
+      /* Define ii to be without rules if needed. */
+      if (current.getChildren().isEmpty()) {
+        ii.setStateProperty(STATE_RULELESS);
+      } else {
+        for (BasicInfo child : current.getChildren()) {
+          ii.getChildren().add(processInfos(child, ii, model));
+        }
       }
       if (parent != null)
         ((ImportInfoExtended) ii.getParent()).addListener(ii);

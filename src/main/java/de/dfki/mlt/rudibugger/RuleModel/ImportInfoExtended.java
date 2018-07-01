@@ -138,6 +138,7 @@ public class ImportInfoExtended extends ImportInfo {
     state.addListener((cl, ov, nv) -> {
       Integer t = -1;
       for (IntegerProperty x : childStates) {
+        if (x.getValue().equals(STATE_RULELESS)) continue;
         if ((t == -1) | (x.getValue().equals(t))) {
           t = x.getValue();
         } else {
