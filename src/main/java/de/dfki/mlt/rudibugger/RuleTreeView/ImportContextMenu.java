@@ -105,14 +105,16 @@ public class ImportContextMenu extends ContextMenu {
     openFile.setOnAction((ActionEvent e) -> {
       _item.getModel().rudiLoad.openFile(_item.getAbsolutePath());
     });
-    SeparatorMenuItem sep = new SeparatorMenuItem();
-    this.getItems().addAll(openFile, sep);
+    this.getItems().addAll(openFile, new SeparatorMenuItem());
 
     /* set possibility to open errors or warnings (if any) */
-    for (ErrorInfo e : _item.getErrors()) {
-      treatErrorInfo(e);
+    if (_item.getModel().globalConf.showErrorInfoInRuleTreeViewContextMenu()) {
+      for (ErrorInfo e : _item.getErrors()) {
+        treatErrorInfo(e);
+      }
+      if (! _item.getErrors().isEmpty())
+        this.getItems().add(new SeparatorMenuItem());
     }
-    if (! _item.getErrors().isEmpty()) this.getItems().add(sep);
 
     /* set RadioMenuButtons */
     ToggleGroup toggleGroup = new ToggleGroup();

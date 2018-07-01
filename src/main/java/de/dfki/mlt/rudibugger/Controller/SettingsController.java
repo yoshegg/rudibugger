@@ -82,6 +82,9 @@ public class SettingsController extends Controller {
       _model.globalConf.getAutomaticallyConnectToVonda());
     customFileEditor.setText((String) _model.globalConf.getOpenFileWith());
     customRuleEditor.setText((String) _model.globalConf.getOpenRuleWith());
+
+    errorInfoInRuleTreeViewContextMenu.setSelected(
+      _model.globalConf.showErrorInfoInRuleTreeViewContextMenu());
   }
 
   /** Defines listeners. */
@@ -113,6 +116,9 @@ public class SettingsController extends Controller {
       _model.globalConf.setSetting("timeStampIndex", nv));
     autoConnectCheckBox.selectedProperty().addListener((cl, ov, nv) ->
       _model.globalConf.setSetting("automaticallyConnectToVonda", nv));
+    errorInfoInRuleTreeViewContextMenu.selectedProperty()
+            .addListener((o, ov, nv) -> _model.globalConf
+            .setSetting("showErrorInfoInRuleTreeViewContextMenu", nv));
   }
 
 
@@ -164,4 +170,12 @@ public class SettingsController extends Controller {
    */
   @FXML
   private CheckBox autoConnectCheckBox;
+
+  /**
+   * Defines if the context menu in the ruleTreeView should contain a link to
+   * occurred warnings and errors during compilation.
+   */
+  @FXML
+  private CheckBox errorInfoInRuleTreeViewContextMenu;
+
 }
