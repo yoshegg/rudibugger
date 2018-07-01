@@ -21,14 +21,12 @@ package de.dfki.mlt.rudibugger.SearchAndFind;
 import de.dfki.mlt.rudibugger.DataModel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.logging.Level;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

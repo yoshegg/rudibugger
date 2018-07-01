@@ -168,6 +168,7 @@ public class GlobalConfiguration {
       put("saveOnCompile", 2);
       put("lastOpenedProject", null);
       put("automaticallyConnectToVonda", false);
+      put("showErrorInfoInRuleTreeViewContextMenu", true);
     }};
 
 
@@ -276,6 +277,15 @@ public class GlobalConfiguration {
    */
   public boolean getAutomaticallyConnectToVonda() {
     return (boolean) _globalConfigs.get("automaticallyConnectToVonda");
+  }
+
+  /**
+   * @return True, if the ruleTreeView context menu should show links to
+   * problems occurred during compilation, else false
+   */
+  public boolean showErrorInfoInRuleTreeViewContextMenu() {
+    return (boolean) _globalConfigs
+            .get("showErrorInfoInRuleTreeViewContextMenu");
   }
 
 }
