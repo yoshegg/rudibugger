@@ -60,7 +60,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
     put(STATE_IF_FALSE,   new Image(ICON_PATH_IMPORTS + "IfFalse.png"));
     put(STATE_NEVER,      new Image(ICON_PATH_IMPORTS + "Never.png"));
     put(STATE_PARTLY,     new Image(ICON_PATH_IMPORTS + "Partly.png"));
-    put(STATE_RULELESS, new Image(ICON_PATH_IMPORTS + "NoRule.png"));
+    put(STATE_RULELESS,   new Image(ICON_PATH_IMPORTS + "NoRule.png"));
   }};
 
   /** Icon path of rules. */
@@ -193,8 +193,11 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
       /* IMPORT */
       else {
         ImportInfoExtended ii = (ImportInfoExtended) bi;
-        stateIndicator = new ImageView(ICONS_IMPORTS.get(ii.getState()));
-
+        if (ii.containsRules())
+          stateIndicator = new ImageView(ICONS_IMPORTS.get(ii.getState()));
+        else
+          stateIndicator = new ImageView(ICONS_IMPORTS.get(STATE_RULELESS));
+        
         /* visually indicate errors and warnings happened during compile */
         if (ii.getErrors().stream().anyMatch(ewi ->
                 ewi.getType() == ERROR || ewi.getType() == PARSE_ERROR)) {

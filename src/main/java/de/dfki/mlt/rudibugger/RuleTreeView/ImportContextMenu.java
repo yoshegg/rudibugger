@@ -41,6 +41,10 @@ import javafx.scene.control.Tooltip;
  */
 public class ImportContextMenu extends ContextMenu {
 
+  /*****************************************************************************
+   * CONSTANTS
+   ****************************************************************************/
+
   /**
    * Contains all the <code>RadioMenuItem</code>s of the
    * <code>ImportContextMenu</code>.
@@ -60,8 +64,18 @@ public class ImportContextMenu extends ContextMenu {
    */
   private static final RadioMenuItem PSEUDO_BUTTON = new RadioMenuItem();
 
+
+  /*****************************************************************************
+   * FIELDS
+   ****************************************************************************/
+
   /** The clicked Import. */
   private final ImportInfoExtended _item;
+
+
+  /*****************************************************************************
+   * CONSTRUCTOR
+   ****************************************************************************/
 
   /**
    * An <code>ImportContextMenu</code> should appear when a context menu was
@@ -73,14 +87,41 @@ public class ImportContextMenu extends ContextMenu {
     super();
     _item = ii;
     initializeMenuItems();
-
-    /* mark the current state */
-    if (_item.getState() != STATE_PARTLY)
-      RADIO_MENU_ITEMS.get(_item.getState()).setSelected(true);
-    else
-      PSEUDO_BUTTON.setSelected(true);
   }
 
+
+  /*****************************************************************************
+   * METHODS
+   ****************************************************************************/
+
+  /** Initializes MenuItems. */
+  private void initializeMenuItems() {
+    initOpenMenuItem();
+    if (!_item.getErrors().isEmpty())
+      initErrorInfoItems();
+    if (_item.containsRules()) {
+      initRuleLoggingMenuItems();
+      markCurrentRuleLoggingState();
+    }
+  }
+
+  /** Creates the "Open" MenuItem in the context menu. */
+  private void initOpenMenuItem() {
+    CustomMenuItem openFile = new CustomMenuItem(new Label("Open "
+            + _item.getAbsolutePath().getFileName().toString()));
+    openFile.setOnAction((ActionEvent e) ->
+      _item.getModel().rudiLoad.openFile(_item.getAbsolutePath()));
+    this.getItems().add(openFile);
+  }
+
+  /** Creates the "Go to error" MenuItem(s) in the context menu. */
+  private void initErrorInfoItems() {
+    addSeparator();
+    if (_item.getModel().globalConf.showErrorInfoInRuleTreeViewContextMenu())
+      _item.getErrors().forEach((e) -> treatErrorInfo(e));
+  }
+
+  /** Extracts ErrorInfo's information and adds it as MenuItem. */
   private void treatErrorInfo(ErrorInfo e) {
     String msg = e.getType().toString() + ": "
         + (e.getLocation().getBegin().getLine() + 1) + ":"
@@ -96,38 +137,31 @@ public class ImportContextMenu extends ContextMenu {
     this.getItems().add(errorItem);
   }
 
-  /** Initializes MenuItems. */
-  private void initializeMenuItems() {
-
-    /* set open MenuItem and separator */
-    CustomMenuItem openFile = new CustomMenuItem(new Label("Open "
-            + _item.getAbsolutePath().getFileName().toString()));
-    openFile.setOnAction((ActionEvent e) -> {
-      _item.getModel().rudiLoad.openFile(_item.getAbsolutePath());
-    });
-    this.getItems().addAll(openFile, new SeparatorMenuItem());
-
-    /* set possibility to open errors or warnings (if any) */
-    if (_item.getModel().globalConf.showErrorInfoInRuleTreeViewContextMenu()) {
-      for (ErrorInfo e : _item.getErrors()) {
-        treatErrorInfo(e);
-      }
-      if (! _item.getErrors().isEmpty())
-        this.getItems().add(new SeparatorMenuItem());
-    }
-
-    /* set RadioMenuButtons */
+  /** Creates the MenuItems defining how to log the Import's rules. */
+  private void initRuleLoggingMenuItems() {
+    addSeparator();
     ToggleGroup toggleGroup = new ToggleGroup();
     for (Integer s : RADIO_MENU_ITEMS.keySet()) {
-      RADIO_MENU_ITEMS.get(s).setOnAction(e -> {
-        _item.setAllChildrenStates(s);
-      });
+      RADIO_MENU_ITEMS.get(s).setOnAction(e ->
+        _item.setAllChildrenStates(s));
       this.getItems().add(RADIO_MENU_ITEMS.get(s));
       RADIO_MENU_ITEMS.get(s).setToggleGroup(toggleGroup);
     }
-
-    /* add pseudo button */
+    /* Pseudo button because a toggle group should have something selected. */
     PSEUDO_BUTTON.setToggleGroup(toggleGroup);
-
   }
+
+  /** Marks the corresponding MenuItem reflecting the ruleLoggingState. */
+  private void markCurrentRuleLoggingState() {
+    if (_item.getState() == STATE_PARTLY)
+      PSEUDO_BUTTON.setSelected(true);
+    else
+      RADIO_MENU_ITEMS.get(_item.getState()).setSelected(true);
+  }
+
+  /** Adds a Separator MenuItem to the context menu. */
+  private void addSeparator() {
+    this.getItems().add(new SeparatorMenuItem());
+  }
+
 }

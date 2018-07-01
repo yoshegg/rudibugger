@@ -62,6 +62,9 @@ public class ImportInfoExtended extends ImportInfo {
    */
   private final HashSet<IntegerProperty> childStates = new HashSet<>();
 
+  /** Describes whether or not this Import contains rules. */
+  private boolean _containsRules;
+
 
   /*****************************************************************************
    * INITIALIZERS / CONSTRUCTORS
@@ -81,6 +84,7 @@ public class ImportInfoExtended extends ImportInfo {
   public ImportInfoExtended(ImportInfo original, DataModel model,
                             BasicInfo parent) {
     super();
+    _containsRules = false;
     _label = original.getLabel();
     _line = original.getLine();
     if (! (parent instanceof ImportInfoExtended) && (parent != null) )
@@ -186,11 +190,13 @@ public class ImportInfoExtended extends ImportInfo {
    */
   public IntegerProperty stateProperty() { return _state; }
 
-  /**
-   * Returns the absolute path of this Import.
-   *
-   * @return The absolute path of this Import.
-   */
+  /** @return The absolute path of this Import. */
   public Path getAbsolutePath() { return _file; }
+
+  /** @Return True, if this Import contains rules, else false. */
+  public boolean containsRules() { return _containsRules; }
+
+  /** Sets the ImportInfoExtended to contain at least one rule. */
+  public void setContainsRules() { _containsRules = true; }
 
 }
