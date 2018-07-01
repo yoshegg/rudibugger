@@ -225,15 +225,8 @@ public class RuleModel {
               = new ImportInfoExtended((ImportInfo) current, model, parent);
       extractWarnErrors(ii);
       _pathToImport.put(ii.getAbsolutePath(), ii);
-
-      /* Define ii to be without rules if needed. */
-      if (current.getChildren().isEmpty()) {
-        ii.setStateProperty(STATE_RULELESS);
-      } else {
-        for (BasicInfo child : current.getChildren()) {
-          ii.getChildren().add(processInfos(child, ii, model));
-        }
-      }
+      current.getChildren().forEach((child) ->
+        ii.getChildren().add(processInfos(child, ii, model)));
       if (parent != null)
         ((ImportInfoExtended) ii.getParent()).addListener(ii);
       return ii;
@@ -242,6 +235,8 @@ public class RuleModel {
     else {
       RuleInfoExtended ri
               = new RuleInfoExtended((RuleInfo) current, model, parent);
+      if (ri.getParent() instanceof ImportInfoExtended)
+        setParentToContainsRules((ImportInfoExtended) ri.getParent());
       _idRuleMap.put(ri.getId(), ri);
       _idLoggingStateMap.put(ri.getId(), ri.stateProperty());
       for (BasicInfo child : current.getChildren()) {
@@ -297,6 +292,17 @@ public class RuleModel {
     _errorInfos.clear();
     _warnInfos.clear();
     _parsingFailure.clear();
+  }
+
+  /**
+   * Tells the parent imports recursively that they contain at least one rule.
+   */
+  private void setParentToContainsRules(ImportInfoExtended ii) {
+    ii.setContainsRules();
+    if (ii.getParent() != null) {
+      ImportInfoExtended parent = (ImportInfoExtended) ii.getParent();
+      if (! parent.containsRules()) setParentToContainsRules(parent);
+    }
   }
 
   /**
