@@ -55,8 +55,10 @@ public class MainApp extends Application {
   public void start(Stage stage) throws Exception {
 
     /* initialize log4j / sfl4j */
-    BasicConfigurator.configure();
-    PropertyConfigurator.configure("src/main/resources/log4j.properties");
+    // BK: UNCOMMENTING THE NEXT TWO LINES REMOVES THE POSSIBILITY OF PROVIDING
+    // AN ALTERNTATE LOGGING SETUP AT STARTUP
+    //BasicConfigurator.configure();
+    //PropertyConfigurator.configure("src/main/resources/log4j.properties");
 
     log.info("Starting Rudibugger");
 
