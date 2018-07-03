@@ -142,9 +142,13 @@ public class RudiHierarchy {
       return;
     }
     stream.forEach(x -> {
-      if (x.getFileName().toString().endsWith(RULE_FILE_EXTENSION)
-              || Files.isDirectory(x))
-        addFileToHierarchy(x.toAbsolutePath());
+      try {
+        if ((x.getFileName().toString().endsWith(RULE_FILE_EXTENSION)
+                || Files.isDirectory(x)) && ! Files.isHidden(x))
+          addFileToHierarchy(x.toAbsolutePath());
+      } catch (IOException e) {
+        log.error(e.toString());
+      }
     });
 
     /* Check if files are in sync */

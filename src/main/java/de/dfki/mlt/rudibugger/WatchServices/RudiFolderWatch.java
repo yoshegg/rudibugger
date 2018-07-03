@@ -159,24 +159,26 @@ public class RudiFolderWatch {
 
         WatchEvent<Path> ev = (WatchEvent<Path>) event;
         Path folder = (Path)rudiKey.watchable();
-        Path filename = folder.resolve(ev.context());
+        Path file = folder.resolve(ev.context());
 
         /* are folder's containing files changing? */
         if ((kind == ENTRY_CREATE || kind == ENTRY_DELETE
                 || kind == ENTRY_MODIFY)
-                && filename.getFileName().toString()
-                        .endsWith(RULE_FILE_EXTENSION)) {
+                && file.getFileName().toString()
+                        .endsWith(RULE_FILE_EXTENSION)
+                && ! Files.isHidden(file)
+                ) {
 
           /* rudi file added */
           if (kind == ENTRY_CREATE) {
             Platform.runLater(() -> {
-              if (_model.rudiHierarchy.isFileInHierarchy(filename)) {
-                log.info("rudi file has been modified : " + filename);
+              if (_model.rudiHierarchy.isFileInHierarchy(file)) {
+                log.info("rudi file has been modified : " + file);
               } else {
-                _model.rudiHierarchy.addFileToHierarchy(filename);
-                log.info("rudi file added: " + filename);
+                _model.rudiHierarchy.addFileToHierarchy(file);
+                log.info("rudi file added: " + file);
               }
-              _model.rudiHierarchy.setFileAsModified(filename);
+              _model.rudiHierarchy.setFileAsModified(file);
             });
 
           }
@@ -184,16 +186,16 @@ public class RudiFolderWatch {
           /* rudi file modified */
           if (kind == ENTRY_MODIFY) {
             Platform.runLater(() -> {
-              log.info("rudi file has been modified : " + filename);
-              _model.rudiHierarchy.setFileAsModified(filename);
+              log.info("rudi file has been modified : " + file);
+              _model.rudiHierarchy.setFileAsModified(file);
             });
           }
 
           /* rudi file deleted */
           if (kind == ENTRY_DELETE) {
             Platform.runLater(() -> {
-              _model.rudiHierarchy.removeFromFileHierarchy(filename);
-              log.info("rudi file deleted: " + filename);
+              _model.rudiHierarchy.removeFromFileHierarchy(file);
+              log.info("rudi file deleted: " + file);
             });
           }
 
@@ -202,14 +204,14 @@ public class RudiFolderWatch {
 
         /* new folder created? */
         if ((kind == ENTRY_CREATE || kind == ENTRY_DELETE
-                || kind == ENTRY_MODIFY) && Files.isDirectory(filename)) {
+                || kind == ENTRY_MODIFY) && Files.isDirectory(file)) {
 
           /* watch another folder */
           if (kind == ENTRY_CREATE) {
-            filename.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
+            file.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
                   ENTRY_DELETE);
-            _model.rudiHierarchy.addFileToHierarchy(filename);
-            log.debug("Started watching new folder: " + filename);
+            _model.rudiHierarchy.addFileToHierarchy(file);
+            log.debug("Started watching new folder: " + file);
           }
         }
       }
