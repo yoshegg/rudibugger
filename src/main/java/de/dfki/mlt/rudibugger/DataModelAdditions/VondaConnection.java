@@ -27,13 +27,15 @@ import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
 import de.dfki.mlt.rudimant.common.RuleLogger;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +66,10 @@ public class VondaConnection {
   /** TODO What is this? */
   private JavaFXLogger jfl;
 
+  /** Contains every rule's state property and its corresponding listener. */
+  private final Map<IntegerProperty, ChangeListener> changeListenerMap
+          = new HashMap<>();
+
 
   /*****************************************************************************
    * PROPERTIES AND LISTENERS
@@ -77,13 +83,6 @@ public class VondaConnection {
   private final ObjectProperty<LogData> mostRecentlogOutput
     = new SimpleObjectProperty<>();
 
-  /**
-   * Used to listen to ruleLoggingState changes. If a ruleLoggingState of an
-   * RuleInfoExtended object has changed, this change will be sent to VOnDA.
-   */
-  private MapChangeListener<Integer, IntegerProperty>
-          ruleLoggingStatesMapChangeListener = ((cl) ->
-    setLoggingStatus(cl.getKey(), cl.getValueAdded().get()));
 
   /**
    * Used to listen to connection state changes. If a connection has been
@@ -94,16 +93,14 @@ public class VondaConnection {
     switch (nv.intValue()) {
       case CONNECTED_TO_VONDA:
         setAllLoggingStatuses();
-        _model.ruleModel.idLoggingStatesMap()
-                .addListener(ruleLoggingStatesMapChangeListener);
+        addListenersForStates();
         log.debug("Connected to VOnDA.");
         break;
       case ESTABLISHING_CONNECTION:
         log.debug("Establishing connection to VOnDA...");
         break;
       case DISCONNECTED_FROM_VONDA:
-        _model.ruleModel.idLoggingStatesMap()
-              .removeListener(ruleLoggingStatesMapChangeListener);
+        removeListenersForStates();
         log.debug("Disconnected from VOnDA.");
     }
   });
@@ -191,6 +188,37 @@ public class VondaConnection {
   private void setLoggingStatus(int id, int value) {
     if ((_model.vonda.client != null) && (_model.vonda.client.isConnected()))
       _model.vonda.client.setLoggingStatus(id, value);
+  }
+
+  /**
+   * Creates a new listener to track a changing state of a given rule. If a
+   * change occurred, this change will be sent to VOnDA immediately
+   *
+   * @param ruleId The id of the wanted rule.
+   */
+  private ChangeListener<Number> createRuleStateListener(int ruleId) {
+    ChangeListener<Number> cl = (o, ov, nv) ->
+      setLoggingStatus(ruleId, nv.intValue());
+    return cl;
+  }
+
+  /** Add listeners to every rule's state property */
+  private void addListenersForStates() {
+    ObservableMap<Integer, IntegerProperty> map
+            = _model.ruleModel.idLoggingStatesMap();
+    map.keySet().forEach((ruleId) -> {
+      ChangeListener<Number> cl = createRuleStateListener(ruleId);
+      IntegerProperty prop = map.get(ruleId);
+      prop.addListener(cl);
+      changeListenerMap.put(prop, cl);
+    });
+  }
+
+  /** Remove every listener for state changes from every rule. */
+  private void removeListenersForStates() {
+    changeListenerMap.keySet().forEach((prop) ->
+      prop.removeListener(changeListenerMap.get(prop)));
+    changeListenerMap.clear();
   }
 
   /**

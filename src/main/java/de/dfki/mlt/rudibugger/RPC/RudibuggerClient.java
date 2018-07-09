@@ -72,7 +72,10 @@ public class RudibuggerClient {
    *        The new state of the given Rule
    */
   public void setLoggingStatus(int ruleId, int newState) {
-    client.send("setLogStat", Integer.toString(ruleId), Integer.toString(newState));
+    log.debug("setLogState of rule " + Integer.toString(ruleId)
+                            + " to " + Integer.toString(newState));
+    client.send("setLogStat", Integer.toString(ruleId),
+            Integer.toString(newState));
   }
 
   /**
