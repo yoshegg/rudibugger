@@ -53,10 +53,10 @@ public class VondaCompilation {
    * Starts the default compilation process as specified in the project's YAML
    * configuration file.
    */
-  public void startCompileFileBasedCompilation() {
-    String compileScript = _model.project.getCompileFile().toString();
-    startCompile(compileScript);
-  }
+//  public void startCompileFileBasedCompilation() {
+//    String compileScript = _model.project.getCompileFile().toString();
+//    startCompile(compileScript);
+//  }
 
   /**
    * Starts VOnDAs compilation process by using a given command.
@@ -97,8 +97,8 @@ public class VondaCompilation {
 
         _p = Runtime.getRuntime().exec(cmd);
       } else {
-        _p = Runtime.getRuntime().exec(
-                _model.project.getCompileFile().toString());
+        _p = Runtime.getRuntime().exec(inputCmd);
+                //_model.project.getCompileFile().toString());
       }
     } catch (IOException ex) {
         log.error(ex.getMessage());

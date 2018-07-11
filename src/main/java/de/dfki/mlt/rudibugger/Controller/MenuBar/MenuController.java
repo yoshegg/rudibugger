@@ -80,11 +80,11 @@ public class MenuController extends Controller {
    */
   public void init(DataModel model) {
     linkModel(model);
-    compileButtonManager = CompileButtonManager.init(_model, compileButton,
+    compileButtonManager = CompileButtonManager.init(compileButton,
             toolBar);
     connectionButtonManager = ConnectionButtonManager.init(_model,
             vondaConnectionButton, toolBar);
-    initModel();
+    initModel(model);
   }
 
 
@@ -93,7 +93,7 @@ public class MenuController extends Controller {
    *
    * @param model
    */
-  public void initModel() {
+  public void initModel(DataModel model) {
 
     /* this listener checks if a project has been opened */
     _model.projectLoadedProperty().addListener((o, ov, nv) -> {
@@ -105,7 +105,7 @@ public class MenuController extends Controller {
         saveLoggingStateItem.setDisable(false);
         findInProjectItem.setDisable(false);
         connectionButtonManager.manageLookOfVondaConnectionButton();
-        compileButtonManager.defineCompileButton();
+        compileButtonManager.defineCompileButton(_model.project, _model.compiler);
       } else {
         log.debug("Project closed: disable GUI-elements.");
         closeProjectItem.setDisable(true);
@@ -114,14 +114,14 @@ public class MenuController extends Controller {
         saveLoggingStateItem.setDisable(true);
         findInProjectItem.setDisable(true);
         connectionButtonManager.manageLookOfVondaConnectionButton();
-        compileButtonManager.defineCompileButton();
+        compileButtonManager.defineCompileButton(_model.project, _model.compiler);
       }
     });
 
     /* Keep track of default compile command. */
-    _model.project.defaultCompileCommandProperty().addListener((cl, ov, vn) -> {
-      compileButtonManager.defineCompileButton();
-    });
+    //_model.project.defaultCompileCommandProperty().addListener((cl, ov, vn) -> {
+    //  compileButtonManager.defineCompileButton();
+    //});
 
     _model.vonda.connectedProperty().addListener(l ->
       connectionButtonManager.manageLookOfVondaConnectionButton()

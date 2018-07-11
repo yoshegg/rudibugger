@@ -30,10 +30,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.*;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -51,6 +49,11 @@ import org.slf4j.LoggerFactory;
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class ProjectManager {
+
+  private static final String abortMessage =
+      "Aborted initializing of project fields.";
+  private static final String continueMessage =
+      "Continuing initiliazing of project fields.";
 
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("Project");
@@ -86,14 +89,20 @@ public class ProjectManager {
       add("rootPackage");
     }};
 
-  /** Indicates the project's name. */
+  /** Indicates the project's name.
+   *  TODO: WHO LISTENS FOR THIS?
+   */
   private final StringProperty projectName = new SimpleStringProperty();
 
   /** Represents the file containing the compile file. */
-  private final ObjectProperty<Path> compileFile
-    = new SimpleObjectProperty<>(null);
+  //private final ObjectProperty<Path> compileFile
+  //  = new SimpleObjectProperty<>(null);
 
-  /** Represents the default compile command. */
+  private Map<String, String> compileCommands;
+
+  /** Represents the default compile command.
+   *  TODO: WHO LISTENS FOR THIS?
+   */
   private final StringProperty _defaultCompileCommand
           = new SimpleStringProperty("");
 
@@ -163,7 +172,7 @@ public class ProjectManager {
     rudiFolder = null;
     rootFolder = null;
     projectName.set(null);
-    compileFile.set(null);
+    //compileFile.set(null);
     _configurationYml = null;
     _defaultCompileCommand.set(null);
     disableListeners();
@@ -211,6 +220,20 @@ public class ProjectManager {
     }
   }
 
+  private void initCompileCommands() {
+    Path compileScript = rootFolder.resolve(COMPILE_FILE);
+    if (Files.exists(compileScript)) {
+      compileCommands = new LinkedHashMap<>();
+      compileCommands.put("Compile", compileScript.toAbsolutePath().toString());
+    }
+    compileCommands.putAll(getCustomCompileCommands());
+
+    if (_projectConfigs.containsKey("defaultCompileCommand")) {
+      _defaultCompileCommand.set((String) _projectConfigs
+              .get("defaultCompileCommand"));
+    }
+  }
+
   /**
    * Initializes projects fields.
    *
@@ -218,10 +241,8 @@ public class ProjectManager {
    */
   private boolean initFields() {
 
-    String abortMessage = "Aborted initializing of project fields.";
-    String continueMessage = "Continuing initiliazing of project fields.";
-
     String filename = _configurationYml.getFileName().toString();
+    // TODO: NOT NICE. WHAT IF SOMEBODY DECIDES TO USE .YAML AS EXTENSION?
     projectName.set(slice_end(filename, -4));
 
     rootFolder = _configurationYml.getParent();
@@ -234,18 +255,7 @@ public class ProjectManager {
       return false;
     }
 
-    compileFile.set(rootFolder.resolve(COMPILE_FILE));
-    if (! Files.exists(compileFile.get())) {
-      log.error("Compilation file could not be found. \n"
-              + "Should be here: " + compileFile.get() + "\n"
-              + abortMessage);
-      // No return, as this is not crucial.
-    }
-
-    if (_projectConfigs.containsKey("defaultCompileCommand")) {
-      _defaultCompileCommand.set((String) _projectConfigs
-              .get("defaultCompileCommand"));
-    }
+    initCompileCommands();
 
     /* Create generated directory (if necessary) */
     Path generatedDirectory = rootFolder.resolve(getGeneratedDirectory());
@@ -343,16 +353,32 @@ public class ProjectManager {
   public String getProjectName() { return projectName.get(); }
 
   /** @return The compile file */
-  public Path getCompileFile() { return compileFile.get(); }
+  //public Path getCompileFile() { return compileFile.get(); }
 
   /** @return The default compile command */
-  public StringProperty defaultCompileCommandProperty() {
-    return _defaultCompileCommand;
+  public void setDefaultCompileCommand(String label) {
+    _defaultCompileCommand.set(label);
   }
 
-  /** @return The default compile command */
+  public Collection<String> getCompileCommandLabels() {
+    return compileCommands.keySet();
+  }
+
+  /** @return The default compile command label */
   public String getDefaultCompileCommand() {
-    return _defaultCompileCommand.get();
+    String result = _defaultCompileCommand.get();
+    if (result == null || result.isEmpty()) {
+      Collection<String> ccommands = getCompileCommandLabels();
+      if (! ccommands.isEmpty()) {
+        result = ccommands.iterator().next();
+      }
+    }
+    return result;
+  }
+
+  /** @return the real command to execute for a compile command label */
+  public String getCompileCommand(String label) {
+    return compileCommands.get(label);
   }
 
   /** @return The Path to the RuleLoc.yml */
@@ -407,7 +433,7 @@ public class ProjectManager {
    * @return A Map of custom compile commands (if any) with the name of the
    * command as key and the command itself as value
    */
-  public LinkedHashMap<String, String> getCustomCompileCommands() {
+  private LinkedHashMap<String, String> getCustomCompileCommands() {
     if (_projectConfigs.containsKey("customCompileCommands")) {
       return (LinkedHashMap<String, String>) _projectConfigs
         .get("customCompileCommands");
