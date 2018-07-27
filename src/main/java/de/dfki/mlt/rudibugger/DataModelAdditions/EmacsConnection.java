@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Provides additional functionality to interact with Emacs.
+ * TODO: Only needs compiler and project
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */

@@ -35,6 +35,9 @@ import org.slf4j.LoggerFactory;
  * via plain-text search. As underlying tool it uses grep, which might be
  * problematic on non-unix systems.
  *
+ * TODO: Bad design decision: This only needs the path of the rudi files
+ *       Would be better to create an instance per search window.
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class SearchManager {

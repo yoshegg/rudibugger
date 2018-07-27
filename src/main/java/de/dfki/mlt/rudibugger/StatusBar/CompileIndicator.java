@@ -42,6 +42,8 @@ import javafx.scene.input.ContextMenuEvent;
  * This class controls the behaviour of the compile indicator in the lower left
  * of rudibugger. It indicates the outcome of the last compilation attempt.
  *
+ * TODO: Only needs RuleModel and rudiLoad
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class CompileIndicator {

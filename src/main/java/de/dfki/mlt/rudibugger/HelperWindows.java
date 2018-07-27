@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *   - additional windows that have more functionality (search, settings, ...).
  *
  * Properties are used to disallow more than one window of a kind; due to
- * technical reasons, the according functions can't be static. 
+ * technical reasons, the according functions can't be static.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -280,7 +280,10 @@ public final class HelperWindows {
     }
   }
 
-  /** Opens the search window. */
+  /**
+   * Opens the search window.
+   * TODO: make it possible to open more than one search window.
+   */
   public void openSearchWindow() {
     if (searchInProjectWindowOpened) return;
     try {

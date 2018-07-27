@@ -39,6 +39,9 @@ import org.slf4j.LoggerFactory;
 /**
  * FXML Controller class
  *
+ * TODO: Should not need DataModel, but only GlobalConfiguration (and emacs?)
+ * TODO: Is it possible to remove Emacs? Seems to be "too much".
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class SettingsController extends Controller {

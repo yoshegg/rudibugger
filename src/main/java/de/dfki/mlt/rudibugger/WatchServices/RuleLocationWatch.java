@@ -37,6 +37,9 @@ import org.slf4j.LoggerFactory;
  * This Watch's purpose is to check if the <code>RuleLocation.yml</code> file
  * is being changed. If it is, a function to refresh the DataModel is called.
  *
+ * TODO: only needs RuleModel (and RudiHierachy?)
+ * updating the RuleModel could also update the hierarchy internally
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RuleLocationWatch {

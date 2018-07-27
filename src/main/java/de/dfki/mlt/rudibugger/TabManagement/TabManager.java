@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
  * - manage multiple TabPanes
  * - switch to requested tab
  *
+ * TODO: Does not need the Model
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class TabManager {

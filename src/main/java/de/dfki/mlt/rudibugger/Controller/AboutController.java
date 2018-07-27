@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * TODO:
  *   - Add mailto
  *   - Rework design
+ * TODO: Model is not needed.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */

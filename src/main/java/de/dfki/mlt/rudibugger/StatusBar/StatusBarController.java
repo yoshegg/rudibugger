@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
  *  - reflect the outcome of a compilation attempt to an icon,
  *  - show status messages on the statusBar.
  *
+ * TODO: Only needs RuleModel and RudiHierarchy
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class StatusBarController {

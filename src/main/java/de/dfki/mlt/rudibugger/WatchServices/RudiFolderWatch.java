@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
  * files for changes. If there are changes, a function to refresh the DataModel
  * is called.
  *
+ * TODO: only needs RudiHierarchy
+ *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RudiFolderWatch {

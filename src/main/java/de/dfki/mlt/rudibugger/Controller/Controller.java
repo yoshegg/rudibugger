@@ -22,7 +22,9 @@ import de.dfki.mlt.rudibugger.DataModel;
 
 /**
  * Controllers should extend this class as it contains fields and methods needed
- * by every Controller. 
+ * by every Controller.
+ *
+ * TODO: Some controllers don't need the entire DataModel
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */

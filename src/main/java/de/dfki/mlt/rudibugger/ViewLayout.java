@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Provides additional functionality concerning the storage of layout settings.
+ * TODO: Only needs yaml and stage
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -92,7 +93,7 @@ public class ViewLayout {
   /** SplitPane dividing sidebar and editor */
   public static final String DIVIDER_SIDEBAR = "Divider_Sidebar";
 
-  
+
   /*****************************************************************************
    * METHODS
    *****************************************************************************/
