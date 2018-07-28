@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.DataModelAdditions;
+package de.dfki.mlt.rudibugger.Project;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;

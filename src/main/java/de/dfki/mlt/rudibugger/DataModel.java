@@ -19,8 +19,12 @@
 
 package de.dfki.mlt.rudibugger;
 
+import de.dfki.mlt.rudibugger.Project.WatchManager;
+import de.dfki.mlt.rudibugger.Project.VondaCompiler;
+import de.dfki.mlt.rudibugger.Project.VondaConnection;
+import de.dfki.mlt.rudibugger.Project.Project;
 import de.dfki.mlt.rudibugger.SearchAndFind.SearchManager;
-import de.dfki.mlt.rudibugger.RuleModel.RuleModel;
+import de.dfki.mlt.rudibugger.Project.RuleModel.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import de.dfki.mlt.rudibugger.FileTreeView.*;
@@ -102,7 +106,7 @@ public class DataModel {
   public GlobalConfiguration globalConf = new GlobalConfiguration(this);
 
   /** Provides additional functionality to start VOnDAs compiler. */
-  public VondaCompilation compiler = new VondaCompilation(this);
+  public VondaCompiler compiler = new VondaCompiler(this);
 
   /** Provides additional functionality to track changes in the file system. */
   public WatchManager watch = new WatchManager(this);
@@ -116,7 +120,7 @@ public class DataModel {
    ****************************************************************************/
 
   /** Provides additional functionality about project specific information. */
-  public ProjectManager project = new ProjectManager(this);
+  public Project project = new Project(this);
 
   /** Contains specific  information about project's rule structure. */
   public RuleModel ruleModel = new RuleModel(this);

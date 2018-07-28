@@ -16,13 +16,13 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-package de.dfki.mlt.rudibugger.DataModelAdditions;
+package de.dfki.mlt.rudibugger.Project;
 
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.WatchServices.RudiFolderWatch;
-import static de.dfki.mlt.rudibugger.WatchServices.RudiFolderWatch.createRudiFolderWatch;
-import de.dfki.mlt.rudibugger.WatchServices.RuleLocationWatch;
-import static de.dfki.mlt.rudibugger.WatchServices.RuleLocationWatch.*;
+import de.dfki.mlt.rudibugger.Project.WatchServices.RudiFolderWatch;
+import static de.dfki.mlt.rudibugger.Project.WatchServices.RudiFolderWatch.createRudiFolderWatch;
+import de.dfki.mlt.rudibugger.Project.WatchServices.RuleLocationWatch;
+import static de.dfki.mlt.rudibugger.Project.WatchServices.RuleLocationWatch.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

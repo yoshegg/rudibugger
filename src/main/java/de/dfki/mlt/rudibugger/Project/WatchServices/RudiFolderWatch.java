@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.WatchServices;
+package de.dfki.mlt.rudibugger.Project.WatchServices;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 
 import de.dfki.mlt.rudibugger.DataModel;

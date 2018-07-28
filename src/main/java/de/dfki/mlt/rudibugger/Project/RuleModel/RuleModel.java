@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RuleModel;
+package de.dfki.mlt.rudibugger.Project.RuleModel;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;

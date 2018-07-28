@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.DataModelAdditions;
+package de.dfki.mlt.rudibugger.Project;
 
 import de.dfki.mlt.rudibugger.DataModel;
 import java.io.File;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class VondaCompilation {
+public class VondaCompiler {
 
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("vondaCompile");
@@ -47,7 +47,7 @@ public class VondaCompilation {
    *
    * @param model  The current <code>DataModel</code>
    */
-  public VondaCompilation(DataModel model) { _model = model; }
+  public VondaCompiler(DataModel model) { _model = model; }
 
   /**
    * Starts the default compilation process as specified in the project's YAML

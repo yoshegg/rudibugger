@@ -21,8 +21,8 @@ package de.dfki.mlt.rudibugger.RuleTreeView;
 
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.HelperWindows;
-import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
-import de.dfki.mlt.rudibugger.RuleModel.RuleInfoExtended;
+import de.dfki.mlt.rudibugger.Project.RuleModel.ImportInfoExtended;
+import de.dfki.mlt.rudibugger.Project.RuleModel.RuleInfoExtended;
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import java.io.FileNotFoundException;
 import java.io.FileReader;

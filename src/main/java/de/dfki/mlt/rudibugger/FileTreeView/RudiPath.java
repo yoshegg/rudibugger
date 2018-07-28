@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
+import de.dfki.mlt.rudibugger.Project.RuleModel.ImportInfoExtended;
 import java.nio.file.Files;
 import java.util.Objects;
 import javafx.beans.property.BooleanProperty;

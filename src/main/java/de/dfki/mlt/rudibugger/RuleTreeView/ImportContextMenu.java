@@ -19,7 +19,7 @@
 
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
-import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
+import de.dfki.mlt.rudibugger.Project.RuleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
 import java.util.LinkedHashMap;

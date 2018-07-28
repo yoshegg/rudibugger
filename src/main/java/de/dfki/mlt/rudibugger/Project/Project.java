@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.DataModelAdditions;
+package de.dfki.mlt.rudibugger.Project;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
@@ -27,13 +27,8 @@ import de.dfki.mlt.rudimant.common.SimpleServer;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
-
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -48,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class ProjectManager {
+public class Project {
 
   private static final String abortMessage =
       "Aborted initializing of project fields.";
@@ -66,7 +61,7 @@ public class ProjectManager {
    *
    * @param model  The current <code>DataModel</code>
    */
-  public ProjectManager(DataModel model) {
+  public Project(DataModel model) {
     _model = model;
   }
 

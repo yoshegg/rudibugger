@@ -24,8 +24,8 @@ import java.util.LinkedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.dfki.mlt.rudibugger.DataModelAdditions.ProjectManager;
-import de.dfki.mlt.rudibugger.DataModelAdditions.VondaCompilation;
+import de.dfki.mlt.rudibugger.Project.Project;
+import de.dfki.mlt.rudibugger.Project.VondaCompiler;
 import javafx.scene.control.*;
 import javafx.event.*;
 
@@ -104,8 +104,8 @@ public class CompileButtonManager {
    *   - a compile file and at least one custom command, or <br>
    *   - no compile file, but one custom command.
    */
-  public void defineCompileButton(final ProjectManager project,
-      final VondaCompilation compiler) {
+  public void defineCompileButton(final Project project,
+      final VondaCompiler compiler) {
     if (toolBar.getItems().contains(standardCompileButton)) {
       toolBar.getItems().remove(standardCompileButton);
       toolBar.getItems().add(0, extendedCompileButton);

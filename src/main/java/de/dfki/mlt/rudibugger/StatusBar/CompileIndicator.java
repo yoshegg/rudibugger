@@ -21,7 +21,7 @@ package de.dfki.mlt.rudibugger.StatusBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.RuleModel.ImportInfoExtended;
+import de.dfki.mlt.rudibugger.Project.RuleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
 import java.util.HashMap;
