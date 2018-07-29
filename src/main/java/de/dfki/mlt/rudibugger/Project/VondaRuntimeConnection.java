@@ -21,6 +21,7 @@ package de.dfki.mlt.rudibugger.Project;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Project.RuleModel.RuleModel;
 import de.dfki.mlt.rudibugger.RPC.JavaFXLogger;
 import de.dfki.mlt.rudibugger.RPC.LogData;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
@@ -44,21 +45,20 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class VondaConnection {
+public class VondaRuntimeConnection {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("vondaConnect");
 
-  /** The <code>DataModel</code>. */
-  private DataModel _model = null;
 
-
-  /*****************************************************************************
+  /* ***************************************************************************
    * FIELDS
-   ****************************************************************************/
+   * **************************************************************************/
+
+  /** Represents the project's rule structure. */
+  private final RuleModel _ruleModel;
 
   /** A client that can connect to a server of VOnDA. */
-  public RudibuggerClient client;
+  private RudibuggerClient _client;
 
   /** TODO What is this? */
   private RuleLogger rl;
@@ -71,9 +71,9 @@ public class VondaConnection {
           = new HashMap<>();
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * PROPERTIES AND LISTENERS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Represents the connection status between VOnDA and rudibugger. */
   private final IntegerProperty connected
@@ -112,10 +112,10 @@ public class VondaConnection {
 
   /**
    * Initializes this addition of <code>DataModel</code>.
-   *
-   * @param model  The current <code>DataModel</code>
+   * TODO
+//   * @param model  The current <code>DataModel</code>
    */
-  public VondaConnection(DataModel model) { _model = model; }
+  public VondaRuntimeConnection(RuleModel ruleModel) { _ruleModel = ruleModel; }
 
   /**
    * Initializes the internal rule logger (just defines how the view should
@@ -123,7 +123,7 @@ public class VondaConnection {
    */
   private void initializeRuleLogger() {
     rl = new RuleLogger();
-    rl.setRootInfo(_model.ruleModel.getRootImport());
+    rl.setRootInfo(_ruleModel.getRootImport());
     jfl = new JavaFXLogger();
     rl.registerPrinter(jfl);
     rl.logAllRules();
@@ -135,11 +135,11 @@ public class VondaConnection {
    * (N.B.: The old key for a custom port was <code>SERVER_RUDIMANT</code>, now
    * it is <code>vondaPort</code>.)
    */
-  public void connect() {
-    int vondaPort = _model.project.getVondaPort();
+  public void connect(int vondaPort) {
+//    int vondaPort = _model.project.getVondaPort();
 
-    client = new RudibuggerClient("localhost", vondaPort,
-        new RudibuggerAPI(_model));
+    _client = new RudibuggerClient("localhost", vondaPort,
+        new RudibuggerAPI(this));
 
     connected.set(ESTABLISHING_CONNECTION);
     connected.addListener(connectionStateListener);
@@ -151,7 +151,7 @@ public class VondaConnection {
   /** Closes Connection to VOnDA. */
   public void closeConnection() {
     try {
-      client.disconnect();
+      _client.disconnect();
     } catch (IOException e) {
       log.error(e.toString());
     } catch (NullPointerException e) {
@@ -172,8 +172,8 @@ public class VondaConnection {
 
   /** Sends the loggingStatus of all rules to VOnDA. */
   private void setAllLoggingStatuses() {
-    _model.ruleModel.idLoggingStatesMap().keySet().forEach((ruleId) -> {
-      int loggingState = _model.ruleModel.idLoggingStatesMap()
+    _ruleModel.idLoggingStatesMap().keySet().forEach((ruleId) -> {
+      int loggingState = _ruleModel.idLoggingStatesMap()
               .get(ruleId).get();
       setLoggingStatus(ruleId, loggingState);
     });
@@ -186,8 +186,8 @@ public class VondaConnection {
    * @param value
    */
   private void setLoggingStatus(int id, int value) {
-    if ((_model.vonda.client != null) && (_model.vonda.client.isConnected()))
-      _model.vonda.client.setLoggingStatus(id, value);
+    if ((_client != null) && (_client.isConnected()))
+      _client.setLoggingStatus(id, value);
   }
 
   /**
@@ -205,7 +205,7 @@ public class VondaConnection {
   /** Add listeners to every rule's state property */
   private void addListenersForStates() {
     ObservableMap<Integer, IntegerProperty> map
-            = _model.ruleModel.idLoggingStatesMap();
+            = _ruleModel.idLoggingStatesMap();
     map.keySet().forEach((ruleId) -> {
       ChangeListener<Number> cl = createRuleStateListener(ruleId);
       IntegerProperty prop = map.get(ruleId);

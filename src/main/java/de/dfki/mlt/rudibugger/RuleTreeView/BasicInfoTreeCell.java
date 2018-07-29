@@ -19,6 +19,8 @@
 
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
+import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
+import de.dfki.mlt.rudibugger.Project.Project;
 import static de.dfki.mlt.rudimant.common.ErrorInfo.ErrorType.*;
 
 import de.dfki.mlt.rudibugger.Project.RuleModel.RuleInfoExtended;
@@ -85,6 +87,22 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
   /** Icon of the TreeItem, indication rule logging state. */
   private ImageView stateIndicator;
 
+  /** TODO */
+  private final Project _project;
+
+  /** TODO */
+  private final GlobalConfiguration _globalConf;
+
+  /* ***************************************************************************
+   * CONSTRUCTOR
+   * **************************************************************************/
+
+  /** Initializes a new cell. */
+  public BasicInfoTreeCell(Project project, GlobalConfiguration globalConf) {
+    super();
+    _project = project;
+    _globalConf = globalConf;
+  }
 
   /*****************************************************************************
    * PSEUDOCLASSES
@@ -171,7 +189,8 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
 
         /* define the context menu */
         this.setOnContextMenuRequested(e -> {
-          RuleContextMenu contextMenu = new RuleContextMenu(ri);
+          RuleContextMenu contextMenu
+                  = new RuleContextMenu(ri, _project, _globalConf);
           contextMenu.show(this, e.getScreenX(), e.getScreenY());
         });
 
@@ -185,7 +204,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         /* define double click on cell: open rule (file at specific line) */
         this.setOnMouseClicked(e -> {
           if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY) {
-            ri.getModel().rudiLoad.openRule(ri.getSourceFile(), ri.getLine());
+            _project.openRule(ri.getSourceFile(), ri.getLine());
           }
         });
       }
@@ -197,7 +216,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
           stateIndicator = new ImageView(ICONS_IMPORTS.get(ii.getState()));
         else
           stateIndicator = new ImageView(ICONS_IMPORTS.get(STATE_RULELESS));
-        
+
         /* visually indicate errors and warnings happened during compile */
         if (ii.getErrors().stream().anyMatch(ewi ->
                 ewi.getType() == ERROR || ewi.getType() == PARSE_ERROR)) {
@@ -222,14 +241,15 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
 
         /* define the context menu */
         this.setOnContextMenuRequested(e -> {
-          ImportContextMenu contextMenu = new ImportContextMenu(ii);
+          ImportContextMenu contextMenu
+                  = new ImportContextMenu(ii, _project, _globalConf);
           contextMenu.show(this, e.getScreenX(), e.getScreenY());
         });
 
         /* define double click on cell */
         this.setOnMouseClicked(e -> {
           if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY) {
-            ii.getModel().rudiLoad.openFile(ii.getAbsolutePath());
+            _project.openFile(ii.getAbsolutePath());
           }
         });
       }

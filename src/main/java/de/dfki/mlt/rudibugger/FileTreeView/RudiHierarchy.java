@@ -20,7 +20,6 @@
 package de.dfki.mlt.rudibugger.FileTreeView;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.DataModel;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,17 +48,22 @@ import org.slf4j.LoggerFactory;
  */
 public class RudiHierarchy {
 
-  /** The Logger. */
   static Logger log = LoggerFactory.getLogger("RudiFolderHierarchy");
 
-  /** The <code>DataModel</code>. */
-  private final DataModel _model;
+  /** Represents the folder containing the .rudi files. */
+  private final Path _rudiFolder;
+
+  /** Represents the project's RuleLoc.yml. */
+  private final Path _ruleLocYaml;
+
+
+
+
+
+
 
   /** The root <code>TreeItem</code> of the Hierarchy. */
   private TreeItem _root;
-
-  /** The project's <code>.rudi</code> folder. */
-  private Path _rudiFolder;
 
   /** Maps folders to their respective <code>TreeItem</code>. */
   private final HashMap<Path, TreeItem> _folderMap = new HashMap<>();
@@ -83,18 +87,16 @@ public class RudiHierarchy {
    ****************************************************************************/
 
   /**
-   * Initializes this project specific addition of <code>DataModel</code>.
-   *
-   * @param model The current <code>DataModel</code>
+   * TODO
    */
-  public RudiHierarchy(DataModel model) {
-    _model = model;
+  public RudiHierarchy(Path rudiFolder, Path ruleLocYaml) {
+    _rudiFolder = rudiFolder;
+    _ruleLocYaml = ruleLocYaml;
   }
 
   /** Initializes the rudiHierarchy. */
   public void init() {
     log.debug("Initializing the RudiFolderHierarchy...");
-    _rudiFolder = _model.project.getRudiFolder();
     readInRudiFiles();
     log.debug("Initialized the RudiFolderHierarchy.");
   }
@@ -103,7 +105,6 @@ public class RudiHierarchy {
   public void reset() {
     log.debug("Resetting the RudiFolderHierarchy...");
     _root = null;
-    _rudiFolder = null;
     _fileMap.clear();
     _folderMap.clear();
     _rudiPathMap.clear();
@@ -136,7 +137,7 @@ public class RudiHierarchy {
   private void readInRudiFiles() {
     Stream<Path> stream;
     try {
-      stream = Files.walk(_model.project.getRudiFolder());
+      stream = Files.walk(_rudiFolder);
     } catch (IOException e) {
       log.error(e.toString());
       return;
@@ -158,9 +159,9 @@ public class RudiHierarchy {
         notSynced = true;
       }
     }
-    if (notSynced) _model.rudiHierarchy._modificationsAfterCompilationProperty()
+    if (notSynced) _modificationsAfterCompilationProperty()
               .set(FILES_OUT_OF_SYNC);
-    else _model.rudiHierarchy._modificationsAfterCompilationProperty()
+    else _modificationsAfterCompilationProperty()
               .set(FILES_SYNCED);
   }
 
@@ -204,11 +205,11 @@ public class RudiHierarchy {
       _fileMap.put(f, ti);
 
       /* Check if modified since last compilation */
-      if (Files.exists(_model.project.getRuleLocationFile())) {
+      if (Files.exists(_ruleLocYaml))
         if (rp.getPath().toFile().lastModified() >
-                _model.project.getRuleLocationFile().toFile().lastModified())
+                _ruleLocYaml.toFile().lastModified())
           rp.modifiedProperty().set(true);
-      }
+
 
       /* sort the TreeItems, TODO: not efficient, but no easier way exists */
       ObservableList<TreeItem> children = _folderMap.get(dir).getChildren();

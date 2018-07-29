@@ -108,7 +108,7 @@ public class MainApp extends Application {
      * INITIALIZE DATA MODEL
      **************************************************************************/
 
-    DataModel model = new DataModel();
+    DataModel model = new DataModel(stage);
 
     /* Create a global config folder if there is none */
     if (! Files.exists(GLOBAL_CONFIG_PATH)) {
@@ -127,7 +127,7 @@ public class MainApp extends Application {
      **************************************************************************/
 
     /* Bind stage to field */
-    model.stageX = stage;
+    model.mainStage = stage;
 
     /* Define GUI */
     Scene scene = new Scene(root);
@@ -155,7 +155,7 @@ public class MainApp extends Application {
     /* Open last openend project (if any) */
     if (model.globalConf.getLastOpenedProject() != null) {
       log.info("Opening previous project...");
-      model.init(model.globalConf.getLastOpenedProject());
+      model.openProject(model.globalConf.getLastOpenedProject());
     }
 
   }

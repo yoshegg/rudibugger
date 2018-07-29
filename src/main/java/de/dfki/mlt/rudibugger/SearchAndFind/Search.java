@@ -18,7 +18,7 @@
  */
 package de.dfki.mlt.rudibugger.SearchAndFind;
 
-import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Project.Project;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,29 +31,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class contains functionality to search through <code>.rudi</code> files
- * via plain-text search. As underlying tool it uses grep, which might be
- * problematic on non-unix systems.
- *
- * TODO: Bad design decision: This only needs the path of the rudi files
- *       Would be better to create an instance per search window.
+ * This class contains functionality to executeSearch through <code>.rudi</code>
+ * files via plain-text search. As underlying tool it uses grep, which
+ * might be problematic on non-unix systems.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class SearchManager {
+public class Search {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("vondaCompile");
 
-  /** The <code>DataModel</code>. */
-  private final DataModel _model;
+  private final Project _project;
 
-  /**
-   * Initializes this addition of <code>DataModel</code>.
-   *
-   * @param model  The current <code>DataModel</code>
-   */
-  public SearchManager(DataModel model) { _model = model; }
+  /** Creates a new search. */
+  public Search(Project project) { _project = project; }
 
   /** Represents the found results of a search. */
   public ObservableList<String[]> searchResults
@@ -63,10 +54,6 @@ public class SearchManager {
   private Process _p;
 
 
-  /*****************************************************************************
-   * METHODS
-   ****************************************************************************/
-
   /**
    * Searches through all the <code>.rudi</code> files.
    *
@@ -75,16 +62,16 @@ public class SearchManager {
    * @param wholeWord
    * @param regexExpression
    */
-  public void search(String expression, boolean caseInsensitive,
+  public void executeSearch(String expression, boolean caseInsensitive,
     boolean wholeWord, boolean regexExpression) {
 
-    /* Aborts an ongoing search: */
+    /* Aborts an ongoing executeSearch: */
     if ((_p != null) && (_p.isAlive())) _p.destroy();
 
     /* Stores the result */
     List<String[]> result = new ArrayList<>();
 
-    /* In case the search has been deleted. */
+    /* In case the executeSearch has been deleted. */
     if (expression.equals("")) {
       searchResults.setAll(result);
       return;
@@ -113,9 +100,9 @@ public class SearchManager {
 
     /* Create a new process */
     ProcessBuilder pb = new ProcessBuilder(commands);
-    pb.directory(_model.project.getRudiFolder().toFile());
+    pb.directory(_project.getRudiFolder().toFile());
 
-    /* Executes the search command */
+    /* Executes the executeSearch command */
     try {
       _p = pb.start();
       BufferedReader br

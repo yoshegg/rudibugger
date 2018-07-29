@@ -62,17 +62,20 @@ public class StatusBarController {
     /* Link the model's statusBar text property with the controller */
     statusBarText.textProperty().bindBidirectional(model.statusBarTextProperty());
 
-    /* Initialize the sync state indicator in the lower left. */
-    SyncIndicator syncIndicator = new SyncIndicator(_syncIndicator, this);
-    syncIndicator.linkListenerToProperty(
-            _model.rudiHierarchy._modificationsAfterCompilationProperty());
-
-    /* Initialize the compilation state indicator in the lower left. */
+    SyncIndicator syncIndicator
+            = new SyncIndicator(_syncIndicator, statusBarText);
     CompileIndicator compileIndicator
-      = new CompileIndicator(_compileIndicator, this);
-    compileIndicator.linkListenerToProperty(
-            _model.ruleModel.compilationOutcomeProperty());
-    compileIndicator.defineContextMenu();
+            = new CompileIndicator(_compileIndicator, statusBarText, _model.getCurrentProject());
+
+    _model.isProjectLoadedProperty().addListener((o, ov, nv) -> {
+      if (nv) {
+        syncIndicator.linkListenerToProperty(
+            _model.getCurrentProject().getRudiHierarchy()._modificationsAfterCompilationProperty());
+        compileIndicator.linkListenerToProperty(
+            _model.getCurrentProject().getRuleModel().compilationOutcomeProperty());
+        compileIndicator.defineContextMenu();
+      }
+    });
   }
 
   /**
@@ -82,10 +85,10 @@ public class StatusBarController {
     statusBarText.setText(text);
   }
 
-  /**
-   * @return current <code>DataModel</code>
-   */
-  protected DataModel getModel() { return _model; }
+//  /**
+//   * @return current <code>DataModel</code>
+//   */
+//  protected DataModel getModel() { return _model; }
 
   /** StatusBar's label. */
   @FXML

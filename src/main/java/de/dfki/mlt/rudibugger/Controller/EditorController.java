@@ -21,6 +21,7 @@ package de.dfki.mlt.rudibugger.Controller;
 
 import static de.dfki.mlt.rudibugger.Constants.CONNECTED_TO_VONDA;
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Project.Project;
 import de.dfki.mlt.rudibugger.RuleLoggingTableView.EvaluatedCellFactory;
 import de.dfki.mlt.rudibugger.RuleLoggingTableView.LabelCellFactory;
 import de.dfki.mlt.rudibugger.RPC.LogData;
@@ -49,8 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EditorController {
 
-  /** the logger. */
-  static Logger log = LoggerFactory.getLogger("rudiLog");
+  static Logger log = LoggerFactory.getLogger("editorCon");
 
   /** The current <code>DataModel</code> */
   private DataModel _model;
@@ -66,13 +66,16 @@ public class EditorController {
 
     /* Manage TabStoreView */
     _tabView = new TabStoreView(tabBox);
-    _tabView.initialize(_model.tabStore);
+
+    _model.isProjectLoadedProperty().addListener((o, ov, nv) -> {
+      if (nv) {
+        _tabView.initialize(_model.getCurrentProject().getTabStore());
 
 
     /* this listener adds a TableView to the editorSplitPane if connection to
      * rudimant has been established.
      */
-    _model.vonda.connectedProperty().addListener((arg, oldVal, newVal) -> {
+    _model.getCurrentProject().vonda.connectedProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal.intValue() == CONNECTED_TO_VONDA) {
         log.info("VOnDA successfully connected to rudibugger.");
 
@@ -85,7 +88,7 @@ public class EditorController {
     });
 
     /* this listener adds new output the the ruleLoggineList */
-    _model.vonda.logOutputProperty().addListener((arg, oldVal, newVal) -> {
+    _model.getCurrentProject().vonda.logOutputProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal != null) {
         Platform.runLater(() -> {
           ruleLoggingList.add(0, newVal);
@@ -93,12 +96,14 @@ public class EditorController {
         });
       }
     });
+    }
 
     /* this listener updates the timeStampIndex setting in the tableView */
     _model.globalConf.timeStampIndexProperty().addListener(cl -> {
         updateTimeStampIndexSetting();
     });
 
+  });
   }
 
 
@@ -198,12 +203,13 @@ public class EditorController {
     /* jump to rule when clicked */
     ruleLoggingTableView.setOnMousePressed(e -> {
       if (e.isPrimaryButtonDown() && e.getClickCount() == 2) {
+        Project project = _model.getCurrentProject();
         int ruleId = ((LogData) ruleLoggingTableView.getSelectionModel()
                 .getSelectedItem()).getRuleId();
         Path importToOpen =
-                _model.ruleModel.getRule(ruleId).getSourceFile();
-        int lineToOpen = _model.ruleModel.getRule(ruleId).getLine();
-        _model.rudiLoad.openRule(importToOpen, lineToOpen);
+                project.getRuleModel().getRule(ruleId).getSourceFile();
+        int lineToOpen = project.getRuleModel().getRule(ruleId).getLine();
+        project.openRule(importToOpen, lineToOpen);
       }
     });
   }
@@ -231,6 +237,6 @@ public class EditorController {
   /* Columns */
   private TableColumn<LogData, StringPart> _labelColumn;
   private TableColumn<LogData, ArrayList<StringPart>> _evaluatedColumn;
-  private TableColumn<LogData, DatePart> _timeColumn = new TableColumn<>();
+  private final TableColumn<LogData, DatePart> _timeColumn = new TableColumn<>();
 
 }

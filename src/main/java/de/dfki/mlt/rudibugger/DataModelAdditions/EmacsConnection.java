@@ -21,6 +21,7 @@ package de.dfki.mlt.rudibugger.DataModelAdditions;
 
 import de.dfki.lt.j2emacs.J2Emacs;
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Project.Project;
 import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,10 +69,11 @@ public class EmacsConnection {
     _j2e.addStartHook(
         "(setq auto-mode-alist (append (list '(\"\\\\.rudi\" . java-mode))))");
     _j2e.startEmacs();
+    Project project = _model.getCurrentProject();
     _j2e.registerAction("file_changed", (String... args) -> {
-      _model.compiler.startCompile(
-          _model.project.getCompileCommand(
-              _model.project.getDefaultCompileCommand()));
+      project.compiler.startCompile(
+          project.getCompileCommand(
+              project.getDefaultCompileCommand()));
     });
 
   }

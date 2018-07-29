@@ -19,6 +19,8 @@
 
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
+import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
+import de.dfki.mlt.rudibugger.Project.Project;
 import de.dfki.mlt.rudibugger.Project.RuleModel.RuleInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import java.util.LinkedHashMap;
@@ -31,8 +33,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleGroup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is the context menu appearing when making a right click on a rule in
@@ -42,8 +42,9 @@ import org.slf4j.LoggerFactory;
  */
 public class RuleContextMenu extends ContextMenu {
 
-  /** the logger of the SideBarController */
-  static Logger log = LoggerFactory.getLogger(RuleContextMenu.class);
+  /* ***************************************************************************
+   * CONSTANTS
+   * **************************************************************************/
 
   /**
    * Contains all the <code>RadioMenuItem</code>s of the
@@ -68,21 +69,43 @@ public class RuleContextMenu extends ContextMenu {
       put(STATE_NEVER, new MenuItem("Never log rule and children"));
     }};
 
+
+  /* ***************************************************************************
+   * FIELDS
+   * **************************************************************************/
+
   /** The clicked Rule */
   private final RuleInfoExtended _item;
+
+  private final Project _project;
+
+  private final GlobalConfiguration _globalConf;
+
+
+  /* ***************************************************************************
+   * CONSTRUCTOR
+   * **************************************************************************/
 
   /**
    * A <code>RuleContextMenu</code> should appear when a context menu was
    * requested by clicking on a rule.
    */
-  public RuleContextMenu(RuleInfoExtended ri) {
+  public RuleContextMenu(RuleInfoExtended ri, Project project,
+          GlobalConfiguration globalConf) {
     super();
     _item = ri;
+    _project = project;
+    _globalConf = globalConf;
     initializeMenuItems();
 
     /* mark the current state */
     RADIO_MENU_ITEMS.get(_item.getState()).setSelected(true);
   }
+
+
+  /* ***************************************************************************
+   * METHODS
+   * **************************************************************************/
 
  /** Initializes MenuItems */
   private void initializeMenuItems() {
@@ -91,7 +114,7 @@ public class RuleContextMenu extends ContextMenu {
     CustomMenuItem openRule = new CustomMenuItem(new Label("Open rule (line "
             + _item.getLine() + ")"));
     openRule.setOnAction((ActionEvent e) -> {
-      _item.getModel().rudiLoad.openRule(_item.getSourceFile(),
+      _project.openRule(_item.getSourceFile(),
               _item.getLine());
     });
     SeparatorMenuItem sep = new SeparatorMenuItem();

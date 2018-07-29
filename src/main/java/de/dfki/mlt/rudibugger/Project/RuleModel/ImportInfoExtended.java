@@ -43,7 +43,7 @@ public class ImportInfoExtended extends ImportInfo {
   static Logger log = LoggerFactory.getLogger(ImportInfoExtended.class);
 
   /** The current <code>DataModel</code>. */
-  private final DataModel _model;
+//  private final DataModel _model;
 
 
   /*****************************************************************************
@@ -76,12 +76,11 @@ public class ImportInfoExtended extends ImportInfo {
    *
    * @param   original
    *          An original ImportInfo retrieved from <code>VOnDA</code>.
-   * @param   model
-   *          The current DataModel of this rudibugger instance.
+  TODO
    * @param   parent
    *          The parent of this Import, should already be extended.
    */
-  public ImportInfoExtended(ImportInfo original, DataModel model,
+  public ImportInfoExtended(ImportInfo original, Path rudiFolder,
                             BasicInfo parent) {
     super();
     _containsRules = false;
@@ -92,9 +91,8 @@ public class ImportInfoExtended extends ImportInfo {
     _parent = parent;
     _errors = original.getErrors();
     _state = new SimpleIntegerProperty(STATE_NEVER);
-    _model = model;
-    _file = _model.project.getRudiFolder()
-      .resolve(original.getFilePath()).normalize();
+//    _model = model;
+    _file = rudiFolder.resolve(original.getFilePath()).normalize();
   }
 
 
@@ -160,7 +158,7 @@ public class ImportInfoExtended extends ImportInfo {
    ****************************************************************************/
 
   /** @return The current <code>DataModel</code> */
-  public DataModel getModel() { return _model; }
+//  public DataModel getModel() { return _model; }
 
   /**
    * Returns an Integer {@linkplain de.dfki.mlt.rudimant.common

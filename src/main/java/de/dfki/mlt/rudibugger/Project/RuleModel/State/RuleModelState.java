@@ -17,9 +17,8 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RuleTreeView;
+package de.dfki.mlt.rudibugger.Project.RuleModel.State;
 
-import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.Project.RuleModel.ImportInfoExtended;
 import de.dfki.mlt.rudibugger.Project.RuleModel.RuleInfoExtended;
@@ -43,6 +42,7 @@ import javafx.scene.control.TreeView;
 import javafx.stage.FileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -64,11 +64,17 @@ import org.yaml.snakeyaml.Yaml;
  */
 public class RuleModelState {
 
-  /** The Logger. */
   static Logger log = LoggerFactory.getLogger("RuleModel");
 
-  /** The <code>DataModel</code>. */
-  private DataModel _model;
+  private static final Yaml YAML = new Yaml(
+    new DumperOptions() {{
+      setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+    }}
+  );
+
+  /** Contains save files describing the RuleModel selection state. */
+  private Path _saveFolder;
+
 
   /** Root item of RuleModelState structure. */
   private RuleStateItem _root;
@@ -91,18 +97,16 @@ public class RuleModelState {
 
   /**
    * Initializes this project specific addition of <code>DataModel</code>.
-   *
-   * @param model The current <code>DataModel</code>
    */
-  public RuleModelState(DataModel model) {
-    _model = model;
+  public RuleModelState(Path saveFolder) {
+    _saveFolder = saveFolder;
   }
 
   /** Creates a new RuleModelState. (<i>Constructor needed for YAML</i>) */
   private RuleModelState() {}
 
   /** Sets the DataModel of RuleModelState. (<i>Function needed for YAML</i>) */
-  private void setDataModel(DataModel model) { _model = model; }
+//  private void setDataModel(DataModel model) { _model = model; }
 
 
   /*****************************************************************************
@@ -258,34 +262,14 @@ public class RuleModelState {
    ****************************************************************************/
 
   /** Saves the current RuleModel state in a file. */
-  public void saveState() {
-    Path savePath = _model.project.getRuleModelStatesFolder();
-    if (! Files.exists(savePath)) savePath.toFile().mkdirs();
-
-    FileChooser fileChooser = new FileChooser();
-    fileChooser.setInitialDirectory(savePath.toFile());
-    FileChooser.ExtensionFilter extFilter
-            = new FileChooser.ExtensionFilter
-        ("YAML file (*" + "yml" + ")", "*" + "yml");
-    fileChooser.getExtensionFilters().add(extFilter);
-    Path file;
+  public void saveState(Path newFile) {
     try {
-      file = (fileChooser.showSaveDialog(_model.stageX)).toPath();
-    } catch (NullPointerException e) {
-      return;
-    }
-
-    if (!file.getFileName().toString().endsWith(".yml")) {
-      file = Paths.get(file.toString() + ".yml");
-    }
-
-    try {
-      FileWriter writer = new FileWriter(savePath.resolve(file).toFile());
-      _model.yaml.dump(this, writer);
+      FileWriter writer = new FileWriter(_saveFolder.resolve(newFile).toFile());
+      YAML.dump(this, writer);
     } catch (IOException e) {
       log.error(e.getMessage());
     }
-    log.debug("Saved file " + file.toString());
+    log.debug("Saved file " + newFile.toString());
 
   }
 
@@ -300,17 +284,9 @@ public class RuleModelState {
       return;
     }
 
-    rtvs.setDataModel(_model);
+//    rtvs.setDataModel(_model);
     _root = rtvs.getRoot();
     loadRequestProperty().set(true);
-  }
-
-  /** Opens a FileSelection window to choose a RuleModelState file. */
-  public void loadStateSelectFile() {
-    Path chosenFile = HelperWindows.openRuleLoggingStateFile(
-      _model.stageX, _model.project.getRuleModelStatesFolder());
-    if (chosenFile == null) return;
-    loadState(chosenFile);
   }
 
   /** Resets the loadRequestProperty. */
@@ -336,7 +312,7 @@ public class RuleModelState {
     /* Retrieve all files and add them to a list. */
     Stream<Path> stream;
     try {
-      stream = Files.walk(_model.project.getRuleModelStatesFolder());
+      stream = Files.walk(_saveFolder);
     } catch (IOException e) {
       log.error(e.toString());
       return;

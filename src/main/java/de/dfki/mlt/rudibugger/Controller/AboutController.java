@@ -19,8 +19,6 @@
 
 package de.dfki.mlt.rudibugger.Controller;
 
-import de.dfki.mlt.rudibugger.DataModel;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,35 +28,18 @@ import org.slf4j.LoggerFactory;
  * TODO:
  *   - Add mailto
  *   - Rework design
- * TODO: Model is not needed.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class AboutController extends Controller {
+public class AboutController {
 
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("About");
 
-  /** The stage. */
-  private Stage _stage;
+  /** Initializes the controller of the AboutWindow. */
+  public void init() {
 
-  /**
-   * Initializes the controller of the AboutWindow.
-   *
-   * @param model The current <code>DataModel</code>
-   */
-  public void init(DataModel model) {
-    linkModel(model);
   }
 
-
-  /*****************************************************************************
-   * METHODS
-   ****************************************************************************/
-
-  /** Binds the stage to the controller. */
-  public void setDialogStage(Stage dialogStage) {
-    _stage = dialogStage;
-  }
 
 }

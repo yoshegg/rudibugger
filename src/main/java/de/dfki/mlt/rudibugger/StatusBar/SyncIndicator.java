@@ -22,7 +22,9 @@ package de.dfki.mlt.rudibugger.StatusBar;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import java.util.HashMap;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -36,8 +38,8 @@ import javafx.scene.image.ImageView;
  */
 public class SyncIndicator {
 
-  /** The Controller. */
-  private StatusBarController _controller;
+  /** The StatusBar. */
+  private Label _statusBarText;
 
   /** An icon showing the current sync state. */
   private ImageView _indicator;
@@ -74,12 +76,11 @@ public class SyncIndicator {
    * instance and links everything to the <code>StatusBarController</code>.
    *
    * @param indicator  Icon to be manipulated
-   * @param controller Parent controller
    */
-  public SyncIndicator(ImageView indicator, StatusBarController controller) {
+  public SyncIndicator(ImageView indicator, Label statusBarText) {
+    _statusBarText = statusBarText;
     _indicator = indicator;
     _tooltip = new Tooltip();
-    _controller = controller;
 
     /* Initializes the default look and behaviour if no project is loaded. */
     _indicator.setImage(ICONS.get(FILES_SYNC_NO_PROJECT));
@@ -93,7 +94,7 @@ public class SyncIndicator {
       String msg = MESSAGES.get(val);
 
       if (val != FILES_SYNCED)
-        _controller.setStatusBarText(msg);
+        _statusBarText.setText(msg);
 
       _tooltip.setText(msg);
       Tooltip.install(_indicator, _tooltip);

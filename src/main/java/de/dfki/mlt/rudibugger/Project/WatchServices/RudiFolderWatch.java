@@ -20,7 +20,7 @@
 package de.dfki.mlt.rudibugger.Project.WatchServices;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 
-import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.FileTreeView.RudiHierarchy;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -57,10 +57,13 @@ public class RudiFolderWatch {
   private volatile Thread watchingTread;
 
   /** The corresponding WatchService */
-  private WatchService _watchService;
+  private final WatchService _watchService;
 
-  /** The current <code>DataModel</code>. */
-  private DataModel _model;
+  /** Contains all .rudi files. */
+  private final Path _rudiFolder;
+
+  /** Represents the hierarchy of all .rudi files. */
+  private final RudiHierarchy _rudiHierarchy;
 
 
   /*****************************************************************************
@@ -68,7 +71,12 @@ public class RudiFolderWatch {
    ****************************************************************************/
 
   /** Private nullary construct to obstruct instantiating. */
-  private RudiFolderWatch() {}
+  private RudiFolderWatch(Path rudiFolder, RudiHierarchy rudiHierarchy,
+          WatchService watchService) {
+    _rudiHierarchy = rudiHierarchy;
+    _watchService = watchService;
+    _rudiFolder = rudiFolder;
+  }
 
   /**
    * Creates the WatchService to check for changes in the <code>.rudi</code>
@@ -77,23 +85,21 @@ public class RudiFolderWatch {
    * @param model The current <code>DataModel</code>.
    * @return The created WatchService
    */
-  public static RudiFolderWatch createRudiFolderWatch(DataModel model) {
+  public static RudiFolderWatch createRudiFolderWatch(
+          RudiHierarchy rudiHierarchy, Path rudiFolder) {
 
-    RudiFolderWatch newWatch = new RudiFolderWatch();
-    newWatch._model = model;
-
+    WatchService watchService;
     try {
-      newWatch._watchService = FileSystems.getDefault().newWatchService();
-      model.project.getRudiFolder()
-        .register(newWatch._watchService, ENTRY_MODIFY, ENTRY_CREATE,
+      watchService = FileSystems.getDefault().newWatchService();
+      rudiFolder.register(watchService, ENTRY_MODIFY, ENTRY_CREATE,
               ENTRY_DELETE);
 
       /* iterate over all subdirectories */
-      Stream<Path> subpaths = Files.walk(model.project.getRudiFolder());
+      Stream<Path> subpaths = Files.walk(rudiFolder);
       subpaths.forEach(x -> {
         try {
           if (Files.isDirectory(x))
-            x.register(newWatch._watchService, ENTRY_MODIFY, ENTRY_CREATE,
+            x.register(watchService, ENTRY_MODIFY, ENTRY_CREATE,
                     ENTRY_DELETE);
         } catch (IOException ex) {
           log.error("Could not set watch for subdirectories: " + ex);
@@ -101,7 +107,11 @@ public class RudiFolderWatch {
       });
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
+      return null;
     }
+
+    RudiFolderWatch newWatch
+            = new RudiFolderWatch(rudiFolder, rudiHierarchy, watchService);
     newWatch.startListening();
     return newWatch;
   }
@@ -174,13 +184,13 @@ public class RudiFolderWatch {
           /* rudi file added */
           if (kind == ENTRY_CREATE) {
             Platform.runLater(() -> {
-              if (_model.rudiHierarchy.isFileInHierarchy(file)) {
+              if (_rudiHierarchy.isFileInHierarchy(file)) {
                 log.info("rudi file has been modified : " + file);
               } else {
-                _model.rudiHierarchy.addFileToHierarchy(file);
+                _rudiHierarchy.addFileToHierarchy(file);
                 log.info("rudi file added: " + file);
               }
-              _model.rudiHierarchy.setFileAsModified(file);
+              _rudiHierarchy.setFileAsModified(file);
             });
 
           }
@@ -189,14 +199,14 @@ public class RudiFolderWatch {
           if (kind == ENTRY_MODIFY) {
             Platform.runLater(() -> {
               log.info("rudi file has been modified : " + file);
-              _model.rudiHierarchy.setFileAsModified(file);
+              _rudiHierarchy.setFileAsModified(file);
             });
           }
 
           /* rudi file deleted */
           if (kind == ENTRY_DELETE) {
             Platform.runLater(() -> {
-              _model.rudiHierarchy.removeFromFileHierarchy(file);
+              _rudiHierarchy.removeFromFileHierarchy(file);
               log.info("rudi file deleted: " + file);
             });
           }
@@ -212,7 +222,7 @@ public class RudiFolderWatch {
           if (kind == ENTRY_CREATE) {
             file.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
                   ENTRY_DELETE);
-            _model.rudiHierarchy.addFileToHierarchy(file);
+            _rudiHierarchy.addFileToHierarchy(file);
             log.debug("Started watching new folder: " + file);
           }
         }
@@ -225,8 +235,8 @@ public class RudiFolderWatch {
         if (!valid) {
           log.debug("watchKey no longer valid. Probably because a watched folder has been deleted");
           log.debug("Restarting RudiFolderWatch...");
-          createRudiFolderWatch(_model);
-          _model.rudiHierarchy.removeObsoleteFolders();
+          createRudiFolderWatch(_rudiHierarchy, _rudiFolder);
+          _rudiHierarchy.removeObsoleteFolders();
           break;
         }
       }

@@ -36,11 +36,7 @@ import javafx.event.*;
  */
 public class CompileButtonManager {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("compileButtonMan");
-
-  /** The <code>DataModel</code>. */
-  //private final DataModel _model;
 
 
   /*****************************************************************************

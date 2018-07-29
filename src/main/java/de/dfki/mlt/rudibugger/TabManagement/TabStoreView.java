@@ -18,7 +18,7 @@
  */
 package de.dfki.mlt.rudibugger.TabManagement;
 
-import static de.dfki.mlt.rudibugger.TabManagement.TabManager.log;
+import static de.dfki.mlt.rudibugger.TabManagement.TabStore.log;
 import java.nio.file.Path;
 import java.util.HashMap;
 import javafx.beans.property.ObjectProperty;
@@ -31,7 +31,7 @@ import javafx.scene.layout.Priority;
 
 /**
  * This class defines the look of rudibugger's tabs. It is connected to
- * <code>TabManager</code> via listeners to seperate view and model.
+ * <code>TabStore</code> via listeners to seperate view and model.
  * <code>TabStoreView</code> opens and closes tabs and is also responsible of
  * the organization of these tabs.
  *
@@ -60,13 +60,13 @@ public class TabStoreView {
   }
 
   /** Initializes by linking properties and defining listeners. */
-  public void initialize(TabManager ts) {
+  public void initialize(TabStore ts) {
     linkToTabStore(ts);
     defineListeners();
   }
 
   /** Links properties from TabStore to TabStoreView's properties. */
-  private void linkToTabStore(TabManager ts) {
+  private void linkToTabStore(TabStore ts) {
     ts.currentlySelectedTabProperty().bindBidirectional(currentlySelectedTab);
     ts.openTabsProperty().bindBidirectional(openTabs);
     ts.requestedFileProperty().bindBidirectional(requestedFile);

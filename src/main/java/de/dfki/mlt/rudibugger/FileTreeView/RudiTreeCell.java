@@ -23,7 +23,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import java.util.HashSet;
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.DataModelAdditions.RudiLoadManager;
+import de.dfki.mlt.rudibugger.Project.Project;
 import static de.dfki.mlt.rudimant.common.ErrorInfo.ErrorType.*;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -73,11 +73,8 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
    * FIELDS
    ****************************************************************************/
 
-  /**
-   * Represents the <code>DataModel</code> addition to load <code>.rudi</code>
-   * files.
-   */
-  private final RudiLoadManager _rudiLoad;
+  /** TODO */
+  private final Project _project;
 
 
   /*****************************************************************************
@@ -133,9 +130,9 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
    ****************************************************************************/
 
   /** Initializes a new cell. */
-  public RudiTreeCell(RudiLoadManager rl) {
+  public RudiTreeCell(Project project) {
     super();
-    _rudiLoad = rl;
+    _project = project;
   }
 
 
@@ -191,7 +188,7 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
   private void defineContextMenu(RudiPath rudiPath) {
     this.setOnContextMenuRequested(e -> {
         if (! Files.isDirectory(rudiPath.getPath())) {
-          RudiContextMenu rcm = new RudiContextMenu(rudiPath, _rudiLoad);
+          RudiContextMenu rcm = new RudiContextMenu(rudiPath, _project);
           rcm.show(this, e.getScreenX(), e.getScreenY());
         }
       });
@@ -206,7 +203,7 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
     this.setOnMouseClicked(e -> {
       if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY)
         if (! Files.isDirectory(rudiPath.getPath()))
-          _rudiLoad.openFile(rudiPath.getPath());
+          _project.openFile(rudiPath.getPath());
     });
   }
 

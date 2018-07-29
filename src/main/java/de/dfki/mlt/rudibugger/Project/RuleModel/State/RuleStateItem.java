@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RuleTreeView;
+package de.dfki.mlt.rudibugger.Project.RuleModel.State;
 
 import java.util.Collection;
 import java.util.HashMap;

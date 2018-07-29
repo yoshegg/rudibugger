@@ -38,16 +38,12 @@ import org.slf4j.LoggerFactory;
  */
 public class RuleInfoExtended extends RuleInfo {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger(RuleInfoExtended.class);
 
-  /** The current <code>DataModel</code>. */
-  private final DataModel _model;
 
-
-  /*****************************************************************************
+  /* ***************************************************************************
    * FIELDS & PROPERTIES
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Describes how the rules of this import are being logged. */
   private final IntegerProperty _state;
@@ -56,9 +52,9 @@ public class RuleInfoExtended extends RuleInfo {
   private final ImportInfoExtended _parentImport;
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * INITIALIZERS / CONSTRUCTORS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /**
    * An extended version of <code>RuleInfo</code> containing information
@@ -71,14 +67,12 @@ public class RuleInfoExtended extends RuleInfo {
    * @param   parent
    *          The BasicInfo this RuleInfoExtended originates from.
    */
-  public RuleInfoExtended(RuleInfo original, DataModel model,
-                          BasicInfo parent) {
+  public RuleInfoExtended(RuleInfo original, BasicInfo parent) {
     super();
     _label = original.getLabel();
     _line = original.getLine();
     _parent = parent;
     _state = new SimpleIntegerProperty(STATE_NEVER);
-    _model = model;
     _id = original.getId();
     _expr = original.getExpression();
     _baseTerms = original.getBaseterms();
@@ -95,9 +89,9 @@ public class RuleInfoExtended extends RuleInfo {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Cycles through the different rule logging states */
   public void cycleThroughStates() {
@@ -134,12 +128,9 @@ public class RuleInfoExtended extends RuleInfo {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * GETTERS & SETTERS
-   ****************************************************************************/
-
-  /** @return The current <code>DataModel</code> */
-  public DataModel getModel() { return _model; }
+   * **************************************************************************/
 
   /**
    * Returns an Integer {@linkplain de.dfki.mlt.rudimant.common

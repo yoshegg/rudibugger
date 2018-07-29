@@ -18,7 +18,7 @@
  */
 package de.dfki.mlt.rudibugger.SearchAndFind;
 
-import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Project.Project;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.beans.property.SimpleStringProperty;
@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This Controller manages the search dialog.
+ * This Controller manages the executeSearch dialog.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -40,20 +40,30 @@ public class SearchController {
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("SearchCont.");
 
-  /** The current <code>DataModel</code>. */
-  private DataModel _model;
+  /** TODO */
+  private Project _project;
 
-  /**
-   * Initializes the SearchController.
-   *
-   * @param model
-   */
-  public void initModel(DataModel model) {
-    if (_model != null) {
-      throw new IllegalStateException("Model can only be initialized once");
-    }
-    _model = model;
+  /** TODO */
+  private Search _search;
 
+//  /**
+//   * Initializes the SearchController.
+//   *
+//   * @param model
+//   */
+//  public void initModel(DataModel model) {
+//    if (_model != null) {
+//      throw new IllegalStateException("Model can only be initialized once");
+//    }
+//    _model = model;
+//
+//    setUpTableView();
+//    setUpSearchListeners();
+//  }
+
+  public void init(Project project) {
+    _project = project;
+    _search = new Search(_project);
     setUpTableView();
     setUpSearchListeners();
   }
@@ -63,7 +73,7 @@ public class SearchController {
    * METHODS
    ****************************************************************************/
 
-  /** Defines when to start a new search. */
+  /** Defines when to start a new executeSearch. */
   private void setUpSearchListeners() {
     searchTextField.textProperty().addListener(l -> executeSearch());
     ignoreCaseCheckBox.selectedProperty().addListener(l -> executeSearch());
@@ -77,7 +87,7 @@ public class SearchController {
    */
   private void setUpTableView() {
     /* Bind results from model to TableView */
-    searchResultTable.setItems(_model.search.searchResults);
+    searchResultTable.setItems(_search.searchResults);
 
     /* Define columns. */
     TableColumn<String[], String> fileColumn
@@ -104,15 +114,15 @@ public class SearchController {
   private void openLine() {
     String[] selectedEntry = ((String[]) searchResultTable.getSelectionModel()
       .getSelectedItem());
-    Path rudiFile = _model.project.getRudiFolder()
+    Path rudiFile = _project.getRudiFolder()
       .resolve(Paths.get(selectedEntry[0]));
     int lineNumber = Integer.decode(selectedEntry[1]);
-    _model.rudiLoad.openRule(rudiFile, lineNumber);
+    _project.openRule(rudiFile, lineNumber);
   }
 
-  /** Runs a search with the current content of the searchTextField. */
+  /** Runs a executeSearch with the current content of the searchTextField. */
   private void executeSearch() {
-    _model.search.search(searchTextField.getText(),
+    _search.executeSearch(searchTextField.getText(),
                          ignoreCaseCheckBox.isSelected(),
                          wholeWordCheckBox.isSelected(),
                          regexCheckBox.isSelected()
@@ -124,15 +134,15 @@ public class SearchController {
    * GUI ELEMENTS
    ****************************************************************************/
 
-  /** Represents the TextField used to enter a search. */
+  /** Represents the TextField used to enter a executeSearch. */
   @FXML
   private TextField searchTextField;
 
-  /** Contains the results of the search. */
+  /** Contains the results of the executeSearch. */
   @FXML
   private TableView searchResultTable;
 
-  /** Used to know if the case of the search is irrelevant. */
+  /** Used to know if the case of the executeSearch is irrelevant. */
   @FXML
   private CheckBox ignoreCaseCheckBox;
 
@@ -140,7 +150,7 @@ public class SearchController {
   @FXML
   private CheckBox wholeWordCheckBox;
 
-  /** Used to know if the entered search is a regular expression. */
+  /** Used to know if the entered executeSearch is a regular expression. */
   @FXML
   private CheckBox regexCheckBox;
 

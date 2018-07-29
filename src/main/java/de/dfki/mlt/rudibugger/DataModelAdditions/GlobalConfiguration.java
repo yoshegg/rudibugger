@@ -39,6 +39,8 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * Provides additional functionality concerning global configuration.
@@ -49,11 +51,16 @@ import org.slf4j.LoggerFactory;
  */
 public class GlobalConfiguration {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("GlobalConf");
 
   /** The <code>DataModel</code> */
   private final DataModel _model;
+
+  private static final Yaml YAML = new Yaml(
+    new DumperOptions() {{
+      setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+    }}
+  );
 
   /**
    * Initializes this addition of <code>DataModel</code>.
@@ -78,7 +85,7 @@ public class GlobalConfiguration {
     recentProjects.addListener((ListChangeListener) (cl -> {
       saveRecentProjects();
     }));
-    _model.projectLoadedProperty().addListener(cl -> {
+    _model.isProjectLoadedProperty().addListener(cl -> {
       updateRecentProjects();
     });
   }
@@ -97,7 +104,7 @@ public class GlobalConfiguration {
    */
   private void loadGlobalConfiguration() {
     try {
-      Map tempMap = (Map<String, Object>) _model.yaml.load(
+      Map tempMap = (Map<String, Object>) YAML.load(
         new FileInputStream(GLOBAL_CONFIG_FILE.toFile()));
       _globalConfigs = FXCollections.observableMap(tempMap);
       checkConfigForCompleteness();
@@ -117,7 +124,7 @@ public class GlobalConfiguration {
   private void saveGlobalConfiguration() {
      try {
       FileWriter writer = new FileWriter(GLOBAL_CONFIG_FILE.toFile());
-      _model.yaml.dump(_globalConfigs, writer);
+      YAML.dump(_globalConfigs, writer);
     } catch (IOException ex) {
        log.error("Could not save global configuration file.");
     }
@@ -181,8 +188,8 @@ public class GlobalConfiguration {
 
   /** */
   private void updateRecentProjects() {
-    if (_model.projectLoadedProperty().get() == PROJECT_OPEN) {
-      Path c = _model.project.getConfigurationYml();
+    if (_model.isProjectLoadedProperty().get() == PROJECT_OPEN) {
+      Path c = _model.getCurrentProject().getConfigurationYml();
       addToRecentProjects(c);
       setSetting("lastOpenedProject", c.toAbsolutePath().toString());
     } else {
@@ -193,7 +200,7 @@ public class GlobalConfiguration {
   /** Loads the recent projects. */
   private void loadRecentProjects() {
     try {
-      ArrayList tempList = (ArrayList) _model.yaml.load(
+      ArrayList tempList = (ArrayList) YAML.load(
             new FileInputStream(RECENT_PROJECTS_FILE.toFile()));
       recentProjects = FXCollections.observableArrayList(tempList);
     } catch (FileNotFoundException ex) {
@@ -208,7 +215,7 @@ public class GlobalConfiguration {
   private void saveRecentProjects() {
     try {
       FileWriter writer = new FileWriter(RECENT_PROJECTS_FILE.toFile());
-      _model.yaml.dump(recentProjects, writer);
+      YAML.dump(recentProjects, writer);
     } catch (IOException ex) {
        log.error("Could not save recent projects file.");
     }

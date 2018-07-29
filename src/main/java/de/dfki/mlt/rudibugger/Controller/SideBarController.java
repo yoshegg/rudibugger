@@ -22,9 +22,13 @@ package de.dfki.mlt.rudibugger.Controller;
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.FileTreeView.RudiHierarchy;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiTreeCell;
+import de.dfki.mlt.rudibugger.Project.Project;
+import de.dfki.mlt.rudibugger.Project.RuleModel.RuleModel;
 import de.dfki.mlt.rudibugger.RuleTreeView.BasicInfoTreeCell;
 import java.nio.file.Path;
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
@@ -41,10 +45,29 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class SideBarController extends Controller {
+public class SideBarController {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("sideBarController");
+
+  /** TODO */
+  private DataModel _model;
+
+
+  /* ***************************************************************************
+   * GUI ELEMENTS
+   * **************************************************************************/
+
+  /** Represents the root splitPane. */
+  @FXML
+  private SplitPane sidebarSplitPane;
+
+  /** Shows the different <code>.rudi</code> rules and imports. */
+  @FXML
+  private TreeView ruleTreeView;
+
+  /** Shows the content of the <code>.rudi</code> folder. */
+  @FXML
+  private TreeView rudiTreeView;
 
 
   /*****************************************************************************
@@ -59,92 +82,102 @@ public class SideBarController extends Controller {
    *        The current DataModel
    */
   public void init(DataModel model) {
-    linkModel(model);
+    _model = model;
 
-    rudiTreeView.setCellFactory(value -> new RudiTreeCell(_model.rudiLoad));
-    ruleTreeView.setCellFactory(value -> new BasicInfoTreeCell());
+    rudiTreeView.setCellFactory(value
+            -> new RudiTreeCell(_model.getCurrentProject()));
+    ruleTreeView.setCellFactory(value
+            -> new BasicInfoTreeCell(_model.getCurrentProject(), _model.globalConf));
 
     /* this Listener keeps the rudiTreeView containing the .rudi files up to date */
-    model.projectLoadedProperty().addListener((o, ov, nv) -> {
+    _model.isProjectLoadedProperty().addListener((o, ov, nv) -> {
       if (nv) {
-        rudiTreeView.setRoot(model.rudiHierarchy.getRoot());
+        rudiTreeView.setRoot(_model.getCurrentProject().getRudiHierarchy().getRoot());
         rudiTreeView.setShowRoot(false);
-      }
-      else
+        _model.getCurrentProject().getRuleModel().changedStateProperty()
+                .addListener(ruleModelListener);
+      } else {
         rudiTreeView.setRoot(null);
-
-    });
-
-    /* this Listener builds or modifies the RuleTreeView, if the RuleModel
-    was changed.*/
-    model.ruleModel.changedStateProperty().addListener((o, oldVal, newVal) -> {
-      switch ((int) newVal) {
-        case RULE_MODEL_NEWLY_CREATED:
-          log.debug("RuleModel has been found.");
-          ruleTreeView.setRoot(buildRuleTreeView(model.ruleModel.getRootImport()));
-          ruleTreeView.getRoot().setExpanded(true);
-          markFilesInRudiList();
-          linkRudiPathsToImportInfos();
-          model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
-          break;
-        case RULE_MODEL_CHANGED:
-          log.debug("RuleModel has been modified.");
-          _model.ruleModelState.retrieveStateOf(ruleTreeView);
-          ruleTreeView.setRoot(buildRuleTreeView(model.ruleModel.getRootImport()));
-          _model.ruleModelState.setStateOf(ruleTreeView);
-          markFilesInRudiList();
-          linkRudiPathsToImportInfos();
-          model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
-          break;
-        case RULE_MODEL_REMOVED:
-          ruleTreeView.setRoot(null);
-          if (_model.rudiHierarchy.getRoot() != null) {
-            markFilesInRudiList();
-            linkRudiPathsToImportInfos();
-          }
-          log.debug("RuleModel has been resetted / removed");
-          model.ruleModel.setChangedStateProperty(RULE_MODEL_UNCHANGED);
-          break;
-        default:
-          break;
+        _model.getCurrentProject().getRuleModel().changedStateProperty()
+              .removeListener(ruleModelListener);
       }
     });
 
     /* Listen to request for saving ruleLoggingState */
-    _model.ruleModelState.saveRequestProperty().addListener((o, ov, nv) -> {
-      if (nv) {
-        log.debug("Requested to save ruleLoggingState.");
-        _model.ruleModelState.retrieveStateOf(ruleTreeView);
-        _model.ruleModelState.saveState();
-        _model.ruleModelState.resetSaveRequestProperty();
-      }
-    });
+//    _model.ruleModelState.saveRequestProperty().addListener((o, ov, nv) -> {
+//      if (nv) {
+//        log.debug("Requested to save ruleLoggingState.");
+//        _model.ruleModelState.retrieveStateOf(ruleTreeView);
+//        _model.ruleModelState.saveState();
+//        _model.ruleModelState.resetSaveRequestProperty();
+//      }
+//    });
 
     /* Listen to request for loading ruleLoggingState */
-    _model.ruleModelState.loadRequestProperty().addListener((o, ov, nv) -> {
-      if (nv == null) return;
-      _model.ruleModelState.setStateOf(ruleTreeView);
-      _model.ruleModelState.resetLoadRequestProperty();
-    });
+//    _model.ruleModelState.loadRequestProperty().addListener((o, ov, nv) -> {
+//      if (nv == null) return;
+//      _model.ruleModelState.setStateOf(ruleTreeView);
+//      _model.ruleModelState.resetLoadRequestProperty();
+//    });
 
   }
 
 
-  /*****************************************************************************
+
+  /** Builds or modifies the RuleTreeView, if the RuleModel was changed. */
+  private final ChangeListener ruleModelListener = (o, oldVal, newVal) -> {
+    Project project = _model.getCurrentProject();
+    switch ((int) newVal) {
+      case RULE_MODEL_NEWLY_CREATED:
+        log.debug("RuleModel has been found.");
+        ruleTreeView.setRoot(buildRuleTreeView(project.getRuleModel().getRootImport()));
+        ruleTreeView.getRoot().setExpanded(true);
+        markFilesInRudiList();
+        linkRudiPathsToImportInfos();
+        break;
+      case RULE_MODEL_CHANGED:
+        log.debug("RuleModel has been modified.");
+        project.getRuleModel().getRuleModelState().retrieveStateOf(ruleTreeView);
+        ruleTreeView.setRoot(buildRuleTreeView(project.getRuleModel().getRootImport()));
+        project.getRuleModel().getRuleModelState().setStateOf(ruleTreeView);
+        markFilesInRudiList();
+        linkRudiPathsToImportInfos();
+        break;
+      case RULE_MODEL_REMOVED:
+        ruleTreeView.setRoot(null);
+        if (project.getRudiHierarchy().getRoot() != null) {
+          markFilesInRudiList();
+          linkRudiPathsToImportInfos();
+        }
+        log.debug("RuleModel has been resetted / removed");
+        break;
+      default:
+        break;
+    }
+    project.getRuleModel().setChangedStateProperty(RULE_MODEL_UNCHANGED);
+
+  };
+
+
+
+  /* ***************************************************************************
    * METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Marks the files in the <b>rudiList</b> according to their usage state. */
   private void markFilesInRudiList() {
-    Path mainRudi = _model.ruleModel.getRootImport().getAbsolutePath();
-    Path wrapperRudi = _model.project.getWrapperClass();
+    Project project = _model.getCurrentProject();
+    RudiHierarchy rudiHierarchy = project.getRudiHierarchy();
+    RuleModel ruleModel = project.getRuleModel();
+    Path wrapperRudi = project.getWrapperClass();
+    Path mainRudi = project.getRuleModel().getRootImport().getAbsolutePath();
 
-    _model.rudiHierarchy.getRudiPathSet().forEach((x) -> {
+    rudiHierarchy.getRudiPathSet().forEach((x) -> {
       if (mainRudi.getFileName().equals(x.getPath().getFileName()))
         x.usedProperty().setValue(FILE_IS_MAIN);
       else if (wrapperRudi.getFileName().equals(x.getPath().getFileName()))
         x.usedProperty().setValue(FILE_IS_WRAPPER);
-      else if (_model.ruleModel.getImportSet().contains(x.getPath()))
+      else if (ruleModel.getImportSet().contains(x.getPath()))
         x.usedProperty().setValue(FILE_USED);
       else
         x.usedProperty().setValue(FILE_NOT_USED);
@@ -156,9 +189,13 @@ public class SideBarController extends Controller {
    * <code>RuleModel</code> to their respective <code>RudiPath</code>.
    */
   private void linkRudiPathsToImportInfos() {
-    _model.rudiHierarchy.getRudiPathSet().forEach(x -> {
-      if (_model.ruleModel.getImportSet().contains(x.getPath()))
-        x.setImportInfo(_model.ruleModel.getPathToImportMap().get(x.getPath()));
+    Project project = _model.getCurrentProject();
+    RudiHierarchy rudiHierarchy = project.getRudiHierarchy();
+    RuleModel ruleModel = project.getRuleModel();
+
+    rudiHierarchy.getRudiPathSet().forEach(x -> {
+      if (ruleModel.getImportSet().contains(x.getPath()))
+        x.setImportInfo(ruleModel.getPathToImportMap().get(x.getPath()));
       else x.setImportInfo(null);
     });
   }
@@ -194,26 +231,10 @@ public class SideBarController extends Controller {
   public SplitPane getSidebarSplitPane() { return sidebarSplitPane; }
 
 
-  /*****************************************************************************
-   * GUI ELEMENTS
-   ****************************************************************************/
 
-  /** Represents the root splitPane */
-  @FXML
-  private SplitPane sidebarSplitPane;
-
-  /** Shows the different <code>.rudi</code> rules and imports. */
-  @FXML
-  private TreeView ruleTreeView;
-
-  /** Shows the content of the <code>.rudi</code> folder. */
-  @FXML
-  private TreeView rudiTreeView;
-
-
-  /*****************************************************************************
+  /* ***************************************************************************
    * GUI ACTIONS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Expands all <code>TreeItem</code>s in the ruleTreeView. */
   @FXML

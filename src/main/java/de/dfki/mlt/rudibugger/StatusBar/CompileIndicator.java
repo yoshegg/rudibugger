@@ -20,13 +20,14 @@
 package de.dfki.mlt.rudibugger.StatusBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Project.Project;
 import de.dfki.mlt.rudibugger.Project.RuleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
@@ -48,8 +49,11 @@ import javafx.scene.input.ContextMenuEvent;
  */
 public class CompileIndicator {
 
-  /** The Controller. */
-  private StatusBarController _controller;
+  /** The StatusBar. */
+  private Label _statusBarText;
+
+  /** TODO */
+  private Project _project;
 
   /** An icon showing the current sync state. */
   private ImageView _indicator;
@@ -89,10 +93,12 @@ public class CompileIndicator {
    * @param indicator
    * @param controller
    */
-  public CompileIndicator(ImageView indicator, StatusBarController controller) {
+  public CompileIndicator(ImageView indicator, Label statusBarText,
+          Project project) {
     _indicator = indicator;
     _tooltip = new Tooltip();
-    _controller = controller;
+    _statusBarText = statusBarText;
+    _project = project;
 
     /* Initializes the default look and behaviour if no project is loaded. */
     _indicator.setImage(ICONS.get(COMPILATION_NO_PROJECT));
@@ -105,7 +111,7 @@ public class CompileIndicator {
       int val = nv.intValue();
       String msg = MESSAGES.get(val);
 
-      _controller.setStatusBarText(msg);
+      _statusBarText.setText(msg);
 
       _tooltip.setText(msg);
       Tooltip.install(_indicator, _tooltip);
@@ -129,20 +135,18 @@ public class CompileIndicator {
   private final EventHandler<? super ContextMenuEvent> contextMenu = (value -> {
     ContextMenu cm = new ContextMenu();
 
-    DataModel model = _controller.getModel();
-
     LinkedHashMap<ErrorInfo, ImportInfoExtended> errorInfos;
-    errorInfos = model.ruleModel.getErrorInfos();
+    errorInfos = _project.getRuleModel().getErrorInfos();
     LinkedHashMap<ErrorInfo, ImportInfoExtended> warnInfos;
-    warnInfos = model.ruleModel.getWarnInfos();
+    warnInfos = _project.getRuleModel().getWarnInfos();
     LinkedHashMap<ErrorInfo, ImportInfoExtended> parsingFailure;
-    parsingFailure = model.ruleModel.getParsingFailure();
+    parsingFailure = _project.getRuleModel().getParsingFailure();
 
-    addErrorWarningInfosToContextMenu(cm, "error", parsingFailure, model);
-    addErrorWarningInfosToContextMenu(cm, "error", errorInfos, model);
+    addErrorWarningInfosToContextMenu(cm, "error", parsingFailure, _project);
+    addErrorWarningInfosToContextMenu(cm, "error", errorInfos, _project);
     if ((! errorInfos.isEmpty()) && (! warnInfos.isEmpty()))
       cm.getItems().add(new SeparatorMenuItem());
-    addErrorWarningInfosToContextMenu(cm, "warning", warnInfos, model);
+    addErrorWarningInfosToContextMenu(cm, "warning", warnInfos, _project);
 
     cm.show(_indicator, value.getScreenX(), value.getScreenY());
   });
@@ -157,7 +161,7 @@ public class CompileIndicator {
    * @param model
    */
   private void addErrorWarningInfosToContextMenu(ContextMenu cm, String type,
-    LinkedHashMap<ErrorInfo, ImportInfoExtended> data, DataModel model) {
+    LinkedHashMap<ErrorInfo, ImportInfoExtended> data, Project project) {
     for (ErrorInfo e : data.keySet()) {
       ImportInfoExtended item = data.get(e);
       String shortType = (("warning".equals(type)) ? "WARN" : "ERROR");
@@ -176,7 +180,7 @@ public class CompileIndicator {
       Label label = new Label(msg);
       CustomMenuItem errorItem = new CustomMenuItem(label);
       errorItem.setOnAction(f -> {
-        model.rudiLoad.openRule(item.getAbsolutePath(),
+        project.openRule(item.getAbsolutePath(),
           e.getLocation().getBegin().getLine());
       });
       cm.getItems().add(errorItem);

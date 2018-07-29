@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Project.VondaRuntimeConnection;
 
 /**
  * This API specifies what commands can be sent from VOnDA to rudibugger.
@@ -38,12 +38,12 @@ public class RudibuggerAPI implements Consumer<String[]> {
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("rudibuggerAPI");
 
-  /** The <code>DataModel</code> */
-  DataModel _model;
+  /** Represents the connection to VOnDA's runtime system. */
+  private final VondaRuntimeConnection _vonda;
 
   /** Initializes the API with the DataModel. */
-  public RudibuggerAPI(DataModel model) {
-    _model = model;
+  public RudibuggerAPI(VondaRuntimeConnection vonda) {
+    _vonda = vonda;
   }
 
   /**
@@ -78,7 +78,7 @@ public class RudibuggerAPI implements Consumer<String[]> {
       for (int i = 1; i < args.length; ++i) {
         result[i - 1] = Boolean.parseBoolean(args[i]);
       }
-      _model.vonda.printLog(ruleId, result);
+      _vonda.printLog(ruleId, result);
     } catch (NumberFormatException ex) {
       log.error("Illegal RudibuggerService Call: "
               + "printLog can't work with parameters {}",

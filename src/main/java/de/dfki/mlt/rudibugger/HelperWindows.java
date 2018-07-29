@@ -22,10 +22,16 @@ package de.dfki.mlt.rudibugger;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.AboutController;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
+import de.dfki.mlt.rudibugger.DataModelAdditions.EmacsConnection;
+import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
+import de.dfki.mlt.rudibugger.Project.Project;
 import de.dfki.mlt.rudibugger.SearchAndFind.SearchController;
+import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -44,44 +50,135 @@ import org.slf4j.LoggerFactory;
  *   - open dialogs that only have a simple purpose, and <br>
  *   - additional windows that have more functionality (search, settings, ...).
  *
- * Properties are used to disallow more than one window of a kind; due to
- * technical reasons, the according functions can't be static.
- *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public final class HelperWindows {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("HelperWin");
 
-  /** The <code>DataModel</code> */
-  private final DataModel _model;
-
-  /**
-   * Initializes this addition of <code>DataModel</code>.
-   *
-   * @param model  The current <code>DataModel</code>
-   */
-  public HelperWindows(DataModel model) {
-    _model = model;
-  }
 
   /*****************************************************************************
-   * PROPERTIES / FIELDS
+   * COMMON METHODS
    ****************************************************************************/
 
-  /** Indicates if the settings window is open. */
-  private boolean settingsWindowOpened = false;
-
-  /** Indicates if the about window is open. */
-  private boolean aboutWindowOpened = false;
-
-  /** Indicates if the search in project window is open. */
-  private boolean searchInProjectWindowOpened = false;
+  private static Stage createWindow(Stage mainStage, AnchorPane page,
+          String title) {
+    Stage stage = new Stage();
+    stage.setTitle(title);
+    stage.initModality(Modality.NONE);
+    stage.initOwner(mainStage);
+    stage.setScene(new Scene(page));
+    stage.setOnCloseRequest(value -> stage.close());
+    return stage;
+  }
 
 
   /*****************************************************************************
-   * STATIC METHODS
+   * SETTINGS WINDOW
+   ****************************************************************************/
+
+  private static Stage _settingsWindow;
+
+  public static void showSettingsWindow(Stage mainStage,
+          GlobalConfiguration globalConf, EmacsConnection emacs) {
+    if (_settingsWindow == null)
+      _settingsWindow = createSettingsWindow(mainStage, globalConf, emacs);
+    _settingsWindow.show();
+  }
+
+  private static Stage createSettingsWindow(Stage mainStage,
+          GlobalConfiguration globalConf, EmacsConnection emacs) {
+
+    /* Load .fxml file */
+    AnchorPane page;
+    FXMLLoader loader;
+    try {
+       loader = new FXMLLoader(HelperWindows.class
+        .getResource("/fxml/settings.fxml"));
+       page = (AnchorPane) loader.load();
+    } catch (IOException e) {
+      log.error(e.toString());
+      return null;
+    }
+
+    /* Set controller */
+    SettingsController controller = loader.getController();
+    controller.init(globalConf, emacs);
+
+    Stage settingsStage = createWindow(mainStage, page, "Settings");
+
+    return settingsStage;
+  }
+
+
+  /*****************************************************************************
+   * ABOUT WINDOW
+   ****************************************************************************/
+
+  private static Stage _aboutWindow;
+
+  public static void showAboutWindow(Stage mainStage) {
+    if (_aboutWindow == null)
+      _aboutWindow = createAboutWindow(mainStage);
+    _aboutWindow.show();
+  }
+
+  private static Stage createAboutWindow(Stage mainStage) {
+
+    /* Load .fxml file */
+    AnchorPane page;
+    FXMLLoader loader;
+    try {
+       loader = new FXMLLoader(HelperWindows.class
+        .getResource("/fxml/about.fxml"));
+       page = (AnchorPane) loader.load();
+    } catch (IOException e) {
+      log.error(e.toString());
+      return null;
+    }
+
+    /* Set controller */
+    AboutController controller = loader.getController();
+    controller.init();
+
+    Stage aboutStage = createWindow(mainStage, page, "About Rudibugger");
+    aboutStage.setResizable(false);
+
+    return aboutStage;
+  }
+
+
+  /*****************************************************************************
+   * SEARCH WINDOW
+   ****************************************************************************/
+
+  public static void openSearchWindow(Stage mainStage, Project project) {
+
+    /* Load .fxml file */
+    AnchorPane page;
+    FXMLLoader loader;
+    try {
+       loader = new FXMLLoader(HelperWindows.class
+        .getResource("/fxml/findInProjectWindow.fxml"));
+       page = (AnchorPane) loader.load();
+    } catch (IOException e) {
+      log.error(e.toString());
+      return;
+    }
+
+    /* Set controller */
+    SearchController controller = loader.getController();
+    controller.init(project);
+
+    Stage findStage = createWindow(mainStage, page, "Find in project...");
+    findStage.setResizable(false);
+
+    findStage.show();
+  }
+
+
+  /*****************************************************************************
+   * DIALOG WINDOWS
    ****************************************************************************/
 
   /**
@@ -90,7 +187,7 @@ public final class HelperWindows {
    * @param projectName The currently open project's name
    * @return true, if current project should be overwritten, else false
    */
-  public static boolean overwriteProjectCheck(String projectName) {
+  public static boolean openOverwriteProjectCheckDialog(String projectName) {
     log.debug("Asking what should happen because of the open project.");
 
     /* defining an Alert Window */
@@ -123,7 +220,7 @@ public final class HelperWindows {
    *        The name of the modified file
    * @return Integer representing the user's choice
    */
-  public static int closeFileWithoutSavingCheck(String fileName) {
+  public static int openCloseFileWithoutSavingCheckDialog(String fileName) {
     log.debug("Asking how an unsaved file should be closed.");
 
     /* Defining an Alert window. */
@@ -133,7 +230,8 @@ public final class HelperWindows {
     alert.setContentText("Do you want to save the file before closing it?");
 
     /* Defining the buttons. */
-    ButtonType discard_changes = new ButtonType("Discard", ButtonData.CANCEL_CLOSE);
+    ButtonType discard_changes
+            = new ButtonType("Discard", ButtonData.CANCEL_CLOSE);
     ButtonType save_and_close = new ButtonType("Save", ButtonData.OK_DONE);
     ButtonType cancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
     alert.getButtonTypes().setAll(save_and_close, cancel, discard_changes);
@@ -157,7 +255,7 @@ public final class HelperWindows {
    * @param stage
    * @return The Path of the chosen configuration file
    */
-  public static Path openYmlProjectFile(Stage stage) {
+  public static Path openYmlProjectFileDialog(Stage stage) {
     /* Defining the file chooser */
     log.debug("Preparing project chooser...");
     FileChooser chooser = new FileChooser();
@@ -187,7 +285,7 @@ public final class HelperWindows {
    * @param ruleLogSavePath The folder containing the ruleModelState files
    * @return The Path of the chosen configuration file
    */
-  public static Path openRuleLoggingStateFile(Stage stage,
+  public static Path openRuleLoggingStateFileDialog(Stage stage,
     Path ruleLogSavePath) {
     /* Defining the file chooser */
     log.debug("Preparing ruleLoggingState file chooser...");
@@ -211,107 +309,63 @@ public final class HelperWindows {
     return chosenRuleLoggingStateFile.toPath();
   }
 
-
-  /*****************************************************************************
-   * METHODS
-   ****************************************************************************/
-
-  /** Opens the about window. */
-  public void openAboutWindow() {
-    if (aboutWindowOpened) return;
+  /**
+   * Opens a window to select where to store a new .rudi file and how to name
+   * it.
+   *
+   * @param stage The stage of rudibugger
+   * @param rudiFolder The Path of the .rudi folder
+   * @return The path of a new file with .rudi extension
+   */
+  public static Path openSaveNewFileAsDialog(Stage stage, Path rudiFolder) {
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setInitialDirectory(rudiFolder.toFile());
+    FileChooser.ExtensionFilter extFilter
+            = new FileChooser.ExtensionFilter
+        ("rudi file (*" + RULE_FILE_EXTENSION + ")", "*" + RULE_FILE_EXTENSION);
+    fileChooser.getExtensionFilters().add(extFilter);
+    Path newRudiFile;
     try {
-      /* Load the fxml file and create a new stage for the about window */
-      FXMLLoader loader = new FXMLLoader(HelperWindows.class
-        .getResource("/fxml/about.fxml"));
-      AnchorPane page = (AnchorPane) loader.load();
-      Stage aboutStage = new Stage();
-      aboutStage.setResizable(false);
-      aboutStage.setTitle("About Rudibugger");
-      aboutStage.initModality(Modality.NONE);
-      aboutStage.initOwner(_model.stageX);
-      Scene scene = new Scene(page);
-      aboutStage.setScene(scene);
-
-      /* Set the controller */
-      AboutController controller = loader.getController();
-      controller.init(_model);
-      controller.setDialogStage(aboutStage);
-
-      /* show the dialog */
-      aboutStage.show();
-      aboutWindowOpened = true;
-
-      /* handle close request */
-      aboutStage.setOnCloseRequest(value -> aboutWindowOpened = false);
-
-    } catch (IOException e) {
-      log.error(e.toString());
+      newRudiFile = (fileChooser.showSaveDialog(stage)).toPath();
+    } catch (NullPointerException e) {
+      return null;
     }
-  }
-
-  /** Opens the settings menu. */
-  public void openSettingsDialog() {
-    if (settingsWindowOpened) return;
-    try {
-      /* Load the fxml file and create a new stage for the settings dialog */
-      FXMLLoader loader = new FXMLLoader(HelperWindows.class
-        .getResource("/fxml/settings.fxml"));
-      AnchorPane page = (AnchorPane) loader.load();
-      Stage settingsStage = new Stage();
-      settingsStage.setTitle("Settings");
-      settingsStage.initModality(Modality.NONE);
-      settingsStage.initOwner(_model.stageX);
-      Scene scene = new Scene(page);
-      settingsStage.setScene(scene);
-
-      /* Set the controller */
-      SettingsController controller = loader.getController();
-      controller.init(_model);
-
-      /* show the dialog */
-      settingsStage.show();
-      settingsWindowOpened = true;
-
-      /* handle close request */
-      settingsStage.setOnCloseRequest(value -> settingsWindowOpened = false);
-
-    } catch (IOException e) {
-      log.error(e.toString());
+    if (newRudiFile == null) return null; // TODO: might be unnecessary
+    if (! newRudiFile.getFileName().toString().endsWith(RULE_FILE_EXTENSION)) {
+      newRudiFile = Paths.get(newRudiFile.toString() + RULE_FILE_EXTENSION);
     }
+    return newRudiFile;
   }
 
   /**
-   * Opens the search window.
-   * TODO: make it possible to open more than one search window.
+   * Opens a window to select where to store a new ruleModelState file and how
+   * to name it.
+   *
+   * @param stage The stage of rudibugger
+   * @param rudiFolder The Path of the ruleModelStates folder
+   * @return The path of a new file with .yml extension
    */
-  public void openSearchWindow() {
-    if (searchInProjectWindowOpened) return;
+  public static Path openSaveRuleModelStateDialog(Stage stage,
+          Path stateFolder) {
+    if (! Files.exists(stateFolder)) stateFolder.toFile().mkdirs();
+
+    FileChooser fileChooser = new FileChooser();
+    fileChooser.setInitialDirectory(stateFolder.toFile());
+    FileChooser.ExtensionFilter extFilter
+            = new FileChooser.ExtensionFilter
+        ("YAML file (*" + "yml" + ")", "*" + "yml");
+    fileChooser.getExtensionFilters().add(extFilter);
+    Path file;
     try {
-      /* Load the fxml file and create a new stage for the about window */
-      FXMLLoader loader = new FXMLLoader(HelperWindows.class
-        .getResource("/fxml/findInProjectWindow.fxml"));
-      AnchorPane page = (AnchorPane) loader.load();
-      Stage findStage = new Stage();
-      findStage.setTitle("Find in project...");
-      findStage.initModality(Modality.NONE);
-      findStage.initOwner(_model.stageX);
-      Scene scene = new Scene(page);
-      findStage.setScene(scene);
-
-      /* Set the controller */
-      SearchController controller = loader.getController();
-      controller.initModel(_model);
-
-      /* show the dialog */
-      findStage.show();
-      searchInProjectWindowOpened = true;
-
-      /* handle close request */
-      findStage.setOnCloseRequest(value -> searchInProjectWindowOpened = false);
-
-    } catch (IOException e) {
-      log.error(e.toString());
+      file = (fileChooser.showSaveDialog(stage)).toPath();
+    } catch (NullPointerException e) {
+      return null;
     }
-  }
 
+    if (!file.getFileName().toString().endsWith(".yml")) {
+      file = Paths.get(file.toString() + ".yml");
+    }
+
+    return file;
+  }
 }

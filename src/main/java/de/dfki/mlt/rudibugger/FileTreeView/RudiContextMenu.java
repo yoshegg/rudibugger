@@ -18,7 +18,7 @@
  */
 package de.dfki.mlt.rudibugger.FileTreeView;
 
-import de.dfki.mlt.rudibugger.DataModelAdditions.RudiLoadManager;
+import de.dfki.mlt.rudibugger.Project.Project;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
@@ -42,11 +42,8 @@ public class RudiContextMenu extends ContextMenu {
   /** The associated file. */
   private final RudiPath _item;
 
-  /**
-   * Represents the <code>DataModel</code> addition to load <code>.rudi</code>
-   * files.
-   */
-  private final RudiLoadManager _rudiLoad;
+  /** TODO */
+  private final Project _project;
 
 
   /*****************************************************************************
@@ -59,10 +56,10 @@ public class RudiContextMenu extends ContextMenu {
    *
    * @param ri
    */
-  public RudiContextMenu(RudiPath ri, RudiLoadManager rlm) {
+  public RudiContextMenu(RudiPath ri, Project project) {
     super();
     _item = ri;
-    _rudiLoad = rlm;
+    _project = project;
     initializeMenuItems();
   }
 
@@ -83,7 +80,7 @@ public class RudiContextMenu extends ContextMenu {
     Tooltip t = new Tooltip(e.getMessage());
     Tooltip.install(label, t);
     errorItem.setOnAction(f -> {
-      _rudiLoad.openRule(_item.getPath().toAbsolutePath(),
+      _project.openRule(_item.getPath().toAbsolutePath(),
           e.getLocation().getBegin().getLine() + 1);
     });
     this.getItems().add(errorItem);
@@ -96,7 +93,7 @@ public class RudiContextMenu extends ContextMenu {
     CustomMenuItem openFile = new CustomMenuItem(new Label("Open "
             + _item.getPath().toAbsolutePath().getFileName().toString()));
     openFile.setOnAction((ActionEvent e) -> {
-      _rudiLoad.openFile(_item.getPath().toAbsolutePath());
+      _project.openFile(_item.getPath().toAbsolutePath());
     });
     this.getItems().add(openFile);
 

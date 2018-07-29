@@ -20,11 +20,12 @@
 package de.dfki.mlt.rudibugger.Controller.MenuBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Controller.Controller;
-
 import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.MainApp;
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Project.Project;
+import de.dfki.mlt.rudibugger.Project.RuleModel.State.RuleModelState;
+import de.dfki.mlt.rudibugger.Project.VondaRuntimeConnection;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -47,10 +48,15 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class MenuController extends Controller {
+public class MenuController {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("MenuController");
+
+  /** TODO */
+  private DataModel _model;
+
+  /** Represents a potentially loaded project. */
+  private Project _project;
 
 
   /*****************************************************************************
@@ -73,30 +79,20 @@ public class MenuController extends Controller {
    * INITIALIZERS / CONSTRUCTORS
    ****************************************************************************/
 
-  /**
-   * Initializes this controller.
-   *
-   * @param model The current <code>DataModel</code>
-   */
+  /** Initializes this controller. */
   public void init(DataModel model) {
-    linkModel(model);
+    _model = model;
     compileButtonManager = CompileButtonManager.init(compileButton,
             toolBar);
     connectionButtonManager = ConnectionButtonManager.init(_model,
             vondaConnectionButton, toolBar);
-    initModel(model);
+    listenForProject();
   }
 
+  private void listenForProject() {
+    Project.projectLoadedProperty().addListener((o, ov, nv) -> {
+      _project = Project.getCurrentProject();
 
-  /**
-   * Connects this controller to the DataModel.
-   *
-   * @param model
-   */
-  public void initModel(DataModel model) {
-
-    /* this listener checks if a project has been opened */
-    _model.projectLoadedProperty().addListener((o, ov, nv) -> {
       if (nv) {
         log.debug("Project open: enable GUI-elements.");
         closeProjectItem.setDisable(false);
@@ -105,7 +101,7 @@ public class MenuController extends Controller {
         saveLoggingStateItem.setDisable(false);
         findInProjectItem.setDisable(false);
         connectionButtonManager.manageLookOfVondaConnectionButton();
-        compileButtonManager.defineCompileButton(_model.project, _model.compiler);
+        compileButtonManager.defineCompileButton(_project, _project.compiler);
       } else {
         log.debug("Project closed: disable GUI-elements.");
         closeProjectItem.setDisable(true);
@@ -114,21 +110,22 @@ public class MenuController extends Controller {
         saveLoggingStateItem.setDisable(true);
         findInProjectItem.setDisable(true);
         connectionButtonManager.manageLookOfVondaConnectionButton();
-        compileButtonManager.defineCompileButton(_model.project, _model.compiler);
+        compileButtonManager.defineCompileButton(_project, _project.compiler);
       }
     });
+  }
 
-    /* Keep track of default compile command. */
-    //_model.project.defaultCompileCommandProperty().addListener((cl, ov, vn) -> {
-    //  compileButtonManager.defineCompileButton();
-    //});
+  /**
+   * Initializes the controller.
+   */
+  public void initController() {
 
-    _model.vonda.connectedProperty().addListener(l ->
+    _model.getCurrentProject().vonda.connectedProperty().addListener(l ->
       connectionButtonManager.manageLookOfVondaConnectionButton()
     );
 
     /* this listener enables saving depending on the selected tab */
-    _model.tabStore.currentlySelectedTabProperty().addListener((o, oldVal, newVal) -> {
+    _model.getCurrentProject().getTabStore().currentlySelectedTabProperty().addListener((o, oldVal, newVal) -> {
 
       /* no tab is opened */
       if (newVal == null) {
@@ -193,15 +190,17 @@ public class MenuController extends Controller {
    */
   @FXML
   private void buildLoadRuleSelectionStateMenu() {
-    if (! _model.projectLoadedProperty().get()) return;
-    if (!_model.ruleModelState.getRecentStates().isEmpty()) {
+    if (_project == null) return;
+    RuleModelState rms = _model.getCurrentProject().getRuleModel()
+            .getRuleModelState();
+    if (!rms.getRecentStates().isEmpty()) {
       loadLoggingStateMenu.getItems().clear();
-      _model.ruleModelState.getRecentStates().forEach((x) -> {
-        String filenameWithFolder = _model.project.getRuleModelStatesFolder()
+      rms.getRecentStates().forEach((x) -> {
+        String filenameWithFolder = _model.getCurrentProject().getRuleModelStatesFolder()
                 .relativize(x).toString();
         MenuItem mi = new MenuItem(filenameWithFolder);
         mi.setOnAction((event) -> {
-          _model.ruleModelState.loadState(x);
+          rms.loadState(x);
         });
         loadLoggingStateMenu.getItems().add(mi);
       });
@@ -223,28 +222,28 @@ public class MenuController extends Controller {
   private void checkForOpenProject(Path ymlFile) {
 
     /* a project is already open */
-    if (_model.projectLoadedProperty().getValue() == PROJECT_OPEN) {
-      if (OVERWRITE_PROJECT == HelperWindows.overwriteProjectCheck(
-        _model.project.getProjectName())) {
+    if (_model.isProjectLoadedProperty().getValue() == PROJECT_OPEN) {
+      if (OVERWRITE_PROJECT == HelperWindows.openOverwriteProjectCheckDialog(
+        _model.getCurrentProject().getProjectName())) {
 
         if (ymlFile == null)
-          ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
+          ymlFile = HelperWindows.openYmlProjectFileDialog(_model.mainStage);
         if (ymlFile == null)
           return;
 
-        _model.close(true);
-        _model.init(ymlFile);
+//        _model.close(true);  // TODO
+//        _model.init(ymlFile);  // TODO
       }
     }
 
     /* no project is open */
     else {
       if (ymlFile == null)
-        ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
+        ymlFile = HelperWindows.openYmlProjectFileDialog(_model.mainStage);
       if (ymlFile == null) {
         return;
       }
-      _model.init(ymlFile);
+//      _model.init(ymlFile);
 
     }
   }
@@ -271,7 +270,7 @@ public class MenuController extends Controller {
 
   @FXML
   private void findInProject(ActionEvent event) {
-    _model.helperWindows.openSearchWindow();
+    HelperWindows.openSearchWindow(_model.mainStage, _model.getCurrentProject());
   }
 
   @FXML
@@ -299,7 +298,7 @@ public class MenuController extends Controller {
   @FXML
   private void newRudiFileAction(ActionEvent event)
           throws FileNotFoundException {
-    _model.rudiLoad.openFile(null);
+    _model.getCurrentProject().openFile(null);
   }
 
 
@@ -328,7 +327,7 @@ public class MenuController extends Controller {
   @FXML
   private void closeProjectAction(ActionEvent event)
           throws FileNotFoundException {
-    _model.close(false);
+    _model.closeProject();
   }
 
 
@@ -347,7 +346,12 @@ public class MenuController extends Controller {
   /** Action "Open configuration file..." */
   @FXML
   private void openRuleLoggingStateConfigurationFile(ActionEvent event) {
-    _model.ruleModelState.loadStateSelectFile();
+    Path saveFolder = _model.getCurrentProject().getRuleModelStatesFolder();
+    Path chosenFile = HelperWindows.openRuleLoggingStateFileDialog(
+            _model.mainStage, saveFolder);
+    if (chosenFile == null) return;
+    _model.getCurrentProject().getRuleModel().getRuleModelState()
+            .loadState(chosenFile);
   }
 
   /** MenuItem "Save logging state..." */
@@ -357,7 +361,11 @@ public class MenuController extends Controller {
   /** Action "Save logging state" */
   @FXML
   private void saveLoggingStateAction(ActionEvent event) {
-    _model.ruleModelState.requestSave();
+    Path saveFolder = _model.getCurrentProject().getRuleModelStatesFolder();
+    Path newStateFile = HelperWindows.openSaveRuleModelStateDialog(
+            _model.mainStage, saveFolder);
+    _model.getCurrentProject().getRuleModel().getRuleModelState()
+            .saveState(newStateFile);
   }
 
 
@@ -368,8 +376,8 @@ public class MenuController extends Controller {
   /** Action "Save" */
   @FXML
   private void saveAction(ActionEvent event) {
-    _model.rudiSave.quickSaveFile(
-            _model.tabStore.currentlySelectedTabProperty().get());
+    _model.getCurrentProject().quickSaveFile(
+            _model.getCurrentProject().getTabStore().currentlySelectedTabProperty().get());
   }
 
 
@@ -380,8 +388,36 @@ public class MenuController extends Controller {
   /** Action "Save as..." */
   @FXML
   private void saveAsAction(ActionEvent event) {
-    _model.rudiSave.saveFileAs(
-            _model.tabStore.currentlySelectedTabProperty().get());
+    RudiTab currentTab = _model.getCurrentProject().getTabStore().currentlySelectedTabProperty().get();
+
+
+//    _model.getCurrentProject().saveFileAs( // TODO
+//            _model.getCurrentProject().getTabStore().currentlySelectedTabProperty().get());
+  }
+
+  /**
+   * Save tab's content into a new file.
+   * TODO: Should be somewhere else
+   * @return True, if the file has been successfully saved, else false
+   */
+  public boolean saveFileAs(RudiTab tab) {
+    Project project = _model.getCurrentProject();
+    String content = tab.getRudiCode();
+
+    Path newRudiFile = HelperWindows.openSaveNewFileAsDialog(
+            _model.mainStage, project.getRudiFolder());
+
+    if (project.saveFile(newRudiFile, content)) {
+      tab.setText(newRudiFile.getFileName().toString());
+      project.getTabStore().openTabsProperty().get().remove(tab.getFile());
+      tab.setFile(newRudiFile);
+      project.getTabStore().openTabsProperty().get().put(newRudiFile, tab);
+      tab.waitForModifications();
+
+      log.debug("File " + newRudiFile.getFileName() + " has been saved.");
+      return true;
+    }
+    return false;
   }
 
 
@@ -392,7 +428,7 @@ public class MenuController extends Controller {
   /** Action "Save all" */
   @FXML
   private void saveAllAction(ActionEvent event) {
-    _model.rudiSave.quickSaveAllFiles();
+    _model.getCurrentProject().quickSaveAllFiles();
   }
 
 
@@ -411,13 +447,13 @@ public class MenuController extends Controller {
   /********* Tools *********/
   @FXML
   private void openSettingsDialog(ActionEvent event) {
-    _model.helperWindows.openSettingsDialog();
+    HelperWindows.showSettingsWindow(_model.mainStage, _model.globalConf, _model.emacs);
   }
 
   /********* Help *********/
   @FXML
   private void openAboutWindow(ActionEvent event) {
-    _model.helperWindows.openAboutWindow();
+    HelperWindows.showAboutWindow(_model.mainStage);
   }
 
 
@@ -432,11 +468,12 @@ public class MenuController extends Controller {
   /** Establishes a connection to the VOnDA server or disconnects from it. */
   @FXML
   private void changeVondaConnectionState(ActionEvent event) {
-    int conStatus = _model.vonda.connectedProperty().get();
+    VondaRuntimeConnection vonda = _model.getCurrentProject().vonda;
+    int conStatus = vonda.connectedProperty().get();
     if (conStatus == DISCONNECTED_FROM_VONDA)
-      _model.vonda.connect();
+      vonda.connect(_model.getCurrentProject().getVondaPort());
     else
-      _model.vonda.closeConnection();
+      vonda.closeConnection();
   }
 
 }

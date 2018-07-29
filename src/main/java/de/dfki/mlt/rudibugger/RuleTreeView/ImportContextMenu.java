@@ -19,6 +19,8 @@
 
 package de.dfki.mlt.rudibugger.RuleTreeView;
 
+import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
+import de.dfki.mlt.rudibugger.Project.Project;
 import de.dfki.mlt.rudibugger.Project.RuleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
@@ -41,9 +43,9 @@ import javafx.scene.control.Tooltip;
  */
 public class ImportContextMenu extends ContextMenu {
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * CONSTANTS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /**
    * Contains all the <code>RadioMenuItem</code>s of the
@@ -65,34 +67,39 @@ public class ImportContextMenu extends ContextMenu {
   private static final RadioMenuItem PSEUDO_BUTTON = new RadioMenuItem();
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * FIELDS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** The clicked Import. */
   private final ImportInfoExtended _item;
 
+  private final Project _project;
 
-  /*****************************************************************************
+  private final GlobalConfiguration _globalConf;
+
+
+  /* ***************************************************************************
    * CONSTRUCTOR
-   ****************************************************************************/
+   * **************************************************************************/
 
   /**
    * An <code>ImportContextMenu</code> should appear when a context menu was
    * requested by clicking on an import.
-   *
-   * @param ii
    */
-  public ImportContextMenu(ImportInfoExtended ii) {
+  public ImportContextMenu(ImportInfoExtended ii, Project project,
+          GlobalConfiguration globalConf) {
     super();
     _item = ii;
+    _project = project;
+    _globalConf = globalConf;
     initializeMenuItems();
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Initializes MenuItems. */
   private void initializeMenuItems() {
@@ -110,14 +117,14 @@ public class ImportContextMenu extends ContextMenu {
     CustomMenuItem openFile = new CustomMenuItem(new Label("Open "
             + _item.getAbsolutePath().getFileName().toString()));
     openFile.setOnAction((ActionEvent e) ->
-      _item.getModel().rudiLoad.openFile(_item.getAbsolutePath()));
+      _project.openFile(_item.getAbsolutePath()));
     this.getItems().add(openFile);
   }
 
   /** Creates the "Go to error" MenuItem(s) in the context menu. */
   private void initErrorInfoItems() {
     addSeparator();
-    if (_item.getModel().globalConf.showErrorInfoInRuleTreeViewContextMenu())
+    if (_globalConf.showErrorInfoInRuleTreeViewContextMenu())
       _item.getErrors().forEach((e) -> treatErrorInfo(e));
   }
 
@@ -131,7 +138,7 @@ public class ImportContextMenu extends ContextMenu {
     Tooltip t = new Tooltip(e.getMessage());
     Tooltip.install(label, t);
     errorItem.setOnAction(f -> {
-      _item.getModel().rudiLoad.openRule(_item.getAbsolutePath(),
+      _project.openRule(_item.getAbsolutePath(),
           e.getLocation().getBegin().getLine() + 1);
     });
     this.getItems().add(errorItem);
