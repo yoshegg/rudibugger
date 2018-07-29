@@ -270,7 +270,7 @@ public class RuleModelState {
     fileChooser.getExtensionFilters().add(extFilter);
     Path file;
     try {
-      file = (fileChooser.showSaveDialog(_model.stageX)).toPath();
+      file = (fileChooser.showSaveDialog(_model.mainStage)).toPath();
     } catch (NullPointerException e) {
       return;
     }
@@ -307,8 +307,7 @@ public class RuleModelState {
 
   /** Opens a FileSelection window to choose a RuleModelState file. */
   public void loadStateSelectFile() {
-    Path chosenFile = HelperWindows.openRuleLoggingStateFile(
-      _model.stageX, _model.project.getRuleModelStatesFolder());
+    Path chosenFile = HelperWindows.openRuleLoggingStateFileDialog(_model.mainStage, _model.project.getRuleModelStatesFolder());
     if (chosenFile == null) return;
     loadState(chosenFile);
   }

@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class TabManager {
+public class TabStore {
 
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("TabStore");
 
   /** The <code>DataModel</code>. */
-  private final DataModel _model;
+//  private final DataModel _model;
 
 
   /*****************************************************************************
@@ -55,7 +55,7 @@ public class TabManager {
    *
    * @param model The current <code>DataModel</code>
    */
-  public TabManager(DataModel model) { _model = model; }
+//  public TabStore(DataModel model) { _model = model; }
 
 
   /*****************************************************************************

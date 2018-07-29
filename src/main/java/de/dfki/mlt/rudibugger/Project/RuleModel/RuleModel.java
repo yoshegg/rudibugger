@@ -21,8 +21,8 @@ package de.dfki.mlt.rudibugger.Project.RuleModel;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Project.Project;
 import de.dfki.mlt.rudimant.common.BasicInfo;
-import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
 import de.dfki.mlt.rudimant.common.ImportInfo;
 import de.dfki.mlt.rudimant.common.RuleInfo;
@@ -62,8 +62,11 @@ public class RuleModel {
   /** The Logger. */
   static Logger log = LoggerFactory.getLogger("RuleModel");
 
-  /** The <code>DataModel</code>. */
-  private final DataModel _model;
+  /** Represents the project's RuleLoc.yml. */
+  private final Path _ruleLocYaml;
+
+  /** Represents the project's .rudi folder. */
+  private final Path _rudiFolder;
 
   /** Maps used Paths to their respective <code>ImportInfoExtended</code>. */
   private final Map<Path, ImportInfoExtended> _pathToImport = new HashMap();
@@ -117,8 +120,10 @@ public class RuleModel {
    *
    * @param model The current <code>DataModel</code>
    */
-  public RuleModel(DataModel model) {
-    _model = model;
+  public RuleModel(Path rudiFolder, Path ruleLocYaml) {
+    _rudiFolder = rudiFolder;
+    _ruleLocYaml = ruleLocYaml;
+
     log.debug("An empty RuleModel has been created");
   }
 
@@ -182,7 +187,7 @@ public class RuleModel {
     if (basicRuleStructure == null) { return null; }
 
     BasicInfo processedRuleStructure
-            = processInfos(basicRuleStructure, null, _model);
+            = processInfos(basicRuleStructure, null);
 
     if (! (processedRuleStructure instanceof ImportInfoExtended)) {
       log.error("Processing infos of RuleModel failed");
@@ -218,15 +223,14 @@ public class RuleModel {
    * @param model DataModel
    * @return
    */
-  private BasicInfo processInfos(BasicInfo current, BasicInfo parent,
-                                 DataModel model) {
+  private BasicInfo processInfos(BasicInfo current, BasicInfo parent) {
     if (current instanceof ImportInfo) {
       ImportInfoExtended ii
-              = new ImportInfoExtended((ImportInfo) current, model, parent);
+              = new ImportInfoExtended((ImportInfo) current, _rudiFolder, parent);
       extractWarnErrors(ii);
       _pathToImport.put(ii.getAbsolutePath(), ii);
       current.getChildren().forEach((child) ->
-        ii.getChildren().add(processInfos(child, ii, model)));
+        ii.getChildren().add(processInfos(child, ii)));
       if (parent != null)
         ((ImportInfoExtended) ii.getParent()).addListener(ii);
       return ii;
@@ -234,13 +238,13 @@ public class RuleModel {
 
     else {
       RuleInfoExtended ri
-              = new RuleInfoExtended((RuleInfo) current, model, parent);
+              = new RuleInfoExtended((RuleInfo) current, parent);
       if (ri.getParent() instanceof ImportInfoExtended)
         setParentToContainsRules((ImportInfoExtended) ri.getParent());
       _idRuleMap.put(ri.getId(), ri);
       _idLoggingStateMap.put(ri.getId(), ri.stateProperty());
       for (BasicInfo child : current.getChildren()) {
-        ri.getChildren().add(processInfos(child, ri, model));
+        ri.getChildren().add(processInfos(child, ri));
       }
       ri.getParentImport().addListener(ri);
       return ri;
@@ -255,7 +259,7 @@ public class RuleModel {
    * @return <code>ImportInfo</code> containing rule structure
    */
   private ImportInfo readInRuleLocationFile() {
-    File ruleLocFile = _model.project.getRuleLocationFile().toFile();
+    File ruleLocFile = _ruleLocYaml.toFile();
     ImportInfo ii;
     try {
       Yaml yaml = new Yaml();

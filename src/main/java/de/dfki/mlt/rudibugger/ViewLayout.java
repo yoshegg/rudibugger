@@ -110,10 +110,10 @@ public class ViewLayout {
         return;
       }
 
-      _model.stageX.setX(layoutConfiguration.get(WINDOW_POSITION_X));
-      _model.stageX.setY(layoutConfiguration.get(WINDOW_POSITION_Y));
-      _model.stageX.setWidth(layoutConfiguration.get(WINDOW_WIDTH));
-      _model.stageX.setHeight(layoutConfiguration.get(WINDOW_HEIGHT));
+      _model.mainStage.setX(layoutConfiguration.get(WINDOW_POSITION_X));
+      _model.mainStage.setY(layoutConfiguration.get(WINDOW_POSITION_Y));
+      _model.mainStage.setWidth(layoutConfiguration.get(WINDOW_WIDTH));
+      _model.mainStage.setHeight(layoutConfiguration.get(WINDOW_HEIGHT));
     }
   }
 
@@ -151,15 +151,15 @@ public class ViewLayout {
    * close button has been pressed.
    */
   public void setStageCloseListener() {
-    _model.stageX.setOnCloseRequest(e -> saveLayoutToFile());
+    _model.mainStage.setOnCloseRequest(e -> saveLayoutToFile());
   }
 
   /** Saves the window's layout. */
   public void saveLayoutToFile() {
-    layoutConfiguration.put(WINDOW_POSITION_X, _model.stageX.getX());
-    layoutConfiguration.put(WINDOW_POSITION_Y, _model.stageX.getY());
-    layoutConfiguration.put(WINDOW_WIDTH, _model.stageX.getWidth());
-    layoutConfiguration.put(WINDOW_HEIGHT, _model.stageX.getHeight());
+    layoutConfiguration.put(WINDOW_POSITION_X, _model.mainStage.getX());
+    layoutConfiguration.put(WINDOW_POSITION_Y, _model.mainStage.getY());
+    layoutConfiguration.put(WINDOW_WIDTH, _model.mainStage.getWidth());
+    layoutConfiguration.put(WINDOW_HEIGHT, _model.mainStage.getHeight());
     layoutConfiguration.put(DIVIDER_SIDEBAR_EDITOR,
             _sidebarEditorSplitPane.getDividerPositions()[0]);
     layoutConfiguration.put(DIVIDER_SIDEBAR,

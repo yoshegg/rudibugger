@@ -19,17 +19,9 @@
 
 package de.dfki.mlt.rudibugger;
 
-import de.dfki.mlt.rudibugger.Project.WatchManager;
-import de.dfki.mlt.rudibugger.Project.VondaCompiler;
-import de.dfki.mlt.rudibugger.Project.VondaConnection;
 import de.dfki.mlt.rudibugger.Project.Project;
-import de.dfki.mlt.rudibugger.SearchAndFind.SearchManager;
-import de.dfki.mlt.rudibugger.Project.RuleModel.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
-import de.dfki.mlt.rudibugger.FileTreeView.*;
-import de.dfki.mlt.rudibugger.RuleTreeView.RuleModelState;
-import de.dfki.mlt.rudibugger.TabManagement.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javafx.beans.property.*;
@@ -40,9 +32,7 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * The DataModel represents the business logic of rudibugger and acts as the
- * central class having all other used classes as fields. Besides it contains
- * methods to create, open and close projects.
+ * TODO
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -64,16 +54,12 @@ public class DataModel {
   public Yaml yaml = new Yaml(_options);
 
   /** The main stage, necessary when opening additional windows e.g. prompts. */
-  public Stage stageX;
+  public Stage mainStage;
 
 
   /*****************************************************************************
    * PROPERTIES
    ****************************************************************************/
-
-  /** Indicates whether or not a project has been loaded. */
-  private final BooleanProperty _projectLoaded
-          = new SimpleBooleanProperty(PROJECT_CLOSED);
 
   /** Represents the text shown on the status bar. */
   private final StringProperty statusBar
@@ -84,58 +70,14 @@ public class DataModel {
    * ADDITIONS (ADDITIONAL MODULES OF DATAMODEL)
    ****************************************************************************/
 
-  /** Manages additional helper windows. */
-  public HelperWindows helperWindows = new HelperWindows(this);
-
   /** Stores information about rudibugger's layout. */
   public ViewLayout layout = new ViewLayout(this);
 
   /** Provides additional functionality to interact with Emacs. */
   public EmacsConnection emacs = new EmacsConnection(this);
 
-  /** Provides additional functionality to interact with VOnDA. */
-  public VondaConnection vonda = new VondaConnection(this);
-
-  /** Provides additional functionality to save .rudi files. */
-  public RudiSaveManager rudiSave = new RudiSaveManager(this);
-
-  /** Provides additional functionality to load .rudi files and rules. */
-  public RudiLoadManager rudiLoad = new RudiLoadManager(this);
-
   /** Provides additional functionality concerning global configuration. */
   public GlobalConfiguration globalConf = new GlobalConfiguration(this);
-
-  /** Provides additional functionality to start VOnDAs compiler. */
-  public VondaCompiler compiler = new VondaCompiler(this);
-
-  /** Provides additional functionality to track changes in the file system. */
-  public WatchManager watch = new WatchManager(this);
-
-  /** Provides additional functionality to search trough files. */
-  public SearchManager search = new SearchManager(this);
-
-
-  /*****************************************************************************
-   * PROJECT ADDITIONS
-   ****************************************************************************/
-
-  /** Provides additional functionality about project specific information. */
-  public Project project = new Project(this);
-
-  /** Contains specific  information about project's rule structure. */
-  public RuleModel ruleModel = new RuleModel(this);
-
-  /** Contains specific information about the RuleModel's view state. */
-  public RuleModelState ruleModelState = new RuleModelState(this);
-
-  /**
-   * Contains specific information about the involved <code>.rudi</code> folder
-   * and files.
-   */
-  public RudiHierarchy rudiHierarchy = new RudiHierarchy(this);
-
-  /** Contains information about the opened tabs. */
-  public TabManager tabStore = new TabManager(this);
 
 
   /*****************************************************************************
@@ -149,8 +91,19 @@ public class DataModel {
 
   /** Called to initialize connections between additions. */
   private void initializeConnectionsBetweenAdditions() {
-    rudiSave.initSaveListener();
+    _project.rudiSave.initSaveListener();
   }
+
+
+
+  public void openProject(Path projectYamlPath) {
+    Project.openProject(projectYamlPath);
+  }
+
+  public void closeProject() {
+    Project.closeProject();
+  }
+
 
 
   /*****************************************************************************
@@ -165,17 +118,17 @@ public class DataModel {
   public void init(Path selectedProjectYml) {
 
     /* Loads project configuration and initializes fields */
-    project.initConfiguration(selectedProjectYml);
+//    _project.initConfiguration(selectedProjectYml);
 
     /* Start WatchServices */
-    watch.initWatches();
+    _project.watchServices.initWatches();
 
     /* Reads in .rudi files in rudiFolder */
-    rudiHierarchy.init();
+    _project.rudiHierarchy.init();
 
     /* Reads in ruleModel (if it exists) */
-    if (Files.exists(project.getRuleLocationFile()))
-      ruleModel.init();
+    if (Files.exists(_project.getRuleLocationFile()))
+      _project.ruleModel.init();
 
     /* Sets the property to true */
     _projectLoaded.set(PROJECT_OPEN);
@@ -183,7 +136,7 @@ public class DataModel {
     log.info("Initializing done.");
 
     /* Automatically connect to VOnDA (if specified in settings) */
-    if (globalConf.getAutomaticallyConnectToVonda()) vonda.connect();
+    if (globalConf.getAutomaticallyConnectToVonda()) _project.vonda.connect();
   }
 
   /**
@@ -192,14 +145,14 @@ public class DataModel {
    * @param stealthy
    */
   public void close(boolean stealthy) {
-    log.info("Closing [" + project.getProjectName() + "]...");
+    log.info("Closing [" + _project.getProjectName() + "]...");
 
-    project.resetConfigurationWithLog();
-
-    rudiHierarchy.reset();
-    ruleModel.reset();
-    watch.disableWatches();
-    vonda.closeConnection();
+//    _project.resetConfigurationWithLog();
+//
+//    _project.rudiHierarchy.reset();
+//    _project.ruleModel.reset();
+    _project.watchServices.disableWatches();
+//    _project.vonda.closeConnection();
 
     _projectLoaded.set(PROJECT_CLOSED);
 
@@ -216,9 +169,6 @@ public class DataModel {
   /*****************************************************************************
    * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
    ****************************************************************************/
-
-  /** @return Property indicating whether or not a project has been loaded. */
-  public BooleanProperty projectLoadedProperty() { return _projectLoaded; }
 
   /** @return Property representing the text shown on the statusBar. */
   public StringProperty statusBarTextProperty() { return statusBar; }

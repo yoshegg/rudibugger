@@ -179,7 +179,7 @@ public class RudiTab extends Tab {
         if (hasBeenModified.get()) {
           String fileName = (_file != null) ? _file.getFileName().toString()
                   : "Untitled file";
-          int returnValue = HelperWindows.closeFileWithoutSavingCheck(fileName);
+          int returnValue = HelperWindows.openCloseFileWithoutSavingCheckDialog(fileName);
           switch (returnValue) {
             case CLOSE_BUT_SAVE_FIRST:
               _tabStoreView.requestedSavingOfTabProperty().set(this);

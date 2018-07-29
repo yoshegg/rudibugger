@@ -19,7 +19,6 @@
 
 package de.dfki.mlt.rudibugger.Project;
 
-import de.dfki.mlt.rudibugger.DataModel;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -36,18 +35,16 @@ public class VondaCompiler {
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("vondaCompile");
 
-  /** The <code>DataModel</code> */
-  private final DataModel _model;
+  /** The associated project. */
+  private final Project _project;
 
   /** Represents the compilation process. */
   private Process _p;
 
   /**
-   * Initializes this addition of <code>DataModel</code>.
-   *
-   * @param model  The current <code>DataModel</code>
+   * TODO
    */
-  public VondaCompiler(DataModel model) { _model = model; }
+  public VondaCompiler(Project project) { _project = project; }
 
   /**
    * Starts the default compilation process as specified in the project's YAML
@@ -66,7 +63,7 @@ public class VondaCompiler {
    * @throws InterruptedException
    */
   public void startCompile(String inputCmd) {
-    _model.rudiSave.quickSaveAllFiles();
+    _project.quickSaveAllFiles();
 
     if ((_p != null) && (_p.isAlive())) {
       log.debug("Aborting current compilation process...");
@@ -74,13 +71,13 @@ public class VondaCompiler {
     }
 
     String command = "bash -c '"
-          + "cd " + _model.project.getRootFolder().toString() + ";"
+          + "cd " + _project.getRootFolder().toString() + ";"
           + inputCmd + ";"
           + "read -n1 -r -p \"Press any key to continue...\" key;'";
 
     log.info("Starting compilation...");
     File mateTerminal = new File("/usr/bin/mate-terminal");
-    String windowTitle = "Compiling " + _model.project.getProjectName();
+    String windowTitle = "Compiling " + _project.getProjectName();
     String titleOpt = "-T";
 
     try {

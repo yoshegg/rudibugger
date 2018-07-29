@@ -25,13 +25,9 @@ package de.dfki.mlt.rudibugger.Controller;
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
 
-import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,15 +35,17 @@ import org.slf4j.LoggerFactory;
 /**
  * FXML Controller class
  *
- * TODO: Should not need DataModel, but only GlobalConfiguration (and emacs?)
  * TODO: Is it possible to remove Emacs? Seems to be "too much".
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class SettingsController extends Controller {
+public class SettingsController {
 
   /** The logger. */
-  static Logger log = LoggerFactory.getLogger("settingsCont.");
+  public static Logger log = LoggerFactory.getLogger("settingsCont.");
+
+  private GlobalConfiguration _globalConf;
+  private EmacsConnection _emacs;
 
 
   /*****************************************************************************
@@ -59,13 +57,14 @@ public class SettingsController extends Controller {
    *
    * @param model The current <code>DataModel</code>
    */
-  public void init(DataModel model) {
-    linkModel(model);
+  public void init(GlobalConfiguration globalConf, EmacsConnection emacs) {
+    _globalConf = globalConf;
+    _emacs = emacs;
     definePreSelections();
     defineListeners();
   }
 
-  /** Reflects the current configuration to the openend settings window. */
+  /** Reflects the current configuration to the openened settings window. */
   private void definePreSelections() {
 
     /* define userData */
@@ -75,19 +74,19 @@ public class SettingsController extends Controller {
 
     /* preselect current editor */
     for (Toggle x : editorSetting.getToggles()) {
-      if (((RadioButton) x).getUserData().equals(_model.globalConf.getEditor()))
+      if (((RadioButton) x).getUserData().equals(_globalConf.getEditor()))
         x.setSelected(true);
     }
 
     timeStampIndexCheckBox.setSelected(
-      _model.globalConf.timeStampIndexProperty().get());
+            _globalConf.timeStampIndexProperty().get());
     autoConnectCheckBox.setSelected(
-      _model.globalConf.getAutomaticallyConnectToVonda());
-    customFileEditor.setText((String) _model.globalConf.getOpenFileWith());
-    customRuleEditor.setText((String) _model.globalConf.getOpenRuleWith());
+      _globalConf.getAutomaticallyConnectToVonda());
+    customFileEditor.setText((String) _globalConf.getOpenFileWith());
+    customRuleEditor.setText((String) _globalConf.getOpenRuleWith());
 
     errorInfoInRuleTreeViewContextMenu.setSelected(
-      _model.globalConf.showErrorInfoInRuleTreeViewContextMenu());
+      _globalConf.showErrorInfoInRuleTreeViewContextMenu());
   }
 
   /** Defines listeners. */
@@ -96,31 +95,31 @@ public class SettingsController extends Controller {
       String current = (String) nt.getUserData();
       switch (current) {
         case "rudibugger":
-          _model.globalConf.setSetting("editor", "rudibugger");
-          _model.emacs.close(true);
+          _globalConf.setSetting("editor", "rudibugger");
+          _emacs.close(true);
           customTextFields.setDisable(true);
           break;
         case "emacs":
-          _model.globalConf.setSetting("editor", "emacs");
+          _globalConf.setSetting("editor", "emacs");
           customTextFields.setDisable(true);
           break;
         case "custom":
-          _model.globalConf.setSetting("editor", "custom");
-          _model.emacs.close(true);
+          _globalConf.setSetting("editor", "custom");
+          _emacs.close(true);
           customTextFields.setDisable(false);
           break;
       }
     });
     customFileEditor.textProperty().addListener((ob, ov, nv) ->
-      _model.globalConf.setSetting("openFileWith", nv));
+      _globalConf.setSetting("openFileWith", nv));
     customRuleEditor.textProperty().addListener((ob, ov, nv) ->
-      _model.globalConf.setSetting("openRuleWith", nv));
+      _globalConf.setSetting("openRuleWith", nv));
     timeStampIndexCheckBox.selectedProperty().addListener((cl, ov, nv) ->
-      _model.globalConf.setSetting("timeStampIndex", nv));
+      _globalConf.setSetting("timeStampIndex", nv));
     autoConnectCheckBox.selectedProperty().addListener((cl, ov, nv) ->
-      _model.globalConf.setSetting("automaticallyConnectToVonda", nv));
+      _globalConf.setSetting("automaticallyConnectToVonda", nv));
     errorInfoInRuleTreeViewContextMenu.selectedProperty()
-            .addListener((o, ov, nv) -> _model.globalConf
+            .addListener((o, ov, nv) -> _globalConf
             .setSetting("showErrorInfoInRuleTreeViewContextMenu", nv));
   }
 

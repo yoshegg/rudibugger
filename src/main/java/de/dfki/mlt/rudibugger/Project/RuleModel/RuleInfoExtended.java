@@ -42,7 +42,7 @@ public class RuleInfoExtended extends RuleInfo {
   static Logger log = LoggerFactory.getLogger(RuleInfoExtended.class);
 
   /** The current <code>DataModel</code>. */
-  private final DataModel _model;
+//  private final DataModel _model;
 
 
   /*****************************************************************************
@@ -71,14 +71,13 @@ public class RuleInfoExtended extends RuleInfo {
    * @param   parent
    *          The BasicInfo this RuleInfoExtended originates from.
    */
-  public RuleInfoExtended(RuleInfo original, DataModel model,
-                          BasicInfo parent) {
+  public RuleInfoExtended(RuleInfo original, BasicInfo parent) {
     super();
     _label = original.getLabel();
     _line = original.getLine();
     _parent = parent;
     _state = new SimpleIntegerProperty(STATE_NEVER);
-    _model = model;
+//    _model = model;
     _id = original.getId();
     _expr = original.getExpression();
     _baseTerms = original.getBaseterms();
@@ -139,7 +138,7 @@ public class RuleInfoExtended extends RuleInfo {
    ****************************************************************************/
 
   /** @return The current <code>DataModel</code> */
-  public DataModel getModel() { return _model; }
+//  public DataModel getModel() { return _model; }
 
   /**
    * Returns an Integer {@linkplain de.dfki.mlt.rudimant.common

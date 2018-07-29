@@ -20,8 +20,14 @@
 package de.dfki.mlt.rudibugger.Project;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.DataModel;
-import static de.dfki.mlt.rudibugger.HelperMethods.slice_end;
+import de.dfki.mlt.rudibugger.FileTreeView.RudiHierarchy;
+import de.dfki.mlt.rudibugger.Project.RuleModel.RuleModel;
+import de.dfki.mlt.rudibugger.Project.WatchServices.RudiFolderWatch;
+import de.dfki.mlt.rudibugger.Project.WatchServices.RuleLocationYamlWatch;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleModelState;
+import de.dfki.mlt.rudibugger.TabManagement.FileAtPos;
+import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
+import de.dfki.mlt.rudibugger.TabManagement.TabStore;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.SimpleServer;
 import java.io.FileInputStream;
@@ -29,6 +35,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -36,6 +44,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * Provides additional functionality about project specific information and
@@ -45,35 +55,144 @@ import org.slf4j.LoggerFactory;
  */
 public class Project {
 
-  private static final String abortMessage =
-      "Aborted initializing of project fields.";
-  private static final String continueMessage =
-      "Continuing initiliazing of project fields.";
-
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("Project");
 
-  /** The <code>DataModel</code> */
-  private final DataModel _model;
+  /** Represents the one and only project. */
+  private static Project _project;
 
-  /**
-   * Initializes this addition of <code>DataModel</code>.
-   *
-   * @param model  The current <code>DataModel</code>
-   */
-  public Project(DataModel model) {
-    _model = model;
-  }
+  /** Indicates whether or not a project has been loaded. */
+  private static final BooleanProperty PROJECT_LOADED
+          = new SimpleBooleanProperty(PROJECT_CLOSED);
 
-  /*****************************************************************************
-   * FIELDS AND PROPERTIES
-   ****************************************************************************/
+
+  private static final Yaml YAML = new Yaml(
+    new DumperOptions() {{
+      setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+    }}
+  );
+
+
+  /* ***************************************************************************
+   * BASIC FIELDS
+   * extracted from configuration .yml file or derived
+   * **************************************************************************/
+
+  private final Path _projectYamlPath;
+
+  /** Indicates the project's name. */
+  private final String _projectName;
+
+  /** Represents the project's RuleLoc.yml. */
+  private final Path _ruleLocYaml;
+
+  /** Represents the path to the project's RuleModelStates' save folder. */
+  private final Path _ruleModelStatesFolder;
+
+  /** Represents the project's root folder. */
+  private final Path _rootFolder;
+
+  /** Represents the project's .rudi folder. */
+  private final Path _rudiFolder;
 
   /** Contains all project configuration data. */
   private ObservableMap<String, Object> _projectConfigs;
 
-  /** Represents the project's configuration .yml. */
-  private Path _configurationYml;
+
+  /* ***************************************************************************
+   * SOPHISTICATED FIELDS
+   * **************************************************************************/
+
+  /**
+   * Contains specific information about the involved <code>.rudi</code> folder
+   * and files.
+   */
+  private final RudiHierarchy _rudiHierarchy;
+
+  /** Represents the project's rule structure. */
+  private final RuleModel _ruleModel;
+
+  /** Represents the connection to VOnDA's runtime system. */
+  public final VondaRuntimeConnection vonda;
+
+  /** Contains information about the opened tabs. */
+  private final TabStore _tabStore = new TabStore();
+
+  /** Represents VOnDAs compiler. */
+  public VondaCompiler compiler = new VondaCompiler(this);
+
+  /** Watches the .rudi folder for changes. */
+  private final RudiFolderWatch _rudiFolderWatch;
+
+  /** Watches the RuleLoc.yml file for changes. */
+  private final RuleLocationYamlWatch _ruleLocYamlWatch;
+
+
+
+  /* ***************************************************************************
+   * OPEN, CLOSE, CONSTRUCTOR
+   * **************************************************************************/
+
+  /** Opens a new project. TODO: Complete */
+  public static void openProject(Path projectYamlPath) {
+    if (_project == null) {
+      Project project;
+      try {
+        project = new Project(projectYamlPath);
+      } catch (IOException | IllegalArgumentException e) {
+        log.error(e.toString());
+        return;
+      }
+      _project = project;
+      PROJECT_LOADED.set(PROJECT_OPEN);
+    } else {
+      // TODO: Check for closing / opening of new project
+    }
+  }
+
+  /** Closes the project (if any). */
+  public static void closeProject() {
+    if (_project != null) {
+      _project.vonda.closeConnection();
+      _project._rudiFolderWatch.shutDownListener();
+      _project._ruleLocYamlWatch.shutDownListener();
+      _project = null;
+      PROJECT_LOADED.set(PROJECT_CLOSED);
+    }
+//    return null;
+  }
+
+  private Project(Path projectYamlPath) throws IOException {
+    _projectYamlPath = projectYamlPath;
+    Map configMap = readInProjectConfigurationYaml();
+    checkConfigurationForValidity(configMap);
+    _projectConfigs = FXCollections.observableMap(configMap);
+    _projectName = identifyProjectName();
+    _rootFolder = _projectYamlPath.getParent();
+    _rudiFolder = retrieveRudiFolder();
+    createPotentiallyMissingFolders();
+    _ruleLocYaml = retrieveRuleLocYaml();
+    _ruleModelStatesFolder = retrieveRuleModelStatesFolder();
+
+    _ruleModel = new RuleModel(_rudiFolder, _ruleLocYaml);
+    _rudiHierarchy = new RudiHierarchy(_rudiFolder, _ruleLocYaml);
+    vonda = new VondaRuntimeConnection(_ruleModel);
+    _rudiFolderWatch = RudiFolderWatch.createRudiFolderWatch(
+          _rudiHierarchy, _rudiFolder);
+    _ruleLocYamlWatch = RuleLocationYamlWatch.createRuleLocationWatch(_ruleModel,
+          _rudiHierarchy, getGeneratedFilesFolder());
+
+  }
+
+
+  /* ***************************************************************************
+   * LOAD PROJECT
+   * **************************************************************************/
+
+  private static final String ABORT_MESSAGE =
+      "Aborted initializing of project fields.";
+
+  private static final String CONTINUE_MESSAGE =
+      "Continuing initiliazing of project fields.";
 
   /** Contains the keys a default project configuration file. */
   private static final HashSet<String> DEFAULT_PROJECT_CONFIGURATION_KEYS =
@@ -84,14 +203,347 @@ public class Project {
       add("rootPackage");
     }};
 
-  /** Indicates the project's name.
-   *  TODO: WHO LISTENS FOR THIS?
-   */
-  private final StringProperty projectName = new SimpleStringProperty();
+  private Map readInProjectConfigurationYaml() throws IOException {
+    log.debug("Reading in project's configuration .yml...");
+    Map map = (HashMap<String, Object>) YAML.load(
+        new FileInputStream(_projectYamlPath.toFile()));
+    return map;
+  }
 
-  /** Represents the file containing the compile file. */
-  //private final ObjectProperty<Path> compileFile
-  //  = new SimpleObjectProperty<>(null);
+  /** Checks if a read in map represents a project configuration. */
+  private void checkConfigurationForValidity(Map loadedConfig)
+          throws IllegalArgumentException {
+    log.debug("Checking configuration for validity...");
+    if (! loadedConfig.keySet()
+            .containsAll(DEFAULT_PROJECT_CONFIGURATION_KEYS)) {
+      ArrayList<String> missingKeys = new ArrayList<>();
+      for (String key: DEFAULT_PROJECT_CONFIGURATION_KEYS) {
+        if (! loadedConfig.containsKey(key))
+          missingKeys.add(key);
+      }
+      String errMessage
+              = ("Config file is missing the following key(s): " + missingKeys);
+      throw new IllegalArgumentException(errMessage);
+    }
+  }
+
+  private String identifyProjectName() {
+    String filename = _projectYamlPath.getFileName().toString();
+    return filename.substring(0, filename.lastIndexOf('.'));
+  }
+
+  private Path retrieveRudiFolder() throws IOException {
+    Path rudiFolder = _rootFolder.resolve(PATH_TO_RUDI_FOLDER);
+    if (! Files.exists(_rudiFolder)) {
+      String errorMessage = ".rudi folder could not be found. \n"
+              + "Should be here: " + _rudiFolder.toString() + "\n"
+              + ABORT_MESSAGE;
+      throw new IOException(errorMessage);
+    }
+    return rudiFolder;
+  }
+
+  private Path retrieveRuleLocYaml() {
+    Path ruleLocYaml = _rootFolder.resolve(getGeneratedFilesFolder()
+      .resolve(RULE_LOCATION_FILE));
+    if (! Files.exists(_ruleLocYaml)) {
+      log.info("RuleLoc.yml could not be found. \n"
+             + "Could be here: " + _ruleLocYaml
+             + "; but was probably not compiled yet. \n"
+             + CONTINUE_MESSAGE);
+    }
+    return ruleLocYaml;
+  }
+
+  private Path retrieveRuleModelStatesFolder() {
+    Path ruleModelStatesFolder = GLOBAL_CONFIG_PATH
+      .resolve("loggingConfigurations").resolve(_projectName);
+    if (! Files.exists(_ruleModelStatesFolder)) {
+      ruleModelStatesFolder.toFile().mkdirs();
+      log.debug("Created " + ruleModelStatesFolder);
+    }
+    return ruleModelStatesFolder;
+  }
+
+  private void createPotentiallyMissingFolders() {
+    /* Create generated directory (if necessary) */
+    Path generatedFilesFolder = _rootFolder.resolve(getGeneratedFilesFolder());
+    if (! Files.exists(generatedFilesFolder)) {
+      generatedFilesFolder.toFile().mkdirs();
+      log.debug("Created " + generatedFilesFolder);
+    }
+
+    /* Create output directory (if necessary) */
+    Path generatedJavaFolder = _rootFolder.resolve(getGeneratedJavaFolder());
+    if (! Files.exists(generatedJavaFolder)) {
+      generatedJavaFolder.toFile().mkdirs();
+      log.debug("Created " + generatedJavaFolder);
+    }
+  }
+
+
+  /* ***************************************************************************
+   * SAVE PROJECT'S CONFIGURATION
+   * **************************************************************************/
+
+  /** Saves the project's configuration. */
+  private void saveProjectConfiguration() {
+    try {
+      FileWriter writer = new FileWriter(_projectYamlPath.toFile());
+      YAML.dump(_projectConfigs, writer);
+    } catch (IOException ex) {
+       log.error("Could not save project configuration file.");
+    }
+  }
+
+
+  /* ***************************************************************************
+   * GETTERS
+   * **************************************************************************/
+
+  /** TODO */
+  public static BooleanProperty projectLoadedProperty() {
+    return PROJECT_LOADED;
+  }
+
+  public static Project getCurrentProject() { return _project; }
+
+  /** @return project's configuration .yml file */
+  public Path getConfigurationYml() { return _projectYamlPath; }
+
+  /** @return The project's name */
+  public String getProjectName() { return _projectName; }
+
+  /** @return The project's root folder */
+  public Path getRootFolder() { return _rootFolder; }
+
+  /** @return The project's .rudi folder */
+  public Path getRudiFolder() { return _rudiFolder; }
+
+  /**
+   * @return The project's generated directory
+   * (usually src/main/resources/generated)
+   */
+  public Path getGeneratedFilesFolder() {
+    return _rootFolder.resolve(PATH_TO_GENERATED_FOLDER);
+  }
+
+  /** @return The project's output directory (aka gen-java) */
+  public Path getGeneratedJavaFolder() {
+    String c = (String) _projectConfigs.get("outputDirectory");
+    return Paths.get(c);
+  }
+
+  /** @return The Path to the RuleLoc.yml */
+  public Path getRuleLocationFile() {return _ruleLocYaml; }
+
+  /** @return The Path to the RuleModelStates' save folder */
+  public Path getRuleModelStatesFolder() { return _ruleModelStatesFolder; }
+
+
+  /* ***************************************************************************
+   * LOAD RUDI FILES
+   * **************************************************************************/
+
+  /**
+   * Opens a new tab (or an already opened tab) showing a given file in
+   * rudibugger.
+   *
+   * @param file The wanted file
+   */
+  private void requestTabOfFile(Path file) {
+    requestTabOfRule(file, 1);
+  }
+
+  /**
+   * Opens a new tab (or an already opened tab) showing a certain rule of a
+   * given file in rudibugger.
+   *
+   * @param file      The wanted file
+   * @param position  The line of the wanted rule
+   */
+  private void requestTabOfRule(Path file, Integer position) {
+    FileAtPos temp = new FileAtPos(file, position);
+    _tabStore.requestedFileProperty().set(temp);
+  }
+
+  /**
+   * Opens a given file in an editor defined in the settings of rudibugger.
+   *
+   * @param file the wanted file
+   */
+  public void openFile(Path file) {
+    switch (_model.globalConf.getEditor()) {
+      case "rudibugger":
+        requestTabOfFile(file);
+        return;
+      case "emacs":
+        if (! _model.emacs.isAlive()) {
+          _model.emacs.startConnection("emacs");
+        }
+        _model.emacs.getConnector().visitFilePosition(file.toFile(), 1, 0, "");
+        return;
+      case "custom":
+        try {
+          String cmd = (_model.globalConf.getOpenFileWith())
+                  .replaceAll("%file", file.toString());
+          Runtime.getRuntime().exec(cmd);
+          return;
+        } catch (IOException ex) {
+          log.error("Can't use custom editor to open file. ");
+          break;
+        }
+      default:
+        break;
+    }
+    log.info("No valid file editor setting has been found. Using rudibugger.");
+        requestTabOfFile(file);
+  }
+
+  /**
+   * Opens a given file at a specific line in an editor defined in the settings
+   * of rudibugger.
+   *
+   * @param file the wanted file
+   * @param position the line of the wanted rule
+   */
+  public void openRule(Path file, Integer position) {
+    switch (_model.globalConf.getEditor()) {
+      case "rudibugger":
+        requestTabOfRule(file, position);
+        return;
+      case "emacs":
+        if (! _model.emacs.isAlive()) {
+          _model.emacs.startConnection("emacs");
+        }
+        _model.emacs.getConnector().visitFilePosition(file.toFile(), position, 0, "");
+        return;
+      case "custom":
+        try {
+          String cmd = (_model.globalConf.getOpenRuleWith())
+                  .replaceAll("%file", file.toString())
+                  .replaceAll("%line", position.toString());
+          Runtime.getRuntime().exec(cmd);
+          return;
+        } catch (IOException ex) {
+          log.error("Can't use custom editor to open file. ");
+          break;
+        }
+      default:
+        break;
+    }
+    log.info("No valid file editor setting has been found. Using rudibugger.");
+    requestTabOfRule(file, position);
+  }
+
+
+  /* ***************************************************************************
+   * SAVE RUDI FILES
+   * **************************************************************************/
+
+  /** Responsible for processing save requests. */
+  public void initSaveListener() {
+    _tabStore.requestedSavingOfTabProperty().addListener((o, ov, nv) -> {
+      if (nv != null) {
+        if (nv.isKnown())
+          quickSaveFile(nv);
+        else
+          saveFileAs(nv);
+        _tabStore.requestedSavingOfTabProperty().set(null);
+      }
+    });
+  }
+
+  /** Saves a file by overwriting the old version without asking. */
+  public void quickSaveFile(RudiTab tab) {
+    Path file = tab.getFile();
+    String content = tab.getRudiCode();
+
+    if (saveFile(file, content)) {
+      tab.setText(file.getFileName().toString());
+      tab.waitForModifications();
+      log.debug("File " + file.getFileName() + " has been saved.");
+      notifySaved(file.getFileName().toString());
+    }
+  }
+
+ /**
+   * Saves a given String into a given file.
+   *
+   * @param file the path of the to-be-saved file
+   * @param content the content of the to-be-saved file
+   * @return True, if the file has been successfully saved, else false
+   */
+  private boolean saveFile(Path file, String content) {
+    try {
+      Files.write(file, content.getBytes());
+      return true;
+    } catch (IOException e) {
+      log.error("Could not save " + file);
+      return false;
+    }
+  }
+
+  public boolean saveNewFile(Path file, String content) {
+
+  }
+
+  /** Quick-save all open files. */
+  public void quickSaveAllFiles() {
+    for (RudiTab tab : _tabStore.openTabsProperty().getValue().values()) {
+      Path file = tab.getFile();
+      String content = tab.getRudiCode();
+      if (tab.hasBeenModifiedProperty().getValue()) {
+        if (saveFile(file, content)) {
+          tab.setText(file.getFileName().toString());
+          tab.waitForModifications();
+          log.debug("File " + file.getFileName() + " has been saved.");
+          notifySaved(file.getFileName().toString());
+        }
+      }
+    }
+  }
+
+
+
+  /**
+   * Temporarily shows a message on the statusBar.
+   *
+   * @param file the file that has been saved
+   */
+  private void notifySaved(String file) {
+//    _model.statusBarTextProperty().set("Saved " + file + ".");
+//    PauseTransition pause = new PauseTransition(Duration.seconds(3));
+//    pause.setOnFinished(Ce -> _model.statusBarTextProperty().set(null));
+//    pause.play();
+  }
+
+
+
+
+
+
+
+  // TODO
+
+
+
+  /** Contains specific information about the RuleModel's view state. */
+  public RuleModelState ruleModelState = new RuleModelState(this);
+
+
+
+  /** Provides additional functionality to save .rudi files. */
+//  public RudiSaveManager rudiSave = new RudiSaveManager(this);
+
+//  /** Provides additional functionality to load .rudi files and rules. */
+//  public RudiLoadManager rudiLoad = new RudiLoadManager(this);
+
+
+
+  /*****************************************************************************
+   * FIELDS AND PROPERTIES
+   ****************************************************************************/
 
   private Map<String, String> compileCommands;
 
@@ -100,19 +552,6 @@ public class Project {
    */
   private final StringProperty _defaultCompileCommand
           = new SimpleStringProperty("");
-
-  /** Represents the project's RuleLoc.yml. */
-  private Path ruleLocationFile = null;
-
-  /** Represents the path to the project's RuleModelStates' save folder. */
-  private Path _ruleModelStatesFolder;
-
-  /** Represents the project's root folder. */
-  private Path rootFolder = null;
-
-  /** Represents the project's .rudi folder. */
-  private Path rudiFolder = null;
-
 
   /*****************************************************************************
    * PROJECT CONFIGURATION METHODS
@@ -124,36 +563,10 @@ public class Project {
    * @param selectedProjectYml The selected project configuration .yml
    * @return True, if everything went well, else false
    */
-  public boolean initConfiguration(Path selectedProjectYml) {
-
-    while (true) {
-
-      log.info("Loading project configuration...");
-      if (! loadProjectConfiguration(selectedProjectYml)) break;
-
-      log.info("Initializing project fields...");
-      if (! initFields()) break;
-      else log.info("Successfully initialized project fields.");
-
-      enableListeners();
-      return true;
-    }
-
-    resetConfigurationWithoutLog();
-    return false;
-
+  private void initConfiguration(Path selectedProjectYml) {
+    initCompileCommands();
+    enableListeners();
   }
-
-  /**
-   * Called if a project has not been completely initialized. Every field will
-   * then be nullified.
-   */
-  private void resetConfigurationWithoutLog() { resetConfiguration(true); }
-
-  /**
-   * Called if a project has been closed. Every field will then be nullified.
-   */
-  public void resetConfigurationWithLog() { resetConfiguration(false); }
 
   /**
    * Called if a project has been closed or could not even be initialized. In
@@ -162,61 +575,12 @@ public class Project {
    * @param stealthy If true, no logs will be produced.
    */
   private void resetConfiguration(boolean stealthy) {
-    _projectConfigs.clear();
-    ruleLocationFile = null;
-    rudiFolder = null;
-    rootFolder = null;
-    projectName.set(null);
-    //compileFile.set(null);
-    _configurationYml = null;
     _defaultCompileCommand.set(null);
     disableListeners();
-
-    if (! stealthy)
-      log.info("Project fields have been resetted.");
-  }
-
-  /**
-   * Loads the selected project and sets the configuration map and the a Path
-   * object to the configuration yml.
-   *
-   * @param projectYml
-   * @return True, if everything went well, else false
-   */
-  private boolean loadProjectConfiguration(Path projectYml) {
-
-    /* Read in the configuration file. */
-    HashMap<String, Object> map = null;
-    try {
-      map = (HashMap<String, Object>) _model.yaml.load(
-        new FileInputStream(projectYml.toFile()));
-    } catch (IOException e) {
-      log.error(e.toString());
-    }
-
-    /* Check it for validity. */
-    if (! checkConfigForValidity(map)) {
-      log.error("Aborted project loading.");
-      return false;
-    } else {
-      _projectConfigs = FXCollections.observableMap(map);
-      _configurationYml = projectYml;
-      return true;
-    }
-  }
-
-  /** Saves the project's configuration. */
-  private void saveProjectConfiguration() {
-    try {
-      FileWriter writer = new FileWriter(_configurationYml.toFile());
-      _model.yaml.dump(_projectConfigs, writer);
-    } catch (IOException ex) {
-       log.error("Could not save project configuration file.");
-    }
   }
 
   private void initCompileCommands() {
-    Path compileScript = rootFolder.resolve(COMPILE_FILE);
+    Path compileScript = _rootFolder.resolve(COMPILE_FILE);
     if (Files.exists(compileScript)) {
       compileCommands = new LinkedHashMap<>();
       compileCommands.put("Compile", compileScript.toAbsolutePath().toString());
@@ -229,85 +593,6 @@ public class Project {
     }
   }
 
-  /**
-   * Initializes projects fields.
-   *
-   * @return True, if everything went well, else false
-   */
-  private boolean initFields() {
-
-    String filename = _configurationYml.getFileName().toString();
-    // TODO: NOT NICE. WHAT IF SOMEBODY DECIDES TO USE .YAML AS EXTENSION?
-    projectName.set(slice_end(filename, -4));
-
-    rootFolder = _configurationYml.getParent();
-
-    rudiFolder = rootFolder.resolve(PATH_TO_RUDI_FOLDER);
-    if (! Files.exists(rudiFolder)) {
-      log.error(".rudi folder could not be found. \n"
-              + "Should be here: " + rudiFolder.toString() + "\n"
-              + abortMessage);
-      return false;
-    }
-
-    initCompileCommands();
-
-    /* Create generated directory (if necessary) */
-    Path generatedDirectory = rootFolder.resolve(getGeneratedDirectory());
-    if (! Files.exists(generatedDirectory)) {
-      generatedDirectory.toFile().mkdirs();
-      log.debug("Created " + generatedDirectory);
-    }
-
-    /* Create output directory (if necessary) */
-    Path outputDirectory = rootFolder.resolve(getOutputDirectory());
-    if (! Files.exists(outputDirectory)) {
-      outputDirectory.toFile().mkdirs();
-      log.debug("Created " + outputDirectory);
-    }
-
-    /* Look for RuleLoc.yml */
-    ruleLocationFile = rootFolder.resolve(getGeneratedDirectory()
-      .resolve(RULE_LOCATION_FILE));
-    if (! Files.exists(ruleLocationFile)) {
-      log.info("RuleLoc.yml could not be found. \n"
-             + "Could be here: " + ruleLocationFile
-             + "; but was probably not compiled yet. \n"
-             + continueMessage);
-    }
-
-    /* Set the RuleModelState save folder */
-    _ruleModelStatesFolder = GLOBAL_CONFIG_PATH
-      .resolve("loggingConfigurations").resolve(projectName.get());
-    if (! Files.exists(_ruleModelStatesFolder))
-      _ruleModelStatesFolder.toFile().mkdirs();
-
-    return true;
-
-  }
-
-   /**
-   * Checks if a read in map represents a project configuration.
-   *
-   * @param yml
-   * @return true, if all keys could be found, else false
-   */
-  private boolean checkConfigForValidity(HashMap loadedConfig) {
-    boolean b = loadedConfig.keySet()
-      .containsAll(DEFAULT_PROJECT_CONFIGURATION_KEYS);
-    if (b)
-      return true;
-    else {
-      log.error("Provided project config is invalid.");
-      ArrayList<String> missingKeys = new ArrayList<>();
-      for (String key: DEFAULT_PROJECT_CONFIGURATION_KEYS) {
-        if (! loadedConfig.containsKey(key))
-          missingKeys.add(key);
-      }
-      log.error("Config file is missing the following key(s): " + missingKeys);
-      return false;
-    }
-  }
 
 
   /*****************************************************************************
@@ -338,17 +623,7 @@ public class Project {
    * GETTERS REPRESENTING CONFIGURATION DETAILS
    ****************************************************************************/
 
-  /** @Return project's configuration .yml file */
-  public Path getConfigurationYml() { return _configurationYml; }
 
-  /** @return The property indicating the project's name */
-  public StringProperty projectNameProperty() { return projectName; }
-
-  /** @return The project's name */
-  public String getProjectName() { return projectName.get(); }
-
-  /** @return The compile file */
-  //public Path getCompileFile() { return compileFile.get(); }
 
   /** @return The default compile command */
   public void setDefaultCompileCommand(String label) {
@@ -376,39 +651,15 @@ public class Project {
     return compileCommands.get(label);
   }
 
-  /** @return The Path to the RuleLoc.yml */
-  public Path getRuleLocationFile() {return ruleLocationFile; }
 
-  /** @return The Path to the RuleModelStates' save folder */
-  public Path getRuleModelStatesFolder() { return _ruleModelStatesFolder; }
 
   /** @return The project's wrapper class */
   public Path getWrapperClass() {
     String longName = (String) _projectConfigs.get("wrapperClass");
     String[] split = longName.split("\\.");
     String shortName = split[split.length-1];
-    return rudiFolder.resolve(shortName + RULE_FILE_EXTENSION);
+    return _rudiFolder.resolve(shortName + RULE_FILE_EXTENSION);
   }
-
-  /** @return The project's output directory (aka gen-java) */
-  public Path getOutputDirectory() {
-    String c = (String) _projectConfigs.get("outputDirectory");
-    return Paths.get(c);
-  }
-
-  /**
-   * @return the project's generated directory
-   * (usually src/main/resources/generated)
-   */
-  public Path getGeneratedDirectory() {
-    return rootFolder.resolve(PATH_TO_GENERATED_FOLDER);
-  }
-
-  /** @return The project's root folder */
-  public Path getRootFolder() { return rootFolder; }
-
-  /** @return The project's .rudi folder */
-  public Path getRudiFolder() { return rudiFolder; }
 
   /** @return The project's ontology */
   public Path getOntology() {

@@ -127,7 +127,7 @@ public class MainApp extends Application {
      **************************************************************************/
 
     /* Bind stage to field */
-    model.stageX = stage;
+    model.mainStage = stage;
 
     /* Define GUI */
     Scene scene = new Scene(root);

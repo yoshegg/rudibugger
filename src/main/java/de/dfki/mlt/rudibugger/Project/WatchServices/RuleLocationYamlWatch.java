@@ -21,6 +21,8 @@ package de.dfki.mlt.rudibugger.Project.WatchServices;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.FileTreeView.RudiHierarchy;
+import de.dfki.mlt.rudibugger.Project.RuleModel.RuleModel;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -42,7 +44,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class RuleLocationWatch {
+public class RuleLocationYamlWatch {
 
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("ruleLocWatch");
@@ -61,36 +63,47 @@ public class RuleLocationWatch {
   /** This Path contains the currently modified file. */
   private Path changingFile;
 
-  /** The current <code>DataModel</code>. */
-  private DataModel _model;
+  /** Represents the rule structure of the observed project. */
+  private final RuleModel _ruleModel;
+
+  /** Represents the hierarchy of all .rudi files. */
+  private final RudiHierarchy _rudiHierarchy;
 
 
   /*****************************************************************************
    * INITIALIZERS / CONSTRUCTORS
    ****************************************************************************/
 
-  /** Private nullary construct to obstruct instantiating. */
-  private RuleLocationWatch() {}
+  private RuleLocationYamlWatch(RuleModel ruleModel,
+          RudiHierarchy rudiHierarchy, WatchService watchService) {
+    _ruleModel = ruleModel;
+    _rudiHierarchy = rudiHierarchy;
+    _watchService = watchService;
+  }
 
   /**
    * Creates the Watch to check for changes of the file
    * <code>RuleLoc.yml</code>.
    *
-   * @param model The current <code>DataModel</code>
+   * TODO
    * @return The created WatchService
    */
-  public static RuleLocationWatch createRuleLocationWatch(DataModel model) {
-    RuleLocationWatch newWatch = new RuleLocationWatch();
-    newWatch._model = model;
+  public static RuleLocationYamlWatch createRuleLocationWatch(
+          RuleModel ruleModel, RudiHierarchy rudiHierarchy,
+          Path generatedFilesFolder) {
 
+    WatchService watchService;
     try {
-      newWatch._watchService = FileSystems.getDefault().newWatchService();
-      newWatch._model.project.getGeneratedDirectory()
-        .register(newWatch._watchService, ENTRY_MODIFY, ENTRY_CREATE);
-      log.debug("registered " + model.project.getGeneratedDirectory());
+      watchService = FileSystems.getDefault().newWatchService();
+      generatedFilesFolder.register(watchService, ENTRY_MODIFY, ENTRY_CREATE);
+      log.debug("registered " + generatedFilesFolder);
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
+      return null;
     }
+
+    RuleLocationYamlWatch newWatch
+        = new RuleLocationYamlWatch(ruleModel, rudiHierarchy, watchService);
     newWatch.startListening();
     return newWatch;
   }
@@ -208,12 +221,12 @@ public class RuleLocationWatch {
           if (watchKey == null) {
             Platform.runLater(() -> {
               log.debug("[" + changingFile + "] has changed.");
-              if (_model.ruleModel.getRootImport() == null) {
-                _model.ruleModel.init();
+              if (_ruleModel.getRootImport() == null) {
+                _ruleModel.init();
               } else {
-                _model.ruleModel.update();
+                _ruleModel.update();
               }
-              _model.rudiHierarchy.setFilesUpToDate();
+              _rudiHierarchy.setFilesUpToDate();
             });
             ruleLocationFileChanged = false;
             break;

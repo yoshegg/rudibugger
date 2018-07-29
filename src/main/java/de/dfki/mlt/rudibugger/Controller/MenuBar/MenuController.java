@@ -20,11 +20,10 @@
 package de.dfki.mlt.rudibugger.Controller.MenuBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Controller.Controller;
-
 import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.MainApp;
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Project.Project;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -47,9 +46,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class MenuController extends Controller {
+public class MenuController {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("MenuController");
 
 
@@ -79,24 +77,17 @@ public class MenuController extends Controller {
    * @param model The current <code>DataModel</code>
    */
   public void init(DataModel model) {
-    linkModel(model);
     compileButtonManager = CompileButtonManager.init(compileButton,
             toolBar);
     connectionButtonManager = ConnectionButtonManager.init(_model,
             vondaConnectionButton, toolBar);
-    initModel(model);
+//    initController(model);
   }
 
+  private void listenForProject() {
+    Project.projectLoadedProperty().addListener((o, ov, nv) -> {
+      Project project = Project.getCurrentProject();
 
-  /**
-   * Connects this controller to the DataModel.
-   *
-   * @param model
-   */
-  public void initModel(DataModel model) {
-
-    /* this listener checks if a project has been opened */
-    _model.projectLoadedProperty().addListener((o, ov, nv) -> {
       if (nv) {
         log.debug("Project open: enable GUI-elements.");
         closeProjectItem.setDisable(false);
@@ -105,7 +96,7 @@ public class MenuController extends Controller {
         saveLoggingStateItem.setDisable(false);
         findInProjectItem.setDisable(false);
         connectionButtonManager.manageLookOfVondaConnectionButton();
-        compileButtonManager.defineCompileButton(_model.project, _model.compiler);
+        compileButtonManager.defineCompileButton(project, project.compiler);
       } else {
         log.debug("Project closed: disable GUI-elements.");
         closeProjectItem.setDisable(true);
@@ -114,14 +105,17 @@ public class MenuController extends Controller {
         saveLoggingStateItem.setDisable(true);
         findInProjectItem.setDisable(true);
         connectionButtonManager.manageLookOfVondaConnectionButton();
-        compileButtonManager.defineCompileButton(_model.project, _model.compiler);
+        compileButtonManager.defineCompileButton(project, project.compiler);
       }
     });
+  }
 
-    /* Keep track of default compile command. */
-    //_model.project.defaultCompileCommandProperty().addListener((cl, ov, vn) -> {
-    //  compileButtonManager.defineCompileButton();
-    //});
+  /**
+   * Initializes the controller.
+   */
+  public void initController() {
+
+    listenForProject();
 
     _model.vonda.connectedProperty().addListener(l ->
       connectionButtonManager.manageLookOfVondaConnectionButton()
@@ -224,11 +218,11 @@ public class MenuController extends Controller {
 
     /* a project is already open */
     if (_model.projectLoadedProperty().getValue() == PROJECT_OPEN) {
-      if (OVERWRITE_PROJECT == HelperWindows.overwriteProjectCheck(
+      if (OVERWRITE_PROJECT == HelperWindows.openOverwriteProjectCheckDialog(
         _model.project.getProjectName())) {
 
         if (ymlFile == null)
-          ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
+          ymlFile = HelperWindows.openYmlProjectFileDialog(_model.mainStage);
         if (ymlFile == null)
           return;
 
@@ -240,7 +234,7 @@ public class MenuController extends Controller {
     /* no project is open */
     else {
       if (ymlFile == null)
-        ymlFile = HelperWindows.openYmlProjectFile(_model.stageX);
+        ymlFile = HelperWindows.openYmlProjectFileDialog(_model.mainStage);
       if (ymlFile == null) {
         return;
       }
@@ -271,7 +265,7 @@ public class MenuController extends Controller {
 
   @FXML
   private void findInProject(ActionEvent event) {
-    _model.helperWindows.openSearchWindow();
+    HelperWindows.openSearchWindow(_model.mainStage, _model);
   }
 
   @FXML
@@ -380,8 +374,34 @@ public class MenuController extends Controller {
   /** Action "Save as..." */
   @FXML
   private void saveAsAction(ActionEvent event) {
+    RudiTab currentTab = tabStore.currentlySelectedTabProperty().get();
+
+
     _model.rudiSave.saveFileAs(
             _model.tabStore.currentlySelectedTabProperty().get());
+  }
+
+  /**
+   * Save tab's content into a new file.
+   * TODO: Should be somewhere else
+   * @return True, if the file has been successfully saved, else false
+   */
+  public boolean saveFileAs(RudiTab tab) {
+    String content = tab.getRudiCode();
+
+    Path newRudiFile = HelperWindows.openSaveNewFileAsDialog(stage, rudiFolder);
+
+    if (saveFile(newRudiFile, content)) {
+      tab.setText(newRudiFile.getFileName().toString());
+      _tabStore.openTabsProperty().get().remove(tab.getFile());
+      tab.setFile(newRudiFile);
+      _tabStore.openTabsProperty().get().put(newRudiFile, tab);
+      tab.waitForModifications();
+
+      log.debug("File " + newRudiFile.getFileName() + " has been saved.");
+      return true;
+    }
+    return false;
   }
 
 
@@ -411,13 +431,13 @@ public class MenuController extends Controller {
   /********* Tools *********/
   @FXML
   private void openSettingsDialog(ActionEvent event) {
-    _model.helperWindows.openSettingsDialog();
+    HelperWindows.showSettingsWindow(_model.mainStage, _model.globalConf, _model.emacs);
   }
 
   /********* Help *********/
   @FXML
   private void openAboutWindow(ActionEvent event) {
-    _model.helperWindows.openAboutWindow();
+    HelperWindows.showAboutWindow(_model.mainStage);
   }
 
 
