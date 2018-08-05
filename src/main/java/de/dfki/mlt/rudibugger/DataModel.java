@@ -67,7 +67,6 @@ public class DataModel {
   private final StringProperty statusBarMessage
           = new SimpleStringProperty();
 
-
   /* ***************************************************************************
    * CONSTRUCTOR
    * **************************************************************************/
@@ -77,7 +76,6 @@ public class DataModel {
     mainStage = stage;
     layout = new ViewLayout(mainStage);
 //    _project.rudiSave.initSaveListener(); // TODO
-
   }
 
 

@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public class RuleInfoExtended extends RuleInfo {
 
   static Logger log = LoggerFactory.getLogger(RuleInfoExtended.class);
-
+  
 
   /* ***************************************************************************
    * FIELDS & PROPERTIES

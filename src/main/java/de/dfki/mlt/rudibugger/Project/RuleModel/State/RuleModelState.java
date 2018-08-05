@@ -266,7 +266,7 @@ public class RuleModelState {
     try {
       FileWriter writer = new FileWriter(_saveFolder.resolve(newFile).toFile());
       YAML.dump(this, writer);
-    } catch (IOException e) {
+  } catch (IOException e) {
       log.error(e.getMessage());
     }
     log.debug("Saved file " + newFile.toString());

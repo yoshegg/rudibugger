@@ -446,8 +446,7 @@ public class Project {
       default:
         break;
     }
-    log.info("No valid file editor setting has been found. Using rudibugger.");
-    requestTabOfRule(file, position);
+
   }
 
 

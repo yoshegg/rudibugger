@@ -82,6 +82,7 @@ public class MenuController {
   /** Initializes this controller. */
   public void init(DataModel model) {
     _model = model;
+
     compileButtonManager = CompileButtonManager.init(compileButton,
             toolBar);
     connectionButtonManager = ConnectionButtonManager.init(_model,
@@ -119,6 +120,9 @@ public class MenuController {
    * Initializes the controller.
    */
   public void initController() {
+
+
+    listenForProject();
 
     _model.getCurrentProject().vonda.connectedProperty().addListener(l ->
       connectionButtonManager.manageLookOfVondaConnectionButton()
@@ -420,7 +424,7 @@ public class MenuController {
     return false;
   }
 
-
+ 
   /** MenuItem "Save all" */
   @FXML
   private MenuItem saveAllItem;
