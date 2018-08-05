@@ -182,7 +182,7 @@ public class MenuController {
     _model.globalConf.recentProjects.forEach((x) -> {
       MenuItem mi = new MenuItem(x);
       mi.setOnAction((event) -> {
-        checkForOpenProject(Paths.get(x));
+        checkForOpenProject();
       });
       openRecentProjectMenu.getItems().add(mi);
     });
@@ -223,33 +223,16 @@ public class MenuController {
    * @param ymlFile null, if the project has not been defined yet, else the Path
    * to the project's .yml file
    */
-  private void checkForOpenProject(Path ymlFile) {
+  private boolean checkForOpenProject() {
 
     /* a project is already open */
     if (_model.isProjectLoadedProperty().getValue() == PROJECT_OPEN) {
       if (OVERWRITE_PROJECT == HelperWindows.openOverwriteProjectCheckDialog(
         _model.getCurrentProject().getProjectName())) {
-
-        if (ymlFile == null)
-          ymlFile = HelperWindows.openYmlProjectFileDialog(_model.mainStage);
-        if (ymlFile == null)
-          return;
-
-//        _model.close(true);  // TODO
-//        _model.init(ymlFile);  // TODO
-      }
+        return true;
+      } else return false;
     }
-
-    /* no project is open */
-    else {
-      if (ymlFile == null)
-        ymlFile = HelperWindows.openYmlProjectFileDialog(_model.mainStage);
-      if (ymlFile == null) {
-        return;
-      }
-//      _model.init(ymlFile);
-
-    }
+    return true;
   }
 
 
@@ -314,7 +297,10 @@ public class MenuController {
   @FXML
   private void openProjectAction(ActionEvent event)
           throws FileNotFoundException, IOException, IllegalAccessException {
-    checkForOpenProject(null);
+    if (checkForOpenProject()) {
+      Path projectYml = HelperWindows.openYmlProjectFileDialog(_model.mainStage);
+      _model.openProject(projectYml);
+    }
   }
 
 
@@ -424,7 +410,7 @@ public class MenuController {
     return false;
   }
 
- 
+
   /** MenuItem "Save all" */
   @FXML
   private MenuItem saveAllItem;

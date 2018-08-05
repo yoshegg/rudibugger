@@ -57,10 +57,18 @@ public final class HelperWindows {
   static Logger log = LoggerFactory.getLogger("HelperWin");
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * COMMON METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
+  /**
+   * Creates a window linked to the main stage and with an .fxml defined
+   * AnchorPane as background.
+   *
+   * @param mainStage The main stage of rudibugger
+   * @param page The .fxml defined AnchorPane
+   * @return The stage of the new window
+   */
   private static Stage createWindow(Stage mainStage, AnchorPane page,
           String title) {
     Stage stage = new Stage();
@@ -73,12 +81,14 @@ public final class HelperWindows {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * SETTINGS WINDOW
-   ****************************************************************************/
+   * **************************************************************************/
 
+  /** Represents the stage of a potential settings window. */
   private static Stage _settingsWindow;
 
+  /** Shows the settings window (and creates it if needed). */
   public static void showSettingsWindow(Stage mainStage,
           GlobalConfiguration globalConf, EmacsConnection emacs) {
     if (_settingsWindow == null)
@@ -86,6 +96,7 @@ public final class HelperWindows {
     _settingsWindow.show();
   }
 
+  /** Creates a new settings window. */
   private static Stage createSettingsWindow(Stage mainStage,
           GlobalConfiguration globalConf, EmacsConnection emacs) {
 
@@ -111,12 +122,14 @@ public final class HelperWindows {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * ABOUT WINDOW
-   ****************************************************************************/
+   * **************************************************************************/
 
+  /** Represents the stage of a potential about window. */
   private static Stage _aboutWindow;
 
+  /** Shows the settings window (and creates it if needed). */
   public static void showAboutWindow(Stage mainStage) {
     if (_aboutWindow == null)
       _aboutWindow = createAboutWindow(mainStage);

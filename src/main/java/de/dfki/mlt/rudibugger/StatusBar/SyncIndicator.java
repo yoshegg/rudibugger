@@ -22,7 +22,6 @@ package de.dfki.mlt.rudibugger.StatusBar;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import java.util.HashMap;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;

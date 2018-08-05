@@ -49,8 +49,7 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * Provides additional functionality about project specific information and
- * functionality.
+ * The <code>Project</code> represents
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -82,7 +81,7 @@ public class Project {
   private EmacsConnection _emacs;
 
   /** TODO */
-  private GlobalConfiguration _globalConf;
+  private final GlobalConfiguration _globalConf;
 
   /** TODO */
   private final Path _projectYamlPath;
@@ -167,7 +166,6 @@ public class Project {
       _project = null;
       PROJECT_LOADED.set(PROJECT_CLOSED);
     }
-//    return null;
   }
 
   private Project(Path projectYamlPath, GlobalConfiguration globalConf)
@@ -190,9 +188,10 @@ public class Project {
     vonda = new VondaRuntimeConnection(_ruleModel);
     _rudiFolderWatch = RudiFolderWatch.createRudiFolderWatch(
           _rudiHierarchy, _rudiFolder);
-    _ruleLocYamlWatch = RuleLocationYamlWatch.createRuleLocationWatch(_ruleModel,
-          _rudiHierarchy, getGeneratedFilesFolder());
-
+    _ruleLocYamlWatch = RuleLocationYamlWatch.createRuleLocationWatch(
+            _ruleModel, _rudiHierarchy, getGeneratedFilesFolder());
+    initCompileCommands();
+    enableListeners();
   }
 
   public void linkEmacs(EmacsConnection emacs) { _emacs = emacs; }
@@ -438,7 +437,6 @@ public class Project {
                   .replaceAll("%file", file.toString())
                   .replaceAll("%line", position.toString());
           Runtime.getRuntime().exec(cmd);
-          return;
         } catch (IOException ex) {
           log.error("Can't use custom editor to open file. ");
           break;
@@ -544,31 +542,10 @@ public class Project {
   private final StringProperty _defaultCompileCommand
           = new SimpleStringProperty("");
 
+
   /*****************************************************************************
    * PROJECT CONFIGURATION METHODS
    ****************************************************************************/
-
-  /**
-   * Initializes a project's configuration using a provided configuration file.
-   *
-   * @param selectedProjectYml The selected project configuration .yml
-   * @return True, if everything went well, else false
-   */
-  private void initConfiguration(Path selectedProjectYml) {
-    initCompileCommands();
-    enableListeners();
-  }
-
-  /**
-   * Called if a project has been closed or could not even be initialized. In
-   * this case, every field will be nullified.
-   *
-   * @param stealthy If true, no logs will be produced.
-   */
-  private void resetConfiguration(boolean stealthy) {
-    _defaultCompileCommand.set(null);
-    disableListeners();
-  }
 
   private void initCompileCommands() {
     Path compileScript = _rootFolder.resolve(COMPILE_FILE);

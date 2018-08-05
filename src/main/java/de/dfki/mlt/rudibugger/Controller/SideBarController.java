@@ -84,14 +84,17 @@ public class SideBarController {
   public void init(DataModel model) {
     _model = model;
 
-    rudiTreeView.setCellFactory(value
-            -> new RudiTreeCell(_model.getCurrentProject()));
-    ruleTreeView.setCellFactory(value
-            -> new BasicInfoTreeCell(_model.getCurrentProject(), _model.globalConf));
+
 
     /* this Listener keeps the rudiTreeView containing the .rudi files up to date */
     _model.isProjectLoadedProperty().addListener((o, ov, nv) -> {
+      System.out.println("loaded");
+
       if (nv) {
+        rudiTreeView.setCellFactory(value
+            -> new RudiTreeCell(_model.getCurrentProject()));
+        ruleTreeView.setCellFactory(value
+            -> new BasicInfoTreeCell(_model.getCurrentProject(), _model.globalConf));
         rudiTreeView.setRoot(_model.getCurrentProject().getRudiHierarchy().getRoot());
         rudiTreeView.setShowRoot(false);
         _model.getCurrentProject().getRuleModel().changedStateProperty()

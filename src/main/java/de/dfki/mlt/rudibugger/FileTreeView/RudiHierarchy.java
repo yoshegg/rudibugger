@@ -90,13 +90,9 @@ public class RudiHierarchy {
    * TODO
    */
   public RudiHierarchy(Path rudiFolder, Path ruleLocYaml) {
+    log.debug("Initializing the RudiFolderHierarchy...");
     _rudiFolder = rudiFolder;
     _ruleLocYaml = ruleLocYaml;
-  }
-
-  /** Initializes the rudiHierarchy. */
-  public void init() {
-    log.debug("Initializing the RudiFolderHierarchy...");
     readInRudiFiles();
     log.debug("Initialized the RudiFolderHierarchy.");
   }
