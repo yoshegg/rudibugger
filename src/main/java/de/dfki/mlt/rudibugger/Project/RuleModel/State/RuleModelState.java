@@ -19,7 +19,6 @@
 
 package de.dfki.mlt.rudibugger.Project.RuleModel.State;
 
-import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.Project.RuleModel.ImportInfoExtended;
 import de.dfki.mlt.rudibugger.Project.RuleModel.RuleInfoExtended;
 import de.dfki.mlt.rudimant.common.BasicInfo;
@@ -29,17 +28,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.stage.FileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
@@ -75,13 +74,12 @@ public class RuleModelState {
   /** Contains save files describing the RuleModel selection state. */
   private Path _saveFolder;
 
-
   /** Root item of RuleModelState structure. */
   private RuleStateItem _root;
 
   /** Signalizes a save request of a ruleLoggingState. */
-  private final SimpleBooleanProperty _saveRequestProperty
-    = new SimpleBooleanProperty(false);
+  private final ObjectProperty<Path> _saveRequestProperty
+    = new SimpleObjectProperty(null);
 
   /** Signalizes a load request of a ruleLoggingState. */
   private final SimpleBooleanProperty _loadRequestProperty
@@ -293,10 +291,10 @@ public class RuleModelState {
   public void resetLoadRequestProperty() { _loadRequestProperty.set(false); }
 
   /** Resets the saveRequestProperty. */
-  public void resetSaveRequestProperty() { _saveRequestProperty.set(false); }
+  public void resetSaveRequestProperty() { _saveRequestProperty.set(null); }
 
   /** Signalizes a save request. */
-  public void requestSave() { _saveRequestProperty.set(true); }
+//  public void requestSave() { _saveRequestProperty.set(true); }
 
 
   /*****************************************************************************
@@ -378,7 +376,7 @@ public class RuleModelState {
   }
 
   /** @return Signalizes a save request of the RuleModelState. */
-  public BooleanProperty saveRequestProperty() { return _saveRequestProperty; }
+  public ObjectProperty<Path> saveRequestProperty() { return _saveRequestProperty; }
 
   /** @return Signalizes a load request of a RuleModelState. */
   public BooleanProperty loadRequestProperty() { return _loadRequestProperty; }

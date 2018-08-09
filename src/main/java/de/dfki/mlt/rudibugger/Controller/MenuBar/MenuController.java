@@ -355,7 +355,7 @@ public class MenuController {
     Path newStateFile = HelperWindows.openSaveRuleModelStateDialog(
             _model.mainStage, saveFolder);
     _model.getCurrentProject().getRuleModel().getRuleModelState()
-            .saveState(newStateFile);
+            .saveRequestProperty().set(newStateFile);
   }
 
 

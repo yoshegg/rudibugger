@@ -249,7 +249,6 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         /* define double click on cell */
         this.setOnMouseClicked(e -> {
           if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY) {
-            System.out.println(ii.getAbsolutePath());
             _project.openFile(ii.getAbsolutePath());
           }
         });

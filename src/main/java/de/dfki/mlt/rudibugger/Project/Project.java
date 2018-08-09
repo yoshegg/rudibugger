@@ -152,6 +152,7 @@ public class Project {
       }
       _project = project;
       PROJECT_LOADED.set(PROJECT_OPEN);
+      _project.getRuleModel().init();  // TODO: Dirty fix
     } else {
       // TODO: Check for closing / opening of new project
     }
@@ -183,6 +184,7 @@ public class Project {
     _ruleModelStatesFolder = retrieveRuleModelStatesFolder();
 
     _ruleModel = new RuleModel(_rudiFolder, _ruleLocYaml);
+//    _ruleModel.init();
     _ruleModel.createStateModel(_ruleModelStatesFolder);
     _rudiHierarchy = new RudiHierarchy(_rudiFolder, _ruleLocYaml);
     vonda = new VondaRuntimeConnection(_ruleModel);

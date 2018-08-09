@@ -26,6 +26,7 @@ import de.dfki.mlt.rudibugger.FileTreeView.RudiHierarchy;
 import de.dfki.mlt.rudibugger.FileTreeView.RudiTreeCell;
 import de.dfki.mlt.rudibugger.Project.Project;
 import de.dfki.mlt.rudibugger.Project.RuleModel.RuleModel;
+import de.dfki.mlt.rudibugger.Project.RuleModel.State.RuleModelState;
 import de.dfki.mlt.rudibugger.RuleTreeView.BasicInfoTreeCell;
 import java.nio.file.Path;
 import javafx.beans.value.ChangeListener;
@@ -88,7 +89,6 @@ public class SideBarController {
 
     /* this Listener keeps the rudiTreeView containing the .rudi files up to date */
     _model.isProjectLoadedProperty().addListener((o, ov, nv) -> {
-      System.out.println("loaded");
 
       if (nv) {
         rudiTreeView.setCellFactory(value
@@ -101,21 +101,26 @@ public class SideBarController {
                 .addListener(ruleModelListener);
       } else {
         rudiTreeView.setRoot(null);
+        ruleTreeView.setRoot(null);
         _model.getCurrentProject().getRuleModel().changedStateProperty()
               .removeListener(ruleModelListener);
       }
+
+
+      /* Listen to request for saving ruleLoggingState */
+      _model.getCurrentProject().getRuleModel().getRuleModelState()
+              .saveRequestProperty().addListener((o1, ov1, nv1) -> {
+        if (nv1 != null) {
+          log.debug("Requested to save ruleLoggingState.");
+          RuleModelState rms = _model.getCurrentProject().getRuleModel()
+                  .getRuleModelState();
+          rms.retrieveStateOf(ruleTreeView);
+          rms.saveState(nv1);
+          rms.resetSaveRequestProperty();
+        }
+      });
     });
-
-    /* Listen to request for saving ruleLoggingState */
-//    _model.ruleModelState.saveRequestProperty().addListener((o, ov, nv) -> {
-//      if (nv) {
-//        log.debug("Requested to save ruleLoggingState.");
-//        _model.ruleModelState.retrieveStateOf(ruleTreeView);
-//        _model.ruleModelState.saveState();
-//        _model.ruleModelState.resetSaveRequestProperty();
-//      }
-//    });
-
+    
     /* Listen to request for loading ruleLoggingState */
 //    _model.ruleModelState.loadRequestProperty().addListener((o, ov, nv) -> {
 //      if (nv == null) return;
