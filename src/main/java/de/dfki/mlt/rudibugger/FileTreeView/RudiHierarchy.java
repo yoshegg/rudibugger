@@ -155,9 +155,9 @@ public class RudiHierarchy {
         notSynced = true;
       }
     }
-    if (notSynced) _modificationsAfterCompilationProperty()
+    if (notSynced) modificationsAfterCompilationProperty()
               .set(FILES_OUT_OF_SYNC);
-    else _modificationsAfterCompilationProperty()
+    else modificationsAfterCompilationProperty()
               .set(FILES_SYNCED);
   }
 
@@ -280,7 +280,7 @@ public class RudiHierarchy {
    ****************************************************************************/
 
   /** Indicates if there were modifications after the last compilation. */
-  public IntegerProperty _modificationsAfterCompilationProperty() {
+  public IntegerProperty modificationsAfterCompilationProperty() {
     return _modificationsAfterCompilation;
   }
 

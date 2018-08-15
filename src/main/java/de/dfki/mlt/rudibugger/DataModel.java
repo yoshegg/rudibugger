@@ -46,6 +46,19 @@ public class DataModel {
 
 
   /* ***************************************************************************
+   * PROPERTIES
+   * **************************************************************************/
+
+  /** Represents a loaded project. */
+  private final ObjectProperty<Project> _loadedProject
+          = new SimpleObjectProperty<>();
+
+  /** Represents the text shown on the status bar. */
+  private final StringProperty statusBarMessage
+          = new SimpleStringProperty();
+
+
+  /* ***************************************************************************
    * CONFIGURATION DETAILS
    * **************************************************************************/
 
@@ -58,14 +71,6 @@ public class DataModel {
   /** Provides additional functionality concerning global configuration. */
   public GlobalConfiguration globalConf = new GlobalConfiguration(this);
 
-
-  /* ***************************************************************************
-   * PROPERTIES
-   * **************************************************************************/
-
-  /** Represents the text shown on the status bar. */
-  private final StringProperty statusBarMessage
-          = new SimpleStringProperty();
 
   /* ***************************************************************************
    * CONSTRUCTOR
@@ -84,14 +89,21 @@ public class DataModel {
    * **************************************************************************/
 
   public void openProject(Path projectYamlPath) {
-    Project.openProject(projectYamlPath, globalConf);
+    if (_loadedProject.get() != null) {
+      // TODO: Check for closing / opening of new project
+    }
+    Project newProject = Project.openProject(projectYamlPath, globalConf);
+    _loadedProject.set(newProject);
     if (globalConf.getAutomaticallyConnectToVonda())
-      getCurrentProject().vonda.connect(getCurrentProject().getVondaPort());
-    getCurrentProject().linkEmacs(emacs); // TODO not nice
+      getLoadedProject().vonda.connect(getLoadedProject().getVondaPort());
+    getLoadedProject().linkEmacs(emacs); // TODO not  nice
   }
 
   public void closeProject() {
-    Project.closeProject();
+    if (_loadedProject.get() != null) {
+      _loadedProject.get().closeProject();
+      _loadedProject.set(null);
+    }
   }
 
   /** Starts a wizard to create a new VOnDA compatible project from scratch. */
@@ -108,10 +120,15 @@ public class DataModel {
   /** @return Represents the text shown on the statusBar. */
   public StringProperty statusBarTextProperty() { return statusBarMessage; }
 
-  public Project getCurrentProject() { return Project.getCurrentProject(); }
+  /** @return The currently loaded project (or null) */
+  public Project getLoadedProject() { return _loadedProject.get(); }
 
-  public BooleanProperty isProjectLoadedProperty() {
-    return Project.projectLoadedProperty();
+  /** Contains the currently loaded project. */
+  public ObjectProperty<Project> loadedProjectProperty() {
+    return _loadedProject;
   }
+
+  /** @return True, if a project has been loaded, else false. */
+  public boolean isProjectLoaded() { return _loadedProject.get() != null; }
 
 }

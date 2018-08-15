@@ -19,7 +19,10 @@
 
 package de.dfki.mlt.rudibugger.StatusBar;
 
+import static de.dfki.mlt.rudibugger.Constants.COMPILATION_NO_PROJECT;
+import static de.dfki.mlt.rudibugger.Constants.FILES_SYNC_UNDEFINED;
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Project.Project;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -54,28 +57,47 @@ public class StatusBarController {
    * @param model current <code>DataModel</code>
    */
   public void initModel(DataModel model) {
-    if (this._model != null) {
+    if (this._model != null)
       throw new IllegalStateException("Model can only be initialized once.");
-    }
+    
     _model = model;
 
     /* Link the model's statusBar text property with the controller */
     statusBarText.textProperty().bindBidirectional(model.statusBarTextProperty());
 
-    SyncIndicator syncIndicator
-            = new SyncIndicator(_syncIndicator, statusBarText);
-    CompileIndicator compileIndicator
-            = new CompileIndicator(_compileIndicator, statusBarText, _model.getCurrentProject());
+    syncIndicator = new SyncIndicator(_syncIndicator, statusBarText);
+    compileIndicator = new CompileIndicator(_compileIndicator, statusBarText, _model.getLoadedProject());
 
-    _model.isProjectLoadedProperty().addListener((o, ov, nv) -> {
-      if (nv) {
-        syncIndicator.linkListenerToProperty(
-            _model.getCurrentProject().getRudiHierarchy()._modificationsAfterCompilationProperty());
-        compileIndicator.linkListenerToProperty(
-            _model.getCurrentProject().getRuleModel().compilationOutcomeProperty());
+    listenForLoadedProject();
+  }
+
+  private CompileIndicator compileIndicator;
+  private SyncIndicator syncIndicator;
+
+  private void listenForLoadedProject() {
+    _model.loadedProjectProperty().addListener((o, ov, project) -> {
+      if (project != null) {
+        listenForRuleModel(project);
+        listenForFileChanges(project);
+      } else {
+        syncIndicator.update(FILES_SYNC_UNDEFINED);
+        compileIndicator.update(COMPILATION_NO_PROJECT);
+      }
+    });
+  }
+
+  private void listenForRuleModel(Project project) {
+    project.ruleModelProperty().addListener((o, ov, ruleModel) -> {
+      if (ruleModel != null) {
+        compileIndicator.update(ruleModel.getCompilationOutcome());
         compileIndicator.defineContextMenu();
       }
     });
+  }
+
+  private void listenForFileChanges(Project project) {
+    project.getRudiHierarchy().modificationsAfterCompilationProperty()
+            .addListener((o, ov, nv) -> syncIndicator.update(nv.intValue()));
   }
 
   /**
@@ -84,11 +106,6 @@ public class StatusBarController {
   protected void setStatusBarText(String text) {
     statusBarText.setText(text);
   }
-
-//  /**
-//   * @return current <code>DataModel</code>
-//   */
-//  protected DataModel getModel() { return _model; }
 
   /** StatusBar's label. */
   @FXML

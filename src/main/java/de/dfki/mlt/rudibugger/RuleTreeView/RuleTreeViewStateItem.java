@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.Project.RuleModel.State;
+package de.dfki.mlt.rudibugger.RuleTreeView;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,25 +25,25 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A <code>RuleStateItem</code> represents the look of a <code>TreeItem</code>
+ * A <code>RuleTreeViewStateItem</code> represents the look of a <code>TreeItem</code>
  * in <code>RuleTreeView</code>.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class RuleStateItem {
+public class RuleTreeViewStateItem {
 
   /*****************************************************************************
    * FIELDS
    ****************************************************************************/
 
-  /** Represents the label of this <code>RuleStateItem</code>. */
+  /** *  Represents the label of this <code>RuleTreeViewStateItem</code>. */
   private String label;
 
-  /** Represents a container describing this <code>RuleStateItem</code>. */
-  private Properties props;
+  /** *  Represents a container describing this <code>RuleTreeViewStateItem</code>. */
+  private RuleTreeViewStateItemProperties props;
 
-  /** Contains the children of this RuleStateItem. */
-  private Map<String, RuleStateItem> children = new HashMap<>();
+  /** Contains the children of this RuleTreeViewStateItem. */
+  private Map<String, RuleTreeViewStateItem> children = new HashMap<>();
 
 
   /*****************************************************************************
@@ -51,9 +51,9 @@ public class RuleStateItem {
    ****************************************************************************/
 
   /** Creates a new instance of <code>RuleStateItem</code>. */
-  public RuleStateItem(String lab, Boolean expStat, int logStat) {
+  public RuleTreeViewStateItem(String lab, Boolean expStat, int logStat) {
     label = lab;
-    props = new Properties(expStat, logStat);
+    props = new RuleTreeViewStateItemProperties(expStat, logStat);
   }
 
 
@@ -61,14 +61,14 @@ public class RuleStateItem {
    * METHODS
    ****************************************************************************/
 
-  /** Updates the <code>RuleStateItem</code>. */
+  /** *  Updates the <code>RuleTreeViewStateItem</code>. */
   public void updateRuleStateItem(Boolean expState, int logStat) {
     props.setIsExpanded(expState);
     props.setLoggingState((Integer) logStat);
   }
 
-  /** Adds children to the <code>RuleStateItem</code>. */
-  public void addChildren(HashMap<String, RuleStateItem> e) {
+  /** *  Adds children to the <code>RuleTreeViewStateItem</code>. */
+  public void addChildren(HashMap<String, RuleTreeViewStateItem> e) {
     if (!e.isEmpty()) {
       e.forEach((key, val)
         -> children.put(key, val));
@@ -77,15 +77,15 @@ public class RuleStateItem {
 
   /**
    * @param x
-   *        True, if the <code>RuleStateItem</code> should be defined as an
+   *        True, if the <code>RuleTreeViewStateItem</code> should be defined as an
    *        import, else false
    */
   public void isImport(Boolean x) {
     props.setIsImport(x);
   }
 
-  /** @return The children's associated <code>RuleStateItem</code> */
-  public Collection<RuleStateItem> getChildrenValues() {
+  /** @return The children's associated <code>RuleTreeViewStateItem</code> */
+  public Collection<RuleTreeViewStateItem> getChildrenValues() {
     return children.values();
   }
 
@@ -96,10 +96,10 @@ public class RuleStateItem {
 
   /**
    * @param key
-   *        The <code>RuleStateItem</code>'s name
-   * @return The <code>RuleStateItem</code> with the specified name
+   *        The <code>RuleTreeViewStateItem</code>'s name
+   * @return The <code>RuleTreeViewStateItem</code> with the specified name
    */
-  public RuleStateItem getChild(String key) {
+  public RuleTreeViewStateItem getChild(String key) {
     return children.get(key);
   }
 
@@ -116,7 +116,7 @@ public class RuleStateItem {
    ****************************************************************************/
 
   /** Nullary constructor needed for YAML. */
-  public RuleStateItem() {}
+  public RuleTreeViewStateItem() {}
 
   /** Label setter for YAML. */
   public void setLabel(String x) { this.label = x; }
@@ -124,18 +124,18 @@ public class RuleStateItem {
   /** Label getter for YAML. */
   public String getLabel() { return label; }
 
-  /** Properties setter for YAML. */
-  public void setProps(Properties p) { this.props = p; }
+  /** RuleTreeViewStateItemProperties setter for YAML. */
+  public void setProps(RuleTreeViewStateItemProperties p) { this.props = p; }
 
-  /** Properties getter for YAML. */
-  public Properties getProps() { return props; }
+  /** RuleTreeViewStateItemProperties getter for YAML. */
+  public RuleTreeViewStateItemProperties getProps() { return props; }
 
   /** Children setter for YAML. */
-  public void setChildren(HashMap<String, RuleStateItem> m) {
+  public void setChildren(HashMap<String, RuleTreeViewStateItem> m) {
     this.children = m;
   }
 
   /** Children getter for YAML. */
-  public Map<String, RuleStateItem> getChildren() { return children; }
+  public Map<String, RuleTreeViewStateItem> getChildren() { return children; }
 
 }

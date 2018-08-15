@@ -23,6 +23,8 @@ import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.EditorController;
 import de.dfki.mlt.rudibugger.Controller.MenuBar.MenuController;
 import de.dfki.mlt.rudibugger.Controller.SideBarController;
+import de.dfki.mlt.rudibugger.FileTreeView.FileTreeViewController;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewController;
 import de.dfki.mlt.rudibugger.StatusBar.StatusBarController;
 import static de.dfki.mlt.rudibugger.ViewLayout.*;
 import java.nio.file.Files;
@@ -89,13 +91,33 @@ public class MainApp extends Application {
     centeredSplitPane.setDividerPositions(0.30);
     root.setCenter(centeredSplitPane);
 
-    /* Initialize sideBar (left part of centeredSplitPane) */
-    FXMLLoader sideBarLoader = new FXMLLoader(getClass()
-            .getResource("/fxml/sideBar.fxml"));
-    AnchorPane sideBar = sideBarLoader.load();
+    /* Prepare sideBar (left part of centeredSplitPane) */
+    AnchorPane sideBar = new AnchorPane();
+    SplitPane sidebarSplitPane = new SplitPane();
+    sidebarSplitPane.setOrientation(Orientation.VERTICAL);
+    sidebarSplitPane.setDividerPositions(0.5);
+    sideBar.getChildren().add(sidebarSplitPane);
+    AnchorPane.setTopAnchor(sidebarSplitPane, 0.0);
+    AnchorPane.setRightAnchor(sidebarSplitPane, 0.0);
+    AnchorPane.setLeftAnchor(sidebarSplitPane, 0.0);
+    AnchorPane.setBottomAnchor(sidebarSplitPane, 0.0);
+
     centeredSplitPane.getItems().add(sideBar);
-    SideBarController sideBarController = sideBarLoader.getController();
-    SplitPane.setResizableWithParent(sideBar, Boolean.FALSE);
+    SplitPane.setResizableWithParent(sideBar, Boolean.TRUE);
+
+    /* Initialize fileTreeView. */
+    FXMLLoader fileTreeViewLoader = new FXMLLoader(getClass()
+            .getResource("/fxml/fileTreeView.fxml"));
+    sidebarSplitPane.getItems().add(fileTreeViewLoader.load());
+    FileTreeViewController fileTreeViewController
+            = fileTreeViewLoader.getController();
+
+    /* Initialize ruleTreeView. */
+    FXMLLoader ruleTreeViewLoader = new FXMLLoader(getClass()
+            .getResource("/fxml/ruleTreeView.fxml"));
+    sidebarSplitPane.getItems().add(ruleTreeViewLoader.load());
+    RuleTreeViewController ruleTreeViewController
+            = ruleTreeViewLoader.getController();
 
     /* Initalize editor (right part of centeredSplitPane) */
     FXMLLoader editorLoader = new FXMLLoader(getClass()
@@ -118,7 +140,8 @@ public class MainApp extends Application {
 
     menuController.init(model);
     statusBarController.initModel(model);
-    sideBarController.init(model);
+    fileTreeViewController.init(model);
+    ruleTreeViewController.init(model);
     editorController.initModel(model);
 
 
@@ -139,8 +162,7 @@ public class MainApp extends Application {
     stage.getIcons().add(icon);
 
     /* Link splitpanes to model.layout */
-    model.layout.addSplitPane(sideBarController.getSidebarSplitPane(),
-            DIVIDER_SIDEBAR);
+    model.layout.addSplitPane(sidebarSplitPane, DIVIDER_SIDEBAR);
     model.layout.addSplitPane(centeredSplitPane, DIVIDER_SIDEBAR_EDITOR);
 
     /* Restore the layout and set listener */

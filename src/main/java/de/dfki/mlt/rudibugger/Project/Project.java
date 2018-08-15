@@ -36,8 +36,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import java.util.stream.Stream;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -58,11 +59,11 @@ public class Project {
   static Logger log = LoggerFactory.getLogger("Project");
 
   /** Represents the one and only project. */
-  private static Project _project;
+//  private static Project _project;
 
   /** Indicates whether or not a project has been loaded. */
-  private static final BooleanProperty PROJECT_LOADED
-          = new SimpleBooleanProperty(PROJECT_CLOSED);
+//  private static final BooleanProperty PROJECT_LOADED
+//          = new SimpleBooleanProperty(PROJECT_CLOSED);
 
 
   private static final Yaml YAML = new Yaml(
@@ -116,10 +117,11 @@ public class Project {
   private final RudiHierarchy _rudiHierarchy;
 
   /** Represents the project's rule structure. */
-  private final RuleModel _ruleModel;
+  private final ObjectProperty<RuleModel> _ruleModel
+          = new SimpleObjectProperty<>(null);
 
   /** Represents the connection to VOnDA's runtime system. */
-  public final VondaRuntimeConnection vonda;
+  public VondaRuntimeConnection vonda;
 
   /** Contains information about the opened tabs. */
   private final TabStore _tabStore = new TabStore();
@@ -140,33 +142,24 @@ public class Project {
    * **************************************************************************/
 
   /** Opens a new project. TODO: Complete */
-  public static void openProject(Path projectYamlPath,
+  public static Project openProject(Path projectYamlPath,
           GlobalConfiguration globalConf) {
-    if (_project == null) {
-      Project project;
-      try {
-        project = new Project(projectYamlPath, globalConf);
-      } catch (IOException | IllegalArgumentException e) {
-        log.error(e.toString());
-        return;
-      }
-      _project = project;
-      PROJECT_LOADED.set(PROJECT_OPEN);
-      _project.getRuleModel().init();  // TODO: Dirty fix
-    } else {
-      // TODO: Check for closing / opening of new project
+    Project project;
+    try {
+      project = new Project(projectYamlPath, globalConf);
+    } catch (IOException | IllegalArgumentException e) {
+      log.error(e.toString());
+      return null;
     }
+    return project;
   }
 
   /** Closes the project (if any). */
-  public static void closeProject() {
-    if (_project != null) {
-      _project.vonda.closeConnection();
-      _project._rudiFolderWatch.shutDownListener();
-      _project._ruleLocYamlWatch.shutDownListener();
-      _project = null;
-      PROJECT_LOADED.set(PROJECT_CLOSED);
-    }
+  public void closeProject() {
+    this.vonda.closeConnection();
+    this._rudiFolderWatch.shutDownListener();
+    this._ruleLocYamlWatch.shutDownListener();
+//    PROJECT_LOADED.set(PROJECT_CLOSED);
   }
 
   private Project(Path projectYamlPath, GlobalConfiguration globalConf)
@@ -183,17 +176,23 @@ public class Project {
     _ruleLocYaml = retrieveRuleLocYaml();
     _ruleModelStatesFolder = retrieveRuleModelStatesFolder();
 
-    _ruleModel = new RuleModel(_rudiFolder, _ruleLocYaml);
-//    _ruleModel.init();
-    _ruleModel.createStateModel(_ruleModelStatesFolder);
     _rudiHierarchy = new RudiHierarchy(_rudiFolder, _ruleLocYaml);
-    vonda = new VondaRuntimeConnection(_ruleModel);
     _rudiFolderWatch = RudiFolderWatch.createRudiFolderWatch(
           _rudiHierarchy, _rudiFolder);
     _ruleLocYamlWatch = RuleLocationYamlWatch.createRuleLocationWatch(
-            _ruleModel, _rudiHierarchy, getGeneratedFilesFolder());
+            this, _rudiHierarchy, getGeneratedFilesFolder());
     initCompileCommands();
     enableListeners();
+
+    if (Files.exists(_ruleLocYaml)) {
+      initRuleModel();
+      vonda = new VondaRuntimeConnection(_ruleModel.get());
+    }
+  }
+
+  public void initRuleModel() {
+    RuleModel rm = RuleModel.createRuleModel(_rudiFolder, _ruleLocYaml);
+    _ruleModel.set(rm);
   }
 
   public void linkEmacs(EmacsConnection emacs) { _emacs = emacs; }
@@ -315,13 +314,6 @@ public class Project {
   /* ***************************************************************************
    * GETTERS
    * **************************************************************************/
-
-  /** TODO */
-  public static BooleanProperty projectLoadedProperty() {
-    return PROJECT_LOADED;
-  }
-
-  public static Project getCurrentProject() { return _project; }
 
   /** @return project's configuration .yml file */
   public Path getConfigurationYml() { return _projectYamlPath; }
@@ -589,11 +581,51 @@ public class Project {
           };
 
 
+  /*****************************************************************************
+   * OTHER METHODS
+   ****************************************************************************/
+
+  /** Represents a list of all recent <code>RuleTreeViewState</code>s. */
+  private List<Path> _recentStates = new ArrayList<>();
+
+  /**
+   * Retrieves the 10 most recent saved RuleTreeViewState configurations.
+   */
+  public void retrieveRecentConfigurations() {
+    List<Path> temp = new ArrayList<>();
+
+    /* Retrieve all files and add them to a list. */
+    Stream<Path> stream;
+    try {
+      stream = Files.walk(_ruleModelStatesFolder);
+    } catch (IOException e) {
+      log.error(e.toString());
+      return;
+    }
+    stream.forEach(x -> { if (!Files.isDirectory(x)) temp.add(x); });
+
+    /* Sort the list by modification date. */
+    Collections.sort(temp, (Path p1, Path p2) ->
+        Long.compare(p2.toFile().lastModified(), p1.toFile().lastModified()));
+
+    /* Set the last 10 as the one's that will be shown in the menu. */
+    int subListLength = 10;
+    if (temp.size() < 10) subListLength = temp.size();
+    _recentStates = temp.subList(0, subListLength);
+  }
+
+  /** @return A list of all recently saved <code>RuleTreeViewState</code>s */
+  public List<Path> getRecentStates() {
+    retrieveRecentConfigurations();
+    return _recentStates;
+  }
+
   /* ***************************************************************************
    * GETTERS FOR FIELDS
    * **************************************************************************/
 
-  public RuleModel getRuleModel() { return _ruleModel; }
+  public ObjectProperty<RuleModel> ruleModelProperty() { return _ruleModel; }
+  public RuleModel getRuleModel() { return _ruleModel.get(); }
   public RudiHierarchy getRudiHierarchy() { return _rudiHierarchy; }
   public TabStore getTabStore() { return _tabStore; }
 

@@ -21,8 +21,6 @@ package de.dfki.mlt.rudibugger.StatusBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import java.util.HashMap;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
@@ -88,26 +86,17 @@ public class SyncIndicator {
   }
 
   /** Responsible for updating tooltip and icon. */
-  private final ChangeListener<Number> listener = ((cl, ov, nv) -> {
-      int val = nv.intValue();
-      String msg = MESSAGES.get(val);
+  public void update(int val) {
+    String msg = MESSAGES.get(val);
 
-      if (val != FILES_SYNCED)
-        _statusBarText.setText(msg);
+    if (val != FILES_SYNCED)
+      _statusBarText.setText(msg);
 
-      _tooltip.setText(msg);
-      Tooltip.install(_indicator, _tooltip);
+    _tooltip.setText(msg);
+    Tooltip.install(_indicator, _tooltip);
 
-      _indicator.setImage(ICONS.get(val));
-  });
-
-  /**
-   * Links a given property to the listener of <code>SyncIndicator</code>.
-   *
-   * @param property  Property to be linked to
-   */
-  public void linkListenerToProperty(IntegerProperty property) {
-    property.addListener(listener);
+    _indicator.setImage(ICONS.get(val));
   }
+
 
 }

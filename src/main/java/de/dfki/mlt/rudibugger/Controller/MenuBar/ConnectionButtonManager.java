@@ -83,13 +83,13 @@ public class ConnectionButtonManager {
 
     Button button = vondaConnectionButton;
 
-    if (_model.isProjectLoadedProperty().get() == PROJECT_CLOSED) {
+    if (! _model.isProjectLoaded()) {
       button.setText("No project");
       button.setOnMouseEntered(e -> button.setText(null));
       button.setOnMouseExited(e -> button.setText(null));
       button.setDisable(true);
 
-    } else switch(_model.getCurrentProject().vonda.connectedProperty().get()) {
+    } else switch(_model.getLoadedProject().vonda.connectedProperty().get()) {
       case CONNECTED_TO_VONDA:
         button.setText("Connected");
         button.setOnMouseEntered(e -> button.setText("Disconnect"));

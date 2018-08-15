@@ -67,15 +67,15 @@ public class EditorController {
     /* Manage TabStoreView */
     _tabView = new TabStoreView(tabBox);
 
-    _model.isProjectLoadedProperty().addListener((o, ov, nv) -> {
-      if (nv) {
-        _tabView.initialize(_model.getCurrentProject().getTabStore());
+    _model.loadedProjectProperty().addListener((o, ov, nv) -> {
+      if (nv != null) {
+        _tabView.initialize(_model.getLoadedProject().getTabStore());
 
 
     /* this listener adds a TableView to the editorSplitPane if connection to
      * rudimant has been established.
      */
-    _model.getCurrentProject().vonda.connectedProperty().addListener((arg, oldVal, newVal) -> {
+    _model.getLoadedProject().vonda.connectedProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal.intValue() == CONNECTED_TO_VONDA) {
         log.info("VOnDA successfully connected to rudibugger.");
 
@@ -88,7 +88,7 @@ public class EditorController {
     });
 
     /* this listener adds new output the the ruleLoggineList */
-    _model.getCurrentProject().vonda.logOutputProperty().addListener((arg, oldVal, newVal) -> {
+    _model.getLoadedProject().vonda.logOutputProperty().addListener((arg, oldVal, newVal) -> {
       if (newVal != null) {
         Platform.runLater(() -> {
           ruleLoggingList.add(0, newVal);
@@ -203,7 +203,7 @@ public class EditorController {
     /* jump to rule when clicked */
     ruleLoggingTableView.setOnMousePressed(e -> {
       if (e.isPrimaryButtonDown() && e.getClickCount() == 2) {
-        Project project = _model.getCurrentProject();
+        Project project = _model.getLoadedProject();
         int ruleId = ((LogData) ruleLoggingTableView.getSelectionModel()
                 .getSelectedItem()).getRuleId();
         Path importToOpen =

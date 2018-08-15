@@ -107,26 +107,17 @@ public class CompileIndicator {
   }
 
   /** Responsible for updating tooltip and icon. */
-  private final ChangeListener<Number> listener = ((cl, ov, nv) -> {
-      int val = nv.intValue();
-      String msg = MESSAGES.get(val);
+  public void update(int val) {
+    String msg = MESSAGES.get(val);
 
-      _statusBarText.setText(msg);
+    _statusBarText.setText(msg);
 
-      _tooltip.setText(msg);
-      Tooltip.install(_indicator, _tooltip);
+    _tooltip.setText(msg);
+    Tooltip.install(_indicator, _tooltip);
 
-      _indicator.setImage(ICONS.get(val));
-  });
-
-  /**
-   * Links a given property to the listener of <code>CompileIndicator</code>.
-   *
-   * @param property
-   */
-  public void linkListenerToProperty(IntegerProperty property) {
-    property.addListener(listener);
+    _indicator.setImage(ICONS.get(val));
   }
+
 
   /**
    * This <code>EventHandler</code> contains a <code>ContextMenu</code> to be

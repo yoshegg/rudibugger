@@ -85,7 +85,7 @@ public class GlobalConfiguration {
     recentProjects.addListener((ListChangeListener) (cl -> {
       saveRecentProjects();
     }));
-    _model.isProjectLoadedProperty().addListener(cl -> {
+    _model.loadedProjectProperty().addListener(cl -> {
       updateRecentProjects();
     });
   }
@@ -188,8 +188,8 @@ public class GlobalConfiguration {
 
   /** */
   private void updateRecentProjects() {
-    if (_model.isProjectLoadedProperty().get() == PROJECT_OPEN) {
-      Path c = _model.getCurrentProject().getConfigurationYml();
+    if (_model.isProjectLoaded()) {
+      Path c = _model.getLoadedProject().getConfigurationYml();
       addToRecentProjects(c);
       setSetting("lastOpenedProject", c.toAbsolutePath().toString());
     } else {

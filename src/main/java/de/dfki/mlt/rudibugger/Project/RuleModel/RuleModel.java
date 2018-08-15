@@ -20,7 +20,6 @@
 package de.dfki.mlt.rudibugger.Project.RuleModel;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Project.RuleModel.State.RuleModelState;
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
 import de.dfki.mlt.rudimant.common.ImportInfo;
@@ -34,7 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import org.slf4j.Logger;
@@ -59,8 +57,6 @@ import org.yaml.snakeyaml.Yaml;
 public class RuleModel {
 
   static Logger log = LoggerFactory.getLogger("RuleModel");
-
-  private RuleModelState _ruleModelState;
 
   /** Represents the project's RuleLoc.yml. */
   private final Path _ruleLocYaml;
@@ -99,74 +95,31 @@ public class RuleModel {
    */
   private ImportInfoExtended _rootImport;
 
-  /**
-   * Indicates that the compiled ruleModel has been changed after various
-   * events.
-   */
-  private final IntegerProperty _changedState
-          = new SimpleIntegerProperty(RULE_MODEL_UNCHANGED);
-
   /** Indicates the outcome of the last compilation attempt. */
-  private final IntegerProperty _compilationOutcome
-          = new SimpleIntegerProperty();
+  private Integer _compilationOutcome = COMPILATION_UNDEFINED;
 
 
   /*****************************************************************************
    * INITIALIZERS, UPDATERS AND RESETTER
    ****************************************************************************/
 
-  /**
-   * Initializes this project specific addition of <code>DataModel</code>.
-   *
-   * @param model The current <code>DataModel</code>
-   */
-  public RuleModel(Path rudiFolder, Path ruleLocYaml) {
+  public static RuleModel createRuleModel(Path rudiFolder, Path ruleLocYaml) {
+    RuleModel rm = new RuleModel(rudiFolder, ruleLocYaml);
+
+    BasicInfo basicRuleStructure = rm.readInRuleLocationFile();
+    if (basicRuleStructure == null) return null;
+
+    ImportInfoExtended processedRuleStructure
+            = (ImportInfoExtended) rm.processInfos(basicRuleStructure, null);
+    rm._rootImport = processedRuleStructure;
+
+    rm.setCompilationOutcomeState();
+    return rm;
+  }
+
+  private RuleModel(Path rudiFolder, Path ruleLocYaml) {
     _rudiFolder = rudiFolder;
     _ruleLocYaml = ruleLocYaml;
-
-    log.debug("An empty RuleModel has been created");
-  }
-
-  /** Initializes the ruleModel. */
-  public void init() {
-    log.debug("Initializing the RuleModel...");
-
-    _rootImport = defineRuleModel();
-    if (_rootImport != null) _changedState.set(RULE_MODEL_NEWLY_CREATED);
-
-    log.debug("Initialized the RuleModel.");
-  }
-
-  /** Updates the ruleModel. */
-  public void update() {
-    log.debug("Updating the RuleModel...");
-
-    /* Resetting compilation specific fields */
-    _errorInfos.clear();
-    _warnInfos.clear();
-    _pathToImport.clear();
-    _idRuleMap.clear();
-
-    _rootImport = defineRuleModel();
-    if (_rootImport != null) _changedState.set(RULE_MODEL_CHANGED);
-
-    log.debug("Updated the RuleModel.");
-  }
-
-  /** Resets the ruleModel. */
-  public void reset() {
-    log.debug("Resetting the RuleModel...");
-
-    _errorInfos.clear();
-    _warnInfos.clear();
-    _pathToImport.clear();
-    _idRuleMap.clear();
-    _rootImport = null;
-
-    _changedState.set(RULE_MODEL_REMOVED);
-    _compilationOutcome.set(COMPILATION_NO_PROJECT);
-
-    log.debug("Resetted the RuleModel.");
   }
 
 
@@ -174,37 +127,15 @@ public class RuleModel {
    * METHODS
    ****************************************************************************/
 
-  /**
-   * Reads in ruleModel and processes it to match rudibugger's requirements.
-   *
-   * @return <code>ImportInfoExtended</code> representing the rule structure
-   */
-  private ImportInfoExtended defineRuleModel() {
-
-    resetWarnErrors();
-
-    BasicInfo basicRuleStructure = readInRuleLocationFile();
-    if (basicRuleStructure == null) { return null; }
-
-    BasicInfo processedRuleStructure
-            = processInfos(basicRuleStructure, null);
-
-    if (! (processedRuleStructure instanceof ImportInfoExtended)) {
-      log.error("Processing infos of RuleModel failed");
-      return null;
-    }
-
-    /* Set compilation outcome state */
+  private void setCompilationOutcomeState() {
     if (! _parsingFailure.isEmpty())
-      _compilationOutcome.setValue(COMPILATION_FAILED);
+      _compilationOutcome = COMPILATION_FAILED;
     else if (! _errorInfos.isEmpty())
-      _compilationOutcome.setValue(COMPILATION_WITH_ERRORS);
+      _compilationOutcome = COMPILATION_WITH_ERRORS;
     else if (! _warnInfos.isEmpty() && _errorInfos.isEmpty())
-      _compilationOutcome.setValue(COMPILATION_WITH_WARNINGS);
+      _compilationOutcome = COMPILATION_WITH_WARNINGS;
     else
-      _compilationOutcome.setValue(COMPILATION_PERFECT);
-
-    return (ImportInfoExtended) processedRuleStructure;
+      _compilationOutcome = COMPILATION_PERFECT;
   }
 
   /**
@@ -225,8 +156,8 @@ public class RuleModel {
    */
   private BasicInfo processInfos(BasicInfo current, BasicInfo parent) {
     if (current instanceof ImportInfo) {
-      ImportInfoExtended ii
-              = new ImportInfoExtended((ImportInfo) current, _rudiFolder, parent);
+      ImportInfoExtended ii = new ImportInfoExtended((ImportInfo) current,
+              _rudiFolder, parent);
       extractWarnErrors(ii);
       _pathToImport.put(ii.getAbsolutePath(), ii);
       current.getChildren().forEach((child) ->
@@ -264,13 +195,8 @@ public class RuleModel {
     try {
       Yaml yaml = new Yaml();
       ii = (ImportInfo) yaml.load(new FileReader(ruleLocFile));
-    } catch (FileNotFoundException e) {
-      log.error("Could not read in RuleLoc.yml");
-      _changedState.set(RULE_MODEL_REMOVED);
-      return null;
-    } catch (org.yaml.snakeyaml.error.YAMLException e) {
+    } catch (FileNotFoundException | org.yaml.snakeyaml.error.YAMLException e) {
       log.error(e.getMessage());
-      _changedState.set(RULE_MODEL_REMOVED);
       return null;
     }
     return ii;
@@ -289,13 +215,6 @@ public class RuleModel {
       case PARSE_ERROR: _parsingFailure.put(ewi, ii); break;
       }
     });
-  }
-
-  /** Resets known errors, warnings and parsing failures. */
-  private void resetWarnErrors() {
-    _errorInfos.clear();
-    _warnInfos.clear();
-    _parsingFailure.clear();
   }
 
   /**
@@ -317,19 +236,13 @@ public class RuleModel {
    */
   public RuleInfoExtended getRule(int id) { return _idRuleMap.get(id); }
 
-  /**
-   *
-   */
-  public void createStateModel(Path ruleStatesFolder) {
-    _ruleModelState = new RuleModelState(ruleStatesFolder);
-  }
 
   /*****************************************************************************
    * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
    ****************************************************************************/
 
   /** TODO */
-  public RuleModelState getRuleModelState() { return _ruleModelState; }
+//  public RuleTreeViewState getRuleModelState() { return _ruleModelState; }
 
   /** @return Set of Paths of all used Imports */
   public Set<Path> getImportSet() { return _pathToImport.keySet(); }
@@ -361,23 +274,8 @@ public class RuleModel {
     return _idLoggingStateMap;
   }
 
-  /**
-   * @Return Property reflecting the ruleModel's state after compilation.
-   * <i>Not to be confused with the compilation outcome!</i>
-   */
-  public IntegerProperty changedStateProperty() { return _changedState; }
-
-  /**
-   * Sets the property reflecting the ruleModel's state after compilation.
-   *
-   * @param val New state
-   */
-  public void setChangedStateProperty(int val) {
-    _changedState.set(val);
-  }
-
   /** @Return The outcome of the last compilation attempt. */
-  public IntegerProperty compilationOutcomeProperty() {
+  public int getCompilationOutcome() {
     return _compilationOutcome;
   }
 

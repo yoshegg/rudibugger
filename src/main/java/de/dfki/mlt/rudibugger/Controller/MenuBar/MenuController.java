@@ -24,7 +24,7 @@ import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.MainApp;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.Project.Project;
-import de.dfki.mlt.rudibugger.Project.RuleModel.State.RuleModelState;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.Project.VondaRuntimeConnection;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
 import java.io.FileNotFoundException;
@@ -91,10 +91,10 @@ public class MenuController {
   }
 
   private void listenForProject() {
-    Project.projectLoadedProperty().addListener((o, ov, nv) -> {
-      _project = Project.getCurrentProject();
+    _model.loadedProjectProperty().addListener((o, ov, nv) -> {
+      _project = _model.getLoadedProject();
 
-      if (nv) {
+      if (nv != null) {
         log.debug("Project open: enable GUI-elements.");
         closeProjectItem.setDisable(false);
         newRudiFileItem.setDisable(false);
@@ -124,12 +124,12 @@ public class MenuController {
 
     listenForProject();
 
-    _model.getCurrentProject().vonda.connectedProperty().addListener(l ->
+    _model.getLoadedProject().vonda.connectedProperty().addListener(l ->
       connectionButtonManager.manageLookOfVondaConnectionButton()
     );
 
     /* this listener enables saving depending on the selected tab */
-    _model.getCurrentProject().getTabStore().currentlySelectedTabProperty().addListener((o, oldVal, newVal) -> {
+    _model.getLoadedProject().getTabStore().currentlySelectedTabProperty().addListener((o, oldVal, newVal) -> {
 
       /* no tab is opened */
       if (newVal == null) {
@@ -189,22 +189,21 @@ public class MenuController {
   }
 
   /**
-   * Builds the menu offering to load the 10 most recent RuleModelState
-   * configurations.
+   * Builds the menu offering to load the 10 most recent RuleTreeViewState
+ configurations.
    */
   @FXML
   private void buildLoadRuleSelectionStateMenu() {
     if (_project == null) return;
-    RuleModelState rms = _model.getCurrentProject().getRuleModel()
-            .getRuleModelState();
-    if (!rms.getRecentStates().isEmpty()) {
+    Project project = _model.getLoadedProject();
+    if (!project.getRecentStates().isEmpty()) {
       loadLoggingStateMenu.getItems().clear();
-      rms.getRecentStates().forEach((x) -> {
-        String filenameWithFolder = _model.getCurrentProject().getRuleModelStatesFolder()
+      project.getRecentStates().forEach((x) -> {
+        String filenameWithFolder = _model.getLoadedProject().getRuleModelStatesFolder()
                 .relativize(x).toString();
         MenuItem mi = new MenuItem(filenameWithFolder);
         mi.setOnAction((event) -> {
-          rms.loadState(x);
+//          project.loadState(x); TODO
         });
         loadLoggingStateMenu.getItems().add(mi);
       });
@@ -226,9 +225,9 @@ public class MenuController {
   private boolean checkForOpenProject() {
 
     /* a project is already open */
-    if (_model.isProjectLoadedProperty().getValue() == PROJECT_OPEN) {
+    if (_model.isProjectLoaded()) {
       if (OVERWRITE_PROJECT == HelperWindows.openOverwriteProjectCheckDialog(
-        _model.getCurrentProject().getProjectName())) {
+        _model.getLoadedProject().getProjectName())) {
         return true;
       } else return false;
     }
@@ -257,7 +256,7 @@ public class MenuController {
 
   @FXML
   private void findInProject(ActionEvent event) {
-    HelperWindows.openSearchWindow(_model.mainStage, _model.getCurrentProject());
+    HelperWindows.openSearchWindow(_model.mainStage, _model.getLoadedProject());
   }
 
   @FXML
@@ -285,7 +284,7 @@ public class MenuController {
   @FXML
   private void newRudiFileAction(ActionEvent event)
           throws FileNotFoundException {
-    _model.getCurrentProject().openFile(null);
+    _model.getLoadedProject().openFile(null);
   }
 
 
@@ -336,12 +335,12 @@ public class MenuController {
   /** Action "Open configuration file..." */
   @FXML
   private void openRuleLoggingStateConfigurationFile(ActionEvent event) {
-    Path saveFolder = _model.getCurrentProject().getRuleModelStatesFolder();
+    Path saveFolder = _model.getLoadedProject().getRuleModelStatesFolder();
     Path chosenFile = HelperWindows.openRuleLoggingStateFileDialog(
             _model.mainStage, saveFolder);
     if (chosenFile == null) return;
-    _model.getCurrentProject().getRuleModel().getRuleModelState()
-            .loadState(chosenFile);
+//    _model.getLoadedProject().getRuleModel().getRuleModelState()
+//            .loadState(chosenFile); TODO
   }
 
   /** MenuItem "Save logging state..." */
@@ -351,11 +350,11 @@ public class MenuController {
   /** Action "Save logging state" */
   @FXML
   private void saveLoggingStateAction(ActionEvent event) {
-    Path saveFolder = _model.getCurrentProject().getRuleModelStatesFolder();
+    Path saveFolder = _model.getLoadedProject().getRuleModelStatesFolder();
     Path newStateFile = HelperWindows.openSaveRuleModelStateDialog(
             _model.mainStage, saveFolder);
-    _model.getCurrentProject().getRuleModel().getRuleModelState()
-            .saveRequestProperty().set(newStateFile);
+//    _model.getLoadedProject().getRuleModel().getRuleModelState()
+//            .saveRequestProperty().set(newStateFile); TODO
   }
 
 
@@ -366,8 +365,8 @@ public class MenuController {
   /** Action "Save" */
   @FXML
   private void saveAction(ActionEvent event) {
-    _model.getCurrentProject().quickSaveFile(
-            _model.getCurrentProject().getTabStore().currentlySelectedTabProperty().get());
+    _model.getLoadedProject().quickSaveFile(
+            _model.getLoadedProject().getTabStore().currentlySelectedTabProperty().get());
   }
 
 
@@ -378,11 +377,11 @@ public class MenuController {
   /** Action "Save as..." */
   @FXML
   private void saveAsAction(ActionEvent event) {
-    RudiTab currentTab = _model.getCurrentProject().getTabStore().currentlySelectedTabProperty().get();
+    RudiTab currentTab = _model.getLoadedProject().getTabStore().currentlySelectedTabProperty().get();
 
 
-//    _model.getCurrentProject().saveFileAs( // TODO
-//            _model.getCurrentProject().getTabStore().currentlySelectedTabProperty().get());
+//    _model.getLoadedProject().saveFileAs( // TODO
+//            _model.getLoadedProject().getTabStore().currentlySelectedTabProperty().get());
   }
 
   /**
@@ -391,7 +390,7 @@ public class MenuController {
    * @return True, if the file has been successfully saved, else false
    */
   public boolean saveFileAs(RudiTab tab) {
-    Project project = _model.getCurrentProject();
+    Project project = _model.getLoadedProject();
     String content = tab.getRudiCode();
 
     Path newRudiFile = HelperWindows.openSaveNewFileAsDialog(
@@ -418,7 +417,7 @@ public class MenuController {
   /** Action "Save all" */
   @FXML
   private void saveAllAction(ActionEvent event) {
-    _model.getCurrentProject().quickSaveAllFiles();
+    _model.getLoadedProject().quickSaveAllFiles();
   }
 
 
@@ -458,10 +457,10 @@ public class MenuController {
   /** Establishes a connection to the VOnDA server or disconnects from it. */
   @FXML
   private void changeVondaConnectionState(ActionEvent event) {
-    VondaRuntimeConnection vonda = _model.getCurrentProject().vonda;
+    VondaRuntimeConnection vonda = _model.getLoadedProject().vonda;
     int conStatus = vonda.connectedProperty().get();
     if (conStatus == DISCONNECTED_FROM_VONDA)
-      vonda.connect(_model.getCurrentProject().getVondaPort());
+      vonda.connect(_model.getLoadedProject().getVondaPort());
     else
       vonda.closeConnection();
   }

@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.Project.RuleModel.State;
+package de.dfki.mlt.rudibugger.RuleTreeView;
 
 /**
  * Represents the current state of a TreeItem: Is it expanded, what is its
@@ -25,7 +25,7 @@ package de.dfki.mlt.rudibugger.Project.RuleModel.State;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class Properties {
+public class RuleTreeViewStateItemProperties {
 
   /*****************************************************************************
    * FIELDS
@@ -51,7 +51,7 @@ public class Properties {
    * @param expStat True, if associated TreeItem is expanded, else false
    * @param logStat An Integer representing the ruleLoggingState
    */
-  public Properties(Boolean expStat, int logStat) {
+  public RuleTreeViewStateItemProperties(Boolean expStat, int logStat) {
     isExpanded = expStat;
     loggingState = logStat;
   }
@@ -109,6 +109,6 @@ public class Properties {
    ****************************************************************************/
 
   /** Nullary constructor needed for YAML (JavaBeans convention). */
-  public Properties() {}
+  public RuleTreeViewStateItemProperties() {}
 
 }

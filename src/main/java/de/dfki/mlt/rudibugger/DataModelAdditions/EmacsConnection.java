@@ -69,7 +69,7 @@ public class EmacsConnection {
     _j2e.addStartHook(
         "(setq auto-mode-alist (append (list '(\"\\\\.rudi\" . java-mode))))");
     _j2e.startEmacs();
-    Project project = _model.getCurrentProject();
+    Project project = _model.getLoadedProject();
     _j2e.registerAction("file_changed", (String... args) -> {
       project.compiler.startCompile(
           project.getCompileCommand(
