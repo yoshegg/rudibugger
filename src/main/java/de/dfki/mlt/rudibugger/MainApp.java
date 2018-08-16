@@ -51,6 +51,9 @@ public class MainApp extends Application {
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("mainLog");
 
+  /** TODO */
+  public static RuleTreeViewController ruleTreeViewController;
+
   @Override
   public void start(Stage stage) throws Exception {
 
@@ -116,7 +119,7 @@ public class MainApp extends Application {
     FXMLLoader ruleTreeViewLoader = new FXMLLoader(getClass()
             .getResource("/fxml/ruleTreeView.fxml"));
     sidebarSplitPane.getItems().add(ruleTreeViewLoader.load());
-    RuleTreeViewController ruleTreeViewController
+    ruleTreeViewController
             = ruleTreeViewLoader.getController();
 
     /* Initalize editor (right part of centeredSplitPane) */

@@ -159,7 +159,6 @@ public class Project {
     this.vonda.closeConnection();
     this._rudiFolderWatch.shutDownListener();
     this._ruleLocYamlWatch.shutDownListener();
-//    PROJECT_LOADED.set(PROJECT_CLOSED);
   }
 
   private Project(Path projectYamlPath, GlobalConfiguration globalConf)

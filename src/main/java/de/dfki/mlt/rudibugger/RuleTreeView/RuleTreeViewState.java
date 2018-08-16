@@ -66,33 +66,15 @@ public class RuleTreeViewState {
     }}
   );
 
-  /** Contains save files describing the RuleModel selection state. */
-  private Path _saveFolder;
-
   /** Root item of RuleTreeViewState structure. */
   private RuleTreeViewStateItem _root;
-
-  /** Signalizes a save request of a ruleLoggingState. */
-  private final ObjectProperty<Path> _saveRequestProperty
-    = new SimpleObjectProperty(null);
-
-  /** Signalizes a load request of a ruleLoggingState. */
-  private final SimpleBooleanProperty _loadRequestProperty
-    = new SimpleBooleanProperty(false);
 
 
   /*****************************************************************************
    * INITIALIZER
    ****************************************************************************/
 
-  /**
-   * Initializes this project specific addition of <code>DataModel</code>.
-   */
-  public RuleTreeViewState(Path saveFolder) {
-    _saveFolder = saveFolder;
-  }
-
-  /** Creates a new RuleModelState. (<i>Constructor needed for YAML</i>) */
+  /** Creates a new RuleModelState. */
   private RuleTreeViewState() {}
 
 
@@ -116,18 +98,6 @@ public class RuleTreeViewState {
     rms._root = new RuleTreeViewStateItem(root.getValue().getLabel(),
             root.isExpanded(), root.getValue().getState());
     rms._root.isImport(true);
-
-    /* the root has not been created yet or the name does not match */
-//    if (_root == null
-//      || !_root.getLabel().equals(root.getValue().getLabel())) {
-//      _root = new RuleTreeViewStateItem(root.getValue().getLabel(),
-//        root.isExpanded(), root.getValue().getState());
-//      _root.isImport(true);
-//    } else {
-//      _root.updateRuleStateItem(
-//        root.isExpanded(), root.getValue().getState()
-//      );
-//    }
 
     /* create the children and add them */
     rms._root.addChildren(retrieveStateOfHelper(root, rms._root));
@@ -259,10 +229,11 @@ public class RuleTreeViewState {
    ****************************************************************************/
 
   /** Saves the current RuleModel state in a file. */
-  public void saveState(Path newFile) {
+  public static void saveState(Path newFile, TreeView treeView) {
+    RuleTreeViewState rtvs = retrieveStateOf(treeView);
     try {
-      FileWriter writer = new FileWriter(_saveFolder.resolve(newFile).toFile());
-      YAML.dump(this, writer);
+      FileWriter writer = new FileWriter(newFile.toFile());
+      YAML.dump(rtvs, writer);
   } catch (IOException e) {
       log.error(e.getMessage());
     }
@@ -271,7 +242,7 @@ public class RuleTreeViewState {
   }
 
   /** Loads a saved RuleModel state from a file. */
-  public void loadState(Path path) {
+  public static void loadState(Path path, TreeView treeView) {
     RuleTreeViewState rtvs;
     try {
       Yaml yaml = new Yaml();
@@ -280,20 +251,8 @@ public class RuleTreeViewState {
       log.error("Could not read in configuration file");
       return;
     }
-
-//    rtvs.setDataModel(_model);
-    _root = rtvs.getRoot();
-    loadRequestProperty().set(true);
+    setStateOf(rtvs, treeView);
   }
-
-  /** Resets the loadRequestProperty. */
-  public void resetLoadRequestProperty() { _loadRequestProperty.set(false); }
-
-  /** Resets the saveRequestProperty. */
-  public void resetSaveRequestProperty() { _saveRequestProperty.set(null); }
-
-  /** Signalizes a save request. */
-//  public void requestSave() { _saveRequestProperty.set(true); }
 
 
   /*****************************************************************************
@@ -336,13 +295,6 @@ public class RuleTreeViewState {
   /*****************************************************************************
    * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
    ****************************************************************************/
-
-
-  /** @return Signalizes a save request of the RuleTreeViewState. */
-  public ObjectProperty<Path> saveRequestProperty() { return _saveRequestProperty; }
-
-  /** @return Signalizes a load request of a RuleTreeViewState. */
-  public BooleanProperty loadRequestProperty() { return _loadRequestProperty; }
 
   /** @Return The root item of RuleModelState */
   public RuleTreeViewStateItem getRoot() { return _root; }

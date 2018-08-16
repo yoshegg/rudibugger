@@ -24,13 +24,12 @@ import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.MainApp;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.Project.Project;
-import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.Project.VondaRuntimeConnection;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -95,6 +94,7 @@ public class MenuController {
       _project = _model.getLoadedProject();
 
       if (nv != null) {
+        initController(); // TODO
         log.debug("Project open: enable GUI-elements.");
         closeProjectItem.setDisable(false);
         newRudiFileItem.setDisable(false);
@@ -203,7 +203,8 @@ public class MenuController {
                 .relativize(x).toString();
         MenuItem mi = new MenuItem(filenameWithFolder);
         mi.setOnAction((event) -> {
-//          project.loadState(x); TODO
+          RuleTreeViewState.loadState(x,
+            MainApp.ruleTreeViewController.getTreeView());
         });
         loadLoggingStateMenu.getItems().add(mi);
       });
@@ -226,10 +227,8 @@ public class MenuController {
 
     /* a project is already open */
     if (_model.isProjectLoaded()) {
-      if (OVERWRITE_PROJECT == HelperWindows.openOverwriteProjectCheckDialog(
-        _model.getLoadedProject().getProjectName())) {
-        return true;
-      } else return false;
+      return OVERWRITE_PROJECT == HelperWindows.openOverwriteProjectCheckDialog(
+              _model.getLoadedProject().getProjectName());
     }
     return true;
   }
@@ -339,8 +338,8 @@ public class MenuController {
     Path chosenFile = HelperWindows.openRuleLoggingStateFileDialog(
             _model.mainStage, saveFolder);
     if (chosenFile == null) return;
-//    _model.getLoadedProject().getRuleModel().getRuleModelState()
-//            .loadState(chosenFile); TODO
+    RuleTreeViewState.loadState(chosenFile,
+            MainApp.ruleTreeViewController.getTreeView());
   }
 
   /** MenuItem "Save logging state..." */
@@ -353,8 +352,8 @@ public class MenuController {
     Path saveFolder = _model.getLoadedProject().getRuleModelStatesFolder();
     Path newStateFile = HelperWindows.openSaveRuleModelStateDialog(
             _model.mainStage, saveFolder);
-//    _model.getLoadedProject().getRuleModel().getRuleModelState()
-//            .saveRequestProperty().set(newStateFile); TODO
+    RuleTreeViewState.saveState(newStateFile,
+            MainApp.ruleTreeViewController.getTreeView());
   }
 
 
