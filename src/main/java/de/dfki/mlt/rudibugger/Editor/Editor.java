@@ -18,11 +18,17 @@
  */
 package de.dfki.mlt.rudibugger.Editor;
 
+import java.nio.file.Path;
+
 /**
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class Editor {
+
+  private Path _path;
+
+  private String _content;
 
   public static Editor getNewEditor() {
     return new Editor();
@@ -30,6 +36,13 @@ public class Editor {
 
   private Editor() {}
 
+  private void save() {
+    // save content on disk
+  }
+
+  private void load() {
+    // load file from disk, set content from file
+  }
 
 
 }
