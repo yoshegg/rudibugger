@@ -111,7 +111,7 @@ public class MenuController {
         saveLoggingStateItem.setDisable(true);
         findInProjectItem.setDisable(true);
         connectionButtonManager.manageLookOfVondaConnectionButton();
-        compileButtonManager.defineCompileButton(_project, _project.compiler);
+        compileButtonManager.defineCompileButton(_project, _project.compiler); //TODO: project is not set anymore
       }
     });
   }

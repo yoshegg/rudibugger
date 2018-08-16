@@ -93,12 +93,11 @@ public class CompileIndicator {
    * @param indicator
    * @param controller
    */
-  public CompileIndicator(ImageView indicator, Label statusBarText,
-          Project project) {
+  public CompileIndicator(ImageView indicator, Label statusBarText) {
     _indicator = indicator;
     _tooltip = new Tooltip();
     _statusBarText = statusBarText;
-    _project = project;
+//    _project = project;
 
     /* Initializes the default look and behaviour if no project is loaded. */
     _indicator.setImage(ICONS.get(COMPILATION_NO_PROJECT));
@@ -117,6 +116,9 @@ public class CompileIndicator {
 
     _indicator.setImage(ICONS.get(val));
   }
+
+  /** TODO */
+  public void setProject(Project project) { _project = project; }
 
 
   /**

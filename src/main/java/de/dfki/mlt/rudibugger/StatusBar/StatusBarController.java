@@ -65,9 +65,9 @@ public class StatusBarController {
     /* Link the model's statusBar text property with the controller */
     statusBarText.textProperty().bindBidirectional(model.statusBarTextProperty());
 
+    // TODO: Dirty
     syncIndicator = new SyncIndicator(_syncIndicator, statusBarText);
-    compileIndicator = new CompileIndicator(_compileIndicator, statusBarText,
-            _model.getLoadedProject());
+    compileIndicator = new CompileIndicator(_compileIndicator, statusBarText);
 
     listenForLoadedProject();
   }
@@ -80,7 +80,9 @@ public class StatusBarController {
       if (project != null) {
         syncIndicator.update(project.getRudiHierarchy()
                 .modificationsAfterCompilationProperty().get());
+        compileIndicator.setProject(project);
         compileIndicator.update(project.getRuleModel().getCompilationOutcome());
+        compileIndicator.defineContextMenu();
         listenForRuleModel(project);
         listenForFileChanges(project);
       } else {
