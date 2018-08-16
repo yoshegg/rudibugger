@@ -59,14 +59,15 @@ public class StatusBarController {
   public void initModel(DataModel model) {
     if (this._model != null)
       throw new IllegalStateException("Model can only be initialized once.");
-    
+
     _model = model;
 
     /* Link the model's statusBar text property with the controller */
     statusBarText.textProperty().bindBidirectional(model.statusBarTextProperty());
 
     syncIndicator = new SyncIndicator(_syncIndicator, statusBarText);
-    compileIndicator = new CompileIndicator(_compileIndicator, statusBarText, _model.getLoadedProject());
+    compileIndicator = new CompileIndicator(_compileIndicator, statusBarText,
+            _model.getLoadedProject());
 
     listenForLoadedProject();
   }
@@ -77,6 +78,9 @@ public class StatusBarController {
   private void listenForLoadedProject() {
     _model.loadedProjectProperty().addListener((o, ov, project) -> {
       if (project != null) {
+        syncIndicator.update(project.getRudiHierarchy()
+                .modificationsAfterCompilationProperty().get());
+        compileIndicator.update(project.getRuleModel().getCompilationOutcome());
         listenForRuleModel(project);
         listenForFileChanges(project);
       } else {
