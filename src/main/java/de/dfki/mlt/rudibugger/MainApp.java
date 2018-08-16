@@ -22,7 +22,6 @@ package de.dfki.mlt.rudibugger;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.EditorController;
 import de.dfki.mlt.rudibugger.Controller.MenuBar.MenuController;
-import de.dfki.mlt.rudibugger.Controller.SideBarController;
 import de.dfki.mlt.rudibugger.FileTreeView.FileTreeViewController;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewController;
 import de.dfki.mlt.rudibugger.StatusBar.StatusBarController;
