@@ -140,7 +140,6 @@ public class ViewLayout {
       Platform.runLater(() -> {
         _sidebarSplitPane.setDividerPositions(
               layoutConfiguration.get(DIVIDER_SIDEBAR));
-          // TODO: does not work, JavaFX bug
         _sidebarEditorSplitPane.setDividerPositions(
               layoutConfiguration.get(DIVIDER_SIDEBAR_EDITOR));
       });
