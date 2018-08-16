@@ -24,6 +24,7 @@ import de.dfki.mlt.rudibugger.Controller.EditorController;
 import de.dfki.mlt.rudibugger.Controller.MenuBar.MenuController;
 import de.dfki.mlt.rudibugger.FileTreeView.FileTreeViewController;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewController;
+import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.StatusBar.StatusBarController;
 import static de.dfki.mlt.rudibugger.ViewLayout.*;
 import java.nio.file.Files;
@@ -50,8 +51,6 @@ public class MainApp extends Application {
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("mainLog");
 
-  /** TODO */
-  public static RuleTreeViewController ruleTreeViewController;
 
   @Override
   public void start(Stage stage) throws Exception {
@@ -118,7 +117,7 @@ public class MainApp extends Application {
     FXMLLoader ruleTreeViewLoader = new FXMLLoader(getClass()
             .getResource("/fxml/ruleTreeView.fxml"));
     sidebarSplitPane.getItems().add(ruleTreeViewLoader.load());
-    ruleTreeViewController
+    RuleTreeViewController ruleTreeViewController
             = ruleTreeViewLoader.getController();
 
     /* Initalize editor (right part of centeredSplitPane) */
@@ -140,7 +139,13 @@ public class MainApp extends Application {
       log.info("Created global config folder (first start of rudibugger");
     }
 
-    menuController.init(model);
+    menuController.init(model,
+        (chosenFile) -> {
+          RuleTreeViewState.loadState(chosenFile, ruleTreeViewController.getTreeView());
+        },
+        (chosenFile) -> {
+          RuleTreeViewState.saveState(chosenFile, ruleTreeViewController.getTreeView());
+        });
     statusBarController.initModel(model);
     fileTreeViewController.init(model);
     ruleTreeViewController.init(model);

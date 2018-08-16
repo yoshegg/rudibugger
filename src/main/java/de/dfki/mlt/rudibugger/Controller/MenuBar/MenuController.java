@@ -20,26 +20,26 @@
 package de.dfki.mlt.rudibugger.Controller.MenuBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.MainApp;
-import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.Project.Project;
 import de.dfki.mlt.rudibugger.Project.VondaRuntimeConnection;
 import de.dfki.mlt.rudibugger.RuleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Path;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.ToolBar;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javafx.scene.control.*;
 
 /**
  * This controller's purpose is to manage the MenuBar and the ToolBar of
@@ -73,13 +73,16 @@ public class MenuController {
    */
   private ConnectionButtonManager connectionButtonManager;
 
+  private Consumer<Path> loadRuleState, saveRuleState;
 
   /*****************************************************************************
    * INITIALIZERS / CONSTRUCTORS
    ****************************************************************************/
 
   /** Initializes this controller. */
-  public void init(DataModel model) {
+  public void init(DataModel model, Consumer<Path> lrs, Consumer<Path> srs) {
+    loadRuleState = lrs;
+    saveRuleState = srs;
     _model = model;
 
     compileButtonManager = CompileButtonManager.init(compileButton,
@@ -202,10 +205,7 @@ public class MenuController {
         String filenameWithFolder = _model.getLoadedProject().getRuleModelStatesFolder()
                 .relativize(x).toString();
         MenuItem mi = new MenuItem(filenameWithFolder);
-        mi.setOnAction((event) -> {
-          RuleTreeViewState.loadState(x,
-            MainApp.ruleTreeViewController.getTreeView());
-        });
+        mi.setOnAction((event) -> { loadRuleState.accept(x); });
         loadLoggingStateMenu.getItems().add(mi);
       });
     } else {
@@ -338,8 +338,7 @@ public class MenuController {
     Path chosenFile = HelperWindows.openRuleLoggingStateFileDialog(
             _model.mainStage, saveFolder);
     if (chosenFile == null) return;
-    RuleTreeViewState.loadState(chosenFile,
-            MainApp.ruleTreeViewController.getTreeView());
+    loadRuleState.accept(chosenFile);
   }
 
   /** MenuItem "Save logging state..." */
@@ -352,8 +351,7 @@ public class MenuController {
     Path saveFolder = _model.getLoadedProject().getRuleModelStatesFolder();
     Path newStateFile = HelperWindows.openSaveRuleModelStateDialog(
             _model.mainStage, saveFolder);
-    RuleTreeViewState.saveState(newStateFile,
-            MainApp.ruleTreeViewController.getTreeView());
+    saveRuleState.accept(newStateFile);
   }
 
 
