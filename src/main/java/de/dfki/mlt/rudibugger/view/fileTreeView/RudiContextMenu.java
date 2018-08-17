@@ -16,9 +16,9 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-package de.dfki.mlt.rudibugger.FileTreeView;
+package de.dfki.mlt.rudibugger.view.fileTreeView;
 
-import de.dfki.mlt.rudibugger.Project.Project;
+import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;

@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.Project;
+package de.dfki.mlt.rudibugger.project;
 
 import java.io.File;
 import java.io.IOException;

@@ -17,13 +17,13 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.FileTreeView;
+package de.dfki.mlt.rudibugger.view.fileTreeView;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import java.util.HashSet;
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Project.Project;
+import de.dfki.mlt.rudibugger.project.Project;
 import static de.dfki.mlt.rudimant.common.ErrorInfo.ErrorType.*;
 import java.nio.file.Files;
 import java.util.HashMap;

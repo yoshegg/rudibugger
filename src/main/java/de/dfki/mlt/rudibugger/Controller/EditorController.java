@@ -21,7 +21,7 @@ package de.dfki.mlt.rudibugger.Controller;
 
 import static de.dfki.mlt.rudibugger.Constants.CONNECTED_TO_VONDA;
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.Project.Project;
+import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.RuleLoggingTableView.EvaluatedCellFactory;
 import de.dfki.mlt.rudibugger.RuleLoggingTableView.LabelCellFactory;
 import de.dfki.mlt.rudibugger.RPC.LogData;

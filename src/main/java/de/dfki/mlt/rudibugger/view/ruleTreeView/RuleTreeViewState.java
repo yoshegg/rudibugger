@@ -17,10 +17,10 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RuleTreeView;
+package de.dfki.mlt.rudibugger.view.ruleTreeView;
 
-import de.dfki.mlt.rudibugger.Project.RuleModel.ImportInfoExtended;
-import de.dfki.mlt.rudibugger.Project.RuleModel.RuleInfoExtended;
+import de.dfki.mlt.rudibugger.project.ruleModel.ImportInfoExtended;
+import de.dfki.mlt.rudibugger.project.ruleModel.RuleInfoExtended;
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import java.io.FileNotFoundException;
 import java.io.FileReader;

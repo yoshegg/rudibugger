@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RuleTreeView;
+package de.dfki.mlt.rudibugger.view.ruleTreeView;
 
 /**
  * Represents the current state of a TreeItem: Is it expanded, what is its

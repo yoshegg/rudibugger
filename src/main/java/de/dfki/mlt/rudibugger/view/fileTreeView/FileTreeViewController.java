@@ -16,17 +16,17 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-package de.dfki.mlt.rudibugger.FileTreeView;
+package de.dfki.mlt.rudibugger.view.fileTreeView;
 
 import static de.dfki.mlt.rudibugger.Constants.FILE_IS_MAIN;
 import static de.dfki.mlt.rudibugger.Constants.FILE_IS_WRAPPER;
 import static de.dfki.mlt.rudibugger.Constants.FILE_NOT_USED;
 import static de.dfki.mlt.rudibugger.Constants.FILE_USED;
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.FileTreeView.RudiHierarchy;
-import de.dfki.mlt.rudibugger.FileTreeView.RudiTreeCell;
-import de.dfki.mlt.rudibugger.Project.Project;
-import de.dfki.mlt.rudibugger.Project.RuleModel.RuleModel;
+import de.dfki.mlt.rudibugger.view.fileTreeView.RudiHierarchy;
+import de.dfki.mlt.rudibugger.view.fileTreeView.RudiTreeCell;
+import de.dfki.mlt.rudibugger.project.Project;
+import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
 import java.nio.file.Path;
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeView;

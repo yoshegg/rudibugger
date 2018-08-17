@@ -17,11 +17,11 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.StatusBar;
+package de.dfki.mlt.rudibugger.view.statusBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Project.Project;
-import de.dfki.mlt.rudibugger.Project.RuleModel.ImportInfoExtended;
+import de.dfki.mlt.rudibugger.project.Project;
+import de.dfki.mlt.rudibugger.project.ruleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
 import java.util.HashMap;

@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import de.dfki.mlt.rudibugger.Project.VondaRuntimeConnection;
+import de.dfki.mlt.rudibugger.project.VondaRuntimeConnection;
 
 /**
  * This API specifies what commands can be sent from VOnDA to rudibugger.

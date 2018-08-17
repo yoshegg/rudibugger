@@ -17,12 +17,12 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.StatusBar;
+package de.dfki.mlt.rudibugger.view.statusBar;
 
 import static de.dfki.mlt.rudibugger.Constants.COMPILATION_NO_PROJECT;
 import static de.dfki.mlt.rudibugger.Constants.FILES_SYNC_UNDEFINED;
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.Project.Project;
+import de.dfki.mlt.rudibugger.project.Project;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;

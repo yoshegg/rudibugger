@@ -17,13 +17,13 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.FileTreeView;
+package de.dfki.mlt.rudibugger.view.fileTreeView;
 
 import java.nio.file.Path;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Project.RuleModel.ImportInfoExtended;
+import de.dfki.mlt.rudibugger.project.ruleModel.ImportInfoExtended;
 import java.nio.file.Files;
 import java.util.Objects;
 import javafx.beans.property.BooleanProperty;

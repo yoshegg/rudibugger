@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.FileTreeView;
+package de.dfki.mlt.rudibugger.view.fileTreeView;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import static de.dfki.mlt.rudimant.common.Constants.*;

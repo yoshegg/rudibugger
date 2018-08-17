@@ -17,10 +17,10 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.Project.WatchServices;
+package de.dfki.mlt.rudibugger.project.watchServices;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 
-import de.dfki.mlt.rudibugger.FileTreeView.RudiHierarchy;
+import de.dfki.mlt.rudibugger.view.fileTreeView.RudiHierarchy;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;

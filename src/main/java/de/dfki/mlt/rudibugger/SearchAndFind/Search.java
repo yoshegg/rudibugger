@@ -18,7 +18,7 @@
  */
 package de.dfki.mlt.rudibugger.SearchAndFind;
 
-import de.dfki.mlt.rudibugger.Project.Project;
+import de.dfki.mlt.rudibugger.project.Project;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

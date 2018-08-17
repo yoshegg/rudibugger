@@ -24,8 +24,8 @@ import java.util.LinkedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.dfki.mlt.rudibugger.Project.Project;
-import de.dfki.mlt.rudibugger.Project.VondaCompiler;
+import de.dfki.mlt.rudibugger.project.Project;
+import de.dfki.mlt.rudibugger.project.VondaCompiler;
 import javafx.scene.control.*;
 import javafx.event.*;
 

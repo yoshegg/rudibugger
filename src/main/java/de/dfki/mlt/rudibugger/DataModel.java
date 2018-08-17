@@ -19,7 +19,7 @@
 
 package de.dfki.mlt.rudibugger;
 
-import de.dfki.mlt.rudibugger.Project.Project;
+import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import java.nio.file.Path;
 import javafx.beans.property.*;

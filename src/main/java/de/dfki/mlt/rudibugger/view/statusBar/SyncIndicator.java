@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.StatusBar;
+package de.dfki.mlt.rudibugger.view.statusBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import java.util.HashMap;

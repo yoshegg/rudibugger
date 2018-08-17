@@ -17,15 +17,15 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.Project;
+package de.dfki.mlt.rudibugger.project;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModelAdditions.EmacsConnection;
 import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
-import de.dfki.mlt.rudibugger.FileTreeView.RudiHierarchy;
-import de.dfki.mlt.rudibugger.Project.RuleModel.RuleModel;
-import de.dfki.mlt.rudibugger.Project.WatchServices.RudiFolderWatch;
-import de.dfki.mlt.rudibugger.Project.WatchServices.RuleLocationYamlWatch;
+import de.dfki.mlt.rudibugger.view.fileTreeView.RudiHierarchy;
+import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
+import de.dfki.mlt.rudibugger.project.watchServices.RudiFolderWatch;
+import de.dfki.mlt.rudibugger.project.watchServices.RuleLocationYamlWatch;
 import de.dfki.mlt.rudibugger.TabManagement.FileAtPos;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
 import de.dfki.mlt.rudibugger.TabManagement.TabStore;

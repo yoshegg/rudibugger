@@ -17,11 +17,11 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RuleTreeView;
+package de.dfki.mlt.rudibugger.view.ruleTreeView;
 
 import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
-import de.dfki.mlt.rudibugger.Project.Project;
-import de.dfki.mlt.rudibugger.Project.RuleModel.RuleInfoExtended;
+import de.dfki.mlt.rudibugger.project.Project;
+import de.dfki.mlt.rudibugger.project.ruleModel.RuleInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import java.util.LinkedHashMap;
 import javafx.event.ActionEvent;

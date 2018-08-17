@@ -18,7 +18,7 @@
  */
 package de.dfki.mlt.rudibugger.SearchAndFind;
 
-import de.dfki.mlt.rudibugger.Project.Project;
+import de.dfki.mlt.rudibugger.project.Project;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.beans.property.SimpleStringProperty;

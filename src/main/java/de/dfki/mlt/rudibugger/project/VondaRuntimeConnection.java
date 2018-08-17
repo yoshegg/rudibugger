@@ -17,11 +17,11 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.Project;
+package de.dfki.mlt.rudibugger.project;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.Project.RuleModel.RuleModel;
+import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
 import de.dfki.mlt.rudibugger.RPC.JavaFXLogger;
 import de.dfki.mlt.rudibugger.RPC.LogData;
 import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;

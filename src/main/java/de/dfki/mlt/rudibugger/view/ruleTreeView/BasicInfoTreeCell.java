@@ -17,14 +17,14 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RuleTreeView;
+package de.dfki.mlt.rudibugger.view.ruleTreeView;
 
 import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
-import de.dfki.mlt.rudibugger.Project.Project;
+import de.dfki.mlt.rudibugger.project.Project;
 import static de.dfki.mlt.rudimant.common.ErrorInfo.ErrorType.*;
 
-import de.dfki.mlt.rudibugger.Project.RuleModel.RuleInfoExtended;
-import de.dfki.mlt.rudibugger.Project.RuleModel.ImportInfoExtended;
+import de.dfki.mlt.rudibugger.project.ruleModel.RuleInfoExtended;
+import de.dfki.mlt.rudibugger.project.ruleModel.ImportInfoExtended;
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import java.util.HashMap;
