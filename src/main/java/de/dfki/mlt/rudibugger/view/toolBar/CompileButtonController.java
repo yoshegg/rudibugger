@@ -16,7 +16,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-package de.dfki.mlt.rudibugger.Controller.MenuBar;
+package de.dfki.mlt.rudibugger.view.toolBar;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -34,7 +34,7 @@ import javafx.event.*;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class CompileButtonManager {
+public class CompileButtonController {
 
   static Logger log = LoggerFactory.getLogger("compileButtonMan");
 
@@ -58,7 +58,7 @@ public class CompileButtonManager {
    ****************************************************************************/
 
   /** Initializes an instance of this class. */
-  private CompileButtonManager() {
+  private CompileButtonController() {
   }
 
   /**
@@ -72,8 +72,8 @@ public class CompileButtonManager {
    *        The ToolBar containing the compile button
    * @Return An instance of this class.
    */
-  public static CompileButtonManager init(Button standard, ToolBar toolBar) {
-    CompileButtonManager cbm = new CompileButtonManager();
+  public static CompileButtonController init(Button standard, ToolBar toolBar) {
+    CompileButtonController cbm = new CompileButtonController();
     cbm.standardCompileButton = standard;
     cbm.toolBar = toolBar;
     return cbm;

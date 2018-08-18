@@ -1,147 +1,135 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
-<?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="36.0" prefWidth="494.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.Controller.MenuBar.MenuController">
-   <children>
-      <MenuBar>
-         <menus>
-            <Menu mnemonicParsing="false" onMenuValidation="#buildLoadRuleSelectionStateMenu" text="File">
-               <items>
-                  <MenuItem fx:id="newProjectItem" disable="true" mnemonicParsing="false" onAction="#newProjectAction" text="New Project...">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <MenuItem fx:id="newRudiFileItem" disable="true" mnemonicParsing="false" onAction="#newRudiFileAction" text="New rudi File...">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator>
-                     <graphic>
-                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../icons/MenuBar/File/NewFile.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </MenuItem>
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="openProjectItem" mnemonicParsing="false" onAction="#openProjectAction" text="Open Project...">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <Menu fx:id="openRecentProjectMenu" mnemonicParsing="false" text="Open Recent Project">
-                     <items>
-                        <MenuItem disable="true" mnemonicParsing="false" text="Empty" />
-                     </items>
-                  </Menu>
-                  <MenuItem fx:id="closeProjectItem" disable="true" mnemonicParsing="false" onAction="#closeProjectAction" text="Close Project" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <Menu fx:id="loadLoggingStateMenu" disable="true" mnemonicParsing="false" text="Load logging state">
-                     <items>
-                        <MenuItem fx:id="noRecentConfigurationFound" disable="true" mnemonicParsing="false" text="No recent configuration found." />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem fx:id="openRuleLoggingStateItem" mnemonicParsing="false" onAction="#openRuleLoggingStateConfigurationFile" text="Open configuration file..." />
-                     </items>
-                  </Menu>
-                  <MenuItem fx:id="saveLoggingStateItem" disable="true" mnemonicParsing="false" onAction="#saveLoggingStateAction" text="Save logging state..." />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="saveItem" disable="true" mnemonicParsing="false" onAction="#saveAction" text="Save">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <MenuItem fx:id="saveAsItem" disable="true" mnemonicParsing="false" onAction="#saveAsAction" text="Save As...">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                     </accelerator></MenuItem>
-                  <MenuItem fx:id="saveAllItem" disable="true" mnemonicParsing="false" onAction="#saveAllAction" text="Save All" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="exitItem" mnemonicParsing="false" onAction="#exitAction" text="Exit" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Edit">
-               <items>
-                  <MenuItem disable="true" mnemonicParsing="false" text="Undo">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="Z" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <MenuItem disable="true" mnemonicParsing="false" text="Redo">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="Z" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem disable="true" mnemonicParsing="false" text="Cut">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="X" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <MenuItem disable="true" mnemonicParsing="false" text="Copy">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="C" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <MenuItem disable="true" mnemonicParsing="false" text="Paste">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="V" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <MenuItem disable="true" mnemonicParsing="false" text="Delete" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem disable="true" mnemonicParsing="false" text="Find...">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <MenuItem disable="true" mnemonicParsing="false" text="Replace...">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="H" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="findInProjectItem" disable="true" mnemonicParsing="false" onAction="#findInProject" text="Find in project...">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-                  <MenuItem disable="true" mnemonicParsing="false" text="Replace in Project...">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="H" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
-                     </accelerator>
-                  </MenuItem>
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Tools">
-               <items>
-                  <MenuItem disable="true" mnemonicParsing="false" text="Open in Terminal" />
-                  <MenuItem mnemonicParsing="false" onAction="#openSettingsDialog" text="Options" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Help">
-               <items>
-                  <MenuItem disable="true" mnemonicParsing="false" text="Help Contents" />
-                  <MenuItem mnemonicParsing="false" onAction="#openAboutWindow" text="About Rudibugger" />
-               </items>
-            </Menu>
-         </menus>
-      </MenuBar>
-      <ToolBar fx:id="toolBar" prefHeight="40.0" prefWidth="200.0">
+<MenuBar fx:id="menuBar" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.Controller.MenuBar.MenuBarController">
+   <menus>
+      <Menu mnemonicParsing="false" text="File">
          <items>
-            <Button fx:id="compileButton" defaultButton="true" disable="true" mnemonicParsing="false" text="Compile" />
-            <Button fx:id="vondaConnectionButton" disable="true" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#changeVondaConnectionState" prefWidth="150.0" text="No project" />
+            <MenuItem fx:id="newProjectItem" disable="true" mnemonicParsing="false" onAction="#newProjectAction" text="New Project...">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+            <MenuItem fx:id="newRudiFileItem" disable="true" mnemonicParsing="false" onAction="#newRudiFileAction" text="New rudi File...">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator>
+               <graphic>
+                  <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../icons/MenuBar/File/NewFile.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem fx:id="openProjectItem" mnemonicParsing="false" onAction="#openProjectAction" text="Open Project...">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+            <Menu fx:id="openRecentProjectMenu" mnemonicParsing="false" onMenuValidation="#buildRecentProjectsMenu" text="Open Recent Project">
+               <items>
+                  <MenuItem disable="true" mnemonicParsing="false" text="Empty" />
+               </items>
+            </Menu>
+            <MenuItem fx:id="closeProjectItem" disable="true" mnemonicParsing="false" onAction="#closeProjectAction" text="Close Project" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <Menu fx:id="loadLoggingStateMenu" disable="true" mnemonicParsing="false" onMenuValidation="#buildLoadRuleSelectionStateMenu" text="Load logging state">
+               <items>
+                  <MenuItem fx:id="noRecentConfigurationFound" disable="true" mnemonicParsing="false" text="No recent configuration found." />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="openRuleLoggingStateItem" mnemonicParsing="false" onAction="#openRuleLoggingStateConfigurationFile" text="Open configuration file..." />
+               </items>
+            </Menu>
+            <MenuItem fx:id="saveLoggingStateItem" disable="true" mnemonicParsing="false" onAction="#saveLoggingStateAction" text="Save logging state..." />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem fx:id="saveItem" disable="true" mnemonicParsing="false" onAction="#saveAction" text="Save">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+            <MenuItem fx:id="saveAsItem" disable="true" mnemonicParsing="false" onAction="#saveAsAction" text="Save As...">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+            <MenuItem fx:id="saveAllItem" disable="true" mnemonicParsing="false" onAction="#saveAllAction" text="Save All" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem fx:id="exitItem" mnemonicParsing="false" onAction="#exitAction" text="Exit" />
          </items>
-      </ToolBar>
-   </children>
-</VBox>
+      </Menu>
+      <Menu mnemonicParsing="false" text="Edit">
+         <items>
+            <MenuItem disable="true" mnemonicParsing="false" text="Undo">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="Z" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+            <MenuItem disable="true" mnemonicParsing="false" text="Redo">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="Z" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem disable="true" mnemonicParsing="false" text="Cut">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="X" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+            <MenuItem disable="true" mnemonicParsing="false" text="Copy">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="C" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+            <MenuItem disable="true" mnemonicParsing="false" text="Paste">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="V" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+            <MenuItem disable="true" mnemonicParsing="false" text="Delete" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem disable="true" mnemonicParsing="false" text="Find...">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+            <MenuItem disable="true" mnemonicParsing="false" text="Replace...">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="H" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem fx:id="findInProjectItem" disable="true" mnemonicParsing="false" onAction="#findInProject" text="Find in project...">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+            <MenuItem disable="true" mnemonicParsing="false" text="Replace in Project...">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="H" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+         </items>
+      </Menu>
+      <Menu mnemonicParsing="false" text="Tools">
+         <items>
+            <MenuItem disable="true" mnemonicParsing="false" text="Open in Terminal" />
+            <MenuItem mnemonicParsing="false" onAction="#openSettingsDialog" text="Options" />
+         </items>
+      </Menu>
+      <Menu mnemonicParsing="false" text="Help">
+         <items>
+            <MenuItem disable="true" mnemonicParsing="false" text="Help Contents" />
+            <MenuItem mnemonicParsing="false" onAction="#openAboutWindow" text="About Rudibugger" />
+         </items>
+      </Menu>
+   </menus>
+</MenuBar>

@@ -33,10 +33,7 @@ import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.MainApp;
 import de.dfki.mlt.rudibugger.project.Project;
-import de.dfki.mlt.rudibugger.project.VondaRuntimeConnection;
-import de.dfki.mlt.rudibugger.view.ruleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
-import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -47,31 +44,20 @@ import javafx.scene.control.*;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class MenuController {
+public class MenuBarController {
 
-  static Logger log = LoggerFactory.getLogger("MenuController");
+  static Logger log = LoggerFactory.getLogger("MenuBarController");
 
-  /** TODO */
   private DataModel _model;
 
   /** Represents a potentially loaded project. */
-  private Project _project;
+//  private Project _project;
 
 
   /*****************************************************************************
    * EXTENSIONS OF THE MENU CONTROLLER
    ****************************************************************************/
 
-  /**
-   * Contains functionality to manage the look and file of the compile button.
-   */
-  private CompileButtonManager compileButtonManager;
-
-  /**
-   * Contains functionality to manage the look and file of the connection
-   * button.
-   */
-  private ConnectionButtonManager connectionButtonManager;
 
   private Consumer<Path> loadRuleState, saveRuleState;
 
@@ -85,101 +71,79 @@ public class MenuController {
     saveRuleState = srs;
     _model = model;
 
-    compileButtonManager = CompileButtonManager.init(compileButton,
-            toolBar);
-    connectionButtonManager = ConnectionButtonManager.init(_model,
-            vondaConnectionButton, toolBar);
+
     listenForProject();
   }
 
   private void listenForProject() {
-    _model.loadedProjectProperty().addListener((o, ov, nv) -> {
-      _project = _model.getLoadedProject();
+    _model.loadedProjectProperty().addListener((o, ov, project) -> {
+      boolean projectLoaded = project != null;
+      toggleProjectSpecificMenuItems(projectLoaded);
 
-      if (nv != null) {
-        initController(); // TODO
-        log.debug("Project open: enable GUI-elements.");
-        closeProjectItem.setDisable(false);
-        newRudiFileItem.setDisable(false);
-        loadLoggingStateMenu.setDisable(false);
-        saveLoggingStateItem.setDisable(false);
-        findInProjectItem.setDisable(false);
-        connectionButtonManager.manageLookOfVondaConnectionButton();
-        compileButtonManager.defineCompileButton(_project, _project.compiler);
-      } else {
-        log.debug("Project closed: disable GUI-elements.");
-        closeProjectItem.setDisable(true);
-        newRudiFileItem.setDisable(true);
-        loadLoggingStateMenu.setDisable(true);
-        saveLoggingStateItem.setDisable(true);
-        findInProjectItem.setDisable(true);
-        connectionButtonManager.manageLookOfVondaConnectionButton();
-        compileButtonManager.defineCompileButton(_project, _project.compiler); //TODO: project is not set anymore
-      }
+//      if (project != null) {
+//        log.debug("Project open: enable GUI-elements.");
+//        compileButtonManager.defineCompileButton(project, project.compiler);
+//      } else {
+//        log.debug("Project closed: disable GUI-elements.");
+//        compileButtonManager.defineCompileButton(project, project.compiler); //TODO: project is not set anymore
+//      }
     });
   }
 
-  /**
-   * Initializes the controller.
-   */
-  public void initController() {
-
-
-    listenForProject();
-
-    _model.getLoadedProject().vonda.connectedProperty().addListener(l ->
-      connectionButtonManager.manageLookOfVondaConnectionButton()
-    );
-
-    /* this listener enables saving depending on the selected tab */
-    _model.getLoadedProject().getTabStore().currentlySelectedTabProperty().addListener((o, oldVal, newVal) -> {
-
-      /* no tab is opened */
-      if (newVal == null) {
-        saveItem.setDisable(true);
-        saveAsItem.setDisable(true);
-        saveAllItem.setDisable(true);
-
-      /* one known tab is selected and can be saved */
-      } else if (((RudiTab) newVal).isKnown()) {
-
-        if (newVal.hasBeenModifiedProperty().getValue()) {
-          saveItem.setDisable(false);
-        } else {
-          /* wait until the tab content has been modified */
-          newVal.hasBeenModifiedProperty().addListener((o2, oldVal2, newVal2) -> {
-            if (newVal2) {
-              saveItem.setDisable(false);
-            } else {
-              saveItem.setDisable(true);
-            }
-          });
-        }
-
-        saveAsItem.setDisable(false);
-        saveAllItem.setDisable(false);
-
-
-      /* a newly created file can only be saved as */
-      } else if (! ((RudiTab) newVal).isKnown()) {
-        saveItem.setDisable(true);
-        saveAsItem.setDisable(false);
-        saveAllItem.setDisable(false);
-      }
-    });
-
-    /* initalize the recent projets submenu... */
-    if (! _model.globalConf.recentProjects.isEmpty()) {
-      buildRecentProjectsMenu();
-    }
-
-    /* ... then keep track of changes */
-    _model.globalConf.recentProjects.addListener(
-            (ListChangeListener.Change<? extends String> c) -> {
-      buildRecentProjectsMenu();
-    });
+  private void toggleProjectSpecificMenuItems(boolean projectLoaded) {
+    boolean val = ! projectLoaded;
+    newRudiFileItem.setDisable(val);
+    closeProjectItem.setDisable(val);
+    loadLoggingStateMenu.setDisable(val);
+    saveLoggingStateItem.setDisable(val);
+    findInProjectItem.setDisable(val);
   }
 
+//  /** TODO
+//   * Initializes the controller.
+//   */
+//  public void tabManagement() {
+//
+//    /* this listener enables saving depending on the selected tab */
+//    _model.getLoadedProject().getTabStore().currentlySelectedTabProperty().addListener((o, oldVal, newVal) -> {
+//
+//      /* no tab is opened */
+//      if (newVal == null) {
+//        saveItem.setDisable(true);
+//        saveAsItem.setDisable(true);
+//        saveAllItem.setDisable(true);
+//
+//      /* one known tab is selected and can be saved */
+//      } else if (((RudiTab) newVal).isKnown()) {
+//
+//        if (newVal.hasBeenModifiedProperty().getValue()) {
+//          saveItem.setDisable(false);
+//        } else {
+//          /* wait until the tab content has been modified */
+//          newVal.hasBeenModifiedProperty().addListener((o2, oldVal2, newVal2) -> {
+//            if (newVal2) {
+//              saveItem.setDisable(false);
+//            } else {
+//              saveItem.setDisable(true);
+//            }
+//          });
+//        }
+//
+//        saveAsItem.setDisable(false);
+//        saveAllItem.setDisable(false);
+//
+//
+//      /* a newly created file can only be saved as */
+//      } else if (! ((RudiTab) newVal).isKnown()) {
+//        saveItem.setDisable(true);
+//        saveAsItem.setDisable(false);
+//        saveAllItem.setDisable(false);
+//      }
+//    });
+//
+//  }
+
+  @FXML
   private void buildRecentProjectsMenu() {
     openRecentProjectMenu.getItems().clear();
     _model.globalConf.recentProjects.forEach((x) -> {
@@ -197,12 +161,13 @@ public class MenuController {
    */
   @FXML
   private void buildLoadRuleSelectionStateMenu() {
-    if (_project == null) return;
     Project project = _model.getLoadedProject();
+    if (project == null) return;
+
     if (!project.getRecentStates().isEmpty()) {
       loadLoggingStateMenu.getItems().clear();
       project.getRecentStates().forEach((x) -> {
-        String filenameWithFolder = _model.getLoadedProject().getRuleModelStatesFolder()
+        String filenameWithFolder = project.getRuleModelStatesFolder()
                 .relativize(x).toString();
         MenuItem mi = new MenuItem(filenameWithFolder);
         mi.setOnAction((event) -> { loadRuleState.accept(x); });
@@ -232,22 +197,6 @@ public class MenuController {
     }
     return true;
   }
-
-
-  /*****************************************************************************
-   * TOOLBAR BUTTONS
-   ****************************************************************************/
-
-  /* Represents the compile button. */
-  @FXML
-  private Button compileButton;
-
-  /**
-   * Represents the con-/disconnect button also monitoring the connection state.
-   */
-  @FXML
-  private Button vondaConnectionButton;
-
 
   /*****************************************************************************
    * Menu items actions (from menu bar)
@@ -440,26 +389,6 @@ public class MenuController {
   @FXML
   private void openAboutWindow(ActionEvent event) {
     HelperWindows.showAboutWindow(_model.mainStage);
-  }
-
-
-  /*****************************************************************************
-   * Button actions & toolBar
-  *****************************************************************************/
-
-  /** Contains buttons */
-  @FXML
-  private ToolBar toolBar;
-
-  /** Establishes a connection to the VOnDA server or disconnects from it. */
-  @FXML
-  private void changeVondaConnectionState(ActionEvent event) {
-    VondaRuntimeConnection vonda = _model.getLoadedProject().vonda;
-    int conStatus = vonda.connectedProperty().get();
-    if (conStatus == DISCONNECTED_FROM_VONDA)
-      vonda.connect(_model.getLoadedProject().getVondaPort());
-    else
-      vonda.closeConnection();
   }
 
 }

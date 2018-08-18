@@ -21,12 +21,13 @@ package de.dfki.mlt.rudibugger;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.Controller.EditorController;
-import de.dfki.mlt.rudibugger.Controller.MenuBar.MenuController;
+import de.dfki.mlt.rudibugger.Controller.MenuBar.MenuBarController;
 import de.dfki.mlt.rudibugger.view.fileTreeView.FileTreeViewController;
 import de.dfki.mlt.rudibugger.view.ruleTreeView.RuleTreeViewController;
 import de.dfki.mlt.rudibugger.view.ruleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.view.statusBar.StatusBarController;
 import static de.dfki.mlt.rudibugger.ViewLayout.*;
+import de.dfki.mlt.rudibugger.view.toolBar.ToolBarController;
 import java.nio.file.Files;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -37,6 +38,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,11 +76,21 @@ public class MainApp extends Application {
     /* Create root BorderPane */
     BorderPane root = new BorderPane();
 
-    /* Initialize menuBar (top of BorderPane) */
+    /* Prepare VBox for menuBar and toolBar (top of BorderPane) */
+    VBox menuBox = new VBox();
+    root.setTop(menuBox);
+
+    /* Initialize menuBar (top of VBox) */
     FXMLLoader menuLoader = new FXMLLoader(getClass()
             .getResource("/fxml/menuBar.fxml"));
-    root.setTop(menuLoader.load());
-    MenuController menuController = menuLoader.getController();
+    menuBox.getChildren().add(menuLoader.load());
+    MenuBarController menuController = menuLoader.getController();
+
+    /* Initialize toolBar (bottom of VBox) */
+    FXMLLoader toolLoader = new FXMLLoader(getClass()
+            .getResource("/fxml/toolBar.fxml"));
+    menuBox.getChildren().add(toolLoader.load());
+    ToolBarController toolController = toolLoader.getController();
 
     /* Initialize statusBar (bottom of BorderPane) */
     FXMLLoader statusLoader = new FXMLLoader(getClass()
@@ -145,6 +157,7 @@ public class MainApp extends Application {
         (chosenFile) -> RuleTreeViewState
           .saveState(chosenFile, ruleTreeViewController.getTreeView())
         );
+    toolController.init(model);
     statusBarController.initModel(model);
     fileTreeViewController.init(model);
     ruleTreeViewController.init(model);
