@@ -27,9 +27,9 @@ package de.dfki.mlt.rudibugger.view.ruleTreeView;
  */
 public class RuleTreeViewStateItemProperties {
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * FIELDS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Represents the expansion state of the associated TreeItem. */
   Boolean isExpanded;
@@ -41,9 +41,9 @@ public class RuleTreeViewStateItemProperties {
   Boolean isImport = false;
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * CONSTRUCTOR
-   ****************************************************************************/
+   * **************************************************************************/
 
   /**
    * Creates a new Properties instance.
@@ -57,9 +57,9 @@ public class RuleTreeViewStateItemProperties {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * GETTER / SETTER
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** @return True, if associated TreeItem is expanded, else false */
   public Boolean getIsExpanded() {
@@ -97,16 +97,16 @@ public class RuleTreeViewStateItemProperties {
   /**
    * Defines the associated TreeItem as an Import or not
    *
-   * @param loggingState True, if associated TreeItem is an Import, else false
+   * @param isImport True, if associated TreeItem is an Import, else false
    */
   public void setIsImport(Boolean isImport) {
     this.isImport = isImport;
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * YAML
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Nullary constructor needed for YAML (JavaBeans convention). */
   public RuleTreeViewStateItemProperties() {}

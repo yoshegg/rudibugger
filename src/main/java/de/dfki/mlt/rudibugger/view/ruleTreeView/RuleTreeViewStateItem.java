@@ -25,30 +25,32 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A <code>RuleTreeViewStateItem</code> represents the look of a <code>TreeItem</code>
- * in <code>RuleTreeView</code>.
+ * A <code>RuleTreeViewStateItem</code> represents the look of a
+ * <code>TreeItem</code> in <code>RuleTreeView</code>.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class RuleTreeViewStateItem {
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * FIELDS
-   ****************************************************************************/
+   * **************************************************************************/
 
-  /** *  Represents the label of this <code>RuleTreeViewStateItem</code>. */
+  /** Represents the label of this <code>RuleTreeViewStateItem</code>. */
   private String label;
 
-  /** *  Represents a container describing this <code>RuleTreeViewStateItem</code>. */
+  /**
+   * Represents a container describing this <code>RuleTreeViewStateItem</code>.
+   */
   private RuleTreeViewStateItemProperties props;
 
   /** Contains the children of this RuleTreeViewStateItem. */
   private Map<String, RuleTreeViewStateItem> children = new HashMap<>();
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * CONSTRUCTOR
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Creates a new instance of <code>RuleStateItem</code>. */
   public RuleTreeViewStateItem(String lab, Boolean expStat, int logStat) {
@@ -57,17 +59,17 @@ public class RuleTreeViewStateItem {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
-  /** *  Updates the <code>RuleTreeViewStateItem</code>. */
-  public void updateRuleStateItem(Boolean expState, int logStat) {
+  /** Sets the state of the <code>RuleTreeViewStateItem</code>. */
+  public void setState(Boolean expState, int logStat) {
     props.setIsExpanded(expState);
     props.setLoggingState((Integer) logStat);
   }
 
-  /** *  Adds children to the <code>RuleTreeViewStateItem</code>. */
+  /** Adds children to the <code>RuleTreeViewStateItem</code>. */
   public void addChildren(HashMap<String, RuleTreeViewStateItem> e) {
     if (!e.isEmpty()) {
       e.forEach((key, val)
@@ -76,9 +78,8 @@ public class RuleTreeViewStateItem {
   }
 
   /**
-   * @param x
-   *        True, if the <code>RuleTreeViewStateItem</code> should be defined as an
-   *        import, else false
+   * @param x True, if the <code>RuleTreeViewStateItem</code> should be defined
+   * as an import, else false
    */
   public void isImport(Boolean x) {
     props.setIsImport(x);
@@ -111,9 +112,9 @@ public class RuleTreeViewStateItem {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * YAML
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Nullary constructor needed for YAML. */
   public RuleTreeViewStateItem() {}

@@ -140,12 +140,11 @@ public class MainApp extends Application {
     }
 
     menuController.init(model,
-        (chosenFile) -> {
-          RuleTreeViewState.loadState(chosenFile, ruleTreeViewController.getTreeView());
-        },
-        (chosenFile) -> {
-          RuleTreeViewState.saveState(chosenFile, ruleTreeViewController.getTreeView());
-        });
+        (chosenFile) -> RuleTreeViewState
+          .loadState(chosenFile, ruleTreeViewController.getTreeView()),
+        (chosenFile) -> RuleTreeViewState
+          .saveState(chosenFile, ruleTreeViewController.getTreeView())
+        );
     statusBarController.initModel(model);
     fileTreeViewController.init(model);
     ruleTreeViewController.init(model);

@@ -28,10 +28,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import org.slf4j.Logger;
@@ -41,7 +37,7 @@ import org.yaml.snakeyaml.Yaml;
 
 /**
  * Represents a complete RuleModel's state. It includes
- *  - the ruleLoggingState of every known rule,
+ *  - the logging state of every known rule,
  *  - the expansion state of every item in the ruleTreeView, and
  *  - the scrollbar position in the ruleTreeView. //TODO
  *
@@ -49,10 +45,9 @@ import org.yaml.snakeyaml.Yaml;
  *
  * Furthermore, it never forgets, meaning that a rule that ever appeared under
  * certain circumstances will be remembered forever. This is useful if a certain
- * Import has not been used for a while but the selection of its rules should
- * be used in the future. Using that Import again will then know its last Rules'
- * ruleLoggingState.
- *
+ * Import has not been used for a while but the selection of its rules should be
+ * used in the future. Using that Import again will also re-enable its
+ * selections.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -66,40 +61,40 @@ public class RuleTreeViewState {
     }}
   );
 
+
+  /* ***************************************************************************
+   * FIELDS
+   * **************************************************************************/
+
   /** Root item of RuleTreeViewState structure. */
   private RuleTreeViewStateItem _root;
 
 
-  /*****************************************************************************
-   * INITIALIZER
-   ****************************************************************************/
+  /* ***************************************************************************
+   * INITIALIZER / CONSTRUCTOR
+   * **************************************************************************/
 
   /** Creates a new RuleModelState. */
   private RuleTreeViewState() {}
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * RETRIEVE AND SET STATE METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
-  /**
-   * Retrieves the state of the ruleTreeView.
-   *
-   * @param tw
-   *        The current ruleTreeView
-   */
+  /** Retrieves the state of a given TreeView. */
   public static RuleTreeViewState retrieveStateOf(TreeView tw) {
 
     RuleTreeViewState rms = new RuleTreeViewState();
 
-    /* get root TreeItem of TreeView */
+    /* Get root TreeItem of given TreeView */
     TreeItem<ImportInfoExtended> root = tw.getRoot();
 
     rms._root = new RuleTreeViewStateItem(root.getValue().getLabel(),
             root.isExpanded(), root.getValue().getState());
     rms._root.isImport(true);
 
-    /* create the children and add them */
+    /* Create children and add them */
     rms._root.addChildren(retrieveStateOfHelper(root, rms._root));
 
     return rms;
@@ -109,12 +104,12 @@ public class RuleTreeViewState {
   /** Helper function of <code>retrieveStateOf</code>. */
   private static HashMap<String, RuleTreeViewStateItem>
           retrieveStateOfHelper(TreeItem tempItem,
-                  RuleTreeViewStateItem ruleItem) {
+            RuleTreeViewStateItem ruleItem) {
 
-    /* the returned RuleTreeViewStateItems */
+    /* The returned RuleTreeViewStateItems */
     HashMap<String, RuleTreeViewStateItem> map = new HashMap<>();
 
-    /* iterate over the children */
+    /* Iterate over the children */
     for (Object child : tempItem.getChildren()) {
       RuleTreeViewStateItem ruleStateItem;
 
@@ -124,17 +119,17 @@ public class RuleTreeViewState {
         RuleInfoExtended itemValue
                 = (RuleInfoExtended) ((TreeItem) child).getValue();
 
-        /* is the child already known? if not: create a new one */
+        /* Is the child already known? if not: create a new one */
         if (ruleItem.getChildrenNames().contains(item.getValue().getLabel())) {
           ruleStateItem = ruleItem.getChild(item.getValue().getLabel());
-          ruleStateItem.updateRuleStateItem(
+          ruleStateItem.setState(
                   item.isExpanded(), itemValue.getState()
           );
         } else {
           ruleStateItem = new RuleTreeViewStateItem(item.getValue().getLabel(),
                   item.isExpanded(), itemValue.getState());
 
-          /* if it is an import, mark it */
+          /* If it is an import, mark it */
           if (item.getValue() instanceof ImportInfoExtended) {
             ruleStateItem.isImport(true);
           }
@@ -145,50 +140,45 @@ public class RuleTreeViewState {
         ImportInfoExtended itemValue
                 = (ImportInfoExtended) ((TreeItem) child).getValue();
 
-        /* is the child already known? if not: create a new one */
+        /* Is the child already known? if not: create a new one */
         if (ruleItem.getChildrenNames().contains(item.getValue().getLabel())) {
           ruleStateItem = ruleItem.getChild(item.getValue().getLabel());
-          ruleStateItem.updateRuleStateItem(
+          ruleStateItem.setState(
                   item.isExpanded(), itemValue.getState()
           );
         } else {
           ruleStateItem = new RuleTreeViewStateItem(item.getValue().getLabel(),
                   item.isExpanded(), itemValue.getState());
 
-          /* if it is an import, mark it */
+          /* If it is an import, mark it */
           if (item.getValue() instanceof ImportInfoExtended) {
             ruleStateItem.isImport(true);
           }
         }
       }
 
-      /* create the children and add them */
+      /* Create children and add them */
       ruleStateItem.addChildren(retrieveStateOfHelper(item, ruleStateItem));
 
-      /* add them to the returned set */
+      /* Add them to the returned set */
       map.put(item.getValue().getLabel(), ruleStateItem);
     }
     return map;
   }
 
-  /**
-   * Sets the state of a given ruleTreeView.
-   *
-   * @param tw
-   *        The current ruleTreeView
-   */
+  /** Applies a given state to a given TreeView */
   public static void setStateOf(RuleTreeViewState rms, TreeView tw) {
 
-    /* get root TreeItem of TreeView */
+    /* Get root TreeItem of TreeView */
     TreeItem<ImportInfoExtended> root = (TreeItem) tw.getRoot();
 
-    /* has this item already appeared once? */
+    /* Has this item already appeared once? */
     if (root.getValue().getLabel().equals(rms.getRoot().getLabel())) {
 
-      /* set the expansion state */
+      /* Set the expansion state */
       root.setExpanded(rms.getRoot().getProps().getIsExpanded());
 
-      /* iterate over the children */
+      /* Iterate over the children */
       for (Object x : root.getChildren()) {
         TreeItem y = (TreeItem) x;
         setStateOfHelper(y, rms.getRoot());
@@ -203,19 +193,19 @@ public class RuleTreeViewState {
 
     String lab = obj.getValue().getLabel();
 
-    /* has this TreeItem already appeared once? */
+    /* Has this TreeItem already appeared once? */
     if (item.getChildrenNames().contains(lab)) {
 
-      /* set the expansion state */
+      /* Set the expansion state */
       obj.setExpanded(item.getChild(lab).getProps().getIsExpanded());
 
-      /* if this is a rule, also set the log state */
+      /* If this is a rule, also set the log state */
       if (obj.getValue() instanceof RuleInfoExtended) {
         RuleInfoExtended rule = (RuleInfoExtended) obj.getValue();
         rule.setState(item.getChild(lab).getProps().getLoggingState());
       }
 
-      /* iterate over the children */
+      /* Iterate over the children */
       for (Object x : obj.getChildren()) {
         TreeItem<BasicInfo> y = (TreeItem) x;
         setStateOfHelper(y, item.getChild(lab));
@@ -224,24 +214,32 @@ public class RuleTreeViewState {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * SAVE AND LOAD METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
-  /** Saves the current RuleModel state in a file. */
+  /**
+   * Saves the state of a given TreeView to a specified path.
+   *
+   * @param newFile The chosen save path
+   * @param treeView The ruleTreeView
+   */
   public static void saveState(Path newFile, TreeView treeView) {
     RuleTreeViewState rtvs = retrieveStateOf(treeView);
     try {
       FileWriter writer = new FileWriter(newFile.toFile());
       YAML.dump(rtvs, writer);
-  } catch (IOException e) {
+    } catch (IOException e) {
       log.error(e.getMessage());
     }
     log.debug("Saved file " + newFile.toString());
-
   }
 
-  /** Loads a saved RuleModel state from a file. */
+  /** Loads a saved RuleModel state from a file.
+   *
+   * @param path The chosen configuration's file
+   * @param treeView The ruleTreeView
+   */
   public static void loadState(Path path, TreeView treeView) {
     RuleTreeViewState rtvs;
     try {
@@ -255,9 +253,9 @@ public class RuleTreeViewState {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * PRETTY PRINTING
-   ****************************************************************************/
+   * **************************************************************************/
 
   /**
    * Pretty prints the RuleTreeViewState.
@@ -266,9 +264,7 @@ public class RuleTreeViewState {
    */
   @Override
   public String toString() {
-    if (_root == null) {
-      return "RuleTreeViewState is empty";
-    }
+    if (_root == null) return "RuleTreeViewState is empty";
 
     String returnVal = "";
     returnVal += _root.toString() + "\n";
@@ -292,14 +288,14 @@ public class RuleTreeViewState {
   }
 
 
-  /*****************************************************************************
-   * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
-   ****************************************************************************/
+  /* ***************************************************************************
+   * GETTERS AND SETTERS FOR PRIVATE FIELDS
+   * **************************************************************************/
 
-  /** @Return The root item of RuleModelState */
+  /** @return The root item of RuleModelState */
   public RuleTreeViewStateItem getRoot() { return _root; }
 
-  /** Sets the root item of RuleTreeViewState. */
+  /** Sets the root item of RuleTreeViewState. (NEEDED FOR YAML) */
   public void setRoot(RuleTreeViewStateItem root) { _root = root; }
 
 }
