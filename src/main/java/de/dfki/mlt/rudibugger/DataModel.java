@@ -19,6 +19,7 @@
 
 package de.dfki.mlt.rudibugger;
 
+import static de.dfki.mlt.rudibugger.Constants.OVERWRITE_PROJECT;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
 import java.nio.file.Path;
@@ -90,9 +91,12 @@ public class DataModel {
 
   public void openProject(Path projectYamlPath) {
     if (_loadedProject.get() != null) {
-      // TODO: Check for closing / opening of new project
+      if (OVERWRITE_PROJECT != HelperWindows.openOverwriteProjectCheckDialog(
+              _loadedProject.get().getProjectName()))
+        return;
     }
     Project newProject = Project.openProject(projectYamlPath, globalConf);
+    if (newProject == null) return; // Project could not be opened
     _loadedProject.set(newProject);
     if (globalConf.getAutomaticallyConnectToVonda())
       getLoadedProject().vonda.connect(getLoadedProject().getVondaPort());

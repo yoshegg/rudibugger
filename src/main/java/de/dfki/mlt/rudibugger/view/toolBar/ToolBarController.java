@@ -77,20 +77,30 @@ public class ToolBarController {
 
     _compileButtonController = CompileButtonController.init(compileButton,
             toolBar);
-//    vondaConnectionButton.setOnAction(xxx);
     listenForPoject();
   }
 
   private void listenForPoject() {
     _model.loadedProjectProperty().addListener((o, ov, project) -> {
-      vondaConnectionButton.update(project);
-      listenForCompilerChanges(project.compiler);
+      if (project != null) {
+        listenForCompilerChanges(project.compiler);
+        listenForConnetionChanges(project.vonda);
+        vondaConnectionButton.update(project.vonda.getConnectionState());
+      } else {
+        _compileButtonController.disableCompileButton();
+        vondaConnectionButton.reset();
+      }
     });
 
   }
 
   private void listenForCompilerChanges(VondaCompiler compiler) {
+    // listen to ObservableList in compiler containing all compile commands
+  }
 
+  private void listenForConnetionChanges(VondaRuntimeConnection vonda) {
+    vonda.connectedProperty().addListener(l -> vondaConnectionButton
+      .update(vonda.getConnectionState()));
   }
 
 
@@ -108,11 +118,12 @@ public class ToolBarController {
   @FXML
   private void toggleVondaConnectionState(ActionEvent event) {
     VondaRuntimeConnection vonda = _model.getLoadedProject().vonda;
-    int connectionStatus = vonda.connectedProperty().get();
-    if (connectionStatus == DISCONNECTED_FROM_VONDA)
+    if (vonda.getConnectionState() == DISCONNECTED_FROM_VONDA)
       vonda.connect(_model.getLoadedProject().getVondaPort());
     else
       vonda.closeConnection();
+    vondaConnectionButton.update(vonda.getConnectionState());
+
   }
 
 

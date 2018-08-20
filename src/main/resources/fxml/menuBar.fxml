@@ -42,14 +42,14 @@
             </Menu>
             <MenuItem fx:id="closeProjectItem" disable="true" mnemonicParsing="false" onAction="#closeProjectAction" text="Close Project" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <Menu fx:id="loadLoggingStateMenu" disable="true" mnemonicParsing="false" onMenuValidation="#buildLoadRuleSelectionStateMenu" text="Load logging state">
+            <Menu fx:id="loadRuleLoggingStateMenu" disable="true" mnemonicParsing="false" onMenuValidation="#buildLoadRuleSelectionStateMenu" text="Load rule logging state">
                <items>
                   <MenuItem fx:id="noRecentConfigurationFound" disable="true" mnemonicParsing="false" text="No recent configuration found." />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="openRuleLoggingStateItem" mnemonicParsing="false" onAction="#openRuleLoggingStateConfigurationFile" text="Open configuration file..." />
                </items>
             </Menu>
-            <MenuItem fx:id="saveLoggingStateItem" disable="true" mnemonicParsing="false" onAction="#saveLoggingStateAction" text="Save logging state..." />
+            <MenuItem fx:id="saveLoggingStateItem" disable="true" mnemonicParsing="false" onAction="#saveLoggingStateAction" text="Save rule logging state..." />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem fx:id="saveItem" disable="true" mnemonicParsing="false" onAction="#saveAction" text="Save">
                <accelerator>
@@ -127,8 +127,8 @@
       </Menu>
       <Menu mnemonicParsing="false" text="Help">
          <items>
-            <MenuItem disable="true" mnemonicParsing="false" text="Help Contents" />
-            <MenuItem mnemonicParsing="false" onAction="#openAboutWindow" text="About Rudibugger" />
+            <MenuItem mnemonicParsing="false" onAction="#openHelp" text="Help Contents" />
+            <MenuItem mnemonicParsing="false" onAction="#openAboutWindow" text="About rudibugger" />
          </items>
       </Menu>
    </menus>

@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
  */
 public class MainApp extends Application {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("mainLog");
 
 
@@ -155,7 +154,9 @@ public class MainApp extends Application {
         (chosenFile) -> RuleTreeViewState
           .loadState(chosenFile, ruleTreeViewController.getTreeView()),
         (chosenFile) -> RuleTreeViewState
-          .saveState(chosenFile, ruleTreeViewController.getTreeView())
+          .saveState(chosenFile, ruleTreeViewController.getTreeView()),
+        stage,
+        getHostServices()
         );
     toolController.init(model);
     statusBarController.initModel(model);

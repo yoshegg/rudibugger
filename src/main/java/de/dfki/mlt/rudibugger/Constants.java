@@ -127,4 +127,14 @@ public class Constants {
   public static final int CLOSE_BUT_SAVE_FIRST = 1;
   public static final int CLOSE_WITHOUT_SAVING = 2;
 
+
+  /*****************************************************************************
+   * URLS
+   ****************************************************************************/
+
+  public static final String HELP_URL
+    = "https://rudibugger.readthedocs.io/en/latest/";
+  public static final String GITHUB_URL
+    = "https://github.com/yoshegg/rudibugger";
+
 }

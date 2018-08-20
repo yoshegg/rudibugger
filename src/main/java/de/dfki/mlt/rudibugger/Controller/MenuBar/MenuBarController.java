@@ -34,9 +34,18 @@ import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.MainApp;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
+import java.awt.Desktop;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.logging.Level;
+import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 /**
  * This controller's purpose is to manage the MenuBar and the ToolBar of
@@ -50,27 +59,64 @@ public class MenuBarController {
 
   private DataModel _model;
 
-  /** Represents a potentially loaded project. */
-//  private Project _project;
-
-
-  /*****************************************************************************
-   * EXTENSIONS OF THE MENU CONTROLLER
-   ****************************************************************************/
-
-
   private Consumer<Path> loadRuleState, saveRuleState;
 
+  private Stage _mainStage;
+
+  /** Needed to open web pages. */
+  private HostServices _hostServices;
+
+
   /*****************************************************************************
-   * INITIALIZERS / CONSTRUCTORS
+   * GUI ITEMS
    ****************************************************************************/
 
+  @FXML
+  private MenuItem newRudiFileItem;
+
+  @FXML
+  private Menu openRecentProjectMenu;
+
+  @FXML
+  private MenuItem closeProjectItem;
+
+
+  @FXML
+  private Menu loadRuleLoggingStateMenu;
+
+  @FXML
+  private MenuItem openRuleLoggingStateItem;
+
+  @FXML
+  private MenuItem saveLoggingStateItem;
+
+
+  @FXML
+  private MenuItem saveItem;
+
+  @FXML
+  private MenuItem saveAsItem;
+
+  @FXML
+  private MenuItem saveAllItem;
+
+
+  @FXML
+  private MenuItem findInProjectItem;
+
+
+  /* ***************************************************************************
+   * INITIALIZERS / CONSTRUCTORS
+   * **************************************************************************/
+
   /** Initializes this controller. */
-  public void init(DataModel model, Consumer<Path> lrs, Consumer<Path> srs) {
+  public void init(DataModel model, Consumer<Path> lrs, Consumer<Path> srs,
+    Stage mainStage, HostServices hostServices) {
     loadRuleState = lrs;
     saveRuleState = srs;
+    _mainStage = mainStage;
     _model = model;
-
+    _hostServices = hostServices;
 
     listenForProject();
   }
@@ -90,11 +136,16 @@ public class MenuBarController {
     });
   }
 
+
+  /* ***************************************************************************
+   * METHODS
+   * **************************************************************************/
+
   private void toggleProjectSpecificMenuItems(boolean projectLoaded) {
     boolean val = ! projectLoaded;
     newRudiFileItem.setDisable(val);
     closeProjectItem.setDisable(val);
-    loadLoggingStateMenu.setDisable(val);
+    loadRuleLoggingStateMenu.setDisable(val);
     saveLoggingStateItem.setDisable(val);
     findInProjectItem.setDisable(val);
   }
@@ -149,7 +200,7 @@ public class MenuBarController {
     _model.globalConf.recentProjects.forEach((x) -> {
       MenuItem mi = new MenuItem(x);
       mi.setOnAction((event) -> {
-        checkForOpenProject();
+        _model.openProject(Paths.get(x));
       });
       openRecentProjectMenu.getItems().add(mi);
     });
@@ -157,7 +208,7 @@ public class MenuBarController {
 
   /**
    * Builds the menu offering to load the 10 most recent RuleTreeViewState
- configurations.
+   * configurations.
    */
   @FXML
   private void buildLoadRuleSelectionStateMenu() {
@@ -165,170 +216,23 @@ public class MenuBarController {
     if (project == null) return;
 
     if (!project.getRecentStates().isEmpty()) {
-      loadLoggingStateMenu.getItems().clear();
+      loadRuleLoggingStateMenu.getItems().clear();
       project.getRecentStates().forEach((x) -> {
         String filenameWithFolder = project.getRuleModelStatesFolder()
                 .relativize(x).toString();
         MenuItem mi = new MenuItem(filenameWithFolder);
         mi.setOnAction((event) -> { loadRuleState.accept(x); });
-        loadLoggingStateMenu.getItems().add(mi);
+        loadRuleLoggingStateMenu.getItems().add(mi);
       });
     } else {
-      loadLoggingStateMenu.getItems().clear();
-      loadLoggingStateMenu.getItems().add(noRecentConfigurationFound);
+      loadRuleLoggingStateMenu.getItems().clear();
+      loadRuleLoggingStateMenu.getItems()
+        .add(new MenuItem("No recent configuration found."));
     }
-    loadLoggingStateMenu.getItems().add(new SeparatorMenuItem());
-    loadLoggingStateMenu.getItems().add(openRuleLoggingStateItem);
+    loadRuleLoggingStateMenu.getItems().add(new SeparatorMenuItem());
+    loadRuleLoggingStateMenu.getItems().add(openRuleLoggingStateItem);
   }
 
-  /**
-   * This function is used to check for open projects
-   * TODO: Should probably be somewhere else
-   *
-   * @param ymlFile null, if the project has not been defined yet, else the Path
-   * to the project's .yml file
-   */
-  private boolean checkForOpenProject() {
-
-    /* a project is already open */
-    if (_model.isProjectLoaded()) {
-      return OVERWRITE_PROJECT == HelperWindows.openOverwriteProjectCheckDialog(
-              _model.getLoadedProject().getProjectName());
-    }
-    return true;
-  }
-
-  /*****************************************************************************
-   * Menu items actions (from menu bar)
-   ****************************************************************************/
-
-  @FXML
-  private void findInProject(ActionEvent event) {
-    HelperWindows.openSearchWindow(_model.mainStage, _model.getLoadedProject());
-  }
-
-  @FXML
-  private MenuItem findInProjectItem;
-
-  /********* File *********/
-
-
-  /** MenuItem "New Project..." */
-  @FXML
-  private MenuItem newProjectItem;
-
-  /** Action "New Project..." */
-  @FXML
-  private void newProjectAction(ActionEvent event) {
-    _model.createNewProject();
-  }
-
-
-  /** MenuItem "New rudi File..." */
-  @FXML
-  private MenuItem newRudiFileItem;
-
-  /** Action "New rudi File..." */
-  @FXML
-  private void newRudiFileAction(ActionEvent event)
-          throws FileNotFoundException {
-    _model.getLoadedProject().openFile(null);
-  }
-
-
-  /** MenuItem "Open Project..." */
-  @FXML
-  private MenuItem openProjectItem;
-
-  /** Action "Open Project..." */
-  @FXML
-  private void openProjectAction(ActionEvent event)
-          throws FileNotFoundException, IOException, IllegalAccessException {
-    if (checkForOpenProject()) {
-      Path projectYml = HelperWindows.openYmlProjectFileDialog(_model.mainStage);
-      _model.openProject(projectYml);
-    }
-  }
-
-
-  /** Menu "Open Recent Project" */
-  @FXML
-  private Menu openRecentProjectMenu;
-
-
-  /** MenuItem "Close Project" */
-  @FXML
-  private MenuItem closeProjectItem;
-
-  /** Action "Close Project" */
-  @FXML
-  private void closeProjectAction(ActionEvent event)
-          throws FileNotFoundException {
-    _model.closeProject();
-  }
-
-
-  /** MenuItem "No recent configuration found. */
-  @FXML
-  private MenuItem noRecentConfigurationFound;
-
-  /** MenuItem "Open configuration file... */
-  @FXML
-  private MenuItem openRuleLoggingStateItem;
-
-  /** Menu "Load logging state" */
-  @FXML
-  private Menu loadLoggingStateMenu;
-
-  /** Action "Open configuration file..." */
-  @FXML
-  private void openRuleLoggingStateConfigurationFile(ActionEvent event) {
-    Path saveFolder = _model.getLoadedProject().getRuleModelStatesFolder();
-    Path chosenFile = HelperWindows.openRuleLoggingStateFileDialog(
-            _model.mainStage, saveFolder);
-    if (chosenFile == null) return;
-    loadRuleState.accept(chosenFile);
-  }
-
-  /** MenuItem "Save logging state..." */
-  @FXML
-  private MenuItem saveLoggingStateItem;
-
-  /** Action "Save logging state" */
-  @FXML
-  private void saveLoggingStateAction(ActionEvent event) {
-    Path saveFolder = _model.getLoadedProject().getRuleModelStatesFolder();
-    Path newStateFile = HelperWindows.openSaveRuleModelStateDialog(
-            _model.mainStage, saveFolder);
-    saveRuleState.accept(newStateFile);
-  }
-
-
-  /** MenuItem "Save" */
-  @FXML
-  private MenuItem saveItem;
-
-  /** Action "Save" */
-  @FXML
-  private void saveAction(ActionEvent event) {
-    _model.getLoadedProject().quickSaveFile(
-            _model.getLoadedProject().getTabStore().currentlySelectedTabProperty().get());
-  }
-
-
-  /** MenuItem "Save as..." */
-  @FXML
-  private MenuItem saveAsItem;
-
-  /** Action "Save as..." */
-  @FXML
-  private void saveAsAction(ActionEvent event) {
-    RudiTab currentTab = _model.getLoadedProject().getTabStore().currentlySelectedTabProperty().get();
-
-
-//    _model.getLoadedProject().saveFileAs( // TODO
-//            _model.getLoadedProject().getTabStore().currentlySelectedTabProperty().get());
-  }
 
   /**
    * Save tab's content into a new file.
@@ -356,22 +260,81 @@ public class MenuBarController {
   }
 
 
-  /** MenuItem "Save all" */
-  @FXML
-  private MenuItem saveAllItem;
+  /* ***************************************************************************
+   * MENU ACTIONS
+   * **************************************************************************/
 
-  /** Action "Save all" */
+  /* ***************************************************************************
+   * FILE
+   * **************************************************************************/
+
+  @FXML
+  private void newProjectAction(ActionEvent event) {
+    _model.createNewProject();
+  }
+
+  @FXML
+  private void newRudiFileAction(ActionEvent event)
+          throws FileNotFoundException {
+    _model.getLoadedProject().openFile(null);
+  }
+
+
+  @FXML
+  private void openProjectAction(ActionEvent event)
+          throws FileNotFoundException, IOException, IllegalAccessException {
+    Path projectYml = HelperWindows.openYmlProjectFileDialog(_mainStage);
+    _model.openProject(projectYml);
+  }
+
+  @FXML
+  private void closeProjectAction(ActionEvent event)
+          throws FileNotFoundException {
+    _model.closeProject();
+  }
+
+
+  @FXML
+  private void openRuleLoggingStateConfigurationFile(ActionEvent event) {
+    Path saveFolder = _model.getLoadedProject().getRuleModelStatesFolder();
+    Path chosenFile = HelperWindows.openRuleLoggingStateFileDialog(
+            _model.mainStage, saveFolder);
+    if (chosenFile == null) return;
+    loadRuleState.accept(chosenFile);
+  }
+
+  @FXML
+  private void saveLoggingStateAction(ActionEvent event) {
+    Path saveFolder = _model.getLoadedProject().getRuleModelStatesFolder();
+    Path newStateFile = HelperWindows.openSaveRuleModelStateDialog(
+            _model.mainStage, saveFolder);
+    saveRuleState.accept(newStateFile);
+  }
+
+
+  @FXML
+  private void saveAction(ActionEvent event) {
+    _model.getLoadedProject().quickSaveFile(
+            _model.getLoadedProject().getTabStore()
+              .currentlySelectedTabProperty().get());
+  }
+
+  @FXML
+  private void saveAsAction(ActionEvent event) {
+    RudiTab currentTab = _model.getLoadedProject().getTabStore()
+      .currentlySelectedTabProperty().get();
+
+
+//    _model.getLoadedProject().saveFileAs( // TODO
+//            _model.getLoadedProject().getTabStore().currentlySelectedTabProperty().get());
+  }
+
   @FXML
   private void saveAllAction(ActionEvent event) {
     _model.getLoadedProject().quickSaveAllFiles();
   }
 
 
-  /** MenuItem "Exit" */
-  @FXML
-  private MenuItem exitItem;
-
-  /** Action "Exit" */
   @FXML
   private void exitAction(ActionEvent event) {
     _model.layout.saveLayoutToFile();
@@ -379,16 +342,44 @@ public class MenuBarController {
   }
 
 
-  /********* Tools *********/
+  /* ***************************************************************************
+   * EDIT
+   * **************************************************************************/
+
   @FXML
-  private void openSettingsDialog(ActionEvent event) {
-    HelperWindows.showSettingsWindow(_model.mainStage, _model.globalConf, _model.emacs);
+  private void findInProject(ActionEvent event) {
+    HelperWindows.openSearchWindow(_mainStage, _model.getLoadedProject());
   }
 
-  /********* Help *********/
+
+  /* ***************************************************************************
+   * TOOLS
+   * **************************************************************************/
+
+  @FXML
+  private void openSettingsDialog(ActionEvent event) {
+    HelperWindows.showSettingsWindow(_mainStage, _model.globalConf,
+      _model.emacs);
+  }
+
+
+  /* ***************************************************************************
+   * HELP
+   * **************************************************************************/
+
+  @FXML
+  private void openHelp(ActionEvent event) {
+    try {
+      _hostServices.showDocument(new URL(HELP_URL).toURI().toString());
+    } catch (MalformedURLException | URISyntaxException ex) {
+      log.error(ex.getMessage());
+    }
+  }
+
   @FXML
   private void openAboutWindow(ActionEvent event) {
-    HelperWindows.showAboutWindow(_model.mainStage);
+    HelperWindows.showAboutWindow(_mainStage);
   }
+
 
 }

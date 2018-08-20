@@ -42,22 +42,6 @@ public class TabStore {
   /** The logger. */
   static Logger log = LoggerFactory.getLogger("TabStore");
 
-  /** The <code>DataModel</code>. */
-//  private final DataModel _model;
-
-
-  /*****************************************************************************
-   * INITIALIZER
-   ****************************************************************************/
-
-  /**
-   * Initializes this project specific addition of <code>DataModel</code>.
-   *
-   * @param model The current <code>DataModel</code>
-   */
-//  public TabStore(DataModel model) { _model = model; }
-
-
   /*****************************************************************************
    * PROPERTIES
    ****************************************************************************/

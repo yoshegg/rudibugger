@@ -19,7 +19,6 @@
 package de.dfki.mlt.rudibugger.view.toolBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.project.Project;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
 
@@ -31,13 +30,15 @@ public class ConnectionButton extends Button {
 
   public ToolBar getParentToolBar() { return (ToolBar) super.getParent(); }
 
-  public void update(Project project) {
-    if (project == null) {
-      setText("No project");
-      setOnMouseEntered(e -> setText(null));
-      setOnMouseExited(e -> setText(null));
-      setDisable(true);
-    } else switch(project.vonda.connectedProperty().get()) {
+  public void reset() {
+    setText("No project");
+    setOnMouseEntered(e -> setText(null));
+    setOnMouseExited(e -> setText(null));
+    setDisable(true);
+  }
+
+  public void update(int connectionState) {
+    switch(connectionState) {
       case CONNECTED_TO_VONDA:
         setText("Connected");
         setOnMouseEntered(e -> setText("Disconnect"));
@@ -55,7 +56,7 @@ public class ConnectionButton extends Button {
         setOnMouseEntered(e -> setText("Connect"));
         setOnMouseExited(e -> setText("Disconnected"));
         setDisable(false);
-      }
+    }
   }
 
 

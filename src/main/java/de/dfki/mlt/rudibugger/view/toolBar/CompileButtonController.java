@@ -90,6 +90,14 @@ public class CompileButtonController {
     extendedCompileButton.setOnAction(eh);
   }
 
+  public void disableCompileButton() {
+    if (toolBar.getItems().contains(extendedCompileButton)) {
+      toolBar.getItems().remove(extendedCompileButton);
+      toolBar.getItems().add(0, standardCompileButton);
+    }
+    standardCompileButton.setDisable(true);
+  }
+
   /**
    * Defines the look and file of the compile button.
    *

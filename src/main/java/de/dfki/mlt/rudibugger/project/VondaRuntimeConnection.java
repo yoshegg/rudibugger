@@ -20,21 +20,14 @@
 package de.dfki.mlt.rudibugger.project;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
-import de.dfki.mlt.rudibugger.RPC.JavaFXLogger;
-import de.dfki.mlt.rudibugger.RPC.LogData;
-import de.dfki.mlt.rudibugger.RPC.RudibuggerAPI;
-import de.dfki.mlt.rudibugger.RPC.RudibuggerClient;
+import de.dfki.mlt.rudibugger.RPC.*;
 import de.dfki.mlt.rudimant.common.RuleLogger;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.application.Platform;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableMap;
 import org.slf4j.Logger;
@@ -136,8 +129,6 @@ public class VondaRuntimeConnection {
    * it is <code>vondaPort</code>.)
    */
   public void connect(int vondaPort) {
-//    int vondaPort = _model.project.getVondaPort();
-
     _client = new RudibuggerClient("localhost", vondaPort,
         new RudibuggerAPI(this));
 
@@ -257,5 +248,8 @@ public class VondaRuntimeConnection {
 
   /** @return The connection status property */
   public IntegerProperty connectedProperty() { return connected; }
+
+  /** @return The connection state */
+  public int getConnectionState() { return connected.get(); }
 
 }

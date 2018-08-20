@@ -18,13 +18,8 @@
  */
 package de.dfki.mlt.rudibugger.view.fileTreeView;
 
-import static de.dfki.mlt.rudibugger.Constants.FILE_IS_MAIN;
-import static de.dfki.mlt.rudibugger.Constants.FILE_IS_WRAPPER;
-import static de.dfki.mlt.rudibugger.Constants.FILE_NOT_USED;
-import static de.dfki.mlt.rudibugger.Constants.FILE_USED;
+import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.view.fileTreeView.RudiHierarchy;
-import de.dfki.mlt.rudibugger.view.fileTreeView.RudiTreeCell;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
 import java.nio.file.Path;
