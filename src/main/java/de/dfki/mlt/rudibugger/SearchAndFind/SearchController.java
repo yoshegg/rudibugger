@@ -18,7 +18,7 @@
  */
 package de.dfki.mlt.rudibugger.SearchAndFind;
 
-import de.dfki.mlt.rudibugger.project.Project;
+import de.dfki.mlt.rudibugger.Editor.Editor;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.beans.property.SimpleStringProperty;
@@ -37,41 +37,29 @@ import org.slf4j.LoggerFactory;
  */
 public class SearchController {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("SearchCont.");
 
-  /** TODO */
-  private Project _project;
+  /** Is used to open and show a selected result. */
+  private Editor _editor;
 
-  /** TODO */
+  /** Represents the path that will be searched. */
+  private Path _searchPath;
+
+  /** Represents the search shown in the current window. */
   private Search _search;
 
-//  /**
-//   * Initializes the SearchController.
-//   *
-//   * @param model
-//   */
-//  public void initModel(DataModel model) {
-//    if (_model != null) {
-//      throw new IllegalStateException("Model can only be initialized once");
-//    }
-//    _model = model;
-//
-//    setUpTableView();
-//    setUpSearchListeners();
-//  }
-
-  public void init(Project project) {
-    _project = project;
-    _search = new Search(_project);
+  public void init(Editor editor, Path searchPath) {
+    _search = new Search(searchPath);
+    _editor = editor;
+    _searchPath = searchPath;
     setUpTableView();
     setUpSearchListeners();
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Defines when to start a new executeSearch. */
   private void setUpSearchListeners() {
@@ -114,10 +102,10 @@ public class SearchController {
   private void openLine() {
     String[] selectedEntry = ((String[]) searchResultTable.getSelectionModel()
       .getSelectedItem());
-    Path rudiFile = _project.getRudiFolder()
+    Path rudiFile = _searchPath
       .resolve(Paths.get(selectedEntry[0]));
     int lineNumber = Integer.decode(selectedEntry[1]);
-    _project.openRule(rudiFile, lineNumber);
+    _editor.loadFileAtLine(rudiFile, lineNumber);
   }
 
   /** Runs a executeSearch with the current content of the searchTextField. */
@@ -130,9 +118,9 @@ public class SearchController {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * GUI ELEMENTS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Represents the TextField used to enter a executeSearch. */
   @FXML

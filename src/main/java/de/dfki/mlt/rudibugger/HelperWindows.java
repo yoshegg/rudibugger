@@ -24,6 +24,7 @@ import de.dfki.mlt.rudibugger.Controller.AboutController;
 import de.dfki.mlt.rudibugger.Controller.SettingsController;
 import de.dfki.mlt.rudibugger.DataModelAdditions.EmacsConnection;
 import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
+import de.dfki.mlt.rudibugger.Editor.Editor;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.SearchAndFind.SearchController;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
@@ -165,7 +166,8 @@ public final class HelperWindows {
    * SEARCH WINDOW
    ****************************************************************************/
 
-  public static void openSearchWindow(Stage mainStage, Project project) {
+  public static void openSearchWindow(Stage mainStage, Editor editor,
+    Path searchPath) {
 
     /* Load .fxml file */
     AnchorPane page;
@@ -181,7 +183,7 @@ public final class HelperWindows {
 
     /* Set controller */
     SearchController controller = loader.getController();
-    controller.init(project);
+    controller.init(editor, searchPath);
 
     Stage findStage = createWindow(mainStage, page, "Find in project...");
     findStage.setResizable(false);

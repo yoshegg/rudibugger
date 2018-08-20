@@ -18,10 +18,10 @@
  */
 package de.dfki.mlt.rudibugger.SearchAndFind;
 
-import de.dfki.mlt.rudibugger.project.Project;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class contains functionality to executeSearch through <code>.rudi</code>
- * files via plain-text search. As underlying tool it uses grep, which
- * might be problematic on non-unix systems.
+ * files via plain-text search. As underlying tool it uses grep, but this might
+ * be problematic on non-UNIX systems.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -41,10 +41,13 @@ public class Search {
 
   static Logger log = LoggerFactory.getLogger("vondaCompile");
 
-  private final Project _project;
+  /** Represents the path that will be search through recursively. */
+  private final Path _searchPath;
 
   /** Creates a new search. */
-  public Search(Project project) { _project = project; }
+  public Search(Path searchPath) {
+    _searchPath = searchPath;
+  }
 
   /** Represents the found results of a search. */
   public ObservableList<String[]> searchResults
@@ -100,7 +103,7 @@ public class Search {
 
     /* Create a new process */
     ProcessBuilder pb = new ProcessBuilder(commands);
-    pb.directory(_project.getRudiFolder().toFile());
+    pb.directory(_searchPath.toFile());
 
     /* Executes the executeSearch command */
     try {
