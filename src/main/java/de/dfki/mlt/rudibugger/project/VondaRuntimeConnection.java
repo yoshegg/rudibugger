@@ -135,8 +135,8 @@ public class VondaRuntimeConnection {
     _client = new RudibuggerClient("localhost", vondaPort,
         new RudibuggerAPI(this));
 
-    connected.set(ESTABLISHING_CONNECTION);
     connected.addListener(connectionStateListener);
+    connected.set(ESTABLISHING_CONNECTION);
 
     log.debug("RudibuggerClient has been started "
             + "on port [" + vondaPort + "].");

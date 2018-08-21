@@ -108,17 +108,14 @@ public class Project {
   /** Represents the connection to VOnDA's runtime system. */
   public VondaRuntimeConnection vonda;
 
-//  /** Contains information about the opened tabs. */
-//  private final TabStore _tabStore = new TabStore();
-
   /** Represents VOnDAs compiler. */
   public VondaCompiler compiler = new VondaCompiler(this);
 
   /** Watches the .rudi folder for changes. */
-  private final RudiFolderWatch _rudiFolderWatch;
+  private RudiFolderWatch _rudiFolderWatch;
 
   /** Watches the RuleLoc.yml file for changes. */
-  private final RuleLocationYamlWatch _ruleLocYamlWatch;
+  private RuleLocationYamlWatch _ruleLocYamlWatch;
 
 
 
@@ -161,22 +158,26 @@ public class Project {
     _ruleModelStatesFolder = retrieveRuleModelStatesFolder();
 
     _rudiHierarchy = new RudiHierarchy(_rudiFolder, _ruleLocYaml);
-    _rudiFolderWatch = RudiFolderWatch.createRudiFolderWatch(
-          _rudiHierarchy, _rudiFolder);
-    _ruleLocYamlWatch = RuleLocationYamlWatch.createRuleLocationWatch(
-            this, _rudiHierarchy, getGeneratedFilesFolder());
+    initWatches();
     initCompileCommands();
     enableListeners();
 
     if (Files.exists(_ruleLocYaml)) {
       initRuleModel();
-      vonda = new VondaRuntimeConnection(_ruleModel.get());
     }
   }
 
-  public void initRuleModel() {
+  public final void initRuleModel() {
     RuleModel rm = RuleModel.createRuleModel(_rudiFolder, _ruleLocYaml);
+    vonda = new VondaRuntimeConnection(rm);
     _ruleModel.set(rm);
+  }
+
+  private void initWatches() {
+    _rudiFolderWatch = RudiFolderWatch.createRudiFolderWatch(
+          _rudiHierarchy, _rudiFolder);
+    _ruleLocYamlWatch = RuleLocationYamlWatch.createRuleLocationWatch(
+            this, _rudiHierarchy, getGeneratedFilesFolder());
   }
 
 
@@ -188,7 +189,7 @@ public class Project {
       "Aborted initializing of project fields.";
 
   private static final String CONTINUE_MESSAGE =
-      "Continuing initiliazing of project fields.";
+      "Continuing initializing of project fields.";
 
   /** Contains the keys a default project configuration file. */
   private static final HashSet<String> DEFAULT_PROJECT_CONFIGURATION_KEYS =
@@ -313,7 +314,7 @@ public class Project {
    * @return The project's generated directory
    * (usually src/main/resources/generated)
    */
-  public Path getGeneratedFilesFolder() {
+  public final Path getGeneratedFilesFolder() {
     return _rootFolder.resolve(PATH_TO_GENERATED_FOLDER);
   }
 

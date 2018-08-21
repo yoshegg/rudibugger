@@ -104,16 +104,9 @@ public class DataModel {
     Project newProject = Project.openProject(projectYamlPath, globalConf);
     if (newProject == null) return; // Project could not be opened
     _loadedProject.set(newProject);
-    if (globalConf.getAutomaticallyConnectToVonda())
+    if (newProject.getRuleModel() != null
+        && globalConf.getAutomaticallyConnectToVonda())
       getLoadedProject().vonda.connect(getLoadedProject().getVondaPort());
-    getLoadedProject().vonda.connectedProperty().addListener((o, ov, nv) -> {
-      if (nv.intValue() == CONNECTED_TO_VONDA) {
-        HelperWindows.showRuleLoggingWindow(mainStage,
-          getLoadedProject(), _editor, globalConf);
-      } else if (nv.intValue() == DISCONNECTED_FROM_VONDA) {
-        HelperWindows.closeRuleLoggingWindow();
-      }
-    });
   }
 
   public void closeProject() {

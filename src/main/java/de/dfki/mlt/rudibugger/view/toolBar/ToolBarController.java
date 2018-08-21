@@ -18,8 +18,11 @@
  */
 package de.dfki.mlt.rudibugger.view.toolBar;
 
+import static de.dfki.mlt.rudibugger.Constants.CONNECTED_TO_VONDA;
 import static de.dfki.mlt.rudibugger.Constants.DISCONNECTED_FROM_VONDA;
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.HelperWindows;
+import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.project.VondaCompiler;
 import de.dfki.mlt.rudibugger.project.VondaRuntimeConnection;
 import javafx.event.ActionEvent;
@@ -84,8 +87,14 @@ public class ToolBarController {
     _model.loadedProjectProperty().addListener((o, ov, project) -> {
       if (project != null) {
         listenForCompilerChanges(project.compiler);
-        listenForConnetionChanges(project.vonda);
-        vondaConnectionButton.update(project.vonda.getConnectionState());
+        listenForRuleModelChanges(project);
+        if (project.getRuleModel() == null) {
+          vondaConnectionButton.update(project.getRuleModel(),
+            DISCONNECTED_FROM_VONDA);
+        } else {
+          vondaConnectionButton.update(project.getRuleModel(),
+            project.vonda.getConnectionState());
+        }
         _compileButtonController.defineCompileButton(project, project.compiler);
       } else {
         _compileButtonController.disableCompileButton();
@@ -99,9 +108,25 @@ public class ToolBarController {
     // listen to ObservableList in compiler containing all compile commands
   }
 
-  private void listenForConnetionChanges(VondaRuntimeConnection vonda) {
-    vonda.connectedProperty().addListener(l -> vondaConnectionButton
-      .update(vonda.getConnectionState()));
+  private void listenForConnetionChanges(Project project) {
+    project.vonda.connectedProperty().addListener((o, ov, nv) -> {
+      vondaConnectionButton
+        .update(project.getRuleModel(), project.vonda.getConnectionState());
+      if (nv.intValue() == CONNECTED_TO_VONDA) {
+        HelperWindows.showRuleLoggingWindow(_model.mainStage,
+          _model.getLoadedProject(), _model.getEditor(), _model.globalConf);
+      } else if (nv.intValue() == DISCONNECTED_FROM_VONDA) {
+        HelperWindows.closeRuleLoggingWindow();
+      }
+    });
+  }
+
+  private void listenForRuleModelChanges(Project project) {
+    project.ruleModelProperty().addListener((o, ov, ruleModel) -> {
+      vondaConnectionButton.update(ruleModel,
+          project.vonda.getConnectionState());
+      listenForConnetionChanges(project);
+    });
   }
 
 
@@ -123,7 +148,8 @@ public class ToolBarController {
       vonda.connect(_model.getLoadedProject().getVondaPort());
     else
       vonda.closeConnection();
-    vondaConnectionButton.update(vonda.getConnectionState());
+    vondaConnectionButton.update(_model.getLoadedProject().getRuleModel(),
+      vonda.getConnectionState());
 
   }
 

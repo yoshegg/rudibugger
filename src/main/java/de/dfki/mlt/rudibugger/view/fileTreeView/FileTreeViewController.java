@@ -104,6 +104,7 @@ public class FileTreeViewController {
   /** Marks the files in the <b>rudiList</b> according to their usage state. */
   private void markFilesInRudiList(RudiHierarchy rudiHierarchy,
           RuleModel ruleModel, Path wrapperRudi) {
+    if (ruleModel == null) return;
     Path mainRudi = ruleModel.getRootImport().getAbsolutePath();
 
     rudiHierarchy.getRudiPathSet().forEach((x) -> {
@@ -124,6 +125,7 @@ public class FileTreeViewController {
    */
   private void linkRudiPathsToImportInfos(RudiHierarchy rudiHierarchy,
           RuleModel ruleModel) {
+    if (ruleModel == null) return;
     rudiHierarchy.getRudiPathSet().forEach(x -> {
       if (ruleModel.getImportSet().contains(x.getPath()))
         x.setImportInfo(ruleModel.getPathToImportMap().get(x.getPath()));

@@ -74,6 +74,7 @@ public class CompileIndicator {
       put(COMPILATION_WITH_WARNINGS, new Image(ICONS_PATH + "warnings.png"));
       put(COMPILATION_FAILED,        new Image(ICONS_PATH + "failed.png"));
       put(COMPILATION_UNDEFINED,     new Image(ICONS_PATH + "undefined.png"));
+      put(COMPILATION_NO_RULEMODEL,  new Image(ICONS_PATH + "undefined.png"));
       put(COMPILATION_NO_PROJECT,    new Image(ICONS_PATH + "undefined.png"));
     }};
 
@@ -85,6 +86,7 @@ public class CompileIndicator {
       put(COMPILATION_WITH_WARNINGS, "Compilation succeeded with warnings.");
       put(COMPILATION_FAILED,        "Compilation failed.");
       put(COMPILATION_UNDEFINED,     "Compilation state unknown.");
+      put(COMPILATION_NO_RULEMODEL,  "Project not compiled.");
       put(COMPILATION_NO_PROJECT,    "");
     }};
 
@@ -110,6 +112,10 @@ public class CompileIndicator {
   /** Responsible for updating RuleModel, ToolTip and icon. */
   public void update(RuleModel ruleModel) {
     _ruleModel = ruleModel;
+    if (ruleModel == null) {
+      updateOutcome(COMPILATION_NO_RULEMODEL);
+      return;
+    }
 
     int compilationOutcome = ruleModel.getCompilationOutcome();
     updateOutcome(compilationOutcome);

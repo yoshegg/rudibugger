@@ -85,9 +85,13 @@ public class RuleTreeViewController {
     project.ruleModelProperty().addListener((o, oldRuleModel, newRuleModel) -> {
       if (newRuleModel != null) {
         log.debug("RuleModel created / updated, updating ruleTreeView...");
-        RuleTreeViewState oldRms = RuleTreeViewState.retrieveStateOf(ruleTreeView);
+        RuleTreeViewState oldRms = null;
+        if (oldRuleModel != null)
+          oldRms = RuleTreeViewState.retrieveStateOf(ruleTreeView);
         ruleTreeView.setRoot(buildRuleTreeView(newRuleModel.getRootImport()));
-        RuleTreeViewState.setStateOf(oldRms, ruleTreeView);
+        ruleTreeView.getRoot().setExpanded(true);
+        if (oldRuleModel != null)
+          RuleTreeViewState.setStateOf(oldRms, ruleTreeView);
       } else {
         ruleTreeView.setRoot(null);
         log.debug("ruleTreeView has been resetted, RuleModel has been removed.");

@@ -19,6 +19,7 @@
 package de.dfki.mlt.rudibugger.view.toolBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
 
@@ -37,7 +38,14 @@ public class ConnectionButton extends Button {
     setDisable(true);
   }
 
-  public void update(int connectionState) {
+  public void update(RuleModel rm, int connectionState) {
+    if (rm == null) {
+      setText("Not compiled");
+      setOnMouseEntered(e -> setText(null));
+      setOnMouseExited(e -> setText(null));
+      setDisable(true);
+      return;
+    }
     switch(connectionState) {
       case CONNECTED_TO_VONDA:
         setText("Connected");

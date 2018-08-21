@@ -140,7 +140,8 @@ public final class HelperWindows {
   }
 
   public static void closeRuleLoggingWindow() {
-    if (_ruleLoggingWindow.isShowing()) _ruleLoggingWindow.hide();
+    if (_ruleLoggingWindow != null && _ruleLoggingWindow.isShowing())
+      _ruleLoggingWindow.hide();
   }
 
   private static Stage createRuleLoggingWindow(Stage mainStage,

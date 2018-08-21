@@ -19,14 +19,9 @@
 package de.dfki.mlt.rudibugger.view.fileTreeView;
 
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
 import javafx.event.ActionEvent;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Label;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 
 /**
  * This is the context menu appearing when making a right click on a file /

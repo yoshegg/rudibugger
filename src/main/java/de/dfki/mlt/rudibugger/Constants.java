@@ -97,6 +97,7 @@ public class Constants {
   public static final int COMPILATION_WITH_WARNINGS = 3;
   public static final int COMPILATION_FAILED = 4;
   public static final int COMPILATION_UNDEFINED = 5;
+  public static final int COMPILATION_NO_RULEMODEL = 6;
   public static final int COMPILATION_NO_PROJECT = 9;
 
 
