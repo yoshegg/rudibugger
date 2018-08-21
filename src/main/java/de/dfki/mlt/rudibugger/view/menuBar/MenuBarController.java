@@ -126,19 +126,8 @@ public class MenuBarController {
       toggleProjectSpecificMenuItems(projectLoaded);
       saveAllItem.setDisable(! projectLoaded);
 
-      if (_model.getEditor() instanceof RudibuggerEditor) {
+      if (_model.getEditor() instanceof RudibuggerEditor)
         listenForRudibuggerEditor((RudibuggerEditor) _model.getEditor());
-
-      }
-
-
-//      if (project != null) {
-//        log.debug("Project open: enable GUI-elements.");
-//        compileButtonManager.defineCompileButton(project, project.compiler);
-//      } else {
-//        log.debug("Project closed: disable GUI-elements.");
-//        compileButtonManager.defineCompileButton(project, project.compiler); //TODO: project is not set anymore
-//      }
     });
   }
 

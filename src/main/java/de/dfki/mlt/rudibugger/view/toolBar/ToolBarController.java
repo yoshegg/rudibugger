@@ -86,6 +86,7 @@ public class ToolBarController {
         listenForCompilerChanges(project.compiler);
         listenForConnetionChanges(project.vonda);
         vondaConnectionButton.update(project.vonda.getConnectionState());
+        _compileButtonController.defineCompileButton(project, project.compiler);
       } else {
         _compileButtonController.disableCompileButton();
         vondaConnectionButton.reset();
