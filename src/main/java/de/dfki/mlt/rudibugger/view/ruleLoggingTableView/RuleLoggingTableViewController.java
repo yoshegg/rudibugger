@@ -18,7 +18,6 @@
  */
 package de.dfki.mlt.rudibugger.view.ruleLoggingTableView;
 
-import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.GlobalConfiguration;
 import de.dfki.mlt.rudibugger.editor.Editor;
 import de.dfki.mlt.rudibugger.rpc.LogData;
@@ -52,7 +51,7 @@ public class RuleLoggingTableViewController {
   private GlobalConfiguration _globalConf;
   private Editor _editor;
   private VondaRuntimeConnection _vonda;
-  private RuleModel _ruleModel;
+  private Project _project;
 
   /** Represents the list of logged rules. */
   private final ObservableList<LogData> ruleLoggingList
@@ -85,7 +84,7 @@ public class RuleLoggingTableViewController {
     _editor = editor;
     _ruleLoggingTableView = tw;
     _vonda = project.vonda;
-    _ruleModel = project.getRuleModel();
+    _project = project;
 
     initRuleLoggingTableView();
     _vonda.logOutputProperty().addListener(incomingRuleLogListener);
@@ -182,7 +181,7 @@ public class RuleLoggingTableViewController {
   }
 
   private void openRule(int ruleId) {
-    RuleInfoExtended rule = _ruleModel.getRule(ruleId);
+    RuleInfoExtended rule = _project.getRuleModel().getRule(ruleId);
     _editor.loadFileAtLine(rule.getSourceFile(), rule.getLine());
   }
 
