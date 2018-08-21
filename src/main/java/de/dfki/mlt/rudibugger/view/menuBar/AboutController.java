@@ -17,32 +17,29 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RuleLoggingTableView;
+package de.dfki.mlt.rudibugger.view.menuBar;
 
-import static de.dfki.mlt.rudibugger.RPC.LogData.BLACK;
-import static de.dfki.mlt.rudibugger.RPC.LogData.GRAY;
-import static de.dfki.mlt.rudibugger.RPC.LogData.GREEN;
-import static de.dfki.mlt.rudibugger.RPC.LogData.RED;
-import java.util.HashMap;
-import javafx.scene.paint.Color;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * This class only contains a map indicating the different colours used in the
- * ruleLoggingTableView.
+ * Controls the about window.
+ *
+ * TODO:
+ *   - Add mailto
+ *   - Rework design
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class ColourMap {
+public class AboutController {
 
-  /** Contains the different colours used to style the log. */
-  public static HashMap<Integer, Color> colourMap
-          = new HashMap<Integer, Color>() {
-    {
-      put(RED, Color.RED);
-      put(GREEN, Color.GREEN);
-      put(GRAY, Color.GRAY);
-      put(BLACK, Color.BLACK);
-    }
-  };
+  /** The logger. */
+  static Logger log = LoggerFactory.getLogger("About");
+
+  /** Initializes the controller of the AboutWindow. */
+  public void init() {
+
+  }
+
 
 }

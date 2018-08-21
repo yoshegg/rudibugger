@@ -20,7 +20,7 @@
 package de.dfki.mlt.rudibugger.view.statusBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Editor.Editor;
+import de.dfki.mlt.rudibugger.editor.Editor;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.project.ruleModel.ImportInfoExtended;
 import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;

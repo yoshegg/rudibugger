@@ -16,9 +16,9 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-package de.dfki.mlt.rudibugger.SearchAndFind;
+package de.dfki.mlt.rudibugger.searchAndFind;
 
-import de.dfki.mlt.rudibugger.Editor.Editor;
+import de.dfki.mlt.rudibugger.editor.Editor;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.beans.property.SimpleStringProperty;

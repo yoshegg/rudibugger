@@ -20,8 +20,8 @@
 package de.dfki.mlt.rudibugger;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Controller.EditorController;
-import de.dfki.mlt.rudibugger.Controller.MenuBar.MenuBarController;
+import de.dfki.mlt.rudibugger.view.editor.RudibuggerEditorController;
+import de.dfki.mlt.rudibugger.view.menuBar.MenuBarController;
 import de.dfki.mlt.rudibugger.view.fileTreeView.FileTreeViewController;
 import de.dfki.mlt.rudibugger.view.ruleTreeView.RuleTreeViewController;
 import de.dfki.mlt.rudibugger.view.ruleTreeView.RuleTreeViewState;
@@ -135,7 +135,7 @@ public class MainApp extends Application {
     FXMLLoader editorLoader = new FXMLLoader(getClass()
             .getResource("/fxml/editor.fxml"));
     centeredSplitPane.getItems().add(editorLoader.load());
-    EditorController editorController = editorLoader.getController();
+    RudibuggerEditorController editorController = editorLoader.getController();
 
 
     /***************************************************************************

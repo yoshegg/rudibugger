@@ -17,24 +17,31 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RuleLoggingTableView;
+package de.dfki.mlt.rudibugger.view.ruleLoggingTableView;
 
-import de.dfki.mlt.rudibugger.RPC.LogData;
-import static de.dfki.mlt.rudibugger.RuleLoggingTableView.ColourMap.colourMap;
+import de.dfki.mlt.rudibugger.rpc.LogData;
+import de.dfki.mlt.rudibugger.rpc.LogData.StringPart;
+import static de.dfki.mlt.rudibugger.view.ruleLoggingTableView.ColourMap.colourMap;
+import java.util.ArrayList;
 import javafx.scene.control.TableCell;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 /**
- * This TableCell is responsible for the appearance of the middle column of
- * the ruleLoggingTableView which contains the rule's label.
+ * This TableCell is responsible for the appearance of the rightmost column of
+ * the ruleLoggingTableView which contains the content of the rule itself
+ * and what parts of it were evaluated to which state.
+ *
+ * This is where the short-cut logic will be visually shown as it clearly
+ * indicates what part of the rule have not been evaluated.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class LabelCellFactory extends TableCell<LogData, LogData.StringPart> {
+public class EvaluatedCellFactory
+        extends TableCell<LogData, ArrayList<StringPart>> {
 
   @Override
-  protected void updateItem(LogData.StringPart item, boolean empty) {
+  protected void updateItem(ArrayList<LogData.StringPart> item, boolean empty) {
     super.updateItem(item, empty);
 
     if (empty || item == null) {
@@ -42,11 +49,13 @@ public class LabelCellFactory extends TableCell<LogData, LogData.StringPart> {
       setGraphic(null);
     } else {
       TextFlow textFlow = new TextFlow();
-      Text t = new Text(item.content);
-        t.setFill(colourMap.get(item.evalOutcome));
+      for (LogData.StringPart x : item) {
+        Text t = new Text(x.content);
+        t.setFill(colourMap.get(x.evalOutcome));
         textFlow.getChildren().add(t);
-        setGraphic(textFlow);
       }
+      setGraphic(textFlow);
     }
-  
   }
+
+}

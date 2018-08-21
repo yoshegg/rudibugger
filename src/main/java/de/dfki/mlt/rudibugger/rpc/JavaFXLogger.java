@@ -17,10 +17,10 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RPC;
+package de.dfki.mlt.rudibugger.rpc;
 
 import de.dfki.mlt.rudimant.common.DefaultLogger;
-import static de.dfki.mlt.rudibugger.RPC.LogData.*;
+import static de.dfki.mlt.rudibugger.rpc.LogData.*;
 import java.util.ArrayList;
 
 /**

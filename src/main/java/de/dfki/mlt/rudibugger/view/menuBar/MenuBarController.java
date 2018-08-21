@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.Controller.MenuBar;
+package de.dfki.mlt.rudibugger.view.menuBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
 
@@ -30,11 +30,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.dfki.mlt.rudibugger.DataModel;
-import de.dfki.mlt.rudibugger.Editor.RudibuggerEditor;
+import de.dfki.mlt.rudibugger.editor.RudibuggerEditor;
 import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.MainApp;
 import de.dfki.mlt.rudibugger.project.Project;
-import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
+import de.dfki.mlt.rudibugger.view.editor.RudiTab;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -127,16 +127,8 @@ public class MenuBarController {
       saveAllItem.setDisable(! projectLoaded);
 
       if (_model.getEditor() instanceof RudibuggerEditor) {
-        RudibuggerEditor re = (RudibuggerEditor) _model.getEditor();
-        re.currentlySelectedTabProperty().addListener((obs, oct, ct) -> {
-          if (oct != null) ((RudiTab) oct).hasBeenModifiedProperty()
-            .removeListener(modifiedListener);
-          saveAsItem.setDisable(ct == null);
-          if (ct == null) return;
-          RudiTab currentTab = (RudiTab) ct;
-          saveItem.setDisable(! (currentTab.isKnown() && currentTab.isModified()));
-          currentTab.hasBeenModifiedProperty().addListener(modifiedListener);
-        });
+        listenForRudibuggerEditor((RudibuggerEditor) _model.getEditor());
+
       }
 
 
@@ -147,6 +139,18 @@ public class MenuBarController {
 //        log.debug("Project closed: disable GUI-elements.");
 //        compileButtonManager.defineCompileButton(project, project.compiler); //TODO: project is not set anymore
 //      }
+    });
+  }
+
+  private void listenForRudibuggerEditor(RudibuggerEditor editor) {
+    editor.currentlySelectedTabProperty().addListener((obs, oct, ct) -> {
+      if (oct != null) ((RudiTab) oct).hasBeenModifiedProperty()
+        .removeListener(modifiedListener);
+      saveAsItem.setDisable(ct == null);
+      if (ct == null) return;
+      RudiTab currentTab = (RudiTab) ct;
+      saveItem.setDisable(! (currentTab.isKnown() && currentTab.isModified()));
+      currentTab.hasBeenModifiedProperty().addListener(modifiedListener);
     });
   }
 
@@ -228,6 +232,7 @@ public class MenuBarController {
   private void openProjectAction(ActionEvent event)
           throws FileNotFoundException, IOException, IllegalAccessException {
     Path projectYml = HelperWindows.openYmlProjectFileDialog(_mainStage);
+    if (projectYml == null) return;
     _model.openProject(projectYml);
   }
 
@@ -315,6 +320,12 @@ public class MenuBarController {
     } catch (MalformedURLException | URISyntaxException ex) {
       log.error(ex.getMessage());
     }
+  }
+
+  @FXML
+  private void openRuleLoggingWindow(ActionEvent event) {
+    HelperWindows.showRuleLoggingWindow(_mainStage, _model.getLoadedProject(),
+      _model.getEditor(), _model.globalConf);
   }
 
   @FXML

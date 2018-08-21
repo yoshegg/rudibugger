@@ -19,12 +19,12 @@
 
 package de.dfki.mlt.rudibugger;
 
-import static de.dfki.mlt.rudibugger.Constants.OVERWRITE_PROJECT;
+import de.dfki.mlt.rudibugger.editor.EmacsConnection;
+import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.project.Project;
-import de.dfki.mlt.rudibugger.DataModelAdditions.*;
-import de.dfki.mlt.rudibugger.Editor.Editor;
-import de.dfki.mlt.rudibugger.Editor.EmacsEditor;
-import de.dfki.mlt.rudibugger.Editor.RudibuggerEditor;
+import de.dfki.mlt.rudibugger.editor.Editor;
+import de.dfki.mlt.rudibugger.editor.EmacsEditor;
+import de.dfki.mlt.rudibugger.editor.RudibuggerEditor;
 import java.nio.file.Path;
 import javafx.beans.property.*;
 import javafx.stage.Stage;
@@ -106,12 +106,20 @@ public class DataModel {
     _loadedProject.set(newProject);
     if (globalConf.getAutomaticallyConnectToVonda())
       getLoadedProject().vonda.connect(getLoadedProject().getVondaPort());
-    getLoadedProject().linkEmacs(emacs); // TODO not  nice
+    getLoadedProject().vonda.connectedProperty().addListener((o, ov, nv) -> {
+      if (nv.intValue() == CONNECTED_TO_VONDA) {
+        HelperWindows.showRuleLoggingWindow(mainStage,
+          getLoadedProject(), _editor, globalConf);
+      } else if (nv.intValue() == DISCONNECTED_FROM_VONDA) {
+        HelperWindows.closeRuleLoggingWindow();
+      }
+    });
   }
 
   public void closeProject() {
     if (_loadedProject.get() != null) {
       _loadedProject.get().closeProject();
+      HelperWindows.closeRuleLoggingWindow();
       _loadedProject.set(null);
     }
   }

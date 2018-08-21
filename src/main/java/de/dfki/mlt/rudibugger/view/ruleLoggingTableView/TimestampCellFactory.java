@@ -17,10 +17,10 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RuleLoggingTableView;
+package de.dfki.mlt.rudibugger.view.ruleLoggingTableView;
 
-import de.dfki.mlt.rudibugger.RPC.LogData;
-import de.dfki.mlt.rudibugger.RPC.LogData.DatePart;
+import de.dfki.mlt.rudibugger.rpc.LogData;
+import de.dfki.mlt.rudibugger.rpc.LogData.DatePart;
 import java.text.SimpleDateFormat;
 import javafx.scene.control.TableCell;
 import javafx.scene.text.Text;

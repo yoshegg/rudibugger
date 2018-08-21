@@ -1,6 +1,6 @@
-package de.dfki.mlt.rudibugger.Editor;
+package de.dfki.mlt.rudibugger.editor;
 
-import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
+import de.dfki.mlt.rudibugger.view.editor.RudiTab;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;

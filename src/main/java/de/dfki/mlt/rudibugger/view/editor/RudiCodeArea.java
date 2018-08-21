@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.TabManagement;
+package de.dfki.mlt.rudibugger.view.editor;
 
 import java.util.Collection;
 import java.util.Collections;

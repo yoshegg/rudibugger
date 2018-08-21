@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RPC;
+package de.dfki.mlt.rudibugger.rpc;
 
 import java.util.ArrayList;
 import java.util.Date;

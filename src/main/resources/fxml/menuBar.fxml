@@ -8,7 +8,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
 
-<MenuBar fx:id="menuBar" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.Controller.MenuBar.MenuBarController">
+<MenuBar fx:id="menuBar" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.view.menuBar.MenuBarController">
    <menus>
       <Menu mnemonicParsing="false" text="File">
          <items>
@@ -122,6 +122,7 @@
       <Menu mnemonicParsing="false" text="Tools">
          <items>
             <MenuItem disable="true" mnemonicParsing="false" text="Open in Terminal" />
+            <MenuItem mnemonicParsing="false" onAction="#openRuleLoggingWindow" text="Open rule logging window" />
             <MenuItem mnemonicParsing="false" onAction="#openSettingsDialog" text="Options" />
          </items>
       </Menu>

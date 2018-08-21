@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.DataModelAdditions;
+package de.dfki.mlt.rudibugger.editor;
 
 import de.dfki.lt.j2emacs.J2Emacs;
 import de.dfki.mlt.rudibugger.DataModel;

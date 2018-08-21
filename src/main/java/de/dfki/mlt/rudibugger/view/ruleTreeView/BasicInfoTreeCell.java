@@ -19,8 +19,8 @@
 
 package de.dfki.mlt.rudibugger.view.ruleTreeView;
 
-import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
-import de.dfki.mlt.rudibugger.Editor.Editor;
+import de.dfki.mlt.rudibugger.GlobalConfiguration;
+import de.dfki.mlt.rudibugger.editor.Editor;
 import de.dfki.mlt.rudibugger.project.Project;
 import static de.dfki.mlt.rudimant.common.ErrorInfo.ErrorType.*;
 

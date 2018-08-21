@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.RPC;
+package de.dfki.mlt.rudibugger.rpc;
 
 import java.io.IOException;
 import java.util.function.Consumer;

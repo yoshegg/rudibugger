@@ -16,7 +16,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-package de.dfki.mlt.rudibugger.Editor;
+package de.dfki.mlt.rudibugger.editor;
 
 import java.nio.file.Path;
 

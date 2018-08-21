@@ -17,11 +17,11 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.TabManagement;
+package de.dfki.mlt.rudibugger.view.editor;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Editor.Editor;
-import de.dfki.mlt.rudibugger.Editor.RudibuggerEditor;
+import de.dfki.mlt.rudibugger.editor.Editor;
+import de.dfki.mlt.rudibugger.editor.RudibuggerEditor;
 import de.dfki.mlt.rudibugger.HelperWindows;
 import java.nio.file.Path;
 import javafx.beans.property.BooleanProperty;

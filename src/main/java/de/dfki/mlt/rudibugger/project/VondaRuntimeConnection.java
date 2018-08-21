@@ -19,9 +19,12 @@
 
 package de.dfki.mlt.rudibugger.project;
 
+import de.dfki.mlt.rudibugger.rpc.JavaFXLogger;
+import de.dfki.mlt.rudibugger.rpc.RudibuggerClient;
+import de.dfki.mlt.rudibugger.rpc.RudibuggerAPI;
+import de.dfki.mlt.rudibugger.rpc.LogData;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
-import de.dfki.mlt.rudibugger.RPC.*;
 import de.dfki.mlt.rudimant.common.RuleLogger;
 import java.io.IOException;
 import java.util.HashMap;

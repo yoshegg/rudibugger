@@ -16,7 +16,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-package de.dfki.mlt.rudibugger.SearchAndFind;
+package de.dfki.mlt.rudibugger.searchAndFind;
 
 import java.io.BufferedReader;
 import java.io.IOException;

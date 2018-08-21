@@ -16,7 +16,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-package de.dfki.mlt.rudibugger.Editor;
+package de.dfki.mlt.rudibugger.editor;
 
 import java.nio.file.Path;
 
@@ -25,6 +25,8 @@ import java.nio.file.Path;
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class EmacsEditor extends Editor {
+
+  private EmacsConnection _emacs;
 
   /* ***************************************************************************
    * CONSTRUCTOR & OTHER METHODS
@@ -66,12 +68,18 @@ public class EmacsEditor extends Editor {
 
   @Override
   public void loadFile(Path file) {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    if (! _emacs.isAlive()) {
+      _emacs.startConnection("emacs");
+    }
+    _emacs.getConnector().visitFilePosition(file.toFile(), 1, 0, "");
   }
 
   @Override
   public void loadFileAtLine(Path file, int line) {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    if (! _emacs.isAlive()) {
+      _emacs.startConnection("emacs");
+    }
+    _emacs.getConnector().visitFilePosition(file.toFile(), line, 0, "");
   }
 
   @Override

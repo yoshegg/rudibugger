@@ -17,7 +17,7 @@
  * IN THE SOFTWARE.
  */
 
-package de.dfki.mlt.rudibugger.Controller;
+package de.dfki.mlt.rudibugger.view.menuBar;
 
 /*
  * Rudibugger is a debugger for .rudi code
@@ -25,7 +25,8 @@ package de.dfki.mlt.rudibugger.Controller;
  * by Christophe Biwer (cbiwer@coli.uni-saarland.de)
  */
 
-import de.dfki.mlt.rudibugger.DataModelAdditions.*;
+import de.dfki.mlt.rudibugger.GlobalConfiguration;
+import de.dfki.mlt.rudibugger.editor.EmacsConnection;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -35,8 +36,6 @@ import org.slf4j.LoggerFactory;
 /**
  * FXML Controller class
  *
- * TODO: Is it possible to remove Emacs? Seems to be "too much".
- *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class SettingsController {
@@ -45,7 +44,6 @@ public class SettingsController {
   public static Logger log = LoggerFactory.getLogger("settingsCont.");
 
   private GlobalConfiguration _globalConf;
-  private EmacsConnection _emacs;
 
 
   /*****************************************************************************
@@ -57,9 +55,8 @@ public class SettingsController {
    *
    * @param model The current <code>DataModel</code>
    */
-  public void init(GlobalConfiguration globalConf, EmacsConnection emacs) {
+  public void init(GlobalConfiguration globalConf) {
     _globalConf = globalConf;
-    _emacs = emacs;
     definePreSelections();
     defineListeners();
   }
@@ -96,7 +93,6 @@ public class SettingsController {
       switch (current) {
         case "rudibugger":
           _globalConf.setSetting("editor", "rudibugger");
-          _emacs.close(true);
           customTextFields.setDisable(true);
           break;
         case "emacs":
@@ -105,7 +101,6 @@ public class SettingsController {
           break;
         case "custom":
           _globalConf.setSetting("editor", "custom");
-          _emacs.close(true);
           customTextFields.setDisable(false);
           break;
       }

@@ -20,8 +20,7 @@
 package de.dfki.mlt.rudibugger.project;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.DataModelAdditions.EmacsConnection;
-import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
+import de.dfki.mlt.rudibugger.GlobalConfiguration;
 import de.dfki.mlt.rudibugger.view.fileTreeView.RudiHierarchy;
 import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
 import de.dfki.mlt.rudibugger.project.watchServices.RudiFolderWatch;
@@ -66,9 +65,6 @@ public class Project {
    * BASIC FIELDS
    * extracted from configuration .yml file or derived
    * **************************************************************************/
-
-  /** TODO */
-  private EmacsConnection _emacs;
 
   /** TODO */
   private final GlobalConfiguration _globalConf;
@@ -182,8 +178,6 @@ public class Project {
     RuleModel rm = RuleModel.createRuleModel(_rudiFolder, _ruleLocYaml);
     _ruleModel.set(rm);
   }
-
-  public void linkEmacs(EmacsConnection emacs) { _emacs = emacs; }
 
 
   /* ***************************************************************************
@@ -334,170 +328,6 @@ public class Project {
 
   /** @return The Path to the RuleModelStates' save folder */
   public Path getRuleModelStatesFolder() { return _ruleModelStatesFolder; }
-
-
-  /* ***************************************************************************
-   * LOAD RUDI FILES
-   * **************************************************************************/
-
-//  /**
-//   * Opens a new tab (or an already opened tab) showing a given file in
-//   * rudibugger.
-//   *
-//   * @param file The wanted file
-//   */
-//  private void requestTabOfFile(Path file) {
-//    requestTabOfRule(file, 1);
-//  }
-
-//  /**
-//   * Opens a new tab (or an already opened tab) showing a certain rule of a
-//   * given file in rudibugger.
-//   *
-//   * @param file      The wanted file
-//   * @param position  The line of the wanted rule
-//   */
-//  private void requestTabOfRule(Path file, Integer position) {
-//    FileAtPos temp = new FileAtPos(file, position);
-//    _tabStore.requestedFileProperty().set(temp);
-//  }
-
-  /**
-   * Opens a given file in an editor defined in the settings of rudibugger.
-   *
-   * @param file the wanted file
-   */
-//  public void openFile(Path file) {
-//    switch (_globalConf.getEditor()) {
-////      case "rudibugger":
-////        requestTabOfFile(file);
-////        return;
-//      case "emacs":
-//        if (! _emacs.isAlive()) {
-//          _emacs.startConnection("emacs");
-//        }
-//        _emacs.getConnector().visitFilePosition(file.toFile(), 1, 0, "");
-//        return;
-//      case "custom":
-//        try {
-//          String cmd = (_globalConf.getOpenFileWith())
-//                  .replaceAll("%file", file.toString());
-//          Runtime.getRuntime().exec(cmd);
-//          return;
-//        } catch (IOException ex) {
-//          log.error("Can't use custom editor to open file. ");
-//          break;
-//        }
-//      default:
-//        break;
-//    }
-////    log.info("No valid file editor setting has been found. Using rudibugger.");
-////        requestTabOfFile(file);
-//  }
-
-  /**
-   * Opens a given file at a specific line in an editor defined in the settings
-   * of rudibugger.
-   *
-   * @param file the wanted file
-   * @param position the line of the wanted rule
-   */
-//  public void openRule(Path file, Integer position) {
-//    switch (_globalConf.getEditor()) {
-////      case "rudibugger":
-////        requestTabOfRule(file, position);
-////        return;
-//      case "emacs":
-//        if (! _emacs.isAlive()) {
-//          _emacs.startConnection("emacs");
-//        }
-//        _emacs.getConnector().visitFilePosition(file.toFile(), position, 0, "");
-//        return;
-//      case "custom":
-//        try {
-//          String cmd = (_globalConf.getOpenRuleWith())
-//                  .replaceAll("%file", file.toString())
-//                  .replaceAll("%line", position.toString());
-//          Runtime.getRuntime().exec(cmd);
-//        } catch (IOException ex) {
-//          log.error("Can't use custom editor to open file. ");
-//          break;
-//        }
-//      default:
-//        break;
-//    }
-//
-//  }
-
-
-  /* ***************************************************************************
-   * SAVE RUDI FILES
-   * **************************************************************************/
-
-//  /** Responsible for processing save requests. */
-//  public void initSaveListener() {
-//    _tabStore.requestedSavingOfTabProperty().addListener((o, ov, nv) -> {
-//      if (nv != null) {
-//        if (nv.isKnown())
-//          quickSaveFile(nv);
-//        else
-//          saveNewFile(nv.getFile(), nv.getRudiCode());
-//        _tabStore.requestedSavingOfTabProperty().set(null);
-//      }
-//    });
-//  }
-
-//  /** Saves a file by overwriting the old version without asking. */
-//  public void quickSaveFile(RudiTab tab) {
-//    Path file = tab.getFile();
-//    String content = tab.getRudiCode();
-//
-//    if (saveFile(file, content)) {
-//      tab.setText(file.getFileName().toString());
-//      tab.waitForModifications();
-//      log.debug("File " + file.getFileName() + " has been saved.");
-//      notifySaved(file.getFileName().toString());
-//    }
-//  }
-
-// /**
-//   * Saves a given String into a given file.
-//   *
-//   * @param file the path of the to-be-saved file
-//   * @param content the content of the to-be-saved file
-//   * @return True, if the file has been successfully saved, else false
-//   */
-//  public boolean saveFile(Path file, String content) {
-//    try {
-//      Files.write(file, content.getBytes());
-//      return true;
-//    } catch (IOException e) {
-//      log.error("Could not save " + file);
-//      return false;
-//    }
-//  }
-
-//  public boolean saveNewFile(Path file, String content) {
-//    return true; // TODO
-//  }
-
-//  /** Quick-save all open files. */
-//  public void quickSaveAllFiles() {
-//    for (RudiTab tab : _tabStore.openTabsProperty().getValue().values()) {
-//      Path file = tab.getFile();
-//      String content = tab.getRudiCode();
-//      if (tab.hasBeenModifiedProperty().getValue()) {
-//        if (saveFile(file, content)) {
-//          tab.setText(file.getFileName().toString());
-//          tab.waitForModifications();
-//          log.debug("File " + file.getFileName() + " has been saved.");
-//          notifySaved(file.getFileName().toString());
-//        }
-//      }
-//    }
-//  }
-
-
 
   /**
    * Temporarily shows a message on the statusBar.

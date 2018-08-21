@@ -20,12 +20,14 @@
 package de.dfki.mlt.rudibugger;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Controller.AboutController;
-import de.dfki.mlt.rudibugger.Controller.SettingsController;
-import de.dfki.mlt.rudibugger.DataModelAdditions.EmacsConnection;
-import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
-import de.dfki.mlt.rudibugger.Editor.Editor;
-import de.dfki.mlt.rudibugger.SearchAndFind.SearchController;
+import de.dfki.mlt.rudibugger.view.menuBar.AboutController;
+import de.dfki.mlt.rudibugger.view.menuBar.SettingsController;
+import de.dfki.mlt.rudibugger.editor.EmacsConnection;
+import de.dfki.mlt.rudibugger.editor.Editor;
+import de.dfki.mlt.rudibugger.project.Project;
+import de.dfki.mlt.rudibugger.project.VondaRuntimeConnection;
+import de.dfki.mlt.rudibugger.searchAndFind.SearchController;
+import de.dfki.mlt.rudibugger.view.ruleLoggingTableView.RuleLoggingTableViewController;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +40,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -114,11 +117,51 @@ public final class HelperWindows {
 
     /* Set controller */
     SettingsController controller = loader.getController();
-    controller.init(globalConf, emacs);
+    controller.init(globalConf);
 
     Stage settingsStage = createWindow(mainStage, page, "Settings");
 
     return settingsStage;
+  }
+
+
+  /* ***************************************************************************
+   * RULE LOGGING WINDOW
+   * **************************************************************************/
+
+  private static Stage _ruleLoggingWindow;
+
+  public static void showRuleLoggingWindow(Stage mainStage,
+      Project project, Editor editor, GlobalConfiguration globalConf) {
+    if (_ruleLoggingWindow == null)
+      _ruleLoggingWindow = createRuleLoggingWindow(mainStage, project, editor,
+        globalConf);
+    _ruleLoggingWindow.show();
+  }
+
+  public static void closeRuleLoggingWindow() {
+    if (_ruleLoggingWindow.isShowing()) _ruleLoggingWindow.hide();
+  }
+
+  private static Stage createRuleLoggingWindow(Stage mainStage,
+    Project project, Editor editor, GlobalConfiguration globalConf) {
+
+    AnchorPane page = new AnchorPane();
+    TableView table = new TableView();
+    page.getChildren().add(table);
+    AnchorPane.setTopAnchor(table, 0.0);
+    AnchorPane.setRightAnchor(table, 0.0);
+    AnchorPane.setLeftAnchor(table, 0.0);
+    AnchorPane.setBottomAnchor(table, 0.0);
+
+    RuleLoggingTableViewController controller
+      = new RuleLoggingTableViewController();
+    controller.init(project, editor, globalConf, table);
+
+    Stage ruleLoggingState = createWindow(mainStage, page, "Rule logging");
+    ruleLoggingState.setHeight(400);
+    ruleLoggingState.setWidth(600);
+    return ruleLoggingState;
   }
 
 
@@ -185,8 +228,6 @@ public final class HelperWindows {
     controller.init(editor, searchPath);
 
     Stage findStage = createWindow(mainStage, page, "Find in project...");
-    findStage.setResizable(false);
-
     findStage.show();
   }
 
@@ -280,7 +321,6 @@ public final class HelperWindows {
 
     /* open the FileChooser */
     File chosenYmlFile = chooser.showOpenDialog(stage);
-    log.debug("Project chooser has been opened.");
 
     /* abort selection if window has been closed */
     if (chosenYmlFile == null) {
