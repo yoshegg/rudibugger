@@ -25,6 +25,7 @@ import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.project.VondaCompiler;
 import de.dfki.mlt.rudibugger.project.VondaRuntimeConnection;
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -80,29 +81,28 @@ public class ToolBarController {
 
     _compileButtonController = CompileButtonController.init(compileButton,
             toolBar);
-    listenForPoject();
+    _model.loadedProjectProperty().addListener(ProjectListener);
   }
 
-  private void listenForPoject() {
-    _model.loadedProjectProperty().addListener((o, ov, project) -> {
-      if (project != null) {
-        listenForCompilerChanges(project.compiler);
-        listenForRuleModelChanges(project);
-        if (project.getRuleModel() == null) {
-          vondaConnectionButton.update(project.getRuleModel(),
+  private final ChangeListener<Project> ProjectListener = ((o, oldP, newP) -> {
+    if (newP != null) {
+      listenForCompilerChanges(newP.compiler);
+        listenForRuleModelChanges(newP);
+        if (newP.getRuleModel() == null) {
+          vondaConnectionButton.update(newP.getRuleModel(),
             DISCONNECTED_FROM_VONDA);
         } else {
-          vondaConnectionButton.update(project.getRuleModel(),
-            project.vonda.getConnectionState());
+          vondaConnectionButton.update(newP.getRuleModel(),
+            newP.vonda.getConnectionState());
         }
-        _compileButtonController.defineCompileButton(project, project.compiler);
+        _compileButtonController.defineCompileButton(newP, newP.compiler);
       } else {
         _compileButtonController.disableCompileButton();
         vondaConnectionButton.reset();
       }
-    });
+    }
+  );
 
-  }
 
   private void listenForCompilerChanges(VondaCompiler compiler) {
     // listen to ObservableList in compiler containing all compile commands
