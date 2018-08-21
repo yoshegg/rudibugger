@@ -30,18 +30,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Editor.RudibuggerEditor;
 import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.MainApp;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.TabManagement.RudiTab;
-import java.awt.Desktop;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.logging.Level;
-import javafx.application.Application;
 import javafx.application.HostServices;
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -67,9 +66,9 @@ public class MenuBarController {
   private HostServices _hostServices;
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * GUI ITEMS
-   ****************************************************************************/
+   * **************************************************************************/
 
   @FXML
   private MenuItem newRudiFileItem;
@@ -125,6 +124,21 @@ public class MenuBarController {
     _model.loadedProjectProperty().addListener((o, ov, project) -> {
       boolean projectLoaded = project != null;
       toggleProjectSpecificMenuItems(projectLoaded);
+      saveAllItem.setDisable(! projectLoaded);
+
+      if (_model.getEditor() instanceof RudibuggerEditor) {
+        RudibuggerEditor re = (RudibuggerEditor) _model.getEditor();
+        re.currentlySelectedTabProperty().addListener((obs, oct, ct) -> {
+          if (oct != null) ((RudiTab) oct).hasBeenModifiedProperty()
+            .removeListener(modifiedListener);
+          saveAsItem.setDisable(ct == null);
+          if (ct == null) return;
+          RudiTab currentTab = (RudiTab) ct;
+          saveItem.setDisable(! (currentTab.isKnown() && currentTab.isModified()));
+          currentTab.hasBeenModifiedProperty().addListener(modifiedListener);
+        });
+      }
+
 
 //      if (project != null) {
 //        log.debug("Project open: enable GUI-elements.");
@@ -135,6 +149,10 @@ public class MenuBarController {
 //      }
     });
   }
+
+  ChangeListener<Boolean> modifiedListener
+    = (o, ov, nv) -> saveItem.setDisable(! nv);
+
 
 
   /* ***************************************************************************
@@ -149,50 +167,6 @@ public class MenuBarController {
     saveLoggingStateItem.setDisable(val);
     findInProjectItem.setDisable(val);
   }
-
-//  /** TODO
-//   * Initializes the controller.
-//   */
-//  public void tabManagement() {
-//
-//    /* this listener enables saving depending on the selected tab */
-//    _model.getLoadedProject().getTabStore().currentlySelectedTabProperty().addListener((o, oldVal, newVal) -> {
-//
-//      /* no tab is opened */
-//      if (newVal == null) {
-//        saveItem.setDisable(true);
-//        saveAsItem.setDisable(true);
-//        saveAllItem.setDisable(true);
-//
-//      /* one known tab is selected and can be saved */
-//      } else if (((RudiTab) newVal).isKnown()) {
-//
-//        if (newVal.hasBeenModifiedProperty().getValue()) {
-//          saveItem.setDisable(false);
-//        } else {
-//          /* wait until the tab content has been modified */
-//          newVal.hasBeenModifiedProperty().addListener((o2, oldVal2, newVal2) -> {
-//            if (newVal2) {
-//              saveItem.setDisable(false);
-//            } else {
-//              saveItem.setDisable(true);
-//            }
-//          });
-//        }
-//
-//        saveAsItem.setDisable(false);
-//        saveAllItem.setDisable(false);
-//
-//
-//      /* a newly created file can only be saved as */
-//      } else if (! ((RudiTab) newVal).isKnown()) {
-//        saveItem.setDisable(true);
-//        saveAsItem.setDisable(false);
-//        saveAllItem.setDisable(false);
-//      }
-//    });
-//
-//  }
 
   @FXML
   private void buildRecentProjectsMenu() {
@@ -234,38 +208,8 @@ public class MenuBarController {
   }
 
 
-  /**
-   * Save tab's content into a new file.
-   * TODO: Should be somewhere else
-   * @return True, if the file has been successfully saved, else false
-   */
-  public boolean saveFileAs(RudiTab tab) {
-    Project project = _model.getLoadedProject();
-    String content = tab.getRudiCode();
-
-    Path newRudiFile = HelperWindows.openSaveNewFileAsDialog(
-            _model.mainStage, project.getRudiFolder());
-
-    if (project.saveFile(newRudiFile, content)) {
-      tab.setText(newRudiFile.getFileName().toString());
-      project.getTabStore().openTabsProperty().get().remove(tab.getFile());
-      tab.setFile(newRudiFile);
-      project.getTabStore().openTabsProperty().get().put(newRudiFile, tab);
-      tab.waitForModifications();
-
-      log.debug("File " + newRudiFile.getFileName() + " has been saved.");
-      return true;
-    }
-    return false;
-  }
-
-
   /* ***************************************************************************
-   * MENU ACTIONS
-   * **************************************************************************/
-
-  /* ***************************************************************************
-   * FILE
+   * MENU ACTIONS - FILE
    * **************************************************************************/
 
   @FXML
@@ -276,7 +220,7 @@ public class MenuBarController {
   @FXML
   private void newRudiFileAction(ActionEvent event)
           throws FileNotFoundException {
-    _model.getLoadedProject().openFile(null);
+    _model.getEditor().createNewFile();
   }
 
 
@@ -314,24 +258,19 @@ public class MenuBarController {
 
   @FXML
   private void saveAction(ActionEvent event) {
-    _model.getLoadedProject().quickSaveFile(
-            _model.getLoadedProject().getTabStore()
-              .currentlySelectedTabProperty().get());
+    _model.getEditor().saveFile();
   }
 
   @FXML
   private void saveAsAction(ActionEvent event) {
-    RudiTab currentTab = _model.getLoadedProject().getTabStore()
-      .currentlySelectedTabProperty().get();
-
-
-//    _model.getLoadedProject().saveFileAs( // TODO
-//            _model.getLoadedProject().getTabStore().currentlySelectedTabProperty().get());
+    Path newFile = HelperWindows.openSaveNewFileAsDialog(_mainStage,
+      _model.getLoadedProject().getRudiFolder());
+    _model.getEditor().saveFileAs(newFile);
   }
 
   @FXML
   private void saveAllAction(ActionEvent event) {
-    _model.getLoadedProject().quickSaveAllFiles();
+    _model.getEditor().saveAllFiles();
   }
 
 
@@ -343,17 +282,19 @@ public class MenuBarController {
 
 
   /* ***************************************************************************
-   * EDIT
+   * MENU ACTIONS - EDIT
    * **************************************************************************/
 
   @FXML
   private void findInProject(ActionEvent event) {
-    HelperWindows.openSearchWindow(_mainStage, _model.getLoadedProject());
+    Project project = _model.getLoadedProject();
+    HelperWindows.openSearchWindow(_mainStage, _model.getEditor(),
+      project.getRudiFolder());
   }
 
 
   /* ***************************************************************************
-   * TOOLS
+   * MENU ACTIONS - TOOLS
    * **************************************************************************/
 
   @FXML
@@ -364,7 +305,7 @@ public class MenuBarController {
 
 
   /* ***************************************************************************
-   * HELP
+   * MENU ACTIONS - HELP
    * **************************************************************************/
 
   @FXML
@@ -380,6 +321,5 @@ public class MenuBarController {
   private void openAboutWindow(ActionEvent event) {
     HelperWindows.showAboutWindow(_mainStage);
   }
-
 
 }

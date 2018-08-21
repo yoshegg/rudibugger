@@ -63,7 +63,7 @@ public class VondaCompiler {
    * @throws InterruptedException
    */
   public void startCompile(String inputCmd) {
-    _project.quickSaveAllFiles();
+//    _project.quickSaveAllFiles(); TODO
 
     if ((_p != null) && (_p.isAlive())) {
       log.debug("Aborting current compilation process...");

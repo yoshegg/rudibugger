@@ -21,6 +21,8 @@ package de.dfki.mlt.rudibugger.Controller;
 
 import static de.dfki.mlt.rudibugger.Constants.CONNECTED_TO_VONDA;
 import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.Editor.Editor;
+import de.dfki.mlt.rudibugger.Editor.RudibuggerEditor;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.RuleLoggingTableView.EvaluatedCellFactory;
 import de.dfki.mlt.rudibugger.RuleLoggingTableView.LabelCellFactory;
@@ -29,7 +31,7 @@ import de.dfki.mlt.rudibugger.RPC.LogData.DatePart;
 import de.dfki.mlt.rudibugger.RPC.LogData.StringPart;
 import de.dfki.mlt.rudibugger.RuleLoggingTableView.TimestampCellFactory;
 import static de.dfki.mlt.rudibugger.RuleLoggingTableView.TimestampCellFactory.dt;
-import de.dfki.mlt.rudibugger.TabManagement.TabStoreView;
+//import de.dfki.mlt.rudibugger.TabManagement.TabStoreView;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import javafx.application.Platform;
@@ -37,10 +39,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,21 +60,17 @@ public class EditorController {
   private DataModel _model;
 
   /** Manages the look of the <code>TabPane</code>(s). */
-  private TabStoreView _tabView;
+//  private TabStoreView _tabView;
 
   public void initModel(DataModel model) {
     if (_model != null) {
       throw new IllegalStateException("Model can only be initialized once");
     }
     _model = model;
-
-    /* Manage TabStoreView */
-    _tabView = new TabStoreView(tabBox);
+    setEditor(_model.getEditor());
 
     _model.loadedProjectProperty().addListener((o, ov, nv) -> {
       if (nv != null) {
-        _tabView.initialize(_model.getLoadedProject().getTabStore());
-
 
     /* this listener adds a TableView to the editorSplitPane if connection to
      * rudimant has been established.
@@ -110,6 +110,16 @@ public class EditorController {
   /*****************************************************************************
    * METHODS
    ****************************************************************************/
+
+  private void setEditor(Editor editor) {
+    if (editor instanceof RudibuggerEditor) {
+      TabPane tp = new TabPane();
+      tp.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
+      HBox.setHgrow(tp, Priority.ALWAYS);
+      tabBox.getChildren().add(tp);
+      ((RudibuggerEditor) editor).setTabPane(tp);
+    }
+  }
 
   public void adaptTableViewColumns() {
     Double correctionValue = 18.0;
@@ -209,7 +219,7 @@ public class EditorController {
         Path importToOpen =
                 project.getRuleModel().getRule(ruleId).getSourceFile();
         int lineToOpen = project.getRuleModel().getRule(ruleId).getLine();
-        project.openRule(importToOpen, lineToOpen);
+        _model.getEditor().loadFileAtLine(importToOpen, lineToOpen);
       }
     });
   }

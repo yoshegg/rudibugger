@@ -23,6 +23,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import java.util.HashSet;
 import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudibugger.project.Project;
 import static de.dfki.mlt.rudimant.common.ErrorInfo.ErrorType.*;
 import java.nio.file.Files;
@@ -74,7 +75,7 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
    ****************************************************************************/
 
   /** TODO */
-  private final Project _project;
+  private final DataModel _model;
 
 
   /*****************************************************************************
@@ -130,9 +131,9 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
    ****************************************************************************/
 
   /** Initializes a new cell. */
-  public RudiTreeCell(Project project) {
+  public RudiTreeCell(DataModel model) {
     super();
-    _project = project;
+    _model = model;
   }
 
 
@@ -188,7 +189,7 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
   private void defineContextMenu(RudiPath rudiPath) {
     this.setOnContextMenuRequested(e -> {
         if (! Files.isDirectory(rudiPath.getPath())) {
-          RudiContextMenu rcm = new RudiContextMenu(rudiPath, _project);
+          RudiContextMenu rcm = new RudiContextMenu(rudiPath, _model);
           rcm.show(this, e.getScreenX(), e.getScreenY());
         }
       });
@@ -203,7 +204,7 @@ public class RudiTreeCell extends TreeCell<RudiPath> {
     this.setOnMouseClicked(e -> {
       if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY)
         if (! Files.isDirectory(rudiPath.getPath()))
-          _project.openFile(rudiPath.getPath());
+          _model.getEditor().loadFile(rudiPath.getPath());
     });
   }
 

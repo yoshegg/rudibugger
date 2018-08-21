@@ -67,7 +67,8 @@ public class StatusBarController {
 
     // TODO: Dirty
     syncIndicator = new SyncIndicator(_syncIndicator, statusBarText);
-    compileIndicator = new CompileIndicator(_compileIndicator, statusBarText);
+    compileIndicator = new CompileIndicator(_compileIndicator, statusBarText,
+      _model.getEditor());
 
     listenForLoadedProject();
   }
@@ -80,14 +81,14 @@ public class StatusBarController {
       if (project != null) {
         syncIndicator.update(project.getRudiHierarchy()
                 .modificationsAfterCompilationProperty().get());
-        compileIndicator.setProject(project);
-        compileIndicator.update(project.getRuleModel().getCompilationOutcome());
+//        compileIndicator.setProject(project);
+        compileIndicator.update(project.getRuleModel());
         compileIndicator.defineContextMenu();
         listenForRuleModel(project);
         listenForFileChanges(project);
       } else {
         syncIndicator.update(FILES_SYNC_UNDEFINED);
-        compileIndicator.update(COMPILATION_NO_PROJECT);
+        compileIndicator.updateOutcome(COMPILATION_NO_PROJECT);
       }
     });
   }
@@ -95,7 +96,7 @@ public class StatusBarController {
   private void listenForRuleModel(Project project) {
     project.ruleModelProperty().addListener((o, ov, ruleModel) -> {
       if (ruleModel != null) {
-        compileIndicator.update(ruleModel.getCompilationOutcome());
+        compileIndicator.update(ruleModel);
         compileIndicator.defineContextMenu();
       }
     });

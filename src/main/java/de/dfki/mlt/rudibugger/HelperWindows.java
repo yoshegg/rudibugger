@@ -25,7 +25,6 @@ import de.dfki.mlt.rudibugger.Controller.SettingsController;
 import de.dfki.mlt.rudibugger.DataModelAdditions.EmacsConnection;
 import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
 import de.dfki.mlt.rudibugger.Editor.Editor;
-import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.SearchAndFind.SearchController;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 import java.io.File;

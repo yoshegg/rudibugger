@@ -25,13 +25,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.scene.control.IndexRange;
 import static javafx.scene.input.KeyCode.*;
-import javafx.scene.input.KeyEvent;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import static org.fxmisc.wellbehaved.event.EventPattern.*;
-import org.fxmisc.wellbehaved.event.InputMap;
 import static org.fxmisc.wellbehaved.event.InputMap.*;
 import org.fxmisc.wellbehaved.event.Nodes;
 import org.slf4j.Logger;
@@ -84,6 +82,7 @@ public class RudiCodeArea extends CodeArea {
 
   public RudiCodeArea() {
     super();
+    init();
   }
 
   private void shiftRightManagement() {
@@ -116,7 +115,7 @@ public class RudiCodeArea extends CodeArea {
 
   }
 
-  public void initializeCodeArea() {
+  private void init() {
     this.setParagraphGraphicFactory(LineNumberFactory.get(this));
     this.richChanges()
             .filter(ch -> !ch.getInserted().equals(ch.getRemoved())) // XXX

@@ -20,10 +20,10 @@
 package de.dfki.mlt.rudibugger.TabManagement;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.Editor.Editor;
+import de.dfki.mlt.rudibugger.Editor.RudibuggerEditor;
 import de.dfki.mlt.rudibugger.HelperWindows;
-import java.io.FileNotFoundException;
 import java.nio.file.Path;
-import java.util.Scanner;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -50,25 +50,19 @@ public class RudiTab extends Tab {
    * FIELDS & PROPERTIES
    ****************************************************************************/
 
+  private final RudibuggerEditor _editor;
+
   /** Represents the associated file. */
   private Path _file;
 
   /** Represents the codeArea showing the current <code>.rudi</code> code. */
   protected RudiCodeArea _codeArea;
 
-  /** Indicates whether or not a file has already been saved once. */
-  private Boolean _isKnown;
-
   /** Indicates if the content of a tab has been modified and not saved yet. */
   private final BooleanProperty hasBeenModified = new SimpleBooleanProperty();
 
   /** Represents the main <code>AnchorPane</code> that is shown in the tab. */
   private AnchorPane _mainAnchorPane;
-
-  /**
-   * Represents the <code>TabStoreView</code> that manages the view of the tabs.
-   */
-  private TabStoreView _tabStoreView;
 
   /** Listens to modifications of the <code>codeArea</code>. */
   private ChangeListener contentChangeListener = new ChangeListener() {
@@ -80,22 +74,25 @@ public class RudiTab extends Tab {
     }
   };
 
-
   /*****************************************************************************
    * CONSTRUCTORS
    ****************************************************************************/
 
-  /** Creates a new empty tab. */
-  public RudiTab() {
-    super();
+  public RudiTab(String content, Path file, RudibuggerEditor editor) {
+    _editor = editor;
+    _file = file;
+    _codeArea = new RudiCodeArea();
+    _codeArea.appendText(content);
+    initLayout();
+    waitForModifications();
+    setClosingBehaviour();
   }
 
   /** Creates a new tab and links a file to it. */
-  public RudiTab(Path file, TabStoreView tsv) {
-    this();
-    _file = file;
-    _tabStoreView = tsv;
-    initCodeArea();
+  public RudiTab(String content, RudibuggerEditor editor) {
+    _editor = editor;
+    _codeArea = new RudiCodeArea();
+    _codeArea.appendText(content);
     initLayout();
     waitForModifications();
     setClosingBehaviour();
@@ -105,31 +102,6 @@ public class RudiTab extends Tab {
   /*****************************************************************************
    * METHODS
    ****************************************************************************/
-
-  /** Reads in a possibly provided file and sets up the <code>codeArea</code>. */
-  private void initCodeArea() {
-
-    /* Create a codeArea. */
-    _codeArea = new RudiCodeArea();
-    _codeArea.initializeCodeArea();
-
-    /* Read in file (if provided). */
-    if (_file != null) {
-      try {
-        Scanner s = new Scanner(_file.toFile()).useDelimiter("\n");
-        while (s.hasNext()) {
-          _codeArea.appendText(s.next() + "\n");
-        }
-      } catch (FileNotFoundException e) {
-        log.error("Something went wrong while reading in "
-                + _file.getFileName().toString());
-      }
-      _isKnown = true;
-    } else {
-      _isKnown = false;
-    }
-  }
-
 
   /** Initializes the layout. */
   private void initLayout() {
@@ -167,8 +139,9 @@ public class RudiTab extends Tab {
    * Resets the field indicating that a file has unsaved changes and starts
    * listening for possible changes.
    */
-  public void waitForModifications() {
+  public final void waitForModifications() {
     hasBeenModified.setValue(false);
+    setText(_file.getFileName().toString());
     _codeArea.textProperty().addListener(contentChangeListener);
   }
 
@@ -176,21 +149,18 @@ public class RudiTab extends Tab {
     this.setOnCloseRequest(e -> {
       while (true) {
 
-        if (hasBeenModified.get()) {
+        if (isModified()) {
           String fileName = (_file != null) ? _file.getFileName().toString()
                   : "Untitled file";
-          int returnValue = HelperWindows.openCloseFileWithoutSavingCheckDialog(fileName);
+          int returnValue =
+            HelperWindows.openCloseFileWithoutSavingCheckDialog(fileName);
           switch (returnValue) {
             case CLOSE_BUT_SAVE_FIRST:
-              _tabStoreView.requestedSavingOfTabProperty().set(this);
-              /*
-               * Immediately reset this listener;
-               * probably needed because of a JavaFX bug.
-               */
-              _tabStoreView.requestedSavingOfTabProperty().set(null);
+              _editor.saveFile(this);
+              _editor.closeTab(this);
               continue; // continue with while
             case CLOSE_WITHOUT_SAVING:
-              _tabStoreView.closeTab(this);
+              _editor.closeTab(this);
               break; // break out of switch
             case CANCEL_CLOSING:
               e.consume();
@@ -198,7 +168,7 @@ public class RudiTab extends Tab {
           }
           break; // break out of while
         } else {
-          _tabStoreView.closeTab(this);
+           _editor.closeTab(this);
           break; // break out of while
         }
       }
@@ -211,7 +181,7 @@ public class RudiTab extends Tab {
    ****************************************************************************/
 
   /** @return False, if the tab's content has never been saved, else true. */
-  public Boolean isKnown() { return _isKnown; }
+  public Boolean isKnown() { return _file != null; }
 
   /** @return The associated file of this tab. */
   public Path getFile() { return _file; }
@@ -235,5 +205,7 @@ public class RudiTab extends Tab {
    * not saved.
    */
   public BooleanProperty hasBeenModifiedProperty() { return hasBeenModified; }
+
+  public Boolean isModified() { return hasBeenModified.get(); }
 
 }

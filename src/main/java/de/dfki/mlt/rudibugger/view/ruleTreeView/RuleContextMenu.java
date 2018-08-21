@@ -20,7 +20,7 @@
 package de.dfki.mlt.rudibugger.view.ruleTreeView;
 
 import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
-import de.dfki.mlt.rudibugger.project.Project;
+import de.dfki.mlt.rudibugger.Editor.Editor;
 import de.dfki.mlt.rudibugger.project.ruleModel.RuleInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import java.util.LinkedHashMap;
@@ -77,7 +77,7 @@ public class RuleContextMenu extends ContextMenu {
   /** The clicked Rule */
   private final RuleInfoExtended _item;
 
-  private final Project _project;
+  private final Editor _editor;
 
   private final GlobalConfiguration _globalConf;
 
@@ -90,11 +90,11 @@ public class RuleContextMenu extends ContextMenu {
    * A <code>RuleContextMenu</code> should appear when a context menu was
    * requested by clicking on a rule.
    */
-  public RuleContextMenu(RuleInfoExtended ri, Project project,
+  public RuleContextMenu(RuleInfoExtended ri, Editor editor,
           GlobalConfiguration globalConf) {
     super();
     _item = ri;
-    _project = project;
+    _editor = editor;
     _globalConf = globalConf;
     initializeMenuItems();
 
@@ -114,7 +114,7 @@ public class RuleContextMenu extends ContextMenu {
     CustomMenuItem openRule = new CustomMenuItem(new Label("Open rule (line "
             + _item.getLine() + ")"));
     openRule.setOnAction((ActionEvent e) -> {
-      _project.openRule(_item.getSourceFile(),
+      _editor.loadFileAtLine(_item.getSourceFile(),
               _item.getLine());
     });
     SeparatorMenuItem sep = new SeparatorMenuItem();

@@ -66,7 +66,7 @@ public class FileTreeViewController {
   private void listenForLoadedProject() {
     _model.loadedProjectProperty().addListener((o, ov, project) -> {
       if (project != null) {
-        fileTreeView.setCellFactory(value -> new RudiTreeCell(project));
+        fileTreeView.setCellFactory(value -> new RudiTreeCell(_model));
         fileTreeView.setRoot(project.getRudiHierarchy().getRoot());
         fileTreeView.setShowRoot(false);
         markFilesInRudiList(project.getRudiHierarchy(), project.getRuleModel(),

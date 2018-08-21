@@ -22,6 +22,9 @@ package de.dfki.mlt.rudibugger;
 import static de.dfki.mlt.rudibugger.Constants.OVERWRITE_PROJECT;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.DataModelAdditions.*;
+import de.dfki.mlt.rudibugger.Editor.Editor;
+import de.dfki.mlt.rudibugger.Editor.EmacsEditor;
+import de.dfki.mlt.rudibugger.Editor.RudibuggerEditor;
 import java.nio.file.Path;
 import javafx.beans.property.*;
 import javafx.stage.Stage;
@@ -58,12 +61,15 @@ public class DataModel {
   private final StringProperty statusBarMessage
           = new SimpleStringProperty();
 
+  /** Used to open, edit and save files. */
+  private Editor _editor;
+
 
   /* ***************************************************************************
    * CONFIGURATION DETAILS
    * **************************************************************************/
 
-  /** Stores information about rudibugger's layout. */
+  /** Stores information about rudibugger's layout. TODO not nice */
   public final ViewLayout layout;
 
   /** Provides additional functionality to interact with Emacs. */
@@ -81,7 +87,7 @@ public class DataModel {
   public DataModel(Stage stage) {
     mainStage = stage;
     layout = new ViewLayout(mainStage);
-//    _project.rudiSave.initSaveListener(); // TODO
+    setEditor();
   }
 
 
@@ -116,6 +122,19 @@ public class DataModel {
     // TODO
   }
 
+  private void setEditor() {
+    switch (globalConf.getEditor()) {
+      case "rudibugger":
+        _editor = RudibuggerEditor.getNewEditor();
+        return;
+      case "emacs":
+        _editor = EmacsEditor.getNewEditor();
+        return;
+      case "custom":
+        // TODO
+    }
+  }
+
 
   /* ***************************************************************************
    * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
@@ -134,5 +153,8 @@ public class DataModel {
 
   /** @return True, if a project has been loaded, else false. */
   public boolean isProjectLoaded() { return _loadedProject.get() != null; }
+
+  /** @return The current editor instance. */
+  public Editor getEditor() { return _editor; }
 
 }

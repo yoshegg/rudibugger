@@ -67,7 +67,7 @@ public class RuleTreeViewController {
     _model.loadedProjectProperty().addListener((o, ov, project) -> {
       if (project != null) {
         ruleTreeView.setCellFactory(value
-                -> new BasicInfoTreeCell(project, _model.globalConf));
+                -> new BasicInfoTreeCell(_model.getEditor(), _model.globalConf));
         if (project.getRuleModel() != null) {
           ruleTreeView.setRoot(buildRuleTreeView(
                   project.getRuleModel().getRootImport()));

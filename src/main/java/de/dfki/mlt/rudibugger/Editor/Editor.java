@@ -18,23 +18,41 @@
  */
 package de.dfki.mlt.rudibugger.Editor;
 
+import java.nio.file.Path;
+
 /**
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public abstract class Editor {
 
-  public abstract Editor getNewEditor();
-
-  public abstract void closeEditor();
+  /* ***************************************************************************
+   * SAVE METHODS
+   * **************************************************************************/
 
   public abstract void saveFile();
 
+  public abstract void saveFileAs(Path file);
+
   public abstract void saveAllFiles();
 
-  public abstract void loadFile();
 
-  public abstract void loadLine();
+  /* ***************************************************************************
+   * LOAD METHODS
+   * **************************************************************************/
+
+  public abstract void createNewFile();
+
+  public abstract void loadFile(Path file);
+
+  public abstract void loadFileAtLine(Path file, int line);
+
+
+  /* ***************************************************************************
+   * CLOSE METHODS
+   * **************************************************************************/
+
+  public abstract void closeFile();
 
   public abstract void closeAllFiles();
 

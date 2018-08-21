@@ -20,6 +20,7 @@
 package de.dfki.mlt.rudibugger.view.ruleTreeView;
 
 import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
+import de.dfki.mlt.rudibugger.Editor.Editor;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.project.ruleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.*;
@@ -74,7 +75,7 @@ public class ImportContextMenu extends ContextMenu {
   /** The clicked Import. */
   private final ImportInfoExtended _item;
 
-  private final Project _project;
+  private final Editor _editor;
 
   private final GlobalConfiguration _globalConf;
 
@@ -87,11 +88,11 @@ public class ImportContextMenu extends ContextMenu {
    * An <code>ImportContextMenu</code> should appear when a context menu was
    * requested by clicking on an import.
    */
-  public ImportContextMenu(ImportInfoExtended ii, Project project,
+  public ImportContextMenu(ImportInfoExtended ii, Editor editor,
           GlobalConfiguration globalConf) {
     super();
     _item = ii;
-    _project = project;
+    _editor = editor;
     _globalConf = globalConf;
     initializeMenuItems();
   }
@@ -117,7 +118,7 @@ public class ImportContextMenu extends ContextMenu {
     CustomMenuItem openFile = new CustomMenuItem(new Label("Open "
             + _item.getAbsolutePath().getFileName().toString()));
     openFile.setOnAction((ActionEvent e) ->
-      _project.openFile(_item.getAbsolutePath()));
+      _editor.loadFile(_item.getAbsolutePath()));
     this.getItems().add(openFile);
   }
 
@@ -138,7 +139,7 @@ public class ImportContextMenu extends ContextMenu {
     Tooltip t = new Tooltip(e.getMessage());
     Tooltip.install(label, t);
     errorItem.setOnAction(f -> {
-      _project.openRule(_item.getAbsolutePath(),
+      _editor.loadFileAtLine(_item.getAbsolutePath(),
           e.getLocation().getBegin().getLine() + 1);
     });
     this.getItems().add(errorItem);

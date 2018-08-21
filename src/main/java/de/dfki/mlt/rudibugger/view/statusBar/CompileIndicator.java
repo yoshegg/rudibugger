@@ -20,15 +20,14 @@
 package de.dfki.mlt.rudibugger.view.statusBar;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.Editor.Editor;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.project.ruleModel.ImportInfoExtended;
+import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.CustomMenuItem;
@@ -50,16 +49,18 @@ import javafx.scene.input.ContextMenuEvent;
 public class CompileIndicator {
 
   /** The StatusBar. */
-  private Label _statusBarText;
+  private final Label _statusBarText;
 
   /** TODO */
-  private Project _project;
+//  private Project _project;
+  private Editor _editor;
+  private RuleModel _ruleModel;
 
   /** An icon showing the current sync state. */
   private ImageView _indicator;
 
   /** Shows an explanation of the current sync state. */
-  private Tooltip _tooltip;
+  private final Tooltip _tooltip;
 
   /** Path for icons describing compilation status. */
   private static final String ICONS_PATH
@@ -93,11 +94,12 @@ public class CompileIndicator {
    * @param indicator
    * @param controller
    */
-  public CompileIndicator(ImageView indicator, Label statusBarText) {
+  public CompileIndicator(ImageView indicator, Label statusBarText,
+    Editor editor) {
     _indicator = indicator;
     _tooltip = new Tooltip();
     _statusBarText = statusBarText;
-//    _project = project;
+    _editor = editor;
 
     /* Initializes the default look and behaviour if no project is loaded. */
     _indicator.setImage(ICONS.get(COMPILATION_NO_PROJECT));
@@ -105,21 +107,24 @@ public class CompileIndicator {
     Tooltip.install(_indicator, _tooltip);
   }
 
-  /** Responsible for updating tooltip and icon. */
-  public void update(int val) {
-    String msg = MESSAGES.get(val);
+  /** Responsible for updating RuleModel, ToolTip and icon. */
+  public void update(RuleModel ruleModel) {
+    _ruleModel = ruleModel;
+
+    int compilationOutcome = ruleModel.getCompilationOutcome();
+    updateOutcome(compilationOutcome);
+  }
+
+  public void updateOutcome(int compilationOutcome) {
+    String msg = MESSAGES.get(compilationOutcome);
 
     _statusBarText.setText(msg);
 
     _tooltip.setText(msg);
     Tooltip.install(_indicator, _tooltip);
 
-    _indicator.setImage(ICONS.get(val));
+    _indicator.setImage(ICONS.get(compilationOutcome));
   }
-
-  /** TODO */
-  public void setProject(Project project) { _project = project; }
-
 
   /**
    * This <code>EventHandler</code> contains a <code>ContextMenu</code> to be
@@ -129,17 +134,17 @@ public class CompileIndicator {
     ContextMenu cm = new ContextMenu();
 
     LinkedHashMap<ErrorInfo, ImportInfoExtended> errorInfos;
-    errorInfos = _project.getRuleModel().getErrorInfos();
+    errorInfos = _ruleModel.getErrorInfos();
     LinkedHashMap<ErrorInfo, ImportInfoExtended> warnInfos;
-    warnInfos = _project.getRuleModel().getWarnInfos();
+    warnInfos = _ruleModel.getWarnInfos();
     LinkedHashMap<ErrorInfo, ImportInfoExtended> parsingFailure;
-    parsingFailure = _project.getRuleModel().getParsingFailure();
+    parsingFailure = _ruleModel.getParsingFailure();
 
-    addErrorWarningInfosToContextMenu(cm, "error", parsingFailure, _project);
-    addErrorWarningInfosToContextMenu(cm, "error", errorInfos, _project);
+    addErrorWarningInfosToContextMenu(cm, "error", parsingFailure);
+    addErrorWarningInfosToContextMenu(cm, "error", errorInfos);
     if ((! errorInfos.isEmpty()) && (! warnInfos.isEmpty()))
       cm.getItems().add(new SeparatorMenuItem());
-    addErrorWarningInfosToContextMenu(cm, "warning", warnInfos, _project);
+    addErrorWarningInfosToContextMenu(cm, "warning", warnInfos);
 
     cm.show(_indicator, value.getScreenX(), value.getScreenY());
   });
@@ -154,7 +159,7 @@ public class CompileIndicator {
    * @param model
    */
   private void addErrorWarningInfosToContextMenu(ContextMenu cm, String type,
-    LinkedHashMap<ErrorInfo, ImportInfoExtended> data, Project project) {
+    LinkedHashMap<ErrorInfo, ImportInfoExtended> data) {
     for (ErrorInfo e : data.keySet()) {
       ImportInfoExtended item = data.get(e);
       String shortType = (("warning".equals(type)) ? "WARN" : "ERROR");
@@ -173,7 +178,7 @@ public class CompileIndicator {
       Label label = new Label(msg);
       CustomMenuItem errorItem = new CustomMenuItem(label);
       errorItem.setOnAction(f -> {
-        project.openRule(item.getAbsolutePath(),
+        _editor.loadFileAtLine(item.getAbsolutePath(),
           e.getLocation().getBegin().getLine());
       });
       cm.getItems().add(errorItem);

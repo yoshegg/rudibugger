@@ -20,6 +20,7 @@
 package de.dfki.mlt.rudibugger.view.ruleTreeView;
 
 import de.dfki.mlt.rudibugger.DataModelAdditions.GlobalConfiguration;
+import de.dfki.mlt.rudibugger.Editor.Editor;
 import de.dfki.mlt.rudibugger.project.Project;
 import static de.dfki.mlt.rudimant.common.ErrorInfo.ErrorType.*;
 
@@ -88,7 +89,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
   private ImageView stateIndicator;
 
   /** TODO */
-  private final Project _project;
+  private final Editor _editor;
 
   /** TODO */
   private final GlobalConfiguration _globalConf;
@@ -98,9 +99,9 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
    * **************************************************************************/
 
   /** Initializes a new cell. */
-  public BasicInfoTreeCell(Project project, GlobalConfiguration globalConf) {
+  public BasicInfoTreeCell(Editor editor, GlobalConfiguration globalConf) {
     super();
-    _project = project;
+    _editor = editor;
     _globalConf = globalConf;
   }
 
@@ -190,7 +191,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         /* define the context menu */
         this.setOnContextMenuRequested(e -> {
           RuleContextMenu contextMenu
-                  = new RuleContextMenu(ri, _project, _globalConf);
+                  = new RuleContextMenu(ri, _editor, _globalConf);
           contextMenu.show(this, e.getScreenX(), e.getScreenY());
         });
 
@@ -204,7 +205,7 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         /* define double click on cell: open rule (file at specific line) */
         this.setOnMouseClicked(e -> {
           if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY) {
-            _project.openRule(ri.getSourceFile(), ri.getLine());
+            _editor.loadFileAtLine(ri.getSourceFile(), ri.getLine());
           }
         });
       }
@@ -242,14 +243,14 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
         /* define the context menu */
         this.setOnContextMenuRequested(e -> {
           ImportContextMenu contextMenu
-                  = new ImportContextMenu(ii, _project, _globalConf);
+                  = new ImportContextMenu(ii, _editor, _globalConf);
           contextMenu.show(this, e.getScreenX(), e.getScreenY());
         });
 
         /* define double click on cell */
         this.setOnMouseClicked(e -> {
           if (e.getClickCount() == 2 && e.getButton() == MouseButton.PRIMARY) {
-            _project.openFile(ii.getAbsolutePath());
+            _editor.loadFile(ii.getAbsolutePath());
           }
         });
       }
