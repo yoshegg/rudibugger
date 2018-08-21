@@ -21,19 +21,12 @@ package de.dfki.mlt.rudibugger.view.ruleTreeView;
 
 import de.dfki.mlt.rudibugger.GlobalConfiguration;
 import de.dfki.mlt.rudibugger.editor.Editor;
-import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.project.ruleModel.ImportInfoExtended;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
 import java.util.LinkedHashMap;
 import javafx.event.ActionEvent;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioMenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 
 
 /**
@@ -105,7 +98,8 @@ public class ImportContextMenu extends ContextMenu {
   /** Initializes MenuItems. */
   private void initializeMenuItems() {
     initOpenMenuItem();
-    if (!_item.getErrors().isEmpty())
+    if (!_item.getErrors().isEmpty()
+        && _globalConf.showErrorInfoInRuleTreeViewContextMenu())
       initErrorInfoItems();
     if (_item.containsRules()) {
       initRuleLoggingMenuItems();
@@ -125,8 +119,7 @@ public class ImportContextMenu extends ContextMenu {
   /** Creates the "Go to error" MenuItem(s) in the context menu. */
   private void initErrorInfoItems() {
     addSeparator();
-    if (_globalConf.showErrorInfoInRuleTreeViewContextMenu())
-      _item.getErrors().forEach((e) -> treatErrorInfo(e));
+    _item.getErrors().forEach((e) -> treatErrorInfo(e));
   }
 
   /** Extracts ErrorInfo's information and adds it as MenuItem. */
