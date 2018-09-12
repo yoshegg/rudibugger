@@ -85,7 +85,8 @@ public class CompileButtonController {
    ****************************************************************************/
 
   private void adaptMenu(String k, EventHandler<ActionEvent> eh) {
-    extendedCompileButton.getItems().forEach(e -> e.setVisible(!e.getText().equals(k)));
+//    TODO: setVisible is cause for graphic errors
+//    extendedCompileButton.getItems().forEach(e -> e.setVisible(!e.getText().equals(k)));
     extendedCompileButton.setText(k);
     extendedCompileButton.setOnAction(eh);
   }
