@@ -104,6 +104,14 @@ public class MenuBarController {
   private MenuItem findInProjectItem;
 
 
+  @FXML
+  private MenuItem openRuleLoggingWindowItem;
+
+  @FXML
+  private MenuItem openTrackingWindowItem;
+
+
+
   /* ***************************************************************************
    * INITIALIZERS / CONSTRUCTORS
    * **************************************************************************/
@@ -159,6 +167,8 @@ public class MenuBarController {
     loadRuleLoggingStateMenu.setDisable(val);
     saveLoggingStateItem.setDisable(val);
     findInProjectItem.setDisable(val);
+    openRuleLoggingWindowItem.setDisable(val);
+    openTrackingWindowItem.setDisable(val);
   }
 
   @FXML

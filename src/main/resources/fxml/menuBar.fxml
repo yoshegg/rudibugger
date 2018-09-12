@@ -122,7 +122,8 @@
       <Menu mnemonicParsing="false" text="Tools">
          <items>
             <MenuItem disable="true" mnemonicParsing="false" text="Open in Terminal" />
-            <MenuItem mnemonicParsing="false" onAction="#openRuleLoggingWindow" text="Open rule logging window" />
+            <MenuItem fx:id="openRuleLoggingWindowItem" disable="true" mnemonicParsing="false" onAction="#openRuleLoggingWindow" text="Open rule logging window..." />
+            <MenuItem fx:id="openTrackingWindowItem" disable="true" mnemonicParsing="false" onAction="#openTrackingWindow" text="Open tracking window..." />
             <MenuItem mnemonicParsing="false" onAction="#openSettingsDialog" text="Options" />
          </items>
       </Menu>
