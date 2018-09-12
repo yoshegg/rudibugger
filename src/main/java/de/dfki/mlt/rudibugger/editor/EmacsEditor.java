@@ -18,6 +18,7 @@
  */
 package de.dfki.mlt.rudibugger.editor;
 
+import de.dfki.mlt.rudibugger.DataModel;
 import java.nio.file.Path;
 
 /**
@@ -26,17 +27,20 @@ import java.nio.file.Path;
  */
 public class EmacsEditor extends Editor {
 
-  private EmacsConnection _emacs;
+  private final EmacsConnection _emacs;
 
+  
   /* ***************************************************************************
    * CONSTRUCTOR & OTHER METHODS
    * **************************************************************************/
 
-  public static EmacsEditor getNewEditor() {
-    return new EmacsEditor();
+  public static EmacsEditor getNewEditor(DataModel model) {
+    return new EmacsEditor(model);
   }
 
-  private EmacsEditor() {}
+  private EmacsEditor(DataModel model) {
+    _emacs = new EmacsConnection(model);
+  }
 
 
   public static void closeEditor(EmacsEditor re) {

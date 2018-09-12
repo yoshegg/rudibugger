@@ -73,8 +73,8 @@ public class DataModel {
   /** Stores information about rudibugger's layout. TODO not nice */
   public final ViewLayout layout;
 
-  /** Provides additional functionality to interact with Emacs. */
-  public EmacsConnection emacs = new EmacsConnection(this);
+//  /** Provides additional functionality to interact with Emacs. */
+//  public EmacsConnection emacs = new EmacsConnection(this);
 
   /** Provides additional functionality concerning global configuration. */
   public GlobalConfiguration globalConf = new GlobalConfiguration(this);
@@ -131,7 +131,7 @@ public class DataModel {
         _editor = RudibuggerEditor.getNewEditor();
         return;
       case "emacs":
-        _editor = EmacsEditor.getNewEditor();
+        _editor = EmacsEditor.getNewEditor(this);
         return;
       case "custom":
         // TODO

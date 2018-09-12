@@ -94,15 +94,15 @@ public final class HelperWindows {
 
   /** Shows the settings window (and creates it if needed). */
   public static void showSettingsWindow(Stage mainStage,
-          GlobalConfiguration globalConf, EmacsConnection emacs) {
+          GlobalConfiguration globalConf) {
     if (_settingsWindow == null)
-      _settingsWindow = createSettingsWindow(mainStage, globalConf, emacs);
+      _settingsWindow = createSettingsWindow(mainStage, globalConf);
     _settingsWindow.show();
   }
 
   /** Creates a new settings window. */
   private static Stage createSettingsWindow(Stage mainStage,
-          GlobalConfiguration globalConf, EmacsConnection emacs) {
+          GlobalConfiguration globalConf) {
 
     /* Load .fxml file */
     AnchorPane page;
@@ -233,7 +233,7 @@ public final class HelperWindows {
     findStage.show();
   }
 
-  
+
   /* ***************************************************************************
    * TRACKING WINDOW
    * **************************************************************************/

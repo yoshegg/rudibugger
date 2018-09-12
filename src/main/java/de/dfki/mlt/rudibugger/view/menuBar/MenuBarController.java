@@ -303,8 +303,7 @@ public class MenuBarController {
 
   @FXML
   private void openSettingsDialog(ActionEvent event) {
-    HelperWindows.showSettingsWindow(_mainStage, _model.globalConf,
-      _model.emacs);
+    HelperWindows.showSettingsWindow(_mainStage, _model.globalConf);
   }
 
   @FXML
