@@ -25,6 +25,7 @@ import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.editor.Editor;
 import de.dfki.mlt.rudibugger.editor.EmacsEditor;
 import de.dfki.mlt.rudibugger.editor.RudibuggerEditor;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import javafx.beans.property.*;
 import javafx.stage.Stage;
@@ -86,7 +87,8 @@ public class DataModel {
   /** Creates a new <code>DataModel</code>. */
   public DataModel(Stage stage) {
     mainStage = stage;
-    layout = new ViewLayout(mainStage);
+    layout = new ViewLayout(mainStage); // TODO: not nice?
+    if (! Files.exists(GLOBAL_CONFIG_PATH)) createGlobalConfigFolder();
     setEditor();
   }
 
@@ -134,6 +136,11 @@ public class DataModel {
       case "custom":
         // TODO
     }
+  }
+
+  private void createGlobalConfigFolder() {
+    GLOBAL_CONFIG_PATH.toFile().mkdirs();
+    log.info("Created global config folder (first start of rudibugger");
   }
 
 
