@@ -23,6 +23,11 @@
                      <children>
                         <VBox prefHeight="321.0" prefWidth="598.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
+                              <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="rudibugger needs to be restarted to apply changes.">
+                                 <font>
+                                    <Font name="System Italic" size="13.0" />
+                                 </font>
+                              </Text>
                               <RadioButton fx:id="rudibuggerEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="rudibugger (default)">
                                  <toggleGroup>
                                     <ToggleGroup fx:id="editorSetting" />
