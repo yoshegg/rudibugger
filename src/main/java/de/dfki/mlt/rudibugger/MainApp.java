@@ -19,7 +19,6 @@
 
 package de.dfki.mlt.rudibugger;
 
-import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.view.editor.RudibuggerEditorController;
 import de.dfki.mlt.rudibugger.view.menuBar.MenuBarController;
 import de.dfki.mlt.rudibugger.view.fileTreeView.FileTreeViewController;
@@ -29,7 +28,6 @@ import de.dfki.mlt.rudibugger.view.statusBar.StatusBarController;
 import static de.dfki.mlt.rudibugger.ViewLayout.*;
 import de.dfki.mlt.rudibugger.editor.RudibuggerEditor;
 import de.dfki.mlt.rudibugger.view.toolBar.ToolBarController;
-import java.nio.file.Files;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;

@@ -24,7 +24,6 @@ import de.dfki.mlt.rudibugger.rpc.LogData;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.project.VondaRuntimeConnection;
 import de.dfki.mlt.rudibugger.project.ruleModel.RuleInfoExtended;
-import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
 import static de.dfki.mlt.rudibugger.view.ruleLoggingTableView.TimestampCellFactory.dt;
 import java.util.ArrayList;
 import javafx.application.Platform;
