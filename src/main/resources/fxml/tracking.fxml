@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.gluonhq.charm.glisten.control.AutoCompleteTextField?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TreeTableColumn?>
 <?import javafx.scene.control.TreeTableView?>
@@ -14,43 +14,36 @@
    <children>
       <VBox prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <TextField fx:id="queryTextField" prefHeight="26.0" prefWidth="600.0">
-               <VBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </VBox.margin>
-            </TextField>
-            <AutoCompleteTextField />
-            <HBox prefHeight="20.0">
+            <HBox prefHeight="30.0" prefWidth="600.0">
                <children>
-                  <CheckBox fx:id="ignoreCaseCheckBox" mnemonicParsing="false" text="ignore case">
+                  <MenuButton mnemonicParsing="false" prefHeight="26.0" prefWidth="100.0" text="\@Debug">
+                    <items>
+                      <MenuItem mnemonicParsing="false" text="Action 1" />
+                      <MenuItem mnemonicParsing="false" text="Action 2" />
+                    </items>
                      <HBox.margin>
-                        <Insets left="5.0" right="5.0" />
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </HBox.margin>
-                  </CheckBox>
-                  <CheckBox fx:id="wholeWordCheckBox" mnemonicParsing="false" text="whole word">
+                  </MenuButton>
+                  <TextField fx:id="queryTextField" prefHeight="26.0" prefWidth="487.0" HBox.hgrow="ALWAYS">
                      <HBox.margin>
-                        <Insets left="5.0" right="5.0" />
+                        <Insets bottom="5.0" right="5.0" top="5.0" />
                      </HBox.margin>
-                  </CheckBox>
-                  <CheckBox fx:id="regexCheckBox" mnemonicParsing="false" text="regular expression">
-                     <HBox.margin>
-                        <Insets left="5.0" right="5.0" />
-                     </HBox.margin>
-                  </CheckBox>
+                  </TextField>
                </children>
-               <VBox.margin>
-                  <Insets left="5.0" right="5.0" />
-               </VBox.margin>
             </HBox>
-            <TreeTableView prefHeight="355.0" prefWidth="590.0">
+            <TreeTableView prefHeight="353.0" prefWidth="600.0" showRoot="false" VBox.vgrow="ALWAYS">
               <columns>
-                <TreeTableColumn prefWidth="75.0" text="Query" />
-                <TreeTableColumn prefWidth="300.0" text="Value" />
-                  <TreeTableColumn prefWidth="117.0" resizable="false" text="Date" />
+                <TreeTableColumn editable="false" maxWidth="350.0" minWidth="100.0" prefWidth="350.0" text="Query" />
+                <TreeTableColumn editable="false" prefWidth="351.0" text="Value" />
+                  <TreeTableColumn editable="false" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" resizable="false" text="Date" />
               </columns>
                <VBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  <Insets bottom="5.0" left="5.0" right="5.0" />
                </VBox.margin>
+               <columnResizePolicy>
+                  <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
             </TreeTableView>
          </children>
       </VBox>

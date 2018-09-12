@@ -313,6 +313,11 @@ public class MenuBarController {
       _model.getEditor(), _model.globalConf);
   }
 
+  @FXML
+  private void openTrackingWindow(ActionEvent event) {
+
+  }
+
 
   /* ***************************************************************************
    * MENU ACTIONS - HELP
