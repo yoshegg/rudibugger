@@ -65,6 +65,7 @@ public class ViewLayout {
   /** Represents the SplitPane separating ruleTreeView and fileTreeView. */
   private SplitPane _sidebarSplitPane;
 
+
   /*****************************************************************************
    * INITIALIZERS / CONSTRUCTORS
    ****************************************************************************/
@@ -167,7 +168,8 @@ public class ViewLayout {
     layoutConfiguration.put(WINDOW_POSITION_Y, _stage.getY());
     layoutConfiguration.put(WINDOW_WIDTH, _stage.getWidth());
     layoutConfiguration.put(WINDOW_HEIGHT, _stage.getHeight());
-    layoutConfiguration.put(DIVIDER_SIDEBAR_EDITOR,
+    if (! _sidebarEditorSplitPane.getDividers().isEmpty())
+      layoutConfiguration.put(DIVIDER_SIDEBAR_EDITOR,
             _sidebarEditorSplitPane.getDividerPositions()[0]);
     layoutConfiguration.put(DIVIDER_SIDEBAR,
             _sidebarSplitPane.getDividerPositions()[0]);

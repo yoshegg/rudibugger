@@ -27,6 +27,7 @@ import de.dfki.mlt.rudibugger.view.ruleTreeView.RuleTreeViewController;
 import de.dfki.mlt.rudibugger.view.ruleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.view.statusBar.StatusBarController;
 import static de.dfki.mlt.rudibugger.ViewLayout.*;
+import de.dfki.mlt.rudibugger.editor.RudibuggerEditor;
 import de.dfki.mlt.rudibugger.view.toolBar.ToolBarController;
 import java.nio.file.Files;
 import javafx.application.Application;
@@ -58,9 +59,9 @@ public class MainApp extends Application {
 
     log.info("Starting Rudibugger");
 
-    /***************************************************************************
+    /* *************************************************************************
      * GENERAL FIXES
-     **************************************************************************/
+     * ************************************************************************/
 
     /* Improve font rendering for RichTextFX, caused by JavaFX bug */
     /* https://github.com/FXMisc/RichTextFX/wiki/Known-Issues */
@@ -68,9 +69,9 @@ public class MainApp extends Application {
     System.setProperty("prism.text", "t2k");
 
 
-    /***************************************************************************
-     * INITIALIZE CONTROLLERS AND FXMLs
-     **************************************************************************/
+    /* *************************************************************************
+     * INITIALIZE FXMLs
+     * ************************************************************************/
 
     /* Create root BorderPane */
     BorderPane root = new BorderPane();
@@ -131,24 +132,18 @@ public class MainApp extends Application {
     RuleTreeViewController ruleTreeViewController
             = ruleTreeViewLoader.getController();
 
-    /* Initalize editor (right part of centeredSplitPane) */
-    FXMLLoader editorLoader = new FXMLLoader(getClass()
-            .getResource("/fxml/editor.fxml"));
-    centeredSplitPane.getItems().add(editorLoader.load());
-    RudibuggerEditorController editorController = editorLoader.getController();
 
 
-    /***************************************************************************
+    /* *************************************************************************
      * INITIALIZE DATA MODEL
-     **************************************************************************/
+     * ************************************************************************/
 
     DataModel model = new DataModel(stage);
 
-    /* Create a global config folder if there is none */
-    if (! Files.exists(GLOBAL_CONFIG_PATH)) {
-      GLOBAL_CONFIG_PATH.toFile().mkdirs();
-      log.info("Created global config folder (first start of rudibugger");
-    }
+
+    /* *************************************************************************
+     * INITIALIZE CONTROLLERS
+     * ************************************************************************/
 
     menuController.init(model,
         (chosenFile) -> RuleTreeViewState
@@ -162,12 +157,27 @@ public class MainApp extends Application {
     statusBarController.initModel(model);
     fileTreeViewController.init(model);
     ruleTreeViewController.init(model);
-    editorController.initModel(model);
 
 
-    /***************************************************************************
+    /* *************************************************************************
+     * INITIALIZE RUDIBUGGER EDITOR (IF WANTED)
+     * ************************************************************************/
+
+    /* Initalize editor (right part of centeredSplitPane) */
+    if (model.getEditor() instanceof RudibuggerEditor) {
+      FXMLLoader editorLoader = new FXMLLoader(getClass()
+              .getResource("/fxml/editor.fxml"));
+      centeredSplitPane.getItems().add(editorLoader.load());
+      RudibuggerEditorController editorController
+              = editorLoader.getController();
+
+      editorController.initModel(model);
+    }
+
+
+    /* *************************************************************************
      * PREPARE GUI
-     **************************************************************************/
+     * ************************************************************************/
 
     /* Bind stage to field */
     model.mainStage = stage;
