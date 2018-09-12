@@ -307,6 +307,12 @@ public class MenuBarController {
       _model.emacs);
   }
 
+  @FXML
+  private void openRuleLoggingWindow(ActionEvent event) {
+    HelperWindows.showRuleLoggingWindow(_mainStage, _model.getLoadedProject(),
+      _model.getEditor(), _model.globalConf);
+  }
+
 
   /* ***************************************************************************
    * MENU ACTIONS - HELP
@@ -319,12 +325,6 @@ public class MenuBarController {
     } catch (MalformedURLException | URISyntaxException ex) {
       log.error(ex.getMessage());
     }
-  }
-
-  @FXML
-  private void openRuleLoggingWindow(ActionEvent event) {
-    HelperWindows.showRuleLoggingWindow(_mainStage, _model.getLoadedProject(),
-      _model.getEditor(), _model.globalConf);
   }
 
   @FXML
