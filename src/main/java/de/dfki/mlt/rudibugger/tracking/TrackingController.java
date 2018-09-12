@@ -18,7 +18,14 @@
  */
 package de.dfki.mlt.rudibugger.tracking;
 
+import de.dfki.mlt.rudibugger.GlobalConfiguration;
 import de.dfki.mlt.rudibugger.editor.Editor;
+import de.dfki.mlt.rudibugger.project.Project;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +37,36 @@ public class TrackingController {
 
   static Logger log = LoggerFactory.getLogger("Tracking");
 
-  /** Is used to open a selected entry. */
+  /** Is used to open a selected entry (if possible). */
   private Editor _editor;
 
 
+  /* ***************************************************************************
+   * GUI ELEMENTS
+   * **************************************************************************/
+
+  /** Used for complex / custom queries. */
+  private TextField queryTextField;
+
+  /** Shows the tracked elements. */
+  private TreeTableView trackingTreeTableView;
+
+  /* Columns. */
+  private TreeTableColumn queryColumn;
+  private TreeTableColumn valueColumn;
+  private TreeTableColumn dateColumn;
+
+  /** Contains predefined elements. */
+  private MenuButton debugMenuButton;
+
+
+  /* ***************************************************************************
+   * METHODS
+   * **************************************************************************/
+
+  public void init(Editor editor) {
+    _editor = editor;
+
+  }
 
 }

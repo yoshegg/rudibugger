@@ -27,6 +27,7 @@ import de.dfki.mlt.rudibugger.editor.Editor;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.project.VondaRuntimeConnection;
 import de.dfki.mlt.rudibugger.searchAndFind.SearchController;
+import de.dfki.mlt.rudibugger.tracking.TrackingController;
 import de.dfki.mlt.rudibugger.view.ruleLoggingTableView.RuleLoggingTableViewController;
 import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 import java.io.File;
@@ -230,6 +231,45 @@ public final class HelperWindows {
 
     Stage findStage = createWindow(mainStage, page, "Find in project...");
     findStage.show();
+  }
+
+  
+  /* ***************************************************************************
+   * TRACKING WINDOW
+   * **************************************************************************/
+
+  /** Represents the stage of a potential about window. */
+  private static Stage _trackingWindow;
+
+  /** Shows the settings window (and creates it if needed). */
+  public static void showTrackingWindow(Stage mainStage, Editor editor) {
+    if (_trackingWindow == null)
+      _trackingWindow = createTrackingWindow(mainStage, editor);
+    _trackingWindow.show();
+  }
+
+  private static Stage createTrackingWindow(Stage mainStage, Editor editor) {
+
+    /* Load .fxml file */
+    AnchorPane page;
+    FXMLLoader loader;
+    try {
+       loader = new FXMLLoader(HelperWindows.class
+        .getResource("/fxml/tracking.fxml"));
+       page = (AnchorPane) loader.load();
+    } catch (IOException e) {
+      log.error(e.toString());
+      return null;
+    }
+
+    /* Set controller */
+    TrackingController controller = loader.getController();
+    controller.init(editor);
+
+    Stage trackingStage = createWindow(mainStage, page, "Tracking");
+    trackingStage.show();
+
+    return trackingStage;
   }
 
 

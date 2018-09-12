@@ -315,7 +315,7 @@ public class MenuBarController {
 
   @FXML
   private void openTrackingWindow(ActionEvent event) {
-
+    HelperWindows.showTrackingWindow(_mainStage, _model.getEditor());
   }
 
 
