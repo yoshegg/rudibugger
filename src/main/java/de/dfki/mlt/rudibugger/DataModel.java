@@ -19,7 +19,6 @@
 
 package de.dfki.mlt.rudibugger;
 
-import de.dfki.mlt.rudibugger.editor.EmacsConnection;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.editor.CustomEditor;
 import de.dfki.mlt.rudibugger.project.Project;
@@ -73,9 +72,6 @@ public class DataModel {
 
   /** Stores information about rudibugger's layout. TODO not nice */
   public final ViewLayout layout;
-
-//  /** Provides additional functionality to interact with Emacs. */
-//  public EmacsConnection emacs = new EmacsConnection(this);
 
   /** Provides additional functionality concerning global configuration. */
   public GlobalConfiguration globalConf = new GlobalConfiguration(this);
