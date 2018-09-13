@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Represents the functionality specified in the settings dialog of rudibugger.
+ * At the moment, only loading functions are supported.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -34,24 +36,46 @@ public class CustomEditor extends Editor {
 
   GlobalConfiguration _globalConf;
 
+  /* ***************************************************************************
+   * CONSTRUCTOR & OTHER METHODS
+   * **************************************************************************/
+
+  public static CustomEditor getNewEditor(GlobalConfiguration globalConf) {
+    return new CustomEditor(globalConf);
+  }
+
+  private CustomEditor(GlobalConfiguration globalConf) {
+    _globalConf = globalConf;
+  }
+
+
+  /* ***************************************************************************
+   * SAVE METHODS
+   * **************************************************************************/
+
   @Override
   public void saveFile() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    log.error("Unsupported operation, not implemented (yet).");
   }
 
   @Override
   public void saveFileAs(Path file) {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    log.error("Unsupported operation, not implemented (yet).");
   }
 
   @Override
   public void saveAllFiles() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    log.error("Unsupported operation, not implemented (yet).");
   }
+
+
+  /* ***************************************************************************
+   * LOAD METHODS
+   * **************************************************************************/
 
   @Override
   public void createNewFile() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    log.error("Unsupported operation, not implemented (yet).");
   }
 
   @Override
@@ -72,19 +96,28 @@ public class CustomEditor extends Editor {
         .replaceAll("%file", file.toString())
         .replaceAll("%line", Integer.toString(line));
       Runtime.getRuntime().exec(cmd);
+    } catch (IllegalArgumentException ex) {
+      log.error("Can't use custom editor to open file at line. "
+        + "Trying to open file without specified line.");
+      loadFile(file);
     } catch (IOException ex) {
       log.error("Can't use custom editor to open file. ");
     }
   }
 
+
+  /* ***************************************************************************
+   * CLOSE METHODS
+   * **************************************************************************/
+
   @Override
   public void closeFile() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    log.error("Unsupported operation, not implemented (yet).");
   }
 
   @Override
   public void closeAllFiles() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    log.error("Unsupported operation, not implemented (yet).");
   }
 
 }

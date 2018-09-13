@@ -21,6 +21,7 @@ package de.dfki.mlt.rudibugger;
 
 import de.dfki.mlt.rudibugger.editor.EmacsConnection;
 import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.editor.CustomEditor;
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.editor.Editor;
 import de.dfki.mlt.rudibugger.editor.EmacsEditor;
@@ -134,7 +135,7 @@ public class DataModel {
         _editor = EmacsEditor.getNewEditor(this);
         return;
       case "custom":
-        // TODO
+        _editor = CustomEditor.getNewEditor(globalConf);
     }
   }
 
