@@ -176,8 +176,9 @@ public class ViewLayout {
     try {
       FileWriter writer = new FileWriter(GLOBAL_LAYOUT_CONFIG_FILE.toFile());
       YAML.dump(layoutConfiguration, writer);
-    } catch (IOException ex) {
+    } catch (IOException | NoClassDefFoundError ex) {
       log.error("Could not save layout.");
+      return;
     }
     log.debug("Saved layout settings.");
   }
