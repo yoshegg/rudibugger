@@ -20,7 +20,6 @@
 package de.dfki.mlt.rudibugger.project;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.GlobalConfiguration;
 import de.dfki.mlt.rudibugger.view.fileTreeView.RudiHierarchy;
 import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
 import de.dfki.mlt.rudibugger.project.watchServices.RudiFolderWatch;
@@ -66,10 +65,7 @@ public class Project {
    * extracted from configuration .yml file or derived
    * **************************************************************************/
 
-  /** TODO */
-  private final GlobalConfiguration _globalConf;
-
-  /** TODO */
+  /** Represents the file containing the project's configuration. */
   private final Path _projectYamlPath;
 
   /** Indicates the project's name. */
@@ -118,22 +114,18 @@ public class Project {
   private RuleLocationYamlWatch _ruleLocYamlWatch;
 
 
-
   /* ***************************************************************************
    * OPEN, CLOSE, CONSTRUCTOR
    * **************************************************************************/
 
-  /** Opens a new project. TODO: Complete */
-  public static Project openProject(Path projectYamlPath,
-          GlobalConfiguration globalConf) {
-    Project project;
+  /** Opens a new project. */
+  public static Project openProject(Path projectYamlPath) {
     try {
-      project = new Project(projectYamlPath, globalConf);
+      return new Project(projectYamlPath);
     } catch (IOException | IllegalArgumentException e) {
       log.error(e.toString());
       return null;
     }
-    return project;
   }
 
   /** Closes the project (if any). */
@@ -143,9 +135,8 @@ public class Project {
     this._ruleLocYamlWatch.shutDownListener();
   }
 
-  private Project(Path projectYamlPath, GlobalConfiguration globalConf)
-          throws IOException {
-    _globalConf = globalConf;
+  /** Creates a new instance of this class. */
+  private Project(Path projectYamlPath) throws IOException {
     _projectYamlPath = projectYamlPath;
     Map configMap = readInProjectConfigurationYaml();
     checkConfigurationForValidity(configMap);
@@ -200,6 +191,7 @@ public class Project {
       add("rootPackage");
     }};
 
+  /** Reads in the project's configuration .yml file. */
   private Map readInProjectConfigurationYaml() throws IOException {
     log.debug("Reading in project's configuration .yml...");
     Map map = (HashMap<String, Object>) YAML.load(
@@ -224,11 +216,13 @@ public class Project {
     }
   }
 
+  /** @return The project's name from the configuration file. */
   private String identifyProjectName() {
     String filename = _projectYamlPath.getFileName().toString();
     return filename.substring(0, filename.lastIndexOf('.'));
   }
 
+  /** @return The project's .rudi folder. */
   private Path retrieveRudiFolder() throws IOException {
     Path rudiFolder = _rootFolder.resolve(PATH_TO_RUDI_FOLDER);
     if (! Files.exists(rudiFolder)) {
@@ -240,6 +234,7 @@ public class Project {
     return rudiFolder;
   }
 
+  /** @return The project's RuleLoc.yml path. */
   private Path retrieveRuleLocYaml() {
     Path ruleLocYaml = _rootFolder.resolve(getGeneratedFilesFolder()
       .resolve(RULE_LOCATION_FILE));
@@ -252,6 +247,7 @@ public class Project {
     return ruleLocYaml;
   }
 
+  /** @return The Project's folder containing rule logging configurations. */
   private Path retrieveRuleModelStatesFolder() {
     Path ruleModelStatesFolder = GLOBAL_CONFIG_PATH
       .resolve("loggingConfigurations").resolve(_projectName);
@@ -262,6 +258,10 @@ public class Project {
     return ruleModelStatesFolder;
   }
 
+  /**
+   * If needed, the folder containing generated files (like RuleLoc.yml) and
+   * the folder containing the compiled .java files will be created.
+   */
   private void createPotentiallyMissingFolders() {
     /* Create generated directory (if necessary) */
     Path generatedFilesFolder = _rootFolder.resolve(getGeneratedFilesFolder());
@@ -400,16 +400,14 @@ public class Project {
           };
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * OTHER METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Represents a list of all recent <code>RuleTreeViewState</code>s. */
   private List<Path> _recentStates = new ArrayList<>();
 
-  /**
-   * Retrieves the 10 most recent saved RuleTreeViewState configurations.
-   */
+  /** Retrieves the 10 most recent saved RuleTreeViewState configurations. */
   public void retrieveRecentConfigurations() {
     List<Path> temp = new ArrayList<>();
 
@@ -446,12 +444,11 @@ public class Project {
   public ObjectProperty<RuleModel> ruleModelProperty() { return _ruleModel; }
   public RuleModel getRuleModel() { return _ruleModel.get(); }
   public RudiHierarchy getRudiHierarchy() { return _rudiHierarchy; }
-//  public TabStore getTabStore() { return _tabStore; }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * GETTERS REPRESENTING CONFIGURATION DETAILS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** @return The default compile command */
   public void setDefaultCompileCommand(String label) {
@@ -467,9 +464,7 @@ public class Project {
     String result = _defaultCompileCommand.get();
     if (result == null || result.isEmpty()) {
       Collection<String> ccommands = getCompileCommandLabels();
-      if (! ccommands.isEmpty()) {
-        result = ccommands.iterator().next();
-      }
+      if (! ccommands.isEmpty()) result = ccommands.iterator().next();
     }
     return result;
   }
@@ -478,8 +473,6 @@ public class Project {
   public String getCompileCommand(String label) {
     return compileCommands.get(label);
   }
-
-
 
   /** @return The project's wrapper class */
   public Path getWrapperClass() {

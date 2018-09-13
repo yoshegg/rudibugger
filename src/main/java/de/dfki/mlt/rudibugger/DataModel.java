@@ -103,7 +103,7 @@ public class DataModel {
               _loadedProject.get().getProjectName()))
         return;
     }
-    Project newProject = Project.openProject(projectYamlPath, globalConf);
+    Project newProject = Project.openProject(projectYamlPath);
     if (newProject == null) return; // Project could not be opened
     _loadedProject.set(newProject);
     if (newProject.getRuleModel() != null
