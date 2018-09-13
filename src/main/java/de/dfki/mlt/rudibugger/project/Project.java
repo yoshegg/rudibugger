@@ -20,6 +20,7 @@
 package de.dfki.mlt.rudibugger.project;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
+import static de.dfki.mlt.rudibugger.ConfigurationConstants.*;
 import de.dfki.mlt.rudibugger.view.fileTreeView.RudiHierarchy;
 import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
 import de.dfki.mlt.rudibugger.project.watchServices.RudiFolderWatch;
@@ -476,7 +477,7 @@ public class Project {
 
   /** @return The project's wrapper class */
   public Path getWrapperClass() {
-    String longName = (String) _projectConfigs.get("wrapperClass");
+    String longName = (String) _projectConfigs.get(WRAPPER_CLASS);
     String[] split = longName.split("\\.");
     String shortName = split[split.length-1];
     return _rudiFolder.resolve(shortName + RULE_FILE_EXTENSION);
@@ -484,14 +485,14 @@ public class Project {
 
   /** @return The project's ontology */
   public Path getOntology() {
-    String s = (String) _projectConfigs.get("ontologyFile");
+    String s = (String) _projectConfigs.get(ONTOLOGY_FILE);
     return Paths.get(s);
   }
 
   /** @return The custom VOnDA port (if any) or the default port */
   public int getVondaPort() {
-    if (_projectConfigs.containsKey("vondaPort"))
-      return (int) _projectConfigs.get("vondaPort");
+    if (_projectConfigs.containsKey(DEBUG_PORT))
+      return (int) _projectConfigs.get(DEBUG_PORT);
     else
       return SimpleServer.DEFAULT_PORT;
   }
@@ -501,12 +502,11 @@ public class Project {
    * command as key and the command itself as value
    */
   private LinkedHashMap<String, String> getCustomCompileCommands() {
-    if (_projectConfigs.containsKey("customCompileCommands")) {
+    if (_projectConfigs.containsKey(CUSTOM_COMPILE_COMMANDS))
       return (LinkedHashMap<String, String>) _projectConfigs
-        .get("customCompileCommands");
-    } else {
+        .get(CUSTOM_COMPILE_COMMANDS);
+    else
       return new LinkedHashMap<>();
-    }
   }
 
 }
