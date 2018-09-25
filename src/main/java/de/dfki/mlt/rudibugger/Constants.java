@@ -39,17 +39,19 @@ public class Constants {
           = Paths.get("src/main/resources/generated");
   public static String COMPILE_FILE = "compile";
   public static String RUN_FILE = "run.sh";
-  public static Path GLOBAL_CONFIG_FILE
-          = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
-                  "rudibuggerConfiguration.yml");
-  public static Path RECENT_PROJECTS_FILE
-          = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
-                  "recentProjects.yml");
-  public static Path GLOBAL_CONFIG_PATH
+
+  public final static Path GLOBAL_CONFIG_PATH
           = Paths.get(System.getProperty("user.home"), ".config", "rudibugger");
+  public static Path GLOBAL_CONFIG_FILE
+          = GLOBAL_CONFIG_PATH.resolve("configuration.yml");
+  public static Path RECENT_PROJECTS_FILE
+          = GLOBAL_CONFIG_PATH.resolve("recentProjects.yml");
   public static Path GLOBAL_LAYOUT_CONFIG_FILE
-          = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
-                  "rudibuggerLayout.yml");
+          = GLOBAL_CONFIG_PATH.resolve("layout.yml");
+  public static Path GLOBAL_PROJECT_SPECIFIC_CONFIG_PATH
+          = GLOBAL_CONFIG_PATH.resolve("projectSpecific");
+  public static String PROJECT_SPECIFIC_RUDIBUGGER_CONFIG_FILE =
+          "projectConfiguration.yml";
 
 
  /* ****************************************************************************
