@@ -151,7 +151,7 @@ public class Project {
 
     _rudiHierarchy = new RudiHierarchy(_rudiFolder, _ruleLocYaml);
     initWatches();
-    initCompileCommands();
+    compiler.retrieveCompileCommands();
     enableListeners();
 
     if (Files.exists(_ruleLocYaml)) {
@@ -348,13 +348,13 @@ public class Project {
    * FIELDS AND PROPERTIES
    ****************************************************************************/
 
-  private Map<String, String> compileCommands;
+//  private Map<String, String> compileCommands;
 
   /** Represents the default compile command.
    *  TODO: WHO LISTENS FOR THIS?
    */
-  private final StringProperty _defaultCompileCommand
-          = new SimpleStringProperty("");
+//  private final StringProperty _defaultCompileCommand
+//          = new SimpleStringProperty("");
 
 
   /*****************************************************************************
@@ -362,12 +362,11 @@ public class Project {
    ****************************************************************************/
 
   private void initCompileCommands() {
-    Path compileScript = _rootFolder.resolve(COMPILE_FILE);
-    if (Files.exists(compileScript)) {
-      compileCommands = new LinkedHashMap<>();
-      compileCommands.put("Compile", compileScript.toAbsolutePath().toString());
-    }
-    compileCommands.putAll(getCustomCompileCommands());
+//    compileCommands = new LinkedHashMap<>();
+//    Path compileScript = _rootFolder.resolve(COMPILE_FILE);
+//    if (Files.exists(compileScript))
+//      compileCommands.put("Compile", compileScript.toAbsolutePath().toString());
+//    compileCommands.putAll(getCustomCompileCommands());
 
     if (_projectConfigs.containsKey("defaultCompileCommand")) {
       _defaultCompileCommand.set((String) _projectConfigs
@@ -386,12 +385,12 @@ public class Project {
    * changes.
    */
   private void enableListeners() {
-    _defaultCompileCommand.addListener(defaultCompileCommandListener);
+//    _defaultCompileCommand.addListener(defaultCompileCommandListener);
   }
 
   /** Disables listeners to update project's config file. */
   private void disableListeners() {
-    _defaultCompileCommand.removeListener(defaultCompileCommandListener);
+//    _defaultCompileCommand.removeListener(defaultCompileCommandListener);
   }
 
   private final ChangeListener<String> defaultCompileCommandListener
@@ -451,29 +450,20 @@ public class Project {
    * GETTERS REPRESENTING CONFIGURATION DETAILS
    * **************************************************************************/
 
-  /** @return The default compile command */
-  public void setDefaultCompileCommand(String label) {
-    _defaultCompileCommand.set(label);
-  }
+//  /** @return The default compile command */
+//  public void setDefaultCompileCommand(String label) {
+//    _defaultCompileCommand.set(label);
+//  }
 
-  public Collection<String> getCompileCommandLabels() {
-    return compileCommands.keySet();
-  }
-
-  /** @return The default compile command label */
-  public String getDefaultCompileCommand() {
-    String result = _defaultCompileCommand.get();
-    if (result == null || result.isEmpty()) {
-      Collection<String> ccommands = getCompileCommandLabels();
-      if (! ccommands.isEmpty()) result = ccommands.iterator().next();
-    }
-    return result;
-  }
-
-  /** @return the real command to execute for a compile command label */
-  public String getCompileCommand(String label) {
-    return compileCommands.get(label);
-  }
+//  /** @return The default compile command label */
+//  public String getDefaultCompileCommand() {
+//    String result = _defaultCompileCommand.get();
+//    if (result == null || result.isEmpty()) {
+//      Collection<String> ccommands = getCompileCommandLabels();
+//      if (! ccommands.isEmpty()) result = ccommands.iterator().next();
+//    }
+//    return result;
+//  }
 
   /** @return The project's wrapper class */
   public Path getWrapperClass() {
@@ -501,7 +491,7 @@ public class Project {
    * @return A Map of custom compile commands (if any) with the name of the
    * command as key and the command itself as value
    */
-  private LinkedHashMap<String, String> getCustomCompileCommands() {
+  public LinkedHashMap<String, String> getCustomCompileCommands() {
     if (_projectConfigs.containsKey(CUSTOM_COMPILE_COMMANDS))
       return (LinkedHashMap<String, String>) _projectConfigs
         .get(CUSTOM_COMPILE_COMMANDS);

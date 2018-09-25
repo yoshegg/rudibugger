@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.project.VondaCompiler;
+import java.util.List;
+import javafx.collections.ListChangeListener;
 import javafx.scene.control.*;
 import javafx.event.*;
 
@@ -43,14 +45,14 @@ public class CompileButtonController {
    * FIELDS
    ****************************************************************************/
 
-  /** Represents the toolbar containing the compile button(s). */
-  private ToolBar toolBar;
+  /** Represents the ToolBar containing the compile button(s). */
+  private final ToolBar _toolBar;
 
   /** Represents the standard compile button. */
-  private Button standardCompileButton;
+  private final Button _standardCompileButton;
 
   /** Represents the custom compile button. */
-  private final SplitMenuButton extendedCompileButton = new SplitMenuButton();
+  private final SplitMenuButton _extendedCompileButton = new SplitMenuButton();
 
 
   /*****************************************************************************
@@ -58,25 +60,26 @@ public class CompileButtonController {
    ****************************************************************************/
 
   /** Initializes an instance of this class. */
-  private CompileButtonController() {
+  private CompileButtonController(ToolBar toolBar,
+    Button standardCompileButton) {
+    _toolBar = toolBar;
+    _standardCompileButton = standardCompileButton;
   }
 
   /**
-   * Initializes a new <code>CompileButtonManager</code> and returns it.
+   * Initializes a new <code>CompileButtonController</code> and returns it.
    *
    * @param model
    *        The current <code>DataModel</code>
-   * @param standard
+   * @param standardButton
    *        The compile button
    * @param toolBar
    *        The ToolBar containing the compile button
    * @Return An instance of this class.
    */
-  public static CompileButtonController init(Button standard, ToolBar toolBar) {
-    CompileButtonController cbm = new CompileButtonController();
-    cbm.standardCompileButton = standard;
-    cbm.toolBar = toolBar;
-    return cbm;
+  public static CompileButtonController init(Button standardButton,
+    ToolBar toolBar) {
+    return new CompileButtonController(toolBar, standardButton);
   };
 
 
@@ -87,60 +90,62 @@ public class CompileButtonController {
   private void adaptMenu(String k, EventHandler<ActionEvent> eh) {
 //    TODO: setVisible is cause for graphic errors
 //    extendedCompileButton.getItems().forEach(e -> e.setVisible(!e.getText().equals(k)));
-    extendedCompileButton.setText(k);
-    extendedCompileButton.setOnAction(eh);
+    _extendedCompileButton.setText(k);
+    _extendedCompileButton.setOnAction(eh);
   }
 
   public void disableCompileButton() {
-    if (toolBar.getItems().contains(extendedCompileButton)) {
-      toolBar.getItems().remove(extendedCompileButton);
-      toolBar.getItems().add(0, standardCompileButton);
+    if (_toolBar.getItems().contains(_extendedCompileButton)) {
+      _toolBar.getItems().remove(_extendedCompileButton);
+      _toolBar.getItems().add(0, _standardCompileButton);
     }
-    standardCompileButton.setDisable(true);
+    _standardCompileButton.setDisable(true);
   }
 
-  /**
-   * Defines the look and file of the compile button.
-   *
-   * Several conditions need to be checked: <br>
-   *   - No compile file and no custom commands, <br>
-   *   - a compile file and no custom commands, <br>
-   *   - no compile file, but multiple custom commands, <br>
-   *   - a compile file and at least one custom command, or <br>
-   *   - no compile file, but one custom command.
-   */
-  public void defineCompileButton(final Project project,
-      final VondaCompiler compiler) {
-    if (toolBar.getItems().contains(standardCompileButton)) {
-      toolBar.getItems().remove(standardCompileButton);
-      toolBar.getItems().add(0, extendedCompileButton);
+  /** Defines the look and feel of the compile button. */
+  public void linkToCompiler(final VondaCompiler compiler) {
+    defineCompilerButton(compiler);
+    compiler.getCompileLabelList().addListener((ListChangeListener) cl -> {
+      defineCompilerButton(compiler);
+    });
+  }
+
+  private void defineCompilerButton(VondaCompiler compiler) {
+    _toolBar.getItems().remove(0);
+    if (compiler.getCompileLabelList().size() == 1) {
+      _toolBar.getItems().add(0, _standardCompileButton);
+      _standardCompileButton.setText(compiler.getDefaultCompileCommandLabel());
+      _standardCompileButton.setOnAction(e ->
+        compiler.startCompile(compiler.getDefaultCompileCommand())
+      );
     }
-    extendedCompileButton.getItems().clear();
 
-    LinkedList<CustomMenuItem> commandItems = new LinkedList<>();
-    Collection<String> compileCommands = project.getCompileCommandLabels();
-    String defaultCmd = project.getDefaultCompileCommand();
+    else { // More than one compile command
+      _toolBar.getItems().add(0, _extendedCompileButton);
+      _extendedCompileButton.getItems().clear();
 
-    /* Iterate over alternative compile commands */
-    for (String k : compileCommands) {
-      Label l = new Label(k);
-      CustomMenuItem cmi = new CustomMenuItem(l);
-      cmi.setText(k);
-      Tooltip t = new Tooltip(project.getCompileCommand(k));
-      Tooltip.install(l, t);
-      cmi.setOnAction(f -> {
-        project.setDefaultCompileCommand(k);
-        adaptMenu(k, e -> compiler.startCompile(project.getCompileCommand(k)));
-        compiler.startCompile(project.getCompileCommand(k));
-      });
-      if (k.equals(defaultCmd))
-        commandItems.addFirst(cmi);
-      else
+      _extendedCompileButton.setText(compiler.getDefaultCompileCommandLabel());
+      _extendedCompileButton.setOnAction(e ->
+        compiler.startCompile(compiler.getDefaultCompileCommand())
+      );
+
+      List<String> otherCompileCommandLabels = compiler.getCompileLabelList()
+        .subList(1, compiler.getCompileLabelList().size());
+
+      LinkedList<CustomMenuItem> commandItems = new LinkedList<>();
+      otherCompileCommandLabels.forEach(l -> {
+        CustomMenuItem cmi = new CustomMenuItem(new Label(l));
+        String compileCommand = compiler.getCompileCommand(l);
+        Tooltip t = new Tooltip(compileCommand);
+        Tooltip.install(cmi.getContent(), t);
+        cmi.setOnAction(f -> {
+          compiler.setDefaultCompileCommand(l);
+          compiler.startCompile(compileCommand);
+        });
         commandItems.add(cmi);
+      });
+      _extendedCompileButton.getItems().addAll(commandItems);
     }
-    commandItems.forEach(e -> extendedCompileButton.getItems().add(e));
-    String k = commandItems.getFirst().getText();
-    adaptMenu(k, e -> compiler.startCompile(project.getCompileCommand(k)));
   }
 
 }

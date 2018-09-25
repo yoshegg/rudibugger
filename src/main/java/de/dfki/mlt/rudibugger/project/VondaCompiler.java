@@ -19,9 +19,14 @@
 
 package de.dfki.mlt.rudibugger.project;
 
+import static de.dfki.mlt.rudibugger.Constants.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +37,12 @@ import org.slf4j.LoggerFactory;
  */
 public class VondaCompiler {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("vondaCompile");
+
+
+  /* ***************************************************************************
+   * FIELDS AND PROPERTIES
+   * **************************************************************************/
 
   /** The associated project. */
   private final Project _project;
@@ -42,18 +51,38 @@ public class VondaCompiler {
   private Process _p;
 
   /**
-   * TODO
+   * Contains all compile commands: a potential compile file and additional
+   * commands in the project's configuration file.
    */
-  public VondaCompiler(Project project) { _project = project; }
+  private final Map<String, String> _compileCommandsMap = new HashMap<>();
 
   /**
-   * Starts the default compilation process as specified in the project's YAML
-   * configuration file.
+   * Reflects the order of the compile commands of the compile button. The
+   * first entry represents the default command.
    */
-//  public void startCompileFileBasedCompilation() {
-//    String compileScript = _model.project.getCompileFile().toString();
-//    startCompile(compileScript);
-//  }
+  private final ObservableList<String> _compileCommandsList
+    = FXCollections.observableArrayList();
+
+
+  /* ***************************************************************************
+   * CONSTRUCTOR
+   * **************************************************************************/
+
+  /** Initializes an instance of this class. */
+  public VondaCompiler(Project project) { _project = project; }
+
+
+  /* ***************************************************************************
+   * METHODS
+   * **************************************************************************/
+
+  public void retrieveCompileCommands() {
+    Path compileScript = _project.getRootFolder().resolve(COMPILE_FILE);
+     if (Files.exists(compileScript))
+      _compileCommandsMap.put("Compile", compileScript.toAbsolutePath().toString());
+    _compileCommandsMap.putAll(_project.getCustomCompileCommands());
+    _compileCommandsList.addAll(_compileCommandsMap.keySet());
+  }
 
   /**
    * Starts VOnDAs compilation process by using a given command.
@@ -95,11 +124,41 @@ public class VondaCompiler {
         _p = Runtime.getRuntime().exec(cmd);
       } else {
         _p = Runtime.getRuntime().exec(inputCmd);
-                //_model.project.getCompileFile().toString());
       }
     } catch (IOException ex) {
         log.error(ex.getMessage());
     }
+  }
+
+  /* ***************************************************************************
+   * GETTERS / SETTERS
+   * **************************************************************************/
+
+  public void setDefaultCompileCommand(String label) {
+    if (_compileCommandsList.contains(label))
+      _compileCommandsList.remove(label);
+    _compileCommandsList.add(0, label);
+  }
+
+  public String getDefaultCompileCommandLabel() {
+    return _compileCommandsList.get(0);
+  }
+
+  public String getDefaultCompileCommand() {
+    return getCompileCommand(getDefaultCompileCommandLabel());
+  }
+
+  public Collection<String> getCompileCommandLabels() {
+    return _compileCommandsMap.keySet();
+  }
+
+  /** @return the real command to execute for a compile command label */
+  public String getCompileCommand(String label) {
+    return _compileCommandsMap.get(label);
+  }
+
+  public ObservableList<String> getCompileLabelList() {
+    return _compileCommandsList;
   }
 
 }

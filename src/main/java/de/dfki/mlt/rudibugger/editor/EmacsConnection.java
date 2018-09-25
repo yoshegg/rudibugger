@@ -72,8 +72,7 @@ public class EmacsConnection {
     Project project = _model.getLoadedProject();
     _j2e.registerAction("file_changed", (String... args) -> {
       project.compiler.startCompile(
-          project.getCompileCommand(
-              project.getDefaultCompileCommand()));
+        project.compiler.getDefaultCompileCommand());
     });
 
   }
