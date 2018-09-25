@@ -37,7 +37,7 @@
             </MenuItem>
             <Menu fx:id="openRecentProjectMenu" mnemonicParsing="false" onMenuValidation="#buildRecentProjectsMenu" text="Open Recent Project">
                <items>
-                  <MenuItem disable="true" mnemonicParsing="false" text="Empty" />
+                  <MenuItem disable="true" mnemonicParsing="false" text="No recent project found." />
                </items>
             </Menu>
             <MenuItem fx:id="closeProjectItem" disable="true" mnemonicParsing="false" onAction="#closeProjectAction" text="Close Project" />

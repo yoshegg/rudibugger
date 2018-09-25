@@ -181,6 +181,12 @@ public class MenuBarController {
       });
       openRecentProjectMenu.getItems().add(mi);
     });
+    if (openRecentProjectMenu.getItems().isEmpty())
+      openRecentProjectMenu.getItems().add(
+              new MenuItem("No recent project found.") {{
+                setDisable(true);
+              }}
+      );
   }
 
   /**
