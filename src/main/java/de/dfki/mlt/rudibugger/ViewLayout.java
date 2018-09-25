@@ -26,26 +26,35 @@ import java.io.IOException;
 import java.util.HashMap;
 import javafx.application.Platform;
 import javafx.scene.control.SplitPane;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * Provides additional functionality concerning the storage of layout settings.
+ * TODO: Only needs YAML and stage
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class ViewLayout {
 
-  /** The Logger. */
   static Logger log = LoggerFactory.getLogger("ViewLayout");
 
-  /** The <code>DataModel</code>. */
-  private final DataModel _model;
+  /** TODO */
+  private Stage _stage;
+
+  private static final Yaml YAML = new Yaml(
+    new DumperOptions() {{
+      setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+    }}
+  );
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * FIELDS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Contains all layout settings. */
   private HashMap<String, Double> layoutConfiguration = new HashMap();
@@ -56,23 +65,24 @@ public class ViewLayout {
   /** Represents the SplitPane separating ruleTreeView and fileTreeView. */
   private SplitPane _sidebarSplitPane;
 
-  /*****************************************************************************
+
+  /* ***************************************************************************
    * INITIALIZERS / CONSTRUCTORS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /**
    * Initializes this addition of <code>DataModel</code>.
    *
    * @param model  The current <code>DataModel</code>
    */
-  public ViewLayout(DataModel model) {
-    _model = model;
+  public ViewLayout(Stage stage) {
+    _stage = stage;
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * CONSTANTS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Position of rudibugger window on the x-axis. */
   private static final String WINDOW_POSITION_X = "Window_Position_X";
@@ -92,16 +102,16 @@ public class ViewLayout {
   /** SplitPane dividing sidebar and editor */
   public static final String DIVIDER_SIDEBAR = "Divider_Sidebar";
 
-  
-  /*****************************************************************************
+
+  /* ***************************************************************************
    * METHODS
-   *****************************************************************************/
+   * ***************************************************************************/
 
   /** Restores the window's position if a configuration file exists. */
   public void restoreWindowPosition() {
     if (GLOBAL_LAYOUT_CONFIG_FILE.toFile().length() != 0) {
       try {
-        layoutConfiguration = (HashMap<String, Double>) _model.yaml.load(
+        layoutConfiguration = (HashMap<String, Double>) YAML.load(
                 new FileReader(GLOBAL_LAYOUT_CONFIG_FILE.toFile()));
       } catch (FileNotFoundException
              | org.yaml.snakeyaml.error.YAMLException e) {
@@ -109,10 +119,10 @@ public class ViewLayout {
         return;
       }
 
-      _model.stageX.setX(layoutConfiguration.get(WINDOW_POSITION_X));
-      _model.stageX.setY(layoutConfiguration.get(WINDOW_POSITION_Y));
-      _model.stageX.setWidth(layoutConfiguration.get(WINDOW_WIDTH));
-      _model.stageX.setHeight(layoutConfiguration.get(WINDOW_HEIGHT));
+      _stage.setX(layoutConfiguration.get(WINDOW_POSITION_X));
+      _stage.setY(layoutConfiguration.get(WINDOW_POSITION_Y));
+      _stage.setWidth(layoutConfiguration.get(WINDOW_WIDTH));
+      _stage.setHeight(layoutConfiguration.get(WINDOW_HEIGHT));
     }
   }
 
@@ -120,7 +130,7 @@ public class ViewLayout {
   public void restoreDividerPositions() {
     if (GLOBAL_LAYOUT_CONFIG_FILE.toFile().length() != 0) {
       try {
-        layoutConfiguration = (HashMap<String, Double>) _model.yaml.load(
+        layoutConfiguration = (HashMap<String, Double>) YAML.load(
                 new FileReader(GLOBAL_LAYOUT_CONFIG_FILE.toFile()));
       } catch (FileNotFoundException
              | org.yaml.snakeyaml.error.YAMLException e) {
@@ -131,7 +141,6 @@ public class ViewLayout {
       Platform.runLater(() -> {
         _sidebarSplitPane.setDividerPositions(
               layoutConfiguration.get(DIVIDER_SIDEBAR));
-          // TODO: does not work, JavaFX bug
         _sidebarEditorSplitPane.setDividerPositions(
               layoutConfiguration.get(DIVIDER_SIDEBAR_EDITOR));
       });
@@ -150,24 +159,26 @@ public class ViewLayout {
    * close button has been pressed.
    */
   public void setStageCloseListener() {
-    _model.stageX.setOnCloseRequest(e -> saveLayoutToFile());
+    _stage.setOnCloseRequest(e -> saveLayoutToFile());
   }
 
   /** Saves the window's layout. */
   public void saveLayoutToFile() {
-    layoutConfiguration.put(WINDOW_POSITION_X, _model.stageX.getX());
-    layoutConfiguration.put(WINDOW_POSITION_Y, _model.stageX.getY());
-    layoutConfiguration.put(WINDOW_WIDTH, _model.stageX.getWidth());
-    layoutConfiguration.put(WINDOW_HEIGHT, _model.stageX.getHeight());
-    layoutConfiguration.put(DIVIDER_SIDEBAR_EDITOR,
+    layoutConfiguration.put(WINDOW_POSITION_X, _stage.getX());
+    layoutConfiguration.put(WINDOW_POSITION_Y, _stage.getY());
+    layoutConfiguration.put(WINDOW_WIDTH, _stage.getWidth());
+    layoutConfiguration.put(WINDOW_HEIGHT, _stage.getHeight());
+    if (! _sidebarEditorSplitPane.getDividers().isEmpty())
+      layoutConfiguration.put(DIVIDER_SIDEBAR_EDITOR,
             _sidebarEditorSplitPane.getDividerPositions()[0]);
     layoutConfiguration.put(DIVIDER_SIDEBAR,
             _sidebarSplitPane.getDividerPositions()[0]);
     try {
       FileWriter writer = new FileWriter(GLOBAL_LAYOUT_CONFIG_FILE.toFile());
-      _model.yaml.dump(layoutConfiguration, writer);
-    } catch (IOException ex) {
+      YAML.dump(layoutConfiguration, writer);
+    } catch (IOException | NoClassDefFoundError ex) {
       log.error("Could not save layout.");
+      return;
     }
     log.debug("Saved layout settings.");
   }

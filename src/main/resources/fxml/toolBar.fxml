@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import de.dfki.mlt.rudibugger.view.toolBar.ConnectionButton?>
+<?import javafx.scene.control.ToolBar?>
+
+<ToolBar fx:id="toolBar" prefHeight="40.0" prefWidth="372.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.view.toolBar.ToolBarController">
+   <items>
+      <Button fx:id="compileButton" defaultButton="true" disable="true" mnemonicParsing="false" text="Compile" />
+      <ConnectionButton fx:id="vondaConnectionButton" disable="true" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#toggleVondaConnectionState" prefWidth="150.0" text="No project" />
+   </items>
+</ToolBar>

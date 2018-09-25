@@ -19,187 +19,101 @@
 
 package de.dfki.mlt.rudibugger;
 
-import de.dfki.mlt.rudibugger.SearchAndFind.SearchManager;
-import de.dfki.mlt.rudibugger.RuleModel.RuleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.DataModelAdditions.*;
-import de.dfki.mlt.rudibugger.FileTreeView.*;
-import de.dfki.mlt.rudibugger.RuleTreeView.RuleModelState;
-import de.dfki.mlt.rudibugger.TabManagement.*;
+import de.dfki.mlt.rudibugger.editor.CustomEditor;
+import de.dfki.mlt.rudibugger.project.Project;
+import de.dfki.mlt.rudibugger.editor.Editor;
+import de.dfki.mlt.rudibugger.editor.EmacsEditor;
+import de.dfki.mlt.rudibugger.editor.RudibuggerEditor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javafx.beans.property.*;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
 
 /**
- * The DataModel represents the business logic of rudibugger and acts as the
- * central class having all other used classes as fields. Besides it contains
- * methods to create, open and close projects.
+ * TODO
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class DataModel {
 
-  /*****************************************************************************
-   * BASIC FIELDS
-   ****************************************************************************/
 
-  /** The logger. */
+  /* ***************************************************************************
+   * BASIC FIELDS
+   * **************************************************************************/
+
   static Logger log = LoggerFactory.getLogger("DataModel");
 
-  /** YAML options. */
-  private final DumperOptions _options = new DumperOptions() {{
-    setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-  }};
-
-  /** A YAML instance for further use of YAML. */
-  public Yaml yaml = new Yaml(_options);
-
   /** The main stage, necessary when opening additional windows e.g. prompts. */
-  public Stage stageX;
+  public Stage mainStage;
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * PROPERTIES
-   ****************************************************************************/
+   * **************************************************************************/
 
-  /** Indicates whether or not a project has been loaded. */
-  private final BooleanProperty _projectLoaded
-          = new SimpleBooleanProperty(PROJECT_CLOSED);
+  /** Represents a loaded project. */
+  private final ObjectProperty<Project> _loadedProject
+          = new SimpleObjectProperty<>();
 
   /** Represents the text shown on the status bar. */
-  private final StringProperty statusBar
+  private final StringProperty statusBarMessage
           = new SimpleStringProperty();
 
+  /** Used to open, edit and save files. */
+  private Editor _editor;
 
-  /*****************************************************************************
-   * ADDITIONS (ADDITIONAL MODULES OF DATAMODEL)
-   ****************************************************************************/
 
-  /** Manages additional helper windows. */
-  public HelperWindows helperWindows = new HelperWindows(this);
+  /* ***************************************************************************
+   * CONFIGURATION DETAILS
+   * **************************************************************************/
 
-  /** Stores information about rudibugger's layout. */
-  public ViewLayout layout = new ViewLayout(this);
-
-  /** Provides additional functionality to interact with Emacs. */
-  public EmacsConnection emacs = new EmacsConnection(this);
-
-  /** Provides additional functionality to interact with VOnDA. */
-  public VondaConnection vonda = new VondaConnection(this);
-
-  /** Provides additional functionality to save .rudi files. */
-  public RudiSaveManager rudiSave = new RudiSaveManager(this);
-
-  /** Provides additional functionality to load .rudi files and rules. */
-  public RudiLoadManager rudiLoad = new RudiLoadManager(this);
+  /** Stores information about rudibugger's layout. TODO not nice */
+  public final ViewLayout layout;
 
   /** Provides additional functionality concerning global configuration. */
   public GlobalConfiguration globalConf = new GlobalConfiguration(this);
 
-  /** Provides additional functionality to start VOnDAs compiler. */
-  public VondaCompilation compiler = new VondaCompilation(this);
 
-  /** Provides additional functionality to track changes in the file system. */
-  public WatchManager watch = new WatchManager(this);
-
-  /** Provides additional functionality to search trough files. */
-  public SearchManager search = new SearchManager(this);
-
-
-  /*****************************************************************************
-   * PROJECT ADDITIONS
-   ****************************************************************************/
-
-  /** Provides additional functionality about project specific information. */
-  public ProjectManager project = new ProjectManager(this);
-
-  /** Contains specific  information about project's rule structure. */
-  public RuleModel ruleModel = new RuleModel(this);
-
-  /** Contains specific information about the RuleModel's view state. */
-  public RuleModelState ruleModelState = new RuleModelState(this);
-
-  /**
-   * Contains specific information about the involved <code>.rudi</code> folder
-   * and files.
-   */
-  public RudiHierarchy rudiHierarchy = new RudiHierarchy(this);
-
-  /** Contains information about the opened tabs. */
-  public TabManager tabStore = new TabManager(this);
-
-
-  /*****************************************************************************
-   * DATAMODEL CONSTRUCTOR AND INITIALIZER
-   ****************************************************************************/
+  /* ***************************************************************************
+   * CONSTRUCTOR
+   * **************************************************************************/
 
   /** Creates a new <code>DataModel</code>. */
-  public DataModel() {
-    initializeConnectionsBetweenAdditions();
+  public DataModel(Stage stage) {
+    mainStage = stage;
+    layout = new ViewLayout(mainStage); // TODO: not nice?
+    if (! Files.exists(GLOBAL_CONFIG_PATH)) createGlobalConfigFolder();
+    setEditor();
   }
 
-  /** Called to initialize connections between additions. */
-  private void initializeConnectionsBetweenAdditions() {
-    rudiSave.initSaveListener();
+
+  /* ***************************************************************************
+   * METHODS
+   * **************************************************************************/
+
+  public void openProject(Path projectYamlPath) {
+    if (_loadedProject.get() != null) {
+      if (OVERWRITE_PROJECT != HelperWindows.openOverwriteProjectCheckDialog(
+              _loadedProject.get().getProjectName()))
+        return;
+    }
+    Project newProject = Project.openProject(projectYamlPath);
+    if (newProject == null) return; // Project could not be opened
+    _loadedProject.set(newProject);
+    if (newProject.getRuleModel() != null
+        && globalConf.getAutomaticallyConnectToVonda())
+      getLoadedProject().vonda.connect(getLoadedProject().getVondaPort());
   }
 
-
-  /*****************************************************************************
-   * PROJECT INITIALIZER AND CLOSE METHODS
-   ****************************************************************************/
-
-  /**
-   * Initializes a project.
-   *
-   * @param selectedProjectYml a configuration file of a project.
-   */
-  public void init(Path selectedProjectYml) {
-
-    /* Loads project configuration and initializes fields */
-    project.initConfiguration(selectedProjectYml);
-
-    /* Start WatchServices */
-    watch.initWatches();
-
-    /* Reads in .rudi files in rudiFolder */
-    rudiHierarchy.init();
-
-    /* Reads in ruleModel (if it exists) */
-    if (Files.exists(project.getRuleLocationFile()))
-      ruleModel.init();
-
-    /* Sets the property to true */
-    _projectLoaded.set(PROJECT_OPEN);
-
-    log.info("Initializing done.");
-
-    /* Automatically connect to VOnDA (if specified in settings) */
-    if (globalConf.getAutomaticallyConnectToVonda()) vonda.connect();
-  }
-
-  /**
-   * Closes a project by nullifying the fields.
-   *
-   * @param stealthy
-   */
-  public void close(boolean stealthy) {
-    log.info("Closing [" + project.getProjectName() + "]...");
-
-    project.resetConfigurationWithLog();
-
-    rudiHierarchy.reset();
-    ruleModel.reset();
-    watch.disableWatches();
-    vonda.closeConnection();
-
-    _projectLoaded.set(PROJECT_CLOSED);
-
-    log.info("Project closed.");
+  public void closeProject() {
+    if (_loadedProject.get() != null) {
+      _loadedProject.get().closeProject();
+      HelperWindows.closeRuleLoggingWindow();
+      _loadedProject.set(null);
+    }
   }
 
   /** Starts a wizard to create a new VOnDA compatible project from scratch. */
@@ -208,15 +122,44 @@ public class DataModel {
     // TODO
   }
 
+  private void setEditor() {
+    switch (globalConf.getEditor()) {
+      case "rudibugger":
+        _editor = RudibuggerEditor.getNewEditor();
+        return;
+      case "emacs":
+        _editor = EmacsEditor.getNewEditor(this);
+        return;
+      case "custom":
+        _editor = CustomEditor.getNewEditor(globalConf);
+    }
+  }
 
-  /*****************************************************************************
+  private void createGlobalConfigFolder() {
+    GLOBAL_CONFIG_PATH.toFile().mkdirs();
+    log.info("Created global config folder (first start of rudibugger");
+  }
+
+
+  /* ***************************************************************************
    * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
-   ****************************************************************************/
+   * **************************************************************************/
 
-  /** @return Property indicating whether or not a project has been loaded. */
-  public BooleanProperty projectLoadedProperty() { return _projectLoaded; }
+  /** @return Represents the text shown on the statusBar. */
+  public StringProperty statusBarTextProperty() { return statusBarMessage; }
 
-  /** @return Property representing the text shown on the statusBar. */
-  public StringProperty statusBarTextProperty() { return statusBar; }
+  /** @return The currently loaded project (or null) */
+  public Project getLoadedProject() { return _loadedProject.get(); }
+
+  /** Contains the currently loaded project. */
+  public ObjectProperty<Project> loadedProjectProperty() {
+    return _loadedProject;
+  }
+
+  /** @return True, if a project has been loaded, else false. */
+  public boolean isProjectLoaded() { return _loadedProject.get() != null; }
+
+  /** @return The current editor instance. */
+  public Editor getEditor() { return _editor; }
 
 }
