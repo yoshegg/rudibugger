@@ -49,9 +49,9 @@ public class RudiFolderWatch {
   static Logger log = LoggerFactory.getLogger("rudiFolWatch");
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * FIELDS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Represents the Thread in which the WatchService is run. */
   private volatile Thread watchingTread;
@@ -66,9 +66,9 @@ public class RudiFolderWatch {
   private final RudiHierarchy _rudiHierarchy;
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * INITIALIZERS / CONSTRUCTORS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Private nullary construct to obstruct instantiating. */
   private RudiFolderWatch(Path rudiFolder, RudiHierarchy rudiHierarchy,
@@ -117,9 +117,9 @@ public class RudiFolderWatch {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Starts listening for folder changes. */
   private void startListening() {

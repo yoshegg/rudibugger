@@ -47,9 +47,9 @@ import javafx.scene.text.Text;
  */
 public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * CONSTANTS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Icon path of imports. */
   static final String ICON_PATH_IMPORTS
@@ -81,9 +81,9 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
   }};
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * FIELDS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Icon of the TreeItem, indication rule logging state. */
   private ImageView stateIndicator;
@@ -105,9 +105,9 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
     _globalConf = globalConf;
   }
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * PSEUDOCLASSES
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Used to visually distinguish erroneous imports with CSS. */
   private final PseudoClass errorsInImportClass
@@ -118,9 +118,9 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
           = PseudoClass.getPseudoClass("warningsInImport");
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * LISTENERS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Used to listen to rule state changes. */
   private final ChangeListener<Number> ruleStateListener = ((o, ov, nv)
@@ -131,9 +131,9 @@ public class BasicInfoTreeCell extends TreeCell<BasicInfo> {
     -> this.stateIndicator.setImage(ICONS_IMPORTS.get(nv.intValue())));
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
   @Override
   protected void updateItem(BasicInfo bi, boolean empty) {

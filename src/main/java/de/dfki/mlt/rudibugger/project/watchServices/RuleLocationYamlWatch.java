@@ -50,9 +50,9 @@ public class RuleLocationYamlWatch {
   static Logger log = LoggerFactory.getLogger("ruleLocWatch");
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * FIELDS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Represents the Thread in which the WatchService is run. */
   private volatile Thread watchingTread;
@@ -73,9 +73,9 @@ public class RuleLocationYamlWatch {
   private final RudiHierarchy _rudiHierarchy;
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * INITIALIZERS / CONSTRUCTORS
-   ****************************************************************************/
+   * **************************************************************************/
 
   private RuleLocationYamlWatch(Project project,
           RudiHierarchy rudiHierarchy, WatchService watchService) {
@@ -113,9 +113,9 @@ public class RuleLocationYamlWatch {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Starts listening for <code>RuleLoc.yml</code> changes .*/
   private void startListening() {

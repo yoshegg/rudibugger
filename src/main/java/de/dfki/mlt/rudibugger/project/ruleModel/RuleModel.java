@@ -99,9 +99,9 @@ public class RuleModel {
   private Integer _compilationOutcome = COMPILATION_UNDEFINED;
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * INITIALIZERS, UPDATERS AND RESETTER
-   ****************************************************************************/
+   * **************************************************************************/
 
   public static RuleModel createRuleModel(Path rudiFolder, Path ruleLocYaml) {
     RuleModel rm = new RuleModel(rudiFolder, ruleLocYaml);
@@ -123,9 +123,9 @@ public class RuleModel {
   }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
   private void setCompilationOutcomeState() {
     if (! _parsingFailure.isEmpty())
@@ -237,9 +237,9 @@ public class RuleModel {
   public RuleInfoExtended getRule(int id) { return _idRuleMap.get(id); }
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** TODO */
 //  public RuleTreeViewState getRuleModelState() { return _ruleModelState; }

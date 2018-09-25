@@ -41,9 +41,9 @@ public class CompileButtonController {
   static Logger log = LoggerFactory.getLogger("compileButtonMan");
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * FIELDS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Represents the ToolBar containing the compile button(s). */
   private final ToolBar _toolBar;
@@ -55,9 +55,9 @@ public class CompileButtonController {
   private final SplitMenuButton _extendedCompileButton = new SplitMenuButton();
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * INITIALIZERS / CONSTRUCTORS
-   ****************************************************************************/
+   * **************************************************************************/
 
   /** Initializes an instance of this class. */
   private CompileButtonController(ToolBar toolBar,
@@ -83,9 +83,9 @@ public class CompileButtonController {
   };
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * METHODS
-   ****************************************************************************/
+   * **************************************************************************/
 
   private void adaptMenu(String k, EventHandler<ActionEvent> eh) {
 //    TODO: setVisible is cause for graphic errors
