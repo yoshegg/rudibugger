@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,19 +70,28 @@ public class VondaCompiler {
    * **************************************************************************/
 
   /** Initializes an instance of this class. */
-  public VondaCompiler(Project project) { _project = project; }
+  public VondaCompiler(Project project) {
+    _project = project;
+    retrieveCompileCommands();
+  }
 
 
   /* ***************************************************************************
    * METHODS
    * **************************************************************************/
 
-  public void retrieveCompileCommands() {
+  private void retrieveCompileCommands() {
     Path compileScript = _project.getRootFolder().resolve(COMPILE_FILE);
-     if (Files.exists(compileScript))
-      _compileCommandsMap.put("Compile", compileScript.toAbsolutePath().toString());
+    if (Files.exists(compileScript))
+      _compileCommandsMap.put("Compile", compileScript.toAbsolutePath()
+              .toString());
     _compileCommandsMap.putAll(_project.getCustomCompileCommands());
     _compileCommandsList.addAll(_compileCommandsMap.keySet());
+    if (_project.getDefaultCompileCommand() != null)
+      setDefaultCompileCommand(_project.getDefaultCompileCommand());
+    _compileCommandsList.addListener((ListChangeListener) cl ->
+      _project.setDefaultCompileCommand(_compileCommandsList.get(0))
+    );
   }
 
   /**

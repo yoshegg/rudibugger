@@ -209,8 +209,10 @@ public class MenuBarController {
       });
     } else {
       loadRuleLoggingStateMenu.getItems().clear();
-      loadRuleLoggingStateMenu.getItems()
-        .add(new MenuItem("No recent configuration found."));
+      loadRuleLoggingStateMenu.getItems().add(
+              new MenuItem("No recent configuration found.") {{
+                setDisable(true);
+              }});
     }
     loadRuleLoggingStateMenu.getItems().add(new SeparatorMenuItem());
     loadRuleLoggingStateMenu.getItems().add(openRuleLoggingStateItem);

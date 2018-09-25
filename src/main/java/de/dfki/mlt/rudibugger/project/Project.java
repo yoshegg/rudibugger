@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,8 +82,14 @@ public class Project {
   /** Represents the project's .rudi folder. */
   private final Path _rudiFolder;
 
+  /** Represents the file containing project specific configs for rudibugger. */
+  private Path _rudibuggerSpecificConfigsPath;
+
   /** Contains all project configuration data. */
-  private ObservableMap<String, Object> _projectConfigs;
+  private final ObservableMap<String, Object> _projectConfigs;
+
+  /** Contains project specific settings for rudibugger. */
+  private final ObservableMap<String, Object> _rudibuggerSpecificConfigs;
 
 
   /* ***************************************************************************
@@ -103,7 +110,7 @@ public class Project {
   public VondaRuntimeConnection vonda;
 
   /** Represents VOnDAs compiler. */
-  public VondaCompiler compiler = new VondaCompiler(this);
+  public VondaCompiler compiler;
 
   /** Watches the .rudi folder for changes. */
   private RudiFolderWatch _rudiFolderWatch;
@@ -128,9 +135,10 @@ public class Project {
 
   /** Closes the project (if any). */
   public void closeProject() {
-    this.vonda.closeConnection();
-    this._rudiFolderWatch.shutDownListener();
-    this._ruleLocYamlWatch.shutDownListener();
+    disableListeners();
+    vonda.closeConnection();
+    _rudiFolderWatch.shutDownListener();
+    _ruleLocYamlWatch.shutDownListener();
   }
 
   /** Creates a new instance of this class. */
@@ -145,10 +153,14 @@ public class Project {
     createPotentiallyMissingFolders();
     _ruleLocYaml = retrieveRuleLocYaml();
     _ruleModelStatesFolder = retrieveRuleModelStatesFolder();
+    Map rudibuggerSpecificConfigMap
+            = readInRudibuggerSpecificConfigurationYaml();
+    _rudibuggerSpecificConfigs
+            = FXCollections.observableMap(rudibuggerSpecificConfigMap);
 
     _rudiHierarchy = new RudiHierarchy(_rudiFolder, _ruleLocYaml);
     initWatches();
-    compiler.retrieveCompileCommands();
+    compiler = new VondaCompiler(this);
     enableListeners();
 
     if (Files.exists(_ruleLocYaml)) {
@@ -214,6 +226,22 @@ public class Project {
     }
   }
 
+  private Map readInRudibuggerSpecificConfigurationYaml() throws IOException {
+    log.debug("Reading in specific rudibugger settings of the project...");
+    _rudibuggerSpecificConfigsPath = GLOBAL_PROJECT_SPECIFIC_CONFIG_PATH
+            .resolve(_projectName)
+            .resolve(PROJECT_SPECIFIC_RUDIBUGGER_CONFIG_FILE);
+    if (! Files.exists(_rudibuggerSpecificConfigsPath)) {
+      log.info("No project specific settings found. Creating file...");
+      _rudibuggerSpecificConfigsPath.getParent().toFile().mkdirs();
+      _rudibuggerSpecificConfigsPath.toFile().createNewFile();
+    }
+    Map map = (HashMap<String, Object>) YAML.load(new FileInputStream(
+          _rudibuggerSpecificConfigsPath.toFile()));
+    if (map == null) map = new HashMap<>();
+    return map;
+  }
+
   /** @return The project's name from the configuration file. */
   private String identifyProjectName() {
     String filename = _projectYamlPath.getFileName().toString();
@@ -247,8 +275,8 @@ public class Project {
 
   /** @return The Project's folder containing rule logging configurations. */
   private Path retrieveRuleModelStatesFolder() {
-    Path ruleModelStatesFolder = GLOBAL_CONFIG_PATH
-      .resolve("loggingConfigurations").resolve(_projectName);
+    Path ruleModelStatesFolder = GLOBAL_PROJECT_SPECIFIC_CONFIG_PATH
+      .resolve(_projectName).resolve("loggingConfigurations");
     if (! Files.exists(ruleModelStatesFolder)) {
       ruleModelStatesFolder.toFile().mkdirs();
       log.debug("Created " + ruleModelStatesFolder);
@@ -278,14 +306,15 @@ public class Project {
 
 
   /* ***************************************************************************
-   * SAVE PROJECT'S CONFIGURATION
+   * SAVE PROJECT PROJECT SPECIFIC RUDIBUGGER CONFIGURATION
    * **************************************************************************/
 
   /** Saves the project's configuration. */
-  private void saveProjectConfiguration() {
+  private void saveRudibuggerSpecificProjectConfiguration() {
     try {
-      FileWriter writer = new FileWriter(_projectYamlPath.toFile());
-      YAML.dump(_projectConfigs, writer);
+      FileWriter writer = new FileWriter(
+              _rudibuggerSpecificConfigsPath.toFile());
+      YAML.dump(_rudibuggerSpecificConfigs, writer);
     } catch (IOException ex) {
        log.error("Could not save project configuration file.");
     }
@@ -329,6 +358,14 @@ public class Project {
   public Path getRuleModelStatesFolder() { return _ruleModelStatesFolder; }
 
   /**
+   * @return The Path to the config file containing project specific rudibugger
+   * settings.
+   */
+  public Path getRudibuggerSpecificConfigYml() {
+    return _rudibuggerSpecificConfigsPath;
+  }
+
+  /**
    * Temporarily shows a message on the statusBar.
    *
    * @param file the file that has been saved
@@ -342,38 +379,6 @@ public class Project {
 
 
   /* ***************************************************************************
-   * FIELDS AND PROPERTIES
-   * **************************************************************************/
-
-//  private Map<String, String> compileCommands;
-
-  /** Represents the default compile command.
-   *  TODO: WHO LISTENS FOR THIS?
-   */
-//  private final StringProperty _defaultCompileCommand
-//          = new SimpleStringProperty("");
-
-
-  /* ***************************************************************************
-   * PROJECT CONFIGURATION METHODS
-   * **************************************************************************/
-
-  private void initCompileCommands() {
-//    compileCommands = new LinkedHashMap<>();
-//    Path compileScript = _rootFolder.resolve(COMPILE_FILE);
-//    if (Files.exists(compileScript))
-//      compileCommands.put("Compile", compileScript.toAbsolutePath().toString());
-//    compileCommands.putAll(getCustomCompileCommands());
-
-    if (_projectConfigs.containsKey("defaultCompileCommand")) {
-      _defaultCompileCommand.set((String) _projectConfigs
-              .get("defaultCompileCommand"));
-    }
-  }
-
-
-
-  /* ***************************************************************************
    * UPDATING
    * **************************************************************************/
 
@@ -382,19 +387,17 @@ public class Project {
    * changes.
    */
   private void enableListeners() {
-//    _defaultCompileCommand.addListener(defaultCompileCommandListener);
+    _rudibuggerSpecificConfigs.addListener(rudibuggerSpecificProjectConfigurationListener);
   }
 
   /** Disables listeners to update project's config file. */
   private void disableListeners() {
-//    _defaultCompileCommand.removeListener(defaultCompileCommandListener);
+    _rudibuggerSpecificConfigs.removeListener(rudibuggerSpecificProjectConfigurationListener);
   }
 
-  private final ChangeListener<String> defaultCompileCommandListener
-          = (o, ov, nv) -> {
-            _projectConfigs.put("defaultCompileCommand", nv);
-            saveProjectConfiguration();
-          };
+  private final MapChangeListener<String, Object>
+          rudibuggerSpecificProjectConfigurationListener
+          = (mcl) -> saveRudibuggerSpecificProjectConfiguration();
 
 
   /* ***************************************************************************
@@ -494,6 +497,17 @@ public class Project {
         .get(CUSTOM_COMPILE_COMMANDS);
     else
       return new LinkedHashMap<>();
+  }
+
+  public String getDefaultCompileCommand() {
+    if (_rudibuggerSpecificConfigs.keySet().contains("defaultCompileCommand"))
+      return (String) _rudibuggerSpecificConfigs.get("defaultCompileCommand");
+    else
+      return null;
+  }
+
+  public void setDefaultCompileCommand(String defCom) {
+    _rudibuggerSpecificConfigs.put("defaultCompileCommand", defCom);
   }
 
 }
