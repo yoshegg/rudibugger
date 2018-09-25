@@ -18,13 +18,9 @@
  */
 package de.dfki.mlt.rudibugger.view.toolBar;
 
-import java.util.Collection;
 import java.util.LinkedList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import de.dfki.mlt.rudibugger.project.Project;
 import de.dfki.mlt.rudibugger.project.VondaCompiler;
 import java.util.List;
 import javafx.collections.ListChangeListener;
