@@ -5,13 +5,13 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.Controller.AboutController">
+<AnchorPane id="AnchorPane" maxHeight="545.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="462.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.view.menuBar.AboutController">
    <children>
-      <ImageView fitHeight="400.0" fitWidth="600.0" layoutX="24.0" layoutY="34.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <ImageView fitHeight="416.0" fitWidth="600.0" layoutX="24.0" layoutY="34.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="-16.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <image>
             <Image url="@../aboutBackground.png" />
          </image>
       </ImageView>
-      <TextArea editable="false" prefHeight="400.0" prefWidth="368.0" text="rudibugger&#10;a graphical debugger for VOnDA&#10;&#10;written by Christophe Biwer&#10;christophe.biwer@dfki.de&#10;&#10;License:&#10;The Creative Commons CC-BY-NC 4.0 License&#10;&#10;http://creativecommons.org/licenses/by-nc/4.0/legalcode&#10;&#10;Creative Commons (CC) by DFKI GmbH&#10; - Bernd Kiefer &lt;kiefer@dfki.de&gt;&#10; - Anna Welker &lt;anna.welker@dfki.de&gt;&#10; - Christophe Biwer &lt;christophe.biwer@dfki.de&gt;&#10;&#10;THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE." wrapText="true" />
+      <TextArea editable="false" prefHeight="462.0" prefWidth="368.0" text="rudibugger&#10;a graphical debugger for VOnDA&#10;&#10;written by Christophe Biwer&#10;christophe.biwer@dfki.de&#10;&#10;License:&#10;The Creative Commons CC-BY-NC 4.0 License&#10;&#10;http://creativecommons.org/licenses/by-nc/4.0/legalcode&#10;&#10;Creative Commons (CC) by DFKI GmbH&#10; - Bernd Kiefer &lt;kiefer@dfki.de&gt;&#10; - Anna Welker &lt;anna.welker@dfki.de&gt;&#10; - Christophe Biwer &lt;christophe.biwer@dfki.de&gt;&#10;&#10;THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE." wrapText="true" />
    </children>
 </AnchorPane>

@@ -13,7 +13,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.Controller.SettingsController">
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.view.menuBar.SettingsController">
    <children>
       <Accordion prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <panes>
@@ -23,6 +23,11 @@
                      <children>
                         <VBox prefHeight="321.0" prefWidth="598.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
+                              <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="rudibugger needs to be restarted to apply changes.">
+                                 <font>
+                                    <Font name="System Italic" size="13.0" />
+                                 </font>
+                              </Text>
                               <RadioButton fx:id="rudibuggerEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="rudibugger (default)">
                                  <toggleGroup>
                                     <ToggleGroup fx:id="editorSetting" />

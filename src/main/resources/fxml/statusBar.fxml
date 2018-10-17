@@ -6,7 +6,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 
-<HBox prefHeight="20.0" prefWidth="494.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.StatusBar.StatusBarController">
+<HBox prefHeight="20.0" prefWidth="494.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.view.statusBar.StatusBarController">
    <children>
       <ImageView fx:id="_syncIndicator" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
          <HBox.margin>

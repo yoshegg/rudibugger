@@ -30,38 +30,40 @@ import java.nio.file.Paths;
  */
 public class Constants {
 
- /******************************************************************************
+ /* ****************************************************************************
   * DEFAULT VALUES OF SOME ESSENTIAL FILES AND FOLDERS
-  *****************************************************************************/
+  * ***************************************************************************/
 
   public static Path PATH_TO_RUDI_FOLDER = Paths.get("src/main/rudi/");
   public static Path PATH_TO_GENERATED_FOLDER
           = Paths.get("src/main/resources/generated");
   public static String COMPILE_FILE = "compile";
   public static String RUN_FILE = "run.sh";
-  public static Path GLOBAL_CONFIG_FILE
-          = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
-                  "rudibuggerConfiguration.yml");
-  public static Path RECENT_PROJECTS_FILE
-          = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
-                  "recentProjects.yml");
-  public static Path GLOBAL_CONFIG_PATH
+
+  public final static Path GLOBAL_CONFIG_PATH
           = Paths.get(System.getProperty("user.home"), ".config", "rudibugger");
+  public static Path GLOBAL_CONFIG_FILE
+          = GLOBAL_CONFIG_PATH.resolve("configuration.yml");
+  public static Path RECENT_PROJECTS_FILE
+          = GLOBAL_CONFIG_PATH.resolve("recentProjects.yml");
   public static Path GLOBAL_LAYOUT_CONFIG_FILE
-          = Paths.get(System.getProperty("user.home"), ".config", "rudibugger",
-                  "rudibuggerLayout.yml");
+          = GLOBAL_CONFIG_PATH.resolve("layout.yml");
+  public static Path GLOBAL_PROJECT_SPECIFIC_CONFIG_PATH
+          = GLOBAL_CONFIG_PATH.resolve("projectSpecific");
+  public static String PROJECT_SPECIFIC_RUDIBUGGER_CONFIG_FILE =
+          "projectConfiguration.yml";
 
 
- /******************************************************************************
+ /* ****************************************************************************
   * MARK AND SIGNALIZE THE USER'S REQUEST OF A NEW PROJECT
-  *****************************************************************************/
+  * ***************************************************************************/
 
   public static final boolean OVERWRITE_PROJECT = true;
 
 
- /******************************************************************************
+ /* ****************************************************************************
   * MARK AND SIGNALIZE THE STATE OF THE RULEMODEL
-  *****************************************************************************/
+  * ***************************************************************************/
 
   public static final int RULE_MODEL_UNCHANGED = 0;
   public static final int RULE_MODEL_NEWLY_CREATED = 1;
@@ -69,17 +71,17 @@ public class Constants {
   public static final int RULE_MODEL_REMOVED = 9;
 
 
- /******************************************************************************
+ /* ****************************************************************************
   * SIGNALIZE THE OPENING OR CLOSING OF A PROJECT
-  *****************************************************************************/
+  * ***************************************************************************/
 
   public static final boolean PROJECT_OPEN = true;
   public static final boolean PROJECT_CLOSED = false;
 
 
- /******************************************************************************
+ /* ****************************************************************************
   * MARK THE USAGE STATE OF A FILE IN A PROJECT
-  *****************************************************************************/
+  * ***************************************************************************/
 
   public static final int FILE_USED = 1;
   public static final int FILE_NOT_USED = 0;
@@ -88,21 +90,22 @@ public class Constants {
   public static final int IS_FOLDER = 9;
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * COMPILATION STATE OF <code>.rudi</code> FILES
-   ****************************************************************************/
+   * **************************************************************************/
 
   public static final int COMPILATION_PERFECT = 1;
   public static final int COMPILATION_WITH_ERRORS = 2;
   public static final int COMPILATION_WITH_WARNINGS = 3;
   public static final int COMPILATION_FAILED = 4;
   public static final int COMPILATION_UNDEFINED = 5;
+  public static final int COMPILATION_NO_RULEMODEL = 6;
   public static final int COMPILATION_NO_PROJECT = 9;
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * MODIFICATION STATE OF <code>.rudi</code> FILES
-   ****************************************************************************/
+   * **************************************************************************/
 
   public static final int FILES_SYNCED = 10;
   public static final int FILES_OUT_OF_SYNC = 20;
@@ -110,21 +113,31 @@ public class Constants {
   public static final int FILES_SYNC_NO_PROJECT = 90;
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * CONNECTION STATE TO VONDA
-   ****************************************************************************/
+   * **************************************************************************/
 
   public static final int ESTABLISHING_CONNECTION = 1;
   public static final int CONNECTED_TO_VONDA = 2;
   public static final int DISCONNECTED_FROM_VONDA = 0;
 
 
-  /*****************************************************************************
+  /* ***************************************************************************
    * CLOSE MODIFIED FILE
-   ****************************************************************************/
+   * **************************************************************************/
 
   public static final int CANCEL_CLOSING = 0;
   public static final int CLOSE_BUT_SAVE_FIRST = 1;
   public static final int CLOSE_WITHOUT_SAVING = 2;
+
+
+  /* ***************************************************************************
+   * URLS
+   * **************************************************************************/
+
+  public static final String HELP_URL
+    = "https://rudibugger.readthedocs.io/en/latest/";
+  public static final String GITHUB_URL
+    = "https://github.com/yoshegg/rudibugger";
 
 }

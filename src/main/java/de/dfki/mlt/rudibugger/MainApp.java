@@ -19,13 +19,15 @@
 
 package de.dfki.mlt.rudibugger;
 
-import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.Controller.EditorController;
-import de.dfki.mlt.rudibugger.Controller.MenuBar.MenuController;
-import de.dfki.mlt.rudibugger.Controller.SideBarController;
-import de.dfki.mlt.rudibugger.StatusBar.StatusBarController;
+import de.dfki.mlt.rudibugger.view.editor.RudibuggerEditorController;
+import de.dfki.mlt.rudibugger.view.menuBar.MenuBarController;
+import de.dfki.mlt.rudibugger.view.fileTreeView.FileTreeViewController;
+import de.dfki.mlt.rudibugger.view.ruleTreeView.RuleTreeViewController;
+import de.dfki.mlt.rudibugger.view.ruleTreeView.RuleTreeViewState;
+import de.dfki.mlt.rudibugger.view.statusBar.StatusBarController;
 import static de.dfki.mlt.rudibugger.ViewLayout.*;
-import java.nio.file.Files;
+import de.dfki.mlt.rudibugger.editor.RudibuggerEditor;
+import de.dfki.mlt.rudibugger.view.toolBar.ToolBarController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -35,6 +37,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,17 +49,17 @@ import org.slf4j.LoggerFactory;
  */
 public class MainApp extends Application {
 
-  /** The logger. */
   static Logger log = LoggerFactory.getLogger("mainLog");
+
 
   @Override
   public void start(Stage stage) throws Exception {
 
     log.info("Starting Rudibugger");
 
-    /***************************************************************************
+    /* *************************************************************************
      * GENERAL FIXES
-     **************************************************************************/
+     * ************************************************************************/
 
     /* Improve font rendering for RichTextFX, caused by JavaFX bug */
     /* https://github.com/FXMisc/RichTextFX/wiki/Known-Issues */
@@ -64,18 +67,28 @@ public class MainApp extends Application {
     System.setProperty("prism.text", "t2k");
 
 
-    /***************************************************************************
-     * INITIALIZE CONTROLLERS AND FXMLs
-     **************************************************************************/
+    /* *************************************************************************
+     * INITIALIZE FXMLs
+     * ************************************************************************/
 
     /* Create root BorderPane */
     BorderPane root = new BorderPane();
 
-    /* Initialize menuBar (top of BorderPane) */
+    /* Prepare VBox for menuBar and toolBar (top of BorderPane) */
+    VBox menuBox = new VBox();
+    root.setTop(menuBox);
+
+    /* Initialize menuBar (top of VBox) */
     FXMLLoader menuLoader = new FXMLLoader(getClass()
             .getResource("/fxml/menuBar.fxml"));
-    root.setTop(menuLoader.load());
-    MenuController menuController = menuLoader.getController();
+    menuBox.getChildren().add(menuLoader.load());
+    MenuBarController menuController = menuLoader.getController();
+
+    /* Initialize toolBar (bottom of VBox) */
+    FXMLLoader toolLoader = new FXMLLoader(getClass()
+            .getResource("/fxml/toolBar.fxml"));
+    menuBox.getChildren().add(toolLoader.load());
+    ToolBarController toolController = toolLoader.getController();
 
     /* Initialize statusBar (bottom of BorderPane) */
     FXMLLoader statusLoader = new FXMLLoader(getClass()
@@ -89,45 +102,83 @@ public class MainApp extends Application {
     centeredSplitPane.setDividerPositions(0.30);
     root.setCenter(centeredSplitPane);
 
-    /* Initialize sideBar (left part of centeredSplitPane) */
-    FXMLLoader sideBarLoader = new FXMLLoader(getClass()
-            .getResource("/fxml/sideBar.fxml"));
-    AnchorPane sideBar = sideBarLoader.load();
+    /* Prepare sideBar (left part of centeredSplitPane) */
+    AnchorPane sideBar = new AnchorPane();
+    SplitPane sidebarSplitPane = new SplitPane();
+    sidebarSplitPane.setOrientation(Orientation.VERTICAL);
+    sidebarSplitPane.setDividerPositions(0.5);
+    sideBar.getChildren().add(sidebarSplitPane);
+    AnchorPane.setTopAnchor(sidebarSplitPane, 0.0);
+    AnchorPane.setRightAnchor(sidebarSplitPane, 0.0);
+    AnchorPane.setLeftAnchor(sidebarSplitPane, 0.0);
+    AnchorPane.setBottomAnchor(sidebarSplitPane, 0.0);
+
     centeredSplitPane.getItems().add(sideBar);
-    SideBarController sideBarController = sideBarLoader.getController();
-    SplitPane.setResizableWithParent(sideBar, Boolean.FALSE);
+    SplitPane.setResizableWithParent(sideBar, Boolean.TRUE);
+
+    /* Initialize fileTreeView. */
+    FXMLLoader fileTreeViewLoader = new FXMLLoader(getClass()
+            .getResource("/fxml/fileTreeView.fxml"));
+    sidebarSplitPane.getItems().add(fileTreeViewLoader.load());
+    FileTreeViewController fileTreeViewController
+            = fileTreeViewLoader.getController();
+
+    /* Initialize ruleTreeView. */
+    FXMLLoader ruleTreeViewLoader = new FXMLLoader(getClass()
+            .getResource("/fxml/ruleTreeView.fxml"));
+    sidebarSplitPane.getItems().add(ruleTreeViewLoader.load());
+    RuleTreeViewController ruleTreeViewController
+            = ruleTreeViewLoader.getController();
+
+
+
+    /* *************************************************************************
+     * INITIALIZE DATA MODEL
+     * ************************************************************************/
+
+    DataModel model = new DataModel(stage);
+
+
+    /* *************************************************************************
+     * INITIALIZE CONTROLLERS
+     * ************************************************************************/
+
+    menuController.init(model,
+        (chosenFile) -> RuleTreeViewState
+          .loadState(chosenFile, ruleTreeViewController.getTreeView()),
+        (chosenFile) -> RuleTreeViewState
+          .saveState(chosenFile, ruleTreeViewController.getTreeView()),
+        stage,
+        getHostServices()
+        );
+    toolController.init(model);
+    statusBarController.initModel(model);
+    fileTreeViewController.init(model);
+    ruleTreeViewController.init(model);
+
+
+    /* *************************************************************************
+     * INITIALIZE RUDIBUGGER EDITOR (IF WANTED)
+     * ************************************************************************/
 
     /* Initalize editor (right part of centeredSplitPane) */
-    FXMLLoader editorLoader = new FXMLLoader(getClass()
-            .getResource("/fxml/editor.fxml"));
-    centeredSplitPane.getItems().add(editorLoader.load());
-    EditorController editorController = editorLoader.getController();
+    if (model.getEditor() instanceof RudibuggerEditor) {
+      FXMLLoader editorLoader = new FXMLLoader(getClass()
+              .getResource("/fxml/editor.fxml"));
+      centeredSplitPane.getItems().add(editorLoader.load());
+      RudibuggerEditorController editorController
+              = editorLoader.getController();
 
-
-    /***************************************************************************
-     * INITIALIZE DATA MODEL
-     **************************************************************************/
-
-    DataModel model = new DataModel();
-
-    /* Create a global config folder if there is none */
-    if (! Files.exists(GLOBAL_CONFIG_PATH)) {
-      GLOBAL_CONFIG_PATH.toFile().mkdirs();
-      log.info("Created global config folder (first start of rudibugger");
+      editorController.initModel(model);
     }
 
-    menuController.init(model);
-    statusBarController.initModel(model);
-    sideBarController.init(model);
-    editorController.initModel(model);
 
-
-    /***************************************************************************
+    /* *************************************************************************
      * PREPARE GUI
-     **************************************************************************/
+     * ************************************************************************/
 
     /* Bind stage to field */
-    model.stageX = stage;
+    model.mainStage = stage;
 
     /* Define GUI */
     Scene scene = new Scene(root);
@@ -139,8 +190,7 @@ public class MainApp extends Application {
     stage.getIcons().add(icon);
 
     /* Link splitpanes to model.layout */
-    model.layout.addSplitPane(sideBarController.getSidebarSplitPane(),
-            DIVIDER_SIDEBAR);
+    model.layout.addSplitPane(sidebarSplitPane, DIVIDER_SIDEBAR);
     model.layout.addSplitPane(centeredSplitPane, DIVIDER_SIDEBAR_EDITOR);
 
     /* Restore the layout and set listener */
@@ -155,7 +205,7 @@ public class MainApp extends Application {
     /* Open last openend project (if any) */
     if (model.globalConf.getLastOpenedProject() != null) {
       log.info("Opening previous project...");
-      model.init(model.globalConf.getLastOpenedProject());
+      model.openProject(model.globalConf.getLastOpenedProject());
     }
 
   }
