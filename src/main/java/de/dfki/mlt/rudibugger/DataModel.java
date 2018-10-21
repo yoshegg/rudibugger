@@ -33,7 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * TODO
+ * This class should represent the model according to the MVC pattern. Due to
+ * various constraints with JavaFX, this might not be completely true.
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
@@ -59,8 +60,7 @@ public class DataModel {
           = new SimpleObjectProperty<>();
 
   /** Represents the text shown on the status bar. */
-  private final StringProperty statusBarMessage
-          = new SimpleStringProperty();
+  private final StringProperty statusBarMessage = new SimpleStringProperty();
 
   /** Used to open, edit and save files. */
   private Editor _editor;
@@ -70,7 +70,7 @@ public class DataModel {
    * CONFIGURATION DETAILS
    * **************************************************************************/
 
-  /** Stores information about rudibugger's layout. TODO not nice */
+  /** Stores information about rudibugger's layout. */
   public final ViewLayout layout;
 
   /** Provides additional functionality concerning global configuration. */
@@ -135,6 +135,10 @@ public class DataModel {
     }
   }
 
+  /**
+   * Creates a folder in the users's .config directory containing
+   * configuration files.
+   */
   private void createGlobalConfigFolder() {
     GLOBAL_CONFIG_PATH.toFile().mkdirs();
     log.info("Created global config folder (first start of rudibugger");

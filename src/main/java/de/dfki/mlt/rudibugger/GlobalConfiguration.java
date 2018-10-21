@@ -20,7 +20,6 @@
 package de.dfki.mlt.rudibugger;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudibugger.DataModel;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;

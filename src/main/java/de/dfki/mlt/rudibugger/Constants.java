@@ -30,9 +30,9 @@ import java.nio.file.Paths;
  */
 public class Constants {
 
- /* ****************************************************************************
-  * DEFAULT VALUES OF SOME ESSENTIAL FILES AND FOLDERS
-  * ***************************************************************************/
+  /* ***************************************************************************
+   * DEFAULT VALUES OF SOME ESSENTIAL FILES AND FOLDERS
+   * **************************************************************************/
 
   public static Path PATH_TO_RUDI_FOLDER = Paths.get("src/main/rudi/");
   public static Path PATH_TO_GENERATED_FOLDER
@@ -54,16 +54,16 @@ public class Constants {
           "projectConfiguration.yml";
 
 
- /* ****************************************************************************
-  * MARK AND SIGNALIZE THE USER'S REQUEST OF A NEW PROJECT
-  * ***************************************************************************/
+  /* ***************************************************************************
+   * INDICATES THE USER'S REQUEST OF A NEW PROJECT
+   * **************************************************************************/
 
   public static final boolean OVERWRITE_PROJECT = true;
 
 
- /* ****************************************************************************
-  * MARK AND SIGNALIZE THE STATE OF THE RULEMODEL
-  * ***************************************************************************/
+  /* ***************************************************************************
+   * INDICATES THE STATE OF THE RULEMODEL
+   * **************************************************************************/
 
   public static final int RULE_MODEL_UNCHANGED = 0;
   public static final int RULE_MODEL_NEWLY_CREATED = 1;
@@ -71,17 +71,17 @@ public class Constants {
   public static final int RULE_MODEL_REMOVED = 9;
 
 
- /* ****************************************************************************
-  * SIGNALIZE THE OPENING OR CLOSING OF A PROJECT
-  * ***************************************************************************/
+  /* ***************************************************************************
+   * SIGNALIZES THE OPENING OR CLOSING OF A PROJECT
+   * **************************************************************************/
 
   public static final boolean PROJECT_OPEN = true;
   public static final boolean PROJECT_CLOSED = false;
 
 
- /* ****************************************************************************
-  * MARK THE USAGE STATE OF A FILE IN A PROJECT
-  * ***************************************************************************/
+  /* ***************************************************************************
+   * USAGE STATE OF A FILE IN A PROJECT
+   * **************************************************************************/
 
   public static final int FILE_USED = 1;
   public static final int FILE_NOT_USED = 0;
@@ -91,7 +91,7 @@ public class Constants {
 
 
   /* ***************************************************************************
-   * COMPILATION STATE OF <code>.rudi</code> FILES
+   * COMPILATION STATE OF .rudi FILES
    * **************************************************************************/
 
   public static final int COMPILATION_PERFECT = 1;
@@ -104,7 +104,7 @@ public class Constants {
 
 
   /* ***************************************************************************
-   * MODIFICATION STATE OF <code>.rudi</code> FILES
+   * MODIFICATION STATE OF .rudi FILES
    * **************************************************************************/
 
   public static final int FILES_SYNCED = 10;

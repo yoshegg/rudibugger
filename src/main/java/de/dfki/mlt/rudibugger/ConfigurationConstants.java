@@ -19,7 +19,7 @@
 package de.dfki.mlt.rudibugger;
 
 /**
- * Contains all possible keys for a vonda project's . yml file.
+ * Contains all possible keys for a vonda project's .yml file.
  * TODO: Move to VONDA
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
