@@ -60,6 +60,8 @@ public class CompileButtonController {
     Button standardCompileButton) {
     _toolBar = toolBar;
     _standardCompileButton = standardCompileButton;
+    // as disable is set to true by default, we need to enable it
+    _standardCompileButton.setDisable(false);
   }
 
   /**
