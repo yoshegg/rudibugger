@@ -194,4 +194,24 @@
     </dependency>
   </dependencies>
 
+  <!-- https://mvnrepository.com/artifact/org.openjfx/javafx -->
+  <dependency>
+    <groupId>org.openjfx</groupId>
+    <artifactId>javafx</artifactId>
+    <version>12</version>
+    <type>pom</type>
+  </dependency>
+
+  <dependency>
+	<groupId>org.openjfx</groupId>
+	<artifactId>javafx-controls</artifactId>
+	<version>12</version>
+  </dependency>
+  <dependency>
+	<groupId>org.openjfx</groupId>
+	<artifactId>javafx-fxml</artifactId>
+	<version>12</version>
+  </dependency>
+
+
 </project>
