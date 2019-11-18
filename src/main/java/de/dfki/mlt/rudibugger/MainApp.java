@@ -79,20 +79,20 @@ public class MainApp extends Application {
     root.setTop(menuBox);
 
     /* Initialize menuBar (top of VBox) */
-    FXMLLoader menuLoader = new FXMLLoader(getClass()
-            .getResource("/fxml/menuBar.fxml"));
+    FXMLLoader menuLoader = new FXMLLoader(getClass().getClassLoader()
+            .getResource("fxml/menuBar.fxml"));
     menuBox.getChildren().add(menuLoader.load());
     MenuBarController menuController = menuLoader.getController();
 
     /* Initialize toolBar (bottom of VBox) */
-    FXMLLoader toolLoader = new FXMLLoader(getClass()
-            .getResource("/fxml/toolBar.fxml"));
+    FXMLLoader toolLoader = new FXMLLoader(getClass().getClassLoader()
+            .getResource("fxml/toolBar.fxml"));
     menuBox.getChildren().add(toolLoader.load());
     ToolBarController toolController = toolLoader.getController();
 
     /* Initialize statusBar (bottom of BorderPane) */
-    FXMLLoader statusLoader = new FXMLLoader(getClass()
-            .getResource("/fxml/statusBar.fxml"));
+    FXMLLoader statusLoader = new FXMLLoader(getClass().getClassLoader()
+            .getResource("fxml/statusBar.fxml"));
     root.setBottom(statusLoader.load());
     StatusBarController statusBarController = statusLoader.getController();
 
@@ -117,15 +117,15 @@ public class MainApp extends Application {
     SplitPane.setResizableWithParent(sideBar, Boolean.TRUE);
 
     /* Initialize fileTreeView. */
-    FXMLLoader fileTreeViewLoader = new FXMLLoader(getClass()
-            .getResource("/fxml/fileTreeView.fxml"));
+    FXMLLoader fileTreeViewLoader = new FXMLLoader(getClass().getClassLoader()
+            .getResource("fxml/fileTreeView.fxml"));
     sidebarSplitPane.getItems().add(fileTreeViewLoader.load());
     FileTreeViewController fileTreeViewController
             = fileTreeViewLoader.getController();
 
     /* Initialize ruleTreeView. */
-    FXMLLoader ruleTreeViewLoader = new FXMLLoader(getClass()
-            .getResource("/fxml/ruleTreeView.fxml"));
+    FXMLLoader ruleTreeViewLoader = new FXMLLoader(getClass().getClassLoader()
+            .getResource("fxml/ruleTreeView.fxml"));
     sidebarSplitPane.getItems().add(ruleTreeViewLoader.load());
     RuleTreeViewController ruleTreeViewController
             = ruleTreeViewLoader.getController();
@@ -163,8 +163,8 @@ public class MainApp extends Application {
 
     /* Initalize editor (right part of centeredSplitPane) */
     if (model.getEditor() instanceof RudibuggerEditor) {
-      FXMLLoader editorLoader = new FXMLLoader(getClass()
-              .getResource("/fxml/editor.fxml"));
+      FXMLLoader editorLoader = new FXMLLoader(getClass().getClassLoader()
+              .getResource("fxml/editor.fxml"));
       centeredSplitPane.getItems().add(editorLoader.load());
       RudibuggerEditorController editorController
               = editorLoader.getController();
