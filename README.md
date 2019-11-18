@@ -17,7 +17,15 @@ A short quick guide on how to start rudibugger is written below.
 
 ## How to run rudibugger (quick guide)
 
-### Start rudibugger
+### Compile & run
+
+In a terminal, simply run 
+
+```
+mvn clean compile exec:java
+```
+
+### Start rudibugger (old way, needs to be tested)
 
 In the root folder of **rudibugger**, two scripts are included:
 
