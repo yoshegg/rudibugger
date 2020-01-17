@@ -2,4 +2,4 @@
 #set -x
 scriptdir=$(dirname $(realpath "$0"))
 cd "$scriptdir"
-java -Dlog4j.configuration=file:log4jsilent.properties -jar "$scriptdir"/shade/rudibugger.jar
+java -Dlog4j.configurationFile=log4j2.xml -jar "$scriptdir"/shade/rudibugger.jar
