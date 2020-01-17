@@ -467,7 +467,7 @@ public class Project {
 
   /** @return The project's wrapper class */
   public Path getWrapperClass() {
-    String longName = (String) _projectConfigs.get(WRAPPER_CLASS);
+    String longName = (String) _projectConfigs.get(CFG_WRAPPER_CLASS);
     String[] split = longName.split("\\.");
     String shortName = split[split.length-1];
     return _rudiFolder.resolve(shortName + RULE_FILE_EXTENSION);
@@ -475,14 +475,14 @@ public class Project {
 
   /** @return The project's ontology */
   public Path getOntology() {
-    String s = (String) _projectConfigs.get(ONTOLOGY_FILE);
+    String s = (String) _projectConfigs.get(CFG_ONTOLOGY_FILE);
     return Paths.get(s);
   }
 
   /** @return The custom VOnDA port (if any) or the default port */
   public int getVondaPort() {
-    if (_projectConfigs.containsKey(DEBUG_PORT))
-      return (int) _projectConfigs.get(DEBUG_PORT);
+    if (_projectConfigs.containsKey(CFG_DEBUG_PORT))
+      return (int) _projectConfigs.get(CFG_DEBUG_PORT);
     else
       return SimpleServer.DEFAULT_PORT;
   }
@@ -500,8 +500,8 @@ public class Project {
   }
 
   public String getDefaultCompileCommand() {
-    if (_rudibuggerSpecificConfigs.keySet().contains("defaultCompileCommand"))
-      return (String) _rudibuggerSpecificConfigs.get("defaultCompileCommand");
+    if (_rudibuggerSpecificConfigs.keySet().contains(DEFAULT_COMPILE_COMMAND))
+      return (String) _rudibuggerSpecificConfigs.get(DEFAULT_COMPILE_COMMAND);
     else
       return null;
   }

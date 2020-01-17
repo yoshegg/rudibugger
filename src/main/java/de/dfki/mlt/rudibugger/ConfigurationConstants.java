@@ -20,22 +20,12 @@ package de.dfki.mlt.rudibugger;
 
 /**
  * Contains all possible keys for a vonda project's .yml file.
- * TODO: Move to VONDA
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
 public class ConfigurationConstants {
 
-  public static String OUTPUT_DIRECTORY = "outputDirectory";
-  public static String WRAPPER_CLASS = "wrapperClass";
-  public static String ONTOLOGY_FILE = "ontologyFile";
-  public static String CHECK_TYPES = "checkTypes";
-  public static String FAIL_ON_ERROR = "failOnError";
-  public static String TARGET_CONSTRUCTOR = "targetConstructor";
-  public static String ROOT_PACKAGE = "rootPackage";
-  public static String NAME_TO_URI = "nametoURI";
-  public static String NAME_TO_CLASS = "nameToClass";
   public static String CUSTOM_COMPILE_COMMANDS = "customCompileCommands";
-  public static String DEBUG_PORT = "debugPort";
 
+  public static String DEFAULT_COMPILE_COMMAND = "defaultCompileCommand";
 }
