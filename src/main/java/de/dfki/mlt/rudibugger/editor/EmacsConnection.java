@@ -65,7 +65,7 @@ public class EmacsConnection {
    */
   public void startConnection(String emacsPath) {
     File emacsLispPath = new File("src/main/resources/emacs/");
-    _j2e = new J2Emacs("Rudibugger", emacsLispPath, null);
+    _j2e = new J2Emacs("Rudibugger", null);
     _j2e.addStartHook(
         "(setq auto-mode-alist (append (list '(\"\\\\.rudi\" . java-mode))))");
     _j2e.startEmacs();

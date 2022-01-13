@@ -82,7 +82,7 @@
     <dependency>
       <groupId>de.dfki.mlt</groupId>
       <artifactId>j2emacs</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.2</version>
       <type>jar</type>
     </dependency>
 
