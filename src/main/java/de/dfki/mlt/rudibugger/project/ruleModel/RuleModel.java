@@ -20,10 +20,7 @@
 package de.dfki.mlt.rudibugger.project.ruleModel;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
-import de.dfki.mlt.rudimant.common.BasicInfo;
-import de.dfki.mlt.rudimant.common.ErrorInfo;
-import de.dfki.mlt.rudimant.common.ImportInfo;
-import de.dfki.mlt.rudimant.common.RuleInfo;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -32,12 +29,19 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+
+import de.dfki.mlt.rudimant.common.BasicInfo;
+import de.dfki.mlt.rudimant.common.ErrorInfo;
+import de.dfki.mlt.rudimant.common.ImportInfo;
+import de.dfki.mlt.rudimant.common.RuleInfo;
 import javafx.beans.property.IntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * This class contains the data about the rule structure that is shown in
@@ -65,7 +69,7 @@ public class RuleModel {
   private final Path _rudiFolder;
 
   /** Maps used Paths to their respective <code>ImportInfoExtended</code>. */
-  private final Map<Path, ImportInfoExtended> _pathToImport = new HashMap();
+  private final Map<Path, ImportInfoExtended> _pathToImport = new HashMap<>();
 
   /** Maps rule ID's to their ruleLoggingState property. */
   private final ObservableMap<Integer, IntegerProperty> _idLoggingStateMap
@@ -193,7 +197,11 @@ public class RuleModel {
     File ruleLocFile = _ruleLocYaml.toFile();
     ImportInfo ii;
     try {
-      Yaml yaml = new Yaml();
+      LoaderOptions opt = new LoaderOptions();
+      // This is not critical since these are real references. It does not
+      // generate copies
+      opt.setMaxAliasesForCollections(1000);
+      Yaml yaml = new Yaml(opt);
       ii = (ImportInfo) yaml.load(new FileReader(ruleLocFile));
     } catch (FileNotFoundException | org.yaml.snakeyaml.error.YAMLException e) {
       log.error(e.getMessage());
