@@ -19,11 +19,13 @@
 
 package de.dfki.mlt.rudibugger.rpc;
 
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import de.dfki.mlt.rudimant.common.SimpleClient;
+import de.dfki.mlt.rudimant.common.SimpleClient.ConnStatus;
 
 /**
  * An XML-RPC Client to connect to rudibugger in Java using VOnDA's
@@ -54,12 +56,20 @@ public class RudibuggerClient {
 
   /** @return True, if client is connect to server (VOnDA), else false */
   public boolean isConnected() {
-    return client.isConnected();
+    return client.getConnStatus() == ConnStatus.ONLINE;
   }
 
   /** Disconnects client from server (VOnDA). */
   public void disconnect() throws IOException {
     client.disconnect();
+  }
+
+  public void addPropertyChangeListener(PropertyChangeListener listener) {
+    client.addPropertyChangeListener(listener);
+  }
+
+  public void removePropertyChangeListener(PropertyChangeListener listener) {
+    client.removePropertyChangeListener(listener);
   }
 
   /**

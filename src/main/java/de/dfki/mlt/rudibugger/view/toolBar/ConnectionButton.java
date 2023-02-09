@@ -54,9 +54,9 @@ public class ConnectionButton extends Button {
         setDisable(false);
         break;
       case ESTABLISHING_CONNECTION:
-        setText("Connecting");
+        setText("Connecting...");
         setOnMouseEntered(e -> setText("Disconnect"));
-        setOnMouseExited(e -> setText("Connecting"));
+        setOnMouseExited(e -> setText("Connecting..."));
         setDisable(false);
         break;
       case DISCONNECTED_FROM_VONDA:

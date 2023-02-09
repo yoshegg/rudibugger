@@ -22,6 +22,7 @@ package de.dfki.mlt.rudibugger;
 import static de.dfki.mlt.rudibugger.Constants.*;
 import de.dfki.mlt.rudibugger.editor.CustomEditor;
 import de.dfki.mlt.rudibugger.project.Project;
+import de.dfki.mlt.rudibugger.view.toolBar.ConnectionButton;
 import de.dfki.mlt.rudibugger.editor.Editor;
 import de.dfki.mlt.rudibugger.editor.EmacsEditor;
 import de.dfki.mlt.rudibugger.editor.RudibuggerEditor;
@@ -65,6 +66,8 @@ public class DataModel {
   /** Used to open, edit and save files. */
   private Editor _editor;
 
+  /** Button reference required to update connection status properly. */
+  private ConnectionButton connectionButton;
 
   /* ***************************************************************************
    * CONFIGURATION DETAILS
@@ -105,7 +108,7 @@ public class DataModel {
     _loadedProject.set(newProject);
     if (newProject.getRuleModel() != null
         && globalConf.getAutomaticallyConnectToVonda())
-      getLoadedProject().vonda.connect(getLoadedProject().getVondaPort());
+      getLoadedProject().vonda.connect(getLoadedProject().getVondaPort(), this);
   }
 
   public void closeProject() {
@@ -166,4 +169,11 @@ public class DataModel {
   /** @return The current editor instance. */
   public Editor getEditor() { return _editor; }
 
+  public ConnectionButton getConnectionButton() {
+    return this.connectionButton;
+  }
+
+  public void setConnectionButton(ConnectionButton connectionButton) {
+    this.connectionButton = connectionButton;
+  }
 }

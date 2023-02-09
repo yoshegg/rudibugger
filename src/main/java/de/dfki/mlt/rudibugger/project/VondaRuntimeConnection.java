@@ -24,8 +24,12 @@ import de.dfki.mlt.rudibugger.rpc.RudibuggerClient;
 import de.dfki.mlt.rudibugger.rpc.RudibuggerAPI;
 import de.dfki.mlt.rudibugger.rpc.LogData;
 import static de.dfki.mlt.rudibugger.Constants.*;
+import de.dfki.mlt.rudibugger.DataModel;
+import de.dfki.mlt.rudibugger.HelperWindows;
 import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
 import de.dfki.mlt.rudimant.common.RuleLogger;
+import de.dfki.mlt.rudimant.common.SimpleClient;
+import de.dfki.mlt.rudimant.common.SimpleClient.ConnStatus;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -130,12 +134,43 @@ public class VondaRuntimeConnection {
    * (N.B.: The old key for a custom port was <code>SERVER_RUDIMANT</code>, now
    * it is <code>vondaPort</code>.)
    */
-  public void connect(int vondaPort) {
+  public void connect(int vondaPort, DataModel model) {
     _client = new RudibuggerClient("localhost", vondaPort,
         new RudibuggerAPI(this));
 
     connected.addListener(connectionStateListener);
     connected.set(ESTABLISHING_CONNECTION);
+
+    _client.addPropertyChangeListener(
+        e -> {
+          SimpleClient.ConnStatus connStatus = (ConnStatus) e.getNewValue();
+          switch (connStatus) {
+            case ONLINE:
+              connected.setValue(CONNECTED_TO_VONDA);
+              break;
+            case OFFLINE:
+              connected.setValue(DISCONNECTED_FROM_VONDA);
+              break;
+            case TRYING:
+              connected.setValue(ESTABLISHING_CONNECTION);
+          }
+          if (model != null) {
+            Platform.runLater(
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    model.getConnectionButton().update(_ruleModel, connected.getValue());
+                    if (connected.getValue() == CONNECTED_TO_VONDA) {
+                      HelperWindows.showRuleLoggingWindow(
+                          model.mainStage,
+                          model.getLoadedProject(),
+                          model.getEditor(),
+                          model.globalConf);
+                    }
+                  }
+                });
+          }
+        });
 
     log.debug("RudibuggerClient has been started "
             + "on port [" + vondaPort + "].");
@@ -227,8 +262,6 @@ public class VondaRuntimeConnection {
     }
 
     Platform.runLater(() -> {
-      if (connectedProperty().getValue() != CONNECTED_TO_VONDA)
-        connectedProperty().setValue(CONNECTED_TO_VONDA);
       rl.logRule(ruleId, result);
       if (jfl.pendingLoggingData()) {
         jfl.addRuleIdToLogData(ruleId);
