@@ -43,8 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class VondaRuntimeConnection {
 
-  static Logger log = LoggerFactory.getLogger("vondaConnect");
-
+  static Logger log = LoggerFactory.getLogger(VondaRuntimeConnection.class);
 
   /* ***************************************************************************
    * FIELDS
