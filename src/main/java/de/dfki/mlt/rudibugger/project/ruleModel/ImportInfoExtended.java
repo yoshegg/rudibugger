@@ -90,7 +90,7 @@ public class ImportInfoExtended extends ImportInfo {
       log.error("Tried to use a non-extended ImportInfo as parent.");
     _parent = parent;
     _errors = original.getErrors();
-    _state = new SimpleIntegerProperty(STATE_NEVER);
+    _state = new SimpleIntegerProperty(STATE_ALWAYS);
 //    _model = model;
     _file = rudiFolder.resolve(original.getFilePath()).normalize();
   }

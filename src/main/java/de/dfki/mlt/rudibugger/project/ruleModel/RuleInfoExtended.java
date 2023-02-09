@@ -72,7 +72,7 @@ public class RuleInfoExtended extends RuleInfo {
     _label = original.getLabel();
     _line = original.getLine();
     _parent = parent;
-    _state = new SimpleIntegerProperty(STATE_NEVER);
+    _state = new SimpleIntegerProperty(STATE_ALWAYS);
     _id = original.getId();
     _expr = original.getExpression();
     _baseTerms = original.getBaseterms();
