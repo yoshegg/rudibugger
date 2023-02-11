@@ -152,6 +152,7 @@ public class MainApp extends Application {
         getHostServices()
         );
     toolController.init(model);
+    model.setConnectionButton(toolController.vondaConnectionButton);
     statusBarController.initModel(model);
     fileTreeViewController.init(model);
     ruleTreeViewController.init(model);

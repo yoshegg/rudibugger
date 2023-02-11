@@ -69,7 +69,7 @@ public class ToolBarController {
    * Represents the con-/disconnect button also monitoring the connection state.
    */
   @FXML
-  private ConnectionButton vondaConnectionButton;
+  public ConnectionButton vondaConnectionButton;
 
 
   /* ***************************************************************************
@@ -81,10 +81,10 @@ public class ToolBarController {
 
     _compileButtonController = CompileButtonController.init(compileButton,
             toolBar);
-    _model.loadedProjectProperty().addListener(ProjectListener);
+    _model.loadedProjectProperty().addListener(projectListener);
   }
 
-  private final ChangeListener<Project> ProjectListener = ((o, oldP, newP) -> {
+  private final ChangeListener<Project> projectListener = ((o, oldP, newP) -> {
     if (newP != null) {
       listenForCompilerChanges(newP.compiler);
         listenForRuleModelChanges(newP);
@@ -144,10 +144,13 @@ public class ToolBarController {
   @FXML
   private void toggleVondaConnectionState(ActionEvent event) {
     VondaRuntimeConnection vonda = _model.getLoadedProject().vonda;
-    if (vonda.getConnectionState() == DISCONNECTED_FROM_VONDA)
-      vonda.connect(_model.getLoadedProject().getVondaPort());
-    else
+    if (vonda.getConnectionState() == DISCONNECTED_FROM_VONDA) {
+      // pass model to vonda, so that connection button can be updated and rule logging
+      // window can be shown if connection status changes
+      vonda.connect(_model.getLoadedProject().getVondaPort(), _model);
+    } else {
       vonda.closeConnection();
+    }
     vondaConnectionButton.update(_model.getLoadedProject().getRuleModel(),
       vonda.getConnectionState());
 
