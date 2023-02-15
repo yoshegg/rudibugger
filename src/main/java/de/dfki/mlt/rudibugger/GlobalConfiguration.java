@@ -175,6 +175,7 @@ public class GlobalConfiguration {
       put("lastOpenedProject", null);
       put("automaticallyConnectToVonda", false);
       put("showErrorInfoInRuleTreeViewContextMenu", true);
+      put("globalFontSize", 18);
     }};
 
 
@@ -292,6 +293,21 @@ public class GlobalConfiguration {
   public boolean showErrorInfoInRuleTreeViewContextMenu() {
     return (boolean) _globalConfigs
             .get("showErrorInfoInRuleTreeViewContextMenu");
+  }
+
+  public int getGlobalFontSize() {
+    String fontSizeString =  (String) _globalConfigs.get("globalFontSize");
+    // text formatter for font size text field allows empty strings,
+    // so we have to check here
+    if (fontSizeString.isEmpty()) {
+      return 18;
+    } else {
+      return Integer.parseInt(fontSizeString);
+    }
+  }
+
+  public String getGlobalFontSizeAsStyle() {
+    return String.format("-fx-font-size: %d;", getGlobalFontSize());
   }
 
 }

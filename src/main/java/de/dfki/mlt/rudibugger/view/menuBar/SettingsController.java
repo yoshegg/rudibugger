@@ -27,9 +27,12 @@ package de.dfki.mlt.rudibugger.view.menuBar;
 
 import de.dfki.mlt.rudibugger.GlobalConfiguration;
 import de.dfki.mlt.rudibugger.editor.EmacsConnection;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +62,9 @@ public class SettingsController {
     _globalConf = globalConf;
     definePreSelections();
     defineListeners();
+    globalFontSize.setTextFormatter(
+        new TextFormatter<>(
+            change -> change.getControlNewText().matches("[0-9]{0,2}") ? change : null));
   }
 
   /** Reflects the current configuration to the opened settings window. */
@@ -84,6 +90,8 @@ public class SettingsController {
 
     errorInfoInRuleTreeViewContextMenu.setSelected(
       _globalConf.showErrorInfoInRuleTreeViewContextMenu());
+
+    globalFontSize.setText(_globalConf.getGlobalFontSize() + "");
   }
 
   /** Defines listeners. */
@@ -116,6 +124,15 @@ public class SettingsController {
     errorInfoInRuleTreeViewContextMenu.selectedProperty()
             .addListener((o, ov, nv) -> _globalConf
             .setSetting("showErrorInfoInRuleTreeViewContextMenu", nv));
+    globalFontSize.textProperty().addListener((ob, ov, nv) ->
+      _globalConf.setSetting("globalFontSize", nv));
+    okButton.setOnAction(
+        new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(ActionEvent event) {
+            ((Stage) okButton.getScene().getWindow()).close();
+          }
+        });
   }
 
 
@@ -174,5 +191,11 @@ public class SettingsController {
    */
   @FXML
   private CheckBox errorInfoInRuleTreeViewContextMenu;
+
+  @FXML
+  private TextField globalFontSize;
+
+  @FXML
+  private Button okButton;
 
 }

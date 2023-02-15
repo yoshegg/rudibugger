@@ -147,6 +147,7 @@ public final class HelperWindows {
     Project project, Editor editor, GlobalConfiguration globalConf) {
 
     AnchorPane page = new AnchorPane();
+    page.setStyle(globalConf.getGlobalFontSizeAsStyle());
     TableView table = new TableView();
     page.getChildren().add(table);
     AnchorPane.setTopAnchor(table, 0.0);
@@ -240,13 +241,15 @@ public final class HelperWindows {
   private static Stage _trackingWindow;
 
   /** Shows the settings window (and creates it if needed). */
-  public static void showTrackingWindow(Stage mainStage, Editor editor) {
+  public static void showTrackingWindow(
+      Stage mainStage, Editor editor, GlobalConfiguration globalConf) {
     if (_trackingWindow == null)
-      _trackingWindow = createTrackingWindow(mainStage, editor);
+      _trackingWindow = createTrackingWindow(mainStage, editor, globalConf);
     _trackingWindow.show();
   }
 
-  private static Stage createTrackingWindow(Stage mainStage, Editor editor) {
+  private static Stage createTrackingWindow(
+      Stage mainStage, Editor editor,GlobalConfiguration globalConf) {
 
     /* Load .fxml file */
     AnchorPane page;
@@ -255,6 +258,7 @@ public final class HelperWindows {
        loader = new FXMLLoader(HelperWindows.class
         .getResource("/fxml/tracking.fxml"));
        page = (AnchorPane) loader.load();
+       page.setStyle(globalConf.getGlobalFontSizeAsStyle());
     } catch (IOException e) {
       log.error(e.toString());
       return null;

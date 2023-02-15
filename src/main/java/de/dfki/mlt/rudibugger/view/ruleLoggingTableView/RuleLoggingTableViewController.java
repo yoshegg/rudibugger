@@ -85,7 +85,7 @@ public class RuleLoggingTableViewController {
     _vonda = project.vonda;
     _project = project;
 
-    initRuleLoggingTableView();
+    initRuleLoggingTableView(globalConf);
     _vonda.logOutputProperty().addListener(incomingRuleLogListener);
 
     /* this listener updates the timeStampIndex setting in the tableView */
@@ -156,7 +156,7 @@ public class RuleLoggingTableViewController {
     tc.widthProperty().addListener((cl, ov, nv) -> adaptTableViewColumns());
   }
 
-  private void initRuleLoggingTableView() {
+  private void initRuleLoggingTableView(GlobalConfiguration globalConf) {
     initLabelColumn(_labelColumn);
     initEvaluatedColumn(_evaluatedColumn);
     initTimeColumn(_timeColumn, _globalConf.timeStampIndexProperty().get());
@@ -167,7 +167,9 @@ public class RuleLoggingTableViewController {
     _ruleLoggingTableView.setItems(ruleLoggingList);
 
     /* set cell height of TableView */
-    _ruleLoggingTableView.setFixedCellSize(25);
+    _ruleLoggingTableView.setFixedCellSize(
+        // this is a hack and can probably be done better
+        globalConf.getGlobalFontSize() + globalConf.getGlobalFontSize() / 2);
 
     /* set column resizing policies */
     _ruleLoggingTableView.widthProperty().addListener((cl, ov, nv) -> {
