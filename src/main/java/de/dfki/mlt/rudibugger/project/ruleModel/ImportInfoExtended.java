@@ -22,7 +22,7 @@ package de.dfki.mlt.rudibugger.project.ruleModel;
 import de.dfki.mlt.rudibugger.DataModel;
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import static de.dfki.mlt.rudimant.common.Constants.*;
-import de.dfki.mlt.rudimant.common.ImportInfo;
+import de.dfki.mlt.rudimant.common.IncludeInfo;
 import java.nio.file.Path;
 import java.util.HashSet;
 import javafx.beans.property.IntegerProperty;
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Christophe Biwer (yoshegg) christophe.biwer@dfki.de
  */
-public class ImportInfoExtended extends ImportInfo {
+public class ImportInfoExtended extends IncludeInfo {
 
   /** The logger. */
   static Logger log = LoggerFactory.getLogger(ImportInfoExtended.class);
@@ -80,7 +80,7 @@ public class ImportInfoExtended extends ImportInfo {
    * @param   parent
    *          The parent of this Import, should already be extended.
    */
-  public ImportInfoExtended(ImportInfo original, Path rudiFolder,
+  public ImportInfoExtended(IncludeInfo original, Path rudiFolder,
                             BasicInfo parent) {
     super();
     _containsRules = false;

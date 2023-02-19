@@ -37,7 +37,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
-import de.dfki.mlt.rudimant.common.ImportInfo;
+import de.dfki.mlt.rudimant.common.IncludeInfo;
 import de.dfki.mlt.rudimant.common.RuleInfo;
 import javafx.beans.property.IntegerProperty;
 import javafx.collections.FXCollections;
@@ -159,8 +159,8 @@ public class RuleModel {
    * @return
    */
   private BasicInfo processInfos(BasicInfo current, BasicInfo parent) {
-    if (current instanceof ImportInfo) {
-      ImportInfoExtended ii = new ImportInfoExtended((ImportInfo) current,
+    if (current instanceof IncludeInfo) {
+      ImportInfoExtended ii = new ImportInfoExtended((IncludeInfo) current,
               _rudiFolder, parent);
       extractWarnErrors(ii);
       _pathToImport.put(ii.getAbsolutePath(), ii);
@@ -193,16 +193,16 @@ public class RuleModel {
    * @param ruleLocFile the .yml file containing the map of all rules
    * @return <code>ImportInfo</code> containing rule structure
    */
-  private ImportInfo readInRuleLocationFile() {
+  private IncludeInfo readInRuleLocationFile() {
     File ruleLocFile = _ruleLocYaml.toFile();
-    ImportInfo ii;
+    IncludeInfo ii;
     try {
       LoaderOptions opt = new LoaderOptions();
       // This is not critical since these are real references. It does not
       // generate copies
       opt.setMaxAliasesForCollections(1000);
       Yaml yaml = new Yaml(opt);
-      ii = (ImportInfo) yaml.load(new FileReader(ruleLocFile));
+      ii = (IncludeInfo) yaml.load(new FileReader(ruleLocFile));
     } catch (FileNotFoundException | org.yaml.snakeyaml.error.YAMLException e) {
       log.error(e.getMessage());
       return null;
