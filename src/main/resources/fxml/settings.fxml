@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
@@ -13,93 +14,107 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.view.menuBar.SettingsController">
+<AnchorPane id="AnchorPane" prefHeight="430.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dfki.mlt.rudibugger.view.menuBar.SettingsController">
    <children>
-      <Accordion prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <panes>
-          <TitledPane animated="false" text="Default editor">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+      <VBox layoutX="10.0" layoutY="10.0" prefHeight="492.0" prefWidth="598.0" spacing="10.0">
+         <children>
+            <Label text="Default Editor" underline="true">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="rudibugger needs to be restarted to apply changes.">
+               <font>
+                  <Font name="System Italic" size="13.0" />
+               </font>
+            </Text>
+            <VBox prefHeight="130.0" prefWidth="598.0">
+               <children>
+                  <RadioButton fx:id="rudibuggerEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="rudibugger (default)">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="editorSetting" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="emacsEditor" maxHeight="90.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="55.0" text="emacs" toggleGroup="$editorSetting" />
+                  <RadioButton fx:id="customEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="Custom editor" toggleGroup="$editorSetting" />
+                  <VBox fx:id="customTextFields" disable="true" prefHeight="54.0" prefWidth="598.0">
                      <children>
-                        <VBox prefHeight="321.0" prefWidth="598.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <HBox alignment="CENTER_LEFT" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" spacing="5.0">
                            <children>
-                              <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="rudibugger needs to be restarted to apply changes.">
-                                 <font>
-                                    <Font name="System Italic" size="13.0" />
-                                 </font>
-                              </Text>
-                              <RadioButton fx:id="rudibuggerEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="rudibugger (default)">
-                                 <toggleGroup>
-                                    <ToggleGroup fx:id="editorSetting" />
-                                 </toggleGroup></RadioButton>
-                              <RadioButton fx:id="emacsEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="emacs" toggleGroup="$editorSetting" />
-                              <RadioButton fx:id="customEditor" maxHeight="30.0" minHeight="30.0" mnemonicParsing="false" prefHeight="30.0" text="Custom editor" toggleGroup="$editorSetting" />
-                              <VBox fx:id="customTextFields" disable="true" prefHeight="200.0" prefWidth="100.0">
+                              <HBox alignment="CENTER_RIGHT" maxWidth="100.0" minWidth="100.0" prefHeight="100.0" prefWidth="100.0">
                                  <children>
-                                    <HBox alignment="CENTER_LEFT" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" spacing="5.0">
-                                       <children>
-                                          <HBox alignment="CENTER_RIGHT" maxWidth="100.0" minWidth="100.0" prefHeight="100.0" prefWidth="100.0">
-                                             <children>
-                                                <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="File editor" />
-                                             </children>
-                                          </HBox>
-                                          <TextField fx:id="customFileEditor" prefHeight="26.0" prefWidth="469.0" promptText="enter command using %file" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" spacing="5.0">
-                                       <children>
-                                          <HBox alignment="CENTER_RIGHT" maxWidth="100.0" minWidth="100.0" prefHeight="100.0" prefWidth="100.0">
-                                             <children>
-                                                <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Rule editor" />
-                                             </children>
-                                          </HBox>
-                                          <TextField fx:id="customRuleEditor" promptText="enter command using %file and %line" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
+                                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="File editor" />
                                  </children>
-                              </VBox>
+                              </HBox>
+                              <TextField fx:id="customFileEditor" prefHeight="26.0" prefWidth="469.0" promptText="enter command using %file" HBox.hgrow="ALWAYS" />
                            </children>
-                        </VBox>
-                     </children>
-                  </AnchorPane>
-            </content>
-          </TitledPane>
-          <TitledPane animated="false" text="Sidebar">
-               <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <VBox prefHeight="321.0" prefWidth="598.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" spacing="5.0">
                            <children>
-                              <CheckBox fx:id="errorInfoInRuleTreeViewContextMenu" mnemonicParsing="false" text="Enable opening of compilation problems via context menu in ruleTreeView" />
+                              <HBox alignment="CENTER_RIGHT" maxWidth="100.0" minWidth="100.0" prefHeight="100.0" prefWidth="100.0">
+                                 <children>
+                                    <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Rule editor" />
+                                 </children>
+                              </HBox>
+                              <TextField fx:id="customRuleEditor" promptText="enter command using %file and %line" HBox.hgrow="ALWAYS" />
                            </children>
-                        </VBox>
+                        </HBox>
                      </children>
-                  </AnchorPane>
-               </content>
-          </TitledPane>
-            <TitledPane animated="false" text="Connection to VOnDA">
-               <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <VBox prefHeight="321.0" prefWidth="598.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                           <children>
-                              <CheckBox fx:id="timeStampIndexCheckBox" mnemonicParsing="false" text="Show index after timestamp in logging table&#10;" />
-                              <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="This is useful if something was logged at the exact same millisecond.">
-                                 <VBox.margin>
-                                    <Insets bottom="5.0" left="25.0" />
-                                 </VBox.margin>
-                                 <font>
-                                    <Font name="System Italic" size="13.0" />
-                                 </font>
-                              </Text>
-                              <CheckBox fx:id="autoConnectCheckBox" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Automatically connect to VOnDA when opening a project" />
-                           </children>
-                        </VBox>
-                     </children>
-                  </AnchorPane>
-               </content>
-            </TitledPane>
-        </panes>
-      </Accordion>
+                  </VBox>
+               </children>
+            </VBox>
+            <Separator prefWidth="200.0" />
+            <Label text="Sidebar" underline="true">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <CheckBox fx:id="errorInfoInRuleTreeViewContextMenu" mnemonicParsing="false" text="Enable opening of compilation problems via context menu in ruleTreeView" />
+            <Separator prefWidth="200.0" />
+            <Label text="Connection to VOnDA" underline="true">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <CheckBox fx:id="timeStampIndexCheckBox" mnemonicParsing="false" text="Show index after timestamp in logging table&#10;" />
+            <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="This is useful if something was logged at the exact same millisecond.">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="25.0" />
+               </VBox.margin>
+               <font>
+                  <Font name="System Italic" size="13.0" />
+               </font>
+            </Text>
+            <CheckBox fx:id="autoConnectCheckBox" mnemonicParsing="false" text="Automatically connect to VOnDA when opening a project" />
+            <Label text="Fonts" underline="true">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <HBox alignment="CENTER_LEFT" maxWidth="595.0" minWidth="85.0" prefHeight="25.0" prefWidth="595.0">
+               <children>
+                  <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Global font size" />
+                  <TextField fx:id="globalFontSize" prefHeight="25.0" prefWidth="28.0">
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Restart rudibugger to apply.">
+                     <font>
+                        <Font name="System Italic" size="13.0" />
+                     </font>
+                  </Text>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Button fx:id="okButton" mnemonicParsing="false" prefHeight="25.0" prefWidth="70.0" text="Ok" />
+               </children>
+               <VBox.margin>
+                  <Insets bottom="20.0" />
+               </VBox.margin>
+            </HBox>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

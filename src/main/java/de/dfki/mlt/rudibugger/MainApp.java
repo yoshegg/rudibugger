@@ -189,6 +189,7 @@ public class MainApp extends Application {
     Image icon = new Image("file:src/main/resources/"
             + "icons/baggerschaufel_titlebar_32x32.png");
     stage.getIcons().add(icon);
+    root.setStyle(model.globalConf.getGlobalFontSizeAsStyle());
 
     /* Link splitpanes to model.layout */
     model.layout.addSplitPane(sidebarSplitPane, DIVIDER_SIDEBAR);
