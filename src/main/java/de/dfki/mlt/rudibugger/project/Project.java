@@ -467,7 +467,7 @@ public class Project {
 
   /** @return The project's wrapper class */
   public Path getWrapperClass() {
-    String longName = (String) _projectConfigs.get(CFG_WRAPPER_CLASS);
+    String longName = (String) _projectConfigs.get(CFG_AGENT_BASE_CLASS);
     String[] split = longName.split("\\.");
     String shortName = split[split.length-1];
     return _rudiFolder.resolve(shortName + RULE_FILE_EXTENSION);
