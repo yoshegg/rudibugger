@@ -296,14 +296,20 @@ public class GlobalConfiguration {
   }
 
   public int getGlobalFontSize() {
-    String fontSizeString =  (String) _globalConfigs.get("globalFontSize");
-    // text formatter for font size text field allows empty strings,
-    // so we have to check here
-    if (fontSizeString.isEmpty()) {
-      return 18;
-    } else {
-      return Integer.parseInt(fontSizeString);
+    Object fontSpec = _globalConfigs.get("globalFontSize");
+    if (fontSpec instanceof String) {
+      String fontSizeString =  (String) fontSpec;
+      // text formatter for font size text field allows empty strings,
+      // so we have to check here
+      if (fontSizeString.isEmpty()) {
+        return 18;
+      } else {
+        return Integer.parseInt(fontSizeString);
+      }
+    } else if (fontSpec instanceof Integer) {
+      return (Integer)fontSpec;
     }
+    return 18;
   }
 
   public String getGlobalFontSizeAsStyle() {

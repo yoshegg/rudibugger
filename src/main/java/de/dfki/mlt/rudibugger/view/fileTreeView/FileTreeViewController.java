@@ -70,7 +70,7 @@ public class FileTreeViewController {
         fileTreeView.setRoot(project.getRudiHierarchy().getRoot());
         fileTreeView.setShowRoot(false);
         markFilesInRudiList(project.getRudiHierarchy(), project.getRuleModel(),
-                project.getWrapperClass());
+                project.getOptionalAgentBaseClass());
         linkRudiPathsToImportInfos(project.getRudiHierarchy(),
                 project.getRuleModel());
         listenForRuleModel(project);
@@ -86,7 +86,7 @@ public class FileTreeViewController {
       if (newRuleModel != null) {
         log.debug("RuleModel created / updated, updating fileTreeView...");
         markFilesInRudiList(project.getRudiHierarchy(), newRuleModel,
-                project.getWrapperClass());
+                project.getOptionalAgentBaseClass());
         linkRudiPathsToImportInfos(project.getRudiHierarchy(),
                 project.getRuleModel());
       } else {
@@ -103,14 +103,15 @@ public class FileTreeViewController {
 
   /** Marks the files in the <b>rudiList</b> according to their usage state. */
   private void markFilesInRudiList(RudiHierarchy rudiHierarchy,
-          RuleModel ruleModel, Path wrapperRudi) {
+          RuleModel ruleModel, Path agentBase) {
     if (ruleModel == null) return;
     Path mainRudi = ruleModel.getRootImport().getAbsolutePath();
 
     rudiHierarchy.getRudiPathSet().forEach((x) -> {
       if (mainRudi.getFileName().equals(x.getPath().getFileName()))
         x.usedProperty().setValue(FILE_IS_MAIN);
-      else if (wrapperRudi.getFileName().equals(x.getPath().getFileName()))
+      else if (agentBase != null
+          && agentBase.getFileName().equals(x.getPath().getFileName()))
         x.usedProperty().setValue(FILE_IS_WRAPPER);
       else if (ruleModel.getImportSet().contains(x.getPath()))
         x.usedProperty().setValue(FILE_USED);

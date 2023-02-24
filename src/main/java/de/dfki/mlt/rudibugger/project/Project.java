@@ -19,29 +19,45 @@
 
 package de.dfki.mlt.rudibugger.project;
 
-import static de.dfki.mlt.rudibugger.Constants.*;
-import static de.dfki.mlt.rudibugger.ConfigurationConstants.*;
-import de.dfki.mlt.rudibugger.view.fileTreeView.RudiHierarchy;
-import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
-import de.dfki.mlt.rudibugger.project.watchServices.RudiFolderWatch;
-import de.dfki.mlt.rudibugger.project.watchServices.RuleLocationYamlWatch;
+import static de.dfki.mlt.rudibugger.ConfigurationConstants.CUSTOM_COMPILE_COMMANDS;
+import static de.dfki.mlt.rudibugger.ConfigurationConstants.DEFAULT_COMPILE_COMMAND;
+import static de.dfki.mlt.rudibugger.Constants.GLOBAL_PROJECT_SPECIFIC_CONFIG_PATH;
+import static de.dfki.mlt.rudibugger.Constants.PATH_TO_GENERATED_FOLDER;
+import static de.dfki.mlt.rudibugger.Constants.PATH_TO_RUDI_FOLDER;
+import static de.dfki.mlt.rudibugger.Constants.PROJECT_SPECIFIC_RUDIBUGGER_CONFIG_FILE;
 import static de.dfki.mlt.rudimant.common.Constants.*;
-import de.dfki.mlt.rudimant.common.SimpleServer;
+
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+
+import de.dfki.mlt.rudibugger.project.ruleModel.RuleModel;
+import de.dfki.mlt.rudibugger.project.watchServices.RudiFolderWatch;
+import de.dfki.mlt.rudibugger.project.watchServices.RuleLocationYamlWatch;
+import de.dfki.mlt.rudibugger.view.fileTreeView.RudiHierarchy;
+import de.dfki.mlt.rudimant.common.SimpleServer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * The <code>Project</code> represents
@@ -149,7 +165,7 @@ public class Project {
     _projectConfigs = FXCollections.observableMap(configMap);
     _projectName = identifyProjectName();
     _rootFolder = _projectYamlPath.getParent();
-    _rudiFolder = retrieveRudiFolder();
+    _rudiFolder = retrieveRudiFolder((String)configMap.get(CFG_INPUT_FILE));
     createPotentiallyMissingFolders();
     _ruleLocYaml = retrieveRuleLocYaml();
     _ruleModelStatesFolder = retrieveRuleModelStatesFolder();
@@ -195,16 +211,17 @@ public class Project {
   /** Contains the keys a default project configuration file. */
   private static final HashSet<String> DEFAULT_PROJECT_CONFIGURATION_KEYS =
           new HashSet<String>() {{
-      add("outputDirectory");
-      add("wrapperClass");
-      add("ontologyFile");
-      add("rootPackage");
+      add(CFG_INPUT_FILE);
+      add(CFG_OUTPUT_DIRECTORY);
+      add(CFG_ONTOLOGY_FILE);
+      add(CFG_PACKAGE);
+      //add(CFG_AGENT_BASE_CLASS); // optional since VOnDA 3.0
     }};
 
   /** Reads in the project's configuration .yml file. */
-  private Map readInProjectConfigurationYaml() throws IOException {
+  private Map<String, Object> readInProjectConfigurationYaml() throws IOException {
     log.debug("Reading in project's configuration .yml...");
-    Map map = (HashMap<String, Object>) YAML.load(
+    Map<String, Object> map = (Map<String, Object>) YAML.load(
         new FileInputStream(_projectYamlPath.toFile()));
     return map;
   }
@@ -226,7 +243,7 @@ public class Project {
     }
   }
 
-  private Map readInRudibuggerSpecificConfigurationYaml() throws IOException {
+  private Map<String, Object> readInRudibuggerSpecificConfigurationYaml() throws IOException {
     log.debug("Reading in specific rudibugger settings of the project...");
     _rudibuggerSpecificConfigsPath = GLOBAL_PROJECT_SPECIFIC_CONFIG_PATH
             .resolve(_projectName)
@@ -236,7 +253,7 @@ public class Project {
       _rudibuggerSpecificConfigsPath.getParent().toFile().mkdirs();
       _rudibuggerSpecificConfigsPath.toFile().createNewFile();
     }
-    Map map = (HashMap<String, Object>) YAML.load(new FileInputStream(
+    Map<String, Object> map = (Map<String, Object>) YAML.load(new FileInputStream(
           _rudibuggerSpecificConfigsPath.toFile()));
     if (map == null) map = new HashMap<>();
     return map;
@@ -249,8 +266,10 @@ public class Project {
   }
 
   /** @return The project's .rudi folder. */
-  private Path retrieveRudiFolder() throws IOException {
-    Path rudiFolder = _rootFolder.resolve(PATH_TO_RUDI_FOLDER);
+  private Path retrieveRudiFolder(String inputFileName) throws IOException {
+    File rudiDir = new File(inputFileName).getParentFile();
+    Path rudiFolder = rudiDir == null
+        ? _rootFolder : _rootFolder.resolve(rudiDir.toPath());
     if (! Files.exists(rudiFolder)) {
       String errorMessage = ".rudi folder could not be found. \n"
               + "Should be here: " + _rudiFolder.toString() + "\n"
@@ -347,7 +366,7 @@ public class Project {
 
   /** @return The project's output directory (aka gen-java) */
   public Path getGeneratedJavaFolder() {
-    String c = (String) _projectConfigs.get("outputDirectory");
+    String c = (String) _projectConfigs.get(CFG_OUTPUT_DIRECTORY);
     return Paths.get(c);
   }
 
@@ -412,14 +431,12 @@ public class Project {
     List<Path> temp = new ArrayList<>();
 
     /* Retrieve all files and add them to a list. */
-    Stream<Path> stream;
-    try {
-      stream = Files.walk(_ruleModelStatesFolder);
+    try (Stream<Path> stream = Files.walk(_ruleModelStatesFolder)) {
+      stream.forEach(x -> { if (!Files.isDirectory(x)) temp.add(x); });
     } catch (IOException e) {
       log.error(e.toString());
       return;
     }
-    stream.forEach(x -> { if (!Files.isDirectory(x)) temp.add(x); });
 
     /* Sort the list by modification date. */
     Collections.sort(temp, (Path p1, Path p2) ->
@@ -465,9 +482,12 @@ public class Project {
 //    return result;
 //  }
 
-  /** @return The project's wrapper class */
-  public Path getWrapperClass() {
+  /** @return The project's agent base class, if any. Otherwise, return null.
+   *  agentBase, formerly wrapperClass, is optional since VOnDA 3.0
+   */
+  public Path getOptionalAgentBaseClass() {
     String longName = (String) _projectConfigs.get(CFG_AGENT_BASE_CLASS);
+    if (longName == null) return null;
     String[] split = longName.split("\\.");
     String shortName = split[split.length-1];
     return _rudiFolder.resolve(shortName + RULE_FILE_EXTENSION);

@@ -191,6 +191,22 @@ public class RuleLocationYamlWatch {
           /* this is null, if no more change is going on */
           watchKey = _watchService.poll(500, TimeUnit.MILLISECONDS);
 
+          /* if no more changes are detected, update the project */
+          if (watchKey == null) {
+            Platform.runLater(() -> {
+              log.debug("[" + changingFile + "] has changed.");
+              _project.initRuleModel();
+//              if (_ruleModel.getRootImport() == null) {
+//                _ruleModel.init();
+//              } else {
+//                _ruleModel.update();
+//              }
+              _rudiHierarchy.setFilesUpToDate();
+            });
+            ruleLocationFileChanged = false;
+            break;
+          }
+
           try {
             /* remove the events or watchKey can't be resetted properly */
             for (WatchEvent<?> event : watchKey.pollEvents()) {
@@ -221,21 +237,6 @@ public class RuleLocationYamlWatch {
             log.debug("[" + changingFile + "] is ready.");
           }
 
-          /* no more changes are detected, update the project */
-          if (watchKey == null) {
-            Platform.runLater(() -> {
-              log.debug("[" + changingFile + "] has changed.");
-              _project.initRuleModel();
-//              if (_ruleModel.getRootImport() == null) {
-//                _ruleModel.init();
-//              } else {
-//                _ruleModel.update();
-//              }
-              _rudiHierarchy.setFilesUpToDate();
-            });
-            ruleLocationFileChanged = false;
-            break;
-          }
         }
       }
 
