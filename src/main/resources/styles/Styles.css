@@ -17,9 +17,9 @@
   -fx-selection-bar: #ffdead;
 }
 
-/*.root {
-  -fx-font-size: 18px;
-}*/
+.settings * {
+  -fx-font-size: 12px;
+}
 
 .tree-cell:errorsInImport {
   -fx-background-color: #ff3300;
