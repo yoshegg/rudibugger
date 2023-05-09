@@ -281,8 +281,8 @@ public class Project {
 
   /** @return The project's RuleLoc.yml path. */
   private Path retrieveRuleLocYaml() {
-    Path ruleLocYaml = _rootFolder.resolve(getGeneratedFilesFolder()
-      .resolve(RULE_LOCATION_FILE));
+    Path ruleLocYaml = getGeneratedFilesFolder()
+      .resolve(RULE_LOCATION_FILE);
     if (! Files.exists(ruleLocYaml)) {
       log.info("RuleLoc.yml could not be found. \n"
              + "Could be here: " + _ruleLocYaml
