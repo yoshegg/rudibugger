@@ -26,6 +26,9 @@ import de.dfki.mlt.rudibugger.view.ruleTreeView.RuleTreeViewController;
 import de.dfki.mlt.rudibugger.view.ruleTreeView.RuleTreeViewState;
 import de.dfki.mlt.rudibugger.view.statusBar.StatusBarController;
 import static de.dfki.mlt.rudibugger.ViewLayout.*;
+
+import java.nio.file.Path;
+
 import de.dfki.mlt.rudibugger.editor.RudibuggerEditor;
 import de.dfki.mlt.rudibugger.view.toolBar.ToolBarController;
 import javafx.application.Application;
@@ -204,10 +207,17 @@ public class MainApp extends Application {
     stage.show();
     log.info("Rudibugger has been started");
 
-    /* Open last openend project (if any) */
-    if (model.globalConf.getLastOpenedProject() != null) {
-      log.info("Opening previous project...");
-      model.openProject(model.globalConf.getLastOpenedProject());
+    Parameters params = getParameters();
+
+    if (params.getRaw().isEmpty()) {
+      /* Open last openend project (if any) */
+      if (model.globalConf.getLastOpenedProject() != null) {
+        log.info("Opening previous project...");
+        model.openProject(model.globalConf.getLastOpenedProject());
+      }
+    } else {
+      log.info("Opening project from the command line ...");
+      model.openProject(Path.of(params.getRaw().get(0)).toAbsolutePath());
     }
 
   }
