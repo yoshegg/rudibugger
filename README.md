@@ -1,5 +1,7 @@
 # rudibugger
 
+[![mvn build](https://github.com/jsteffen/rudibugger/actions/workflows/mvnbuild.yml/badge.svg)](https://github.com/jsteffen/rudibugger/actions/workflows/mvnbuild.yml)
+
 **rudibugger** is the GUI of [**VOnDA**](https://github.com/bkiefer/vonda) (**V**ersatile **On**tology-based **D**ialogue **A**rchitecture), a framework to implement the dialogue management functionality in dialogue systems.
 
 Its purpose is to help navigating, compiling and editing source code that is used by a **VOnDA**-based dialogue system. Furthermore, it offers debugging functionality by allowing the user to track what is happening in a running system.
