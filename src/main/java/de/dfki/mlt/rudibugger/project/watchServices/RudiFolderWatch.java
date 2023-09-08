@@ -29,6 +29,10 @@ import static java.nio.file.StandardWatchEventKinds.*;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 import javafx.application.Platform;
 import org.slf4j.Logger;
@@ -65,6 +69,8 @@ public class RudiFolderWatch {
   /** Represents the hierarchy of all .rudi files. */
   private final RudiHierarchy _rudiHierarchy;
 
+  /** Maps paths to the WatchKey created when monitoring the path with watch service **/
+  private final Map<Path, WatchKey> _path2WatchKeyMap;
 
   /* ***************************************************************************
    * INITIALIZERS / CONSTRUCTORS
@@ -76,6 +82,7 @@ public class RudiFolderWatch {
     _rudiHierarchy = rudiHierarchy;
     _watchService = watchService;
     _rudiFolder = rudiFolder;
+    _path2WatchKeyMap = new HashMap<>();
   }
 
   /**
@@ -87,33 +94,62 @@ public class RudiFolderWatch {
    */
   public static RudiFolderWatch createRudiFolderWatch(
           RudiHierarchy rudiHierarchy, Path rudiFolder) {
-
-    WatchService watchService;
+    RudiFolderWatch newWatch = null;
     try {
-      watchService = FileSystems.getDefault().newWatchService();
-      rudiFolder.register(watchService, ENTRY_MODIFY, ENTRY_CREATE,
-              ENTRY_DELETE);
+      WatchService watchService = FileSystems.getDefault().newWatchService();
 
-      /* iterate over all subdirectories */
-      Stream<Path> subpaths = Files.walk(rudiFolder);
-      subpaths.forEach(x -> {
-        try {
-          if (Files.isDirectory(x))
-            x.register(watchService, ENTRY_MODIFY, ENTRY_CREATE,
-                    ENTRY_DELETE);
-        } catch (IOException ex) {
-          log.error("Could not set watch for subdirectories: " + ex);
-        }
-      });
+      newWatch = new RudiFolderWatch(rudiFolder, rudiHierarchy, watchService);
+      recursivelyRegisterPath(rudiFolder, newWatch);
+      newWatch.startListening();
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
       return null;
     }
-
-    RudiFolderWatch newWatch
-            = new RudiFolderWatch(rudiFolder, rudiHierarchy, watchService);
-    newWatch.startListening();
     return newWatch;
+  }
+
+  private static void recursivelyRegisterPath(Path path, RudiFolderWatch rfw) throws IOException {
+    WatchKey key = path.register(rfw._watchService, ENTRY_MODIFY, ENTRY_CREATE, ENTRY_DELETE);
+    rfw._path2WatchKeyMap.put(path, key);
+    if (!rfw._rudiHierarchy.isFileInHierarchy(path)) {
+      rfw._rudiHierarchy.addFileToHierarchy(path);
+    }
+    try (Stream<Path> subpaths = Files.walk(path)) {
+      subpaths.forEach(x -> {
+        try {
+          if (Files.isDirectory(x)) {
+            WatchKey xKey = x.register(rfw._watchService, ENTRY_MODIFY, ENTRY_CREATE, ENTRY_DELETE);
+            rfw._path2WatchKeyMap.put(x, xKey);
+            if (!rfw._rudiHierarchy.isFileInHierarchy(x)) {
+              rfw._rudiHierarchy.addFileToHierarchy(x);
+            }
+          } else if (x.getFileName().toString().endsWith(RULE_FILE_EXTENSION)
+              && !rfw._rudiHierarchy.isFileInHierarchy(x)) {
+            rfw._rudiHierarchy.addFileToHierarchy(x);
+          }
+        } catch (IOException ex) {
+          log.error("Could not set watch for subdirectories: " + ex);
+        }
+      });
+    }
+  }
+
+  private static void unregisterStaleWatches(RudiFolderWatch rfw) {
+    Set<Path> paths = new HashSet<Path>(rfw._path2WatchKeyMap.keySet());
+    Set<Path> stalePaths = new HashSet<Path>();
+    for (Path path : paths) {
+      if (!Files.exists(path)) {
+        stalePaths.add(path);
+      }
+    }
+    for (Path stalePath : stalePaths) {
+      WatchKey staleWatchKey = rfw._path2WatchKeyMap.get(stalePath);
+      if (staleWatchKey != null) {
+        log.debug("remove stale watch for " + stalePath);
+          staleWatchKey.cancel();
+          rfw._path2WatchKeyMap.remove(stalePath);
+      }
+    }
   }
 
 
@@ -129,6 +165,7 @@ public class RudiFolderWatch {
         try {
           eventLoop();
         } catch (IOException | InterruptedException ex) {
+          log.error(ex.getMessage());
           watchingTread = null;
         }
       }
@@ -145,101 +182,63 @@ public class RudiFolderWatch {
     if (thr != null) {
       thr.interrupt();
     }
+    try {
+      _watchService.close();
+    } catch (IOException e) {
+      log.error(e.getMessage(), e);
+    }
   }
 
   public void eventLoop() throws IOException, InterruptedException {
 
-    for (;;) {
-
-      WatchKey rudiKey;
-
-      /* watch for changes in the rudi folder */
-      try {
-        rudiKey = _watchService.take();
-      } catch (InterruptedException x) {
-        return;
-      }
-
+    WatchKey rudiKey;
+    while ((rudiKey = _watchService.take()) != null) {
       for (WatchEvent<?> event : rudiKey.pollEvents()) {
-        WatchEvent.Kind<?> kind = event.kind();
-
-        if (kind == OVERFLOW) {
-          log.error("An overflow while checking the rudi "
-                  + "folder occured.");
-          continue;
-        }
-
-        WatchEvent<Path> ev = (WatchEvent<Path>) event;
-        Path folder = (Path)rudiKey.watchable();
-        Path file = folder.resolve(ev.context());
-
-        /* are folder's containing files changing? */
-        if ((kind == ENTRY_CREATE || kind == ENTRY_DELETE
-                || kind == ENTRY_MODIFY)
-                && file.getFileName().toString()
-                        .endsWith(RULE_FILE_EXTENSION)
-                && ! Files.isHidden(file)
-                ) {
-
-          /* rudi file added */
-          if (kind == ENTRY_CREATE) {
-            Platform.runLater(() -> {
-              if (_rudiHierarchy.isFileInHierarchy(file)) {
-                log.info("rudi file has been modified : " + file);
-              } else {
-                _rudiHierarchy.addFileToHierarchy(file);
-                log.info("rudi file added: " + file);
-              }
-              _rudiHierarchy.setFileAsModified(file);
-            });
-
+        Path eventPath = ((Path)rudiKey.watchable()).resolve(((WatchEvent<Path>) event).context());
+        if (event.kind() == ENTRY_DELETE) {
+          if (_path2WatchKeyMap.containsKey(eventPath)) {
+            // only folders have keys, so a folder was deleted
+            unregisterStaleWatches(this);
+            _rudiHierarchy.removeObsoleteFolders();
+          } else if (eventPath.getFileName().toString().endsWith(RULE_FILE_EXTENSION)) {
+            // rudi file was deleted
+            Platform.runLater(
+                () -> {
+                  _rudiHierarchy.removeFromFileHierarchy(eventPath);
+                  log.info("rudi file deleted: " + eventPath);
+                });
           }
-
-          /* rudi file modified */
-          if (kind == ENTRY_MODIFY) {
-            Platform.runLater(() -> {
-              log.info("rudi file has been modified : " + file);
-              _rudiHierarchy.setFileAsModified(file);
-            });
+        } else if (event.kind() == ENTRY_CREATE) {
+          if (Files.isDirectory(eventPath)) {
+            // folder created
+            recursivelyRegisterPath(eventPath, this);
+            log.debug("Started watching new folder: " + eventPath);
+          } else if (eventPath.getFileName().toString().endsWith(RULE_FILE_EXTENSION)
+              && ! Files.isHidden(eventPath)) {
+            // rudi file created
+            Platform.runLater(
+                () -> {
+                  if (_rudiHierarchy.isFileInHierarchy(eventPath)) {
+                    log.info("rudi file has been modified : " + eventPath);
+                  } else {
+                    _rudiHierarchy.addFileToHierarchy(eventPath);
+                    log.info("rudi file added: " + eventPath);
+                  }
+                  _rudiHierarchy.setFileAsModified(eventPath);
+                });
           }
-
-          /* rudi file deleted */
-          if (kind == ENTRY_DELETE) {
-            Platform.runLater(() -> {
-              _rudiHierarchy.removeFromFileHierarchy(file);
-              log.info("rudi file deleted: " + file);
-            });
-          }
-
-          continue;
+        } else if (event.kind() == ENTRY_MODIFY && Files.exists(eventPath)
+            && !Files.isDirectory(eventPath)
+            && eventPath.getFileName().toString().endsWith(RULE_FILE_EXTENSION)) {
+          // rudi file modified, we don't care about modified folders
+          Platform.runLater(
+              () -> {
+                log.info("rudi file has been modified : " + eventPath);
+                _rudiHierarchy.setFileAsModified(eventPath);
+              });
         }
-
-        /* new folder created? */
-        if ((kind == ENTRY_CREATE || kind == ENTRY_DELETE
-                || kind == ENTRY_MODIFY) && Files.isDirectory(file)) {
-
-          /* watch another folder */
-          if (kind == ENTRY_CREATE) {
-            file.register(_watchService, ENTRY_MODIFY, ENTRY_CREATE,
-                  ENTRY_DELETE);
-            _rudiHierarchy.addFileToHierarchy(file);
-            log.debug("Started watching new folder: " + file);
-          }
-        }
-      }
-
-
-      /* if the watchKey is no longer valid, leave the eventLoop */
-      if (rudiKey != null) {
-        boolean valid = rudiKey.reset();
-        if (!valid) {
-          log.debug("watchKey no longer valid. Probably because a watched folder has been deleted");
-          log.debug("Restarting RudiFolderWatch...");
-          createRudiFolderWatch(_rudiHierarchy, _rudiFolder);
-          _rudiHierarchy.removeObsoleteFolders();
-          break;
-        }
-      }
+       }
+      rudiKey.reset();
     }
   }
 }
