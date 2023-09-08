@@ -245,6 +245,12 @@ public class RudiHierarchy {
     for (Path y : knownFolders) {
       _folderMap.get(y).getParent().getChildren().remove(_folderMap.get(y));
       _folderMap.remove(y);
+      _rudiPathMap.remove(y);
+    }
+    for (RudiPath p : new HashSet<>(_rudiPathSet)) {
+      if (!Files.exists(p.getPath())) {
+        removeFromFileHierarchy(p.getPath());
+      }
     }
   }
 
