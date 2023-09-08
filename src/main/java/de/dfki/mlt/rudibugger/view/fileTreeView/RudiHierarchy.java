@@ -178,12 +178,11 @@ public class RudiHierarchy {
       if (f.equals(_rudiFolder)) {
         _root = ti;
       }
-      Path dir = f.subpath(0, f.getNameCount());
-      _folderMap.put(dir, ti);
+      _folderMap.put(f, ti);
 
       /* link to the parent folder's TreeItem */
       if (! f.equals(_rudiFolder)) {
-        Path parentDir = f.subpath(0, f.getNameCount()-1);
+        Path parentDir = f.getParent();
         _folderMap.get(parentDir).getChildren().add(ti);
 
         /* sort the TreeItems, TODO: not efficient, but no easier way exists */
@@ -195,7 +194,7 @@ public class RudiHierarchy {
     /* A file */
     else {
       _rudiPathSet.add(rp);
-      Path dir = f.subpath(0, f.getNameCount()-1);
+      Path dir = f.getParent();
       TreeItem ti = new TreeItem(rp);
       _folderMap.get(dir).getChildren().add(ti);
       _fileMap.put(f, ti);
@@ -238,7 +237,7 @@ public class RudiHierarchy {
     Set<Path> actualFolders = new HashSet<>();
     stream.forEach(x -> {
       if (Files.isDirectory(x)) {
-        actualFolders.add(x.subpath(0, x.getNameCount()));
+        actualFolders.add(x);
       }
     });
     knownFolders.removeAll(actualFolders);
