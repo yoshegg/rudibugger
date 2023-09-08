@@ -141,6 +141,11 @@ public class RuleLocationYamlWatch {
     if (thr != null) {
       thr.interrupt();
     }
+    try {
+      _watchService.close();
+    } catch (IOException e) {
+      log.error(e.getMessage(), e);
+    }
   }
 
   public void eventLoop() throws IOException, InterruptedException {
@@ -164,13 +169,6 @@ public class RuleLocationYamlWatch {
         /* identify what has happened */
         for (WatchEvent<?> event : watchKey.pollEvents()) {
           WatchEvent.Kind<?> kind = event.kind();
-
-          if (kind == OVERFLOW) {
-            log.error("An overflow while checking RuleLoc.yml's "
-                    + "folder occured.");
-            continue;
-          }
-
           WatchEvent<Path> ev = (WatchEvent<Path>) event;
           changingFile = ev.context();
 
@@ -182,6 +180,7 @@ public class RuleLocationYamlWatch {
             log.debug("[" + changingFile + "] is being modified / created.");
           }
         }
+        watchKey.reset();
       }
 
       /* if a file change has been detected before */
@@ -207,44 +206,25 @@ public class RuleLocationYamlWatch {
             break;
           }
 
-          try {
-            /* remove the events or watchKey can't be resetted properly */
-            for (WatchEvent<?> event : watchKey.pollEvents()) {
-              WatchEvent.Kind<?> kind = event.kind();
+          /* remove the events or watchKey can't be resetted properly */
+          for (WatchEvent<?> event : watchKey.pollEvents()) {
+            WatchEvent.Kind<?> kind = event.kind();
+            WatchEvent<Path> ev = (WatchEvent<Path>) event;
+            changingFile = ev.context();
 
-              if (kind == OVERFLOW) {
-                continue;
-              }
-
-              WatchEvent<Path> ev = (WatchEvent<Path>) event;
-              changingFile = ev.context();
-
-              /* is ~RuleLocation.yml changing? */
-              if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)
-                      && changingFile.getFileName().toString()
-                              .equals(RULE_LOCATION_FILE)) {
-                log.debug("[" + changingFile + "] is still being modified.");
-              }
-              /* is some other file changing? */
-              else {
-                log.warn("A file has been changed during modification of the"
-                        + "Rule Location file: " + changingFile);
-              }
+            /* is ~RuleLocation.yml changing? */
+            if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)
+                && changingFile.getFileName().toString()
+                .equals(RULE_LOCATION_FILE)) {
+              log.debug("[" + changingFile + "] is still being modified.");
             }
-            watchKey.reset();
-            continue;
-          } catch (NullPointerException ex) {
-            log.debug("[" + changingFile + "] is ready.");
+            /* is some other file changing? */
+            else {
+              log.warn("A file has been changed during modification of the"
+                  + "Rule Location file: " + changingFile);
+            }
           }
-
-        }
-      }
-
-      /* if the watchKey is no longer valid, leave the eventLoop */
-      if (watchKey != null) {
-        boolean valid = watchKey.reset();
-        if (!valid) {
-          break;
+          watchKey.reset();
         }
       }
     }
