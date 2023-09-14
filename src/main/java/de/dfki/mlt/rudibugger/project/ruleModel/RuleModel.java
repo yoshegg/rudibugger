@@ -22,8 +22,8 @@ package de.dfki.mlt.rudibugger.project.ruleModel;
 import static de.dfki.mlt.rudibugger.Constants.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -32,8 +32,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
 
 import de.dfki.mlt.rudimant.common.BasicInfo;
 import de.dfki.mlt.rudimant.common.ErrorInfo;
@@ -194,18 +192,12 @@ public class RuleModel {
    * @return <code>ImportInfo</code> containing rule structure
    */
   private IncludeInfo readInRuleLocationFile() {
-    File ruleLocFile = _ruleLocYaml.toFile();
-    IncludeInfo ii;
+    IncludeInfo ii = null;
     try {
-      LoaderOptions opt = new LoaderOptions();
-      // This is not critical since these are real references. It does not
-      // generate copies
-      opt.setMaxAliasesForCollections(1000);
-      Yaml yaml = new Yaml(opt);
-      ii = (IncludeInfo) yaml.load(new FileReader(ruleLocFile));
+      File ruleLocFile = _ruleLocYaml.toFile();
+      ii = IncludeInfo.loadInfo(new FileInputStream(ruleLocFile));
     } catch (FileNotFoundException | org.yaml.snakeyaml.error.YAMLException e) {
       log.error(e.getMessage());
-      return null;
     }
     return ii;
   }

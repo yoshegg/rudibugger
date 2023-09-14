@@ -20,6 +20,7 @@
 package de.dfki.mlt.rudibugger;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -29,6 +30,16 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.inspector.TagInspector;
+
+import de.dfki.mlt.rudimant.common.IncludeInfo;
+import de.dfki.mlt.rudimant.common.RuleInfo;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -36,10 +47,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * Provides additional functionality concerning global configuration.
@@ -103,8 +110,17 @@ public class GlobalConfiguration {
    */
   private void loadGlobalConfiguration() {
     try {
-      Map tempMap = (Map<String, Object>) YAML.load(
-        new FileInputStream(GLOBAL_CONFIG_FILE.toFile()));
+      LoaderOptions opt = new LoaderOptions();
+      opt.setMaxAliasesForCollections(1000);
+      TagInspector taginspector =
+          tag -> (tag.getClassName().equals(IncludeInfo.class.getName())
+              || tag.getClassName().equals(RuleInfo.class.getName())
+              || tag.getClassName().equals(SimpleBooleanProperty.class.getName()));
+
+      opt.setTagInspector(taginspector);
+      Map tempMap = (Map<String, Object>)
+          new Yaml(opt).load(
+              new FileInputStream(GLOBAL_CONFIG_FILE.toFile()));
       _globalConfigs = FXCollections.observableMap(tempMap);
       checkConfigForCompleteness();
     } catch (FileNotFoundException ex) {

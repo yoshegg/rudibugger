@@ -284,7 +284,7 @@ public class Project {
     Path ruleLocYaml = getGeneratedFilesFolder()
       .resolve(RULE_LOCATION_FILE);
     if (! Files.exists(ruleLocYaml)) {
-      log.info("RuleLoc.yml could not be found. \n"
+      log.warn("RuleLoc.yml could not be found. \n"
              + "Could be here: " + _ruleLocYaml
              + "; but was probably not compiled yet. \n"
              + CONTINUE_MESSAGE);
