@@ -60,14 +60,14 @@
     <dependency>
       <groupId>de.dfki.mlt</groupId>
       <artifactId>vonda</artifactId>
-      <version>[3.0.7,)</version>
+      <version>[3.1.2,)</version>
       <type>jar</type>
     </dependency>
 
     <dependency>
       <groupId>de.dfki.mlt</groupId>
       <artifactId>j2emacs</artifactId>
-      <version>0.2.2</version>
+      <version>[0.2.3,)</version>
       <type>jar</type>
     </dependency>
 

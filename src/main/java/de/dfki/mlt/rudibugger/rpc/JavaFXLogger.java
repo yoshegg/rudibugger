@@ -20,7 +20,6 @@
 package de.dfki.mlt.rudibugger.rpc;
 
 import de.dfki.mlt.rudimant.common.DefaultLogger;
-import static de.dfki.mlt.rudibugger.rpc.LogData.*;
 import java.util.ArrayList;
 
 /**
@@ -53,17 +52,17 @@ public class JavaFXLogger extends DefaultLogger {
   @Override
   protected void print(String s) {
     if (s != "\n")
-      data.get(0).addStringPart(s, BLACK);
+      data.get(0).addStringPart(s, LogData.BLACK);
   }
 
   @Override
   protected void printTerm(String term, boolean value, boolean shortCut) {
-    printInColor(term, shortCut ? GRAY : value ? GREEN : RED);
+    printInColor(term, shortCut ? LogData.GRAY : value ? LogData.GREEN : LogData.RED);
   }
 
   @Override
   protected void printResult(String label, boolean value) {
-    printInColor(label, value ? GREEN : RED);
+    printInColor(label, value ? LogData.GREEN : LogData.RED);
   }
 
 }
