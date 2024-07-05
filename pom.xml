@@ -4,7 +4,7 @@
 
   <groupId>de.dfki.mlt</groupId>
   <artifactId>rudibugger</artifactId>
-  <version>1.4.1</version>
+  <version>1.4.2</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -33,13 +33,13 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>2.0.1</version>
+      <version>2.0.9</version>
     </dependency>
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.1</version>
+      <version>1.4.14</version>
       <scope>runtime</scope>
     </dependency>
 
@@ -61,14 +61,12 @@
       <groupId>de.dfki.mlt</groupId>
       <artifactId>vonda</artifactId>
       <version>[3.2.4,)</version>
-      <type>jar</type>
     </dependency>
 
     <dependency>
       <groupId>de.dfki.mlt</groupId>
       <artifactId>j2emacs</artifactId>
       <version>[0.2.3,)</version>
-      <type>jar</type>
     </dependency>
 
     <dependency>
