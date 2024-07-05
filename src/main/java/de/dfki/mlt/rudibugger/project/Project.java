@@ -25,6 +25,7 @@ import static de.dfki.mlt.rudibugger.Constants.GLOBAL_PROJECT_SPECIFIC_CONFIG_PA
 import static de.dfki.mlt.rudibugger.Constants.PATH_TO_GENERATED_FOLDER;
 import static de.dfki.mlt.rudibugger.Constants.PATH_TO_RUDI_FOLDER;
 import static de.dfki.mlt.rudibugger.Constants.PROJECT_SPECIFIC_RUDIBUGGER_CONFIG_FILE;
+import static de.dfki.mlt.rudimant.common.Configs.*;
 import static de.dfki.mlt.rudimant.common.Constants.*;
 
 import java.io.File;
@@ -284,7 +285,7 @@ public class Project {
     Path ruleLocYaml = getGeneratedFilesFolder()
       .resolve(RULE_LOCATION_FILE);
     if (! Files.exists(ruleLocYaml)) {
-      log.info("RuleLoc.yml could not be found. \n"
+      log.warn("RuleLoc.yml could not be found. \n"
              + "Could be here: " + _ruleLocYaml
              + "; but was probably not compiled yet. \n"
              + CONTINUE_MESSAGE);

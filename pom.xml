@@ -4,7 +4,7 @@
 
   <groupId>de.dfki.mlt</groupId>
   <artifactId>rudibugger</artifactId>
-  <version>1.4.0</version>
+  <version>1.4.1</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -43,13 +43,6 @@
       <scope>runtime</scope>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
-    <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
-      <version>1.32</version>
-    </dependency>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -67,14 +60,14 @@
     <dependency>
       <groupId>de.dfki.mlt</groupId>
       <artifactId>vonda</artifactId>
-      <version>[3.0.0,)</version>
+      <version>[3.2.4,)</version>
       <type>jar</type>
     </dependency>
 
     <dependency>
       <groupId>de.dfki.mlt</groupId>
       <artifactId>j2emacs</artifactId>
-      <version>[0.2,)</version>
+      <version>[0.2.3,)</version>
       <type>jar</type>
     </dependency>
 
