@@ -4,7 +4,7 @@
 
   <groupId>de.dfki.mlt</groupId>
   <artifactId>rudibugger</artifactId>
-  <version>1.4.0</version>
+  <version>1.4.1</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -60,7 +60,7 @@
     <dependency>
       <groupId>de.dfki.mlt</groupId>
       <artifactId>vonda</artifactId>
-      <version>[3.1.2,)</version>
+      <version>[3.2.4,)</version>
       <type>jar</type>
     </dependency>
 
