@@ -82,7 +82,7 @@ public class Project {
    * **************************************************************************/
 
   /** Represents the file containing the project's configuration. */
-  private final Path _projectYamlPath;
+  private final Path _configPath;
 
   /** Indicates the project's name. */
   private final String _projectName;
@@ -141,9 +141,10 @@ public class Project {
    * **************************************************************************/
 
   /** Opens a new project. */
-  public static Project openProject(Path projectYamlPath) {
+  public static Project openProject(Path configPath) {
     try {
-      return new Project(projectYamlPath);
+      Project newProject = new Project(configPath);
+      return newProject;
     } catch (IOException | IllegalArgumentException e) {
       log.error(e.toString());
       return null;
@@ -159,13 +160,12 @@ public class Project {
   }
 
   /** Creates a new instance of this class. */
-  private Project(Path projectYamlPath) throws IOException {
-    _projectYamlPath = projectYamlPath;
-    Map configMap = readInProjectConfigurationYaml();
-    checkConfigurationForValidity(configMap);
-    _projectConfigs = FXCollections.observableMap(configMap);
+  private Project(Path configPath) throws IOException{
+    _configPath = configPath;
     _projectName = identifyProjectName();
-    _rootFolder = _projectYamlPath.getParent();
+    _rootFolder = _configPath.getParent();
+    Map configMap = readProjectConfig(configPath);
+    _projectConfigs = FXCollections.observableMap(configMap);
     _rudiFolder = retrieveRudiFolder((String)configMap.get(CFG_INPUT_FILE));
     createPotentiallyMissingFolders();
     _ruleLocYaml = retrieveRuleLocYaml();
@@ -220,29 +220,28 @@ public class Project {
     }};
 
   /** Reads in the project's configuration .yml file. */
-  private Map<String, Object> readInProjectConfigurationYaml() throws IOException {
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> readProjectConfig(Path configPath)
+      throws IOException {
     log.debug("Reading in project's configuration .yml...");
     Map<String, Object> map = (Map<String, Object>) YAML.load(
-        new FileInputStream(_projectYamlPath.toFile()));
-    return map;
-  }
-
-  /** Checks if a read in map represents a project configuration. */
-  private void checkConfigurationForValidity(Map loadedConfig)
-          throws IllegalArgumentException {
+        new FileInputStream(configPath.toFile()));
+    /** Checks if a read in map represents a project configuration. */
     log.debug("Checking configuration for validity...");
-    if (! loadedConfig.keySet()
+    if (! map.keySet()
             .containsAll(DEFAULT_PROJECT_CONFIGURATION_KEYS)) {
       ArrayList<String> missingKeys = new ArrayList<>();
       for (String key: DEFAULT_PROJECT_CONFIGURATION_KEYS) {
-        if (! loadedConfig.containsKey(key))
+        if (! map.containsKey(key))
           missingKeys.add(key);
       }
       String errMessage
               = ("Config file is missing the following key(s): " + missingKeys);
       throw new IllegalArgumentException(errMessage);
     }
+    return map;
   }
+
 
   private Map<String, Object> readInRudibuggerSpecificConfigurationYaml() throws IOException {
     log.debug("Reading in specific rudibugger settings of the project...");
@@ -262,7 +261,7 @@ public class Project {
 
   /** @return The project's name from the configuration file. */
   private String identifyProjectName() {
-    String filename = _projectYamlPath.getFileName().toString();
+    String filename = _configPath.getFileName().toString();
     return filename.substring(0, filename.lastIndexOf('.'));
   }
 
@@ -346,7 +345,7 @@ public class Project {
    * **************************************************************************/
 
   /** @return project's configuration .yml file */
-  public Path getConfigurationYml() { return _projectYamlPath; }
+  public Path getConfigurationYml() { return _configPath; }
 
   /** @return The project's name */
   public String getProjectName() { return _projectName; }
