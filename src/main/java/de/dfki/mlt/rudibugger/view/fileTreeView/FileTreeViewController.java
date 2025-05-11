@@ -115,7 +115,7 @@ public class FileTreeViewController {
         x.usedProperty().setValue(FILE_IS_WRAPPER);
       else if (ruleModel.getImportSet().contains(x.getPath()))
         x.usedProperty().setValue(FILE_USED);
-      else
+      else if (x.usedProperty().getValue() != IS_FOLDER)
         x.usedProperty().setValue(FILE_NOT_USED);
     });
   }

@@ -18,25 +18,26 @@
  */
 
 package de.dfki.mlt.rudibugger.project.watchServices;
-import static de.dfki.mlt.rudimant.common.Constants.*;
+import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
+import static java.nio.file.StandardWatchEventKinds.*;
 
-import de.dfki.mlt.rudibugger.view.fileTreeView.RudiHierarchy;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import static java.nio.file.StandardWatchEventKinds.*;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
-import javafx.application.Platform;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.dfki.mlt.rudibugger.view.fileTreeView.RudiHierarchy;
+import javafx.application.Platform;
 
 /**
  * This Watch's purpose is to check the folders containing <code>.rudi</code>
@@ -63,10 +64,8 @@ public class RudiFolderWatch {
   /** The corresponding WatchService */
   private final WatchService _watchService;
 
-  /** Contains all .rudi files. */
-  private final Path _rudiFolder;
-
-  /** Represents the hierarchy of all .rudi files. */
+  /** Represents the hierarchy of all relevant files and directories (under the
+   *  root given by the config). */
   private final RudiHierarchy _rudiHierarchy;
 
   /** Maps paths to the WatchKey created when monitoring the path with watch service **/
@@ -77,11 +76,10 @@ public class RudiFolderWatch {
    * **************************************************************************/
 
   /** Private nullary construct to obstruct instantiating. */
-  private RudiFolderWatch(Path rudiFolder, RudiHierarchy rudiHierarchy,
+  private RudiFolderWatch(RudiHierarchy rudiHierarchy,
           WatchService watchService) {
     _rudiHierarchy = rudiHierarchy;
     _watchService = watchService;
-    _rudiFolder = rudiFolder;
     _path2WatchKeyMap = new HashMap<>();
   }
 
@@ -98,8 +96,8 @@ public class RudiFolderWatch {
     try {
       WatchService watchService = FileSystems.getDefault().newWatchService();
 
-      newWatch = new RudiFolderWatch(rudiFolder, rudiHierarchy, watchService);
-      recursivelyRegisterPath(rudiFolder, newWatch);
+      newWatch = new RudiFolderWatch(rudiHierarchy, watchService);
+      newWatch.recursivelyRegisterPath(rudiFolder);
       newWatch.startListening();
     } catch (IOException e) {
       log.error("Could not register WatchService: " + e);
@@ -108,46 +106,44 @@ public class RudiFolderWatch {
     return newWatch;
   }
 
-  private static void recursivelyRegisterPath(Path path, RudiFolderWatch rfw) throws IOException {
-    WatchKey key = path.register(rfw._watchService, ENTRY_MODIFY, ENTRY_CREATE, ENTRY_DELETE);
-    rfw._path2WatchKeyMap.put(path, key);
-    if (!rfw._rudiHierarchy.isFileInHierarchy(path)) {
-      rfw._rudiHierarchy.addFileToHierarchy(path);
+  private static boolean isRudiFile(Path p) {
+    try {
+      return ! Files.isHidden(p) &&
+        p.getFileName().toString().endsWith(RULE_FILE_EXTENSION);
     }
+    catch (Exception ex) {
+      log.error("Unexpected File Exception: {}", ex);
+    }
+    return false;
+  }
+
+  private void recursivelyRegisterPath(Path path) throws IOException {
     try (Stream<Path> subpaths = Files.walk(path)) {
-      subpaths.forEach(x -> {
-        try {
-          if (Files.isDirectory(x)) {
-            WatchKey xKey = x.register(rfw._watchService, ENTRY_MODIFY, ENTRY_CREATE, ENTRY_DELETE);
-            rfw._path2WatchKeyMap.put(x, xKey);
-            if (!rfw._rudiHierarchy.isFileInHierarchy(x)) {
-              rfw._rudiHierarchy.addFileToHierarchy(x);
-            }
-          } else if (x.getFileName().toString().endsWith(RULE_FILE_EXTENSION)
-              && !rfw._rudiHierarchy.isFileInHierarchy(x)) {
-            rfw._rudiHierarchy.addFileToHierarchy(x);
+      subpaths.forEach(p -> {
+        if (Files.isDirectory(p)) {
+          try {
+            WatchKey key = p.register(_watchService, ENTRY_MODIFY,
+                ENTRY_CREATE, ENTRY_DELETE);
+            _path2WatchKeyMap.put(p, key);
+            _rudiHierarchy.addDirectoryToHierarchy(p);
+            log.info("Watching directory {}", p);
+          } catch (IOException ex) {
+            log.error("Could not set watch for subdirectory: " + ex);
           }
-        } catch (IOException ex) {
-          log.error("Could not set watch for subdirectories: " + ex);
+        } else if (isRudiFile(p)) {
+          _rudiHierarchy.addFileToHierarchy(p);
         }
       });
     }
   }
 
-  private static void unregisterStaleWatches(RudiFolderWatch rfw) {
-    Set<Path> paths = new HashSet<Path>(rfw._path2WatchKeyMap.keySet());
-    Set<Path> stalePaths = new HashSet<Path>();
-    for (Path path : paths) {
-      if (!Files.exists(path)) {
-        stalePaths.add(path);
-      }
-    }
+  private void unregisterStaleWatches(Collection<Path> stalePaths) {
     for (Path stalePath : stalePaths) {
-      WatchKey staleWatchKey = rfw._path2WatchKeyMap.get(stalePath);
+      WatchKey staleWatchKey = _path2WatchKeyMap.get(stalePath);
       if (staleWatchKey != null) {
         log.debug("remove stale watch for " + stalePath);
-          staleWatchKey.cancel();
-          rfw._path2WatchKeyMap.remove(stalePath);
+        staleWatchKey.cancel();
+        _path2WatchKeyMap.remove(stalePath);
       }
     }
   }
@@ -189,6 +185,16 @@ public class RudiFolderWatch {
     }
   }
 
+  private void fileAddedOrModified(Path p) {
+    if (_rudiHierarchy.isFileInHierarchy(p)) {
+      log.info("rudi file has been modified: {}", p);
+    } else {
+      _rudiHierarchy.addFileToHierarchy(p);
+      log.info("rudi file added: {}", p);
+    }
+    _rudiHierarchy.setFileAsModified(p);
+  }
+
   public void eventLoop() throws IOException, InterruptedException {
 
     WatchKey rudiKey;
@@ -196,46 +202,24 @@ public class RudiFolderWatch {
       for (WatchEvent<?> event : rudiKey.pollEvents()) {
         Path eventPath = ((Path)rudiKey.watchable()).resolve(((WatchEvent<Path>) event).context());
         if (event.kind() == ENTRY_DELETE) {
-          if (_path2WatchKeyMap.containsKey(eventPath)) {
-            // only folders have keys, so a folder was deleted
-            unregisterStaleWatches(this);
-            _rudiHierarchy.removeObsoleteFolders();
-          } else if (eventPath.getFileName().toString().endsWith(RULE_FILE_EXTENSION)) {
-            // rudi file was deleted
-            Platform.runLater(
-                () -> {
-                  _rudiHierarchy.removeFromFileHierarchy(eventPath);
-                  log.info("rudi file deleted: " + eventPath);
-                });
-          }
+          // rudi file was deleted
+          Platform.runLater(() -> {
+            unregisterStaleWatches(_rudiHierarchy.removeObsolete());
+          });
+
         } else if (event.kind() == ENTRY_CREATE) {
           if (Files.isDirectory(eventPath)) {
             // folder created
-            recursivelyRegisterPath(eventPath, this);
+            recursivelyRegisterPath(eventPath);
             log.debug("Started watching new folder: " + eventPath);
-          } else if (eventPath.getFileName().toString().endsWith(RULE_FILE_EXTENSION)
-              && ! Files.isHidden(eventPath)) {
+          } else if (isRudiFile(eventPath)) {
             // rudi file created
-            Platform.runLater(
-                () -> {
-                  if (_rudiHierarchy.isFileInHierarchy(eventPath)) {
-                    log.info("rudi file has been modified : " + eventPath);
-                  } else {
-                    _rudiHierarchy.addFileToHierarchy(eventPath);
-                    log.info("rudi file added: " + eventPath);
-                  }
-                  _rudiHierarchy.setFileAsModified(eventPath);
-                });
+            Platform.runLater(() -> fileAddedOrModified(eventPath));
           }
         } else if (event.kind() == ENTRY_MODIFY && Files.exists(eventPath)
-            && !Files.isDirectory(eventPath)
-            && eventPath.getFileName().toString().endsWith(RULE_FILE_EXTENSION)) {
+            && ! Files.isDirectory(eventPath) && isRudiFile(eventPath)) {
           // rudi file modified, we don't care about modified folders
-          Platform.runLater(
-              () -> {
-                log.info("rudi file has been modified : " + eventPath);
-                _rudiHierarchy.setFileAsModified(eventPath);
-              });
+          Platform.runLater(() -> fileAddedOrModified(eventPath));
         }
        }
       rudiKey.reset();
