@@ -20,7 +20,9 @@
 package de.dfki.mlt.rudibugger.view.fileTreeView;
 
 import static de.dfki.mlt.rudibugger.Constants.*;
+import static de.dfki.mlt.rudimant.common.Constants.RULE_FILE_EXTENSION;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -59,7 +61,6 @@ public class RudiHierarchy {
   /** Represents the project's RuleLoc.yml. */
   private final Path _ruleLocYaml;
 
-
   /** The root <code>TreeItem</code> of the Hierarchy. */
   private TreeItem<RudiPath> _root;
 
@@ -77,22 +78,12 @@ public class RudiHierarchy {
    * **************************************************************************/
 
   /**
-   * TODO
    */
   public RudiHierarchy(Path rudiFolder, Path ruleLocYaml) {
     log.debug("Initializing the RudiFolderHierarchy...");
     _rudiFolder = rudiFolder;
     _ruleLocYaml = ruleLocYaml;
     log.debug("Initialized the RudiFolderHierarchy.");
-  }
-
-  /** Resets the rudiHierarchy. */
-  public void reset() {
-    log.debug("Resetting the RudiFolderHierarchy...");
-    _root = null;
-    _fileMap.clear();
-    _modificationsAfterCompilation.set(FILES_SYNC_NO_PROJECT);
-    log.debug("Resetted the RudiFolderHierarchy.");
   }
 
 
@@ -120,9 +111,9 @@ public class RudiHierarchy {
     return ti;
   }
 
-  private void treatParentDir(Path f, TreeItem<RudiPath> ti) {
+  private void treatParentDir(Path f, TreeItem<RudiPath> ti, List<Path> newDirs) {
     Path parentDir = f.getParent();
-    addDirectoryToHierarchy(parentDir);
+    addDirectory(parentDir, newDirs);
     _fileMap.get(parentDir).getChildren().add(ti);
 
     /* sort the TreeItems, TODO: not efficient, but no easier way exists */
@@ -138,39 +129,39 @@ public class RudiHierarchy {
    * @param f
    *        A folder
    */
-  public void addDirectoryToHierarchy(Path f) {
+  private void addDirectory(Path f, List<Path> newDirs) {
     assert Files.isDirectory(f);
     if (_fileMap.containsKey(f)) return;
+    newDirs.add(f);
     TreeItem<RudiPath> ti = getTreeItem(f);
 
     if (f.equals(_rudiFolder)) {
       _root = ti;
     } else { // (! f.equals(_rudiFolder))
       /* link to the parent folder's TreeItem */
-      treatParentDir(f, ti);
+      treatParentDir(f, ti, newDirs);
     }
   }
 
-  /**
-   * Adds a newly appeared file to the rudiHierarchy.
-   *
-   * @param f
-   *        A <code>.rudi</code> file
-   */
-  public void addFileToHierarchy(Path f) {
+  private void addFile(Path f, List<Path> newDirs) {
     assert ! Files.isDirectory(f);
-    if (_fileMap.containsKey(f)) return;
-    TreeItem<RudiPath> ti = getTreeItem(f);
+    if (_fileMap.containsKey(f)) {
+      log.debug("rudi file has possibly been modified: {}", f);
+      setFileAsModified(_fileMap.get(f));
+    } else {
+      log.debug("rudi file added: {}", f);
+      TreeItem<RudiPath> ti = getTreeItem(f);
 
-    /* Check if modified since last compilation */
-    if (Files.exists(_ruleLocYaml)) {
-      if (f.toFile().lastModified() > _ruleLocYaml.toFile().lastModified()) {
-        ti.getValue().modifiedProperty().set(true);
+      /* Check if modified since last compilation */
+      if (Files.exists(_ruleLocYaml)) {
+        if (f.toFile().lastModified() > _ruleLocYaml.toFile().lastModified()) {
+          setFileAsModified(ti);
+        }
       }
+      treatParentDir(f, ti, newDirs);
     }
-
-    treatParentDir(f, ti);
   }
+
 
   /**
    * Removes a file from the hierarchy (only working for files).
@@ -188,9 +179,69 @@ public class RudiHierarchy {
       _fileMap.remove(f);
       fileItem.getParent().getChildren().remove(fileItem);
     } else {
-      log.warn("Trying to remove not added file {}", f);
+      log.warn("Trying to remove file not in hierarchy {}", f);
     }
   }
+
+
+  /** Sets a file as modified since last compilation. */
+  private void setFileAsModified(TreeItem<RudiPath> ti) {
+    ti.getValue().modifiedProperty().setValue(true);
+    if (_modificationsAfterCompilation.get() != FILES_OUT_OF_SYNC)
+      _modificationsAfterCompilation.setValue(FILES_OUT_OF_SYNC);
+  }
+
+  /** Sets all files as not modified. */
+  private void resetFilesModifiedProperties() {
+    _fileMap.values().forEach((ti) -> {
+      ti.getValue().modifiedProperty().setValue(false);
+    });
+  }
+
+
+  /* ***************************************************************************
+   * PUBLIC METHODS
+   * **************************************************************************/
+
+  public static boolean isRudiFile(Path p) {
+    try {
+      return ! Files.isHidden(p) &&
+        p.getFileName().toString().endsWith(RULE_FILE_EXTENSION);
+    }
+    catch (Exception ex) {
+      log.error("Unexpected File Exception: {}", ex);
+    }
+    return false;
+  }
+
+
+  /**
+   * Adds a newly appeared file to the rudiHierarchy, or marks it as modified,
+   * if it's already in the hierarchy
+   *
+   * @param f
+   *        A <code>.rudi</code> file
+   */
+  public void fileAddedOrModified(Path f) {
+    // no new directories will be there in this case, only for WatchService
+    addFile(f, new ArrayList<Path>());
+  }
+
+
+  public Iterable<Path> addDirectoryRecursively(Path path) throws IOException {
+    List<Path> newDirs = new ArrayList<Path>();
+    try (Stream<Path> subpaths = Files.walk(path)) {
+      subpaths.forEach(p -> {
+        if (Files.isDirectory(p)) {
+          addDirectory(p, newDirs);
+        } else if (isRudiFile(p)) {
+          addFile(p, newDirs);
+        }
+      });
+    }
+    return newDirs;
+  }
+
 
   /** Checks for deleted folders and removes them from the hierarchy */
   public Collection<Path> removeObsolete() {
@@ -207,35 +258,11 @@ public class RudiHierarchy {
     return result;
   }
 
-  /** Sets a file as modified since last compilation. */
-  public void setFileAsModified(Path file) {
-    _fileMap.get(file).getValue().modifiedProperty().setValue(true);
-    if (_modificationsAfterCompilation.get() != FILES_OUT_OF_SYNC)
-      _modificationsAfterCompilation.setValue(FILES_OUT_OF_SYNC);
-  }
-
   /** Sets all files as in sync with compiled code. */
   public void setFilesUpToDate() {
     resetFilesModifiedProperties();
     _modificationsAfterCompilation.setValue(FILES_SYNCED);
   }
-
-  /** Sets all files as not modified. */
-  public void resetFilesModifiedProperties() {
-    _fileMap.values().forEach((ti) -> {
-      ti.getValue().modifiedProperty().setValue(false);
-    });
-  }
-
-  /** @return True, if file is already known, else false */
-  public boolean isFileInHierarchy(Path file) {
-    return _fileMap.containsKey(file);
-  }
-
-
-  /* ***************************************************************************
-   * GETTERS AND SETTERS FOR PRIVATE FIELDS AND PROPERTIES
-   * **************************************************************************/
 
   /** Indicates if there were modifications after the last compilation. */
   public IntegerProperty modificationsAfterCompilationProperty() {
@@ -245,9 +272,7 @@ public class RudiHierarchy {
   /** @return The root <code>TreeItem</code> of the Hierarchy */
   public TreeItem<RudiPath> getRoot() { return _root; }
 
-  /** @return A map containing all known files and folders.
-   *
-   *  TODO: FIX THIS */
+  /** @return A stream containing all known files and folders. */
   public Stream<RudiPath> getRudiPathSet() {
     return _fileMap.values()
         .stream()
