@@ -1,5 +1,5 @@
-#/bin/sh
-set -x
+#!/bin/bash
+#set -x
 here=`pwd`
 scriptdir=$(dirname $(realpath "$0"))
 #cd "$scriptdir"
