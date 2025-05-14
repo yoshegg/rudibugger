@@ -1,0 +1,15 @@
+#/bin/sh
+set -x
+here=`pwd`
+scriptdir=$(dirname $(realpath "$0"))
+#cd "$scriptdir"
+logbackconf="logback.xml"
+if test -f logback.xml; then
+    logbackconf="$here/logback.xml"
+else
+    if test -f "$scriptdir/logback.xml"; then
+       logbackconf="$scriptdir/logback.xml"
+    fi
+fi
+
+java -ea -Dlogback.configurationFile="$logbackconf" -jar "$scriptdir"/shade/rudibugger.jar "$@"
