@@ -12,6 +12,7 @@
     <maven.compiler.release>11</maven.compiler.release>
     <javafx.version>11</javafx.version>
     <mainClass>de.dfki.mlt.rudibugger.FakeMain</mainClass>
+    <slf4j.version>2.0.17</slf4j.version>
   </properties>
 
   <name>rudibugger</name>
@@ -33,7 +34,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>2.0.9</version>
+      <version>${slf4j.version}</version>
     </dependency>
 
     <dependency>
